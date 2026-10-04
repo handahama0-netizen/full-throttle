@@ -978,6 +978,11 @@ def main():
     else:
         code = run_full(prev, out, a.limit)
         if code == 0:
+            try:  # backtest av 200W-strategin på all kurshistorik
+                import backtest
+                write_json(out / "data" / "backtest.json", backtest.run(out / "data"))
+            except Exception as e:  # noqa: BLE001
+                log("backtest fel", e)
             import ai_notes
             ai_notes.run(out, None, read_list(SRC / "config" / "ai.txt"), max_n=12, log=log)
     if code != 0:

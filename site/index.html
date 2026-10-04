@@ -111,7 +111,7 @@ main{padding-block:18px 48px}
 .pill.pass{background:var(--up-soft);color:var(--up);border-color:transparent}
 .pill.near{background:var(--warn-soft);color:var(--warn);border-color:transparent}
 .sig{font-size:10.5px;font-weight:750;padding:2px 6px;border-radius:4px;letter-spacing:.04em;white-space:nowrap}
-.sig.swing{background:var(--z-cheap);color:var(--card)} .sig.rea{background:var(--z-vcheap);color:var(--card)}
+.sig.guld{background:#b8860b;color:#fff} .sig.swing{background:var(--z-cheap);color:var(--card)} .sig.rea{background:var(--z-vcheap);color:var(--card)}
 
 /* tables */
 .tw{overflow-x:auto}
@@ -379,6 +379,24 @@ details.xsec>summary .sub{font-weight:400}
 .today .alerts li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:13.5px;cursor:pointer}
 .today .alerts li:hover b{text-decoration:underline}
 .today .ic{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800}
+.stratc{border-left:4px solid var(--line-strong)}
+.stratc.gold{border-left-color:#b8860b} .stratc.pos{border-left-color:var(--up)} .stratc.wait{border-left-color:var(--z-fair)} .stratc.near{border-left-color:var(--warn)}
+.sv{font-size:16px;font-weight:650;margin:6px 0 10px;line-height:1.45}
+.spills{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.spill{font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:5px;background:var(--sunk);color:var(--muted);border:1px solid var(--line);white-space:nowrap}
+.spill small{font-weight:400}
+.spill.pass{background:var(--up-soft);color:var(--up);border-color:transparent} .spill.near{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.plan{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+@media (max-width:640px){.plan{grid-template-columns:1fr 1fr}}
+.plan>div{background:var(--sunk);border-radius:8px;padding:8px 10px;display:grid;gap:1px}
+.plan b{font-size:16px} .plan small{font-size:11.5px;color:var(--muted)}
+.snow{border-top:1px solid var(--line)} .snow:first-child{border-top:0}
+.snow h3{font-size:13px;padding:10px 16px 4px;margin:0}
+.share{position:relative;height:18px;background:var(--sunk);border-radius:4px;overflow:hidden}
+.share i{position:absolute;left:0;top:0;bottom:0;background:var(--accent-soft);border-right:2px solid var(--accent)}
+.share span{position:relative;font-size:11.5px;padding-left:6px;line-height:18px}
+.why{margin:0;padding-left:18px;font-size:13.5px;line-height:1.55;display:grid;gap:4px}
+.crit.bt td{white-space:nowrap}
 .epsnote{padding:10px 14px;border-top:1px solid var(--line);font-size:13px;line-height:1.55}
 .epsnote:empty{display:none}
 </style>
@@ -398,7 +416,7 @@ details.xsec>summary .sub{font-weight:400}
       <a href="#/innehav/swing" data-nav="swing">Live swing</a>
       <a href="#/innehav/port" data-nav="port">Portfölj</a>
       <a href="#/screener" data-nav="screener">Screener</a>
-      <a href="#/strategier" data-nav="strategier">Metod &amp; källor</a>
+      <a href="#/strategier" data-nav="strategier">Strategi &amp; backtest</a>
     </nav>
   </div>
 </header>
@@ -416,9 +434,17 @@ const DEF={
   ftp:{cagr:15,g1:20,deMax:1,pegMax:1.5,fcf:5,roic:10,gm:35,dil:5,mcap:2},
   ft:{cagr:14.9,g1:20,deMax:5,pegMax:2},
   lrhr:{cagr:LRHR_CAGR,g1:5,eg1:5,roe:15,deMax:1,fcf:0,pegMax:1,mcap:10},
+  gold:{big:1,beta:1.3,ret:15,fcf:10,g1:3,debt:1},
   zones:{b1:10,b2:20,b3:30,b4:40,swing:20,rea:30}
 };
 const STRATS={
+  gold:{name:"Guld",short:"GULD",score:"quality",crit:[
+    {k:"big",nm:"Megabolag (≥ 200 md $) eller branschledare",short:"Storlek",op:"≥",u:"",f:"gBig"},
+    {k:"beta",nm:"Beta (stabilitet)",short:"Beta",op:"≤",u:"",f:"beta",nullOk:1},
+    {k:"ret",nm:"ROIC eller ROE",short:"ROIC/ROE",op:"≥",u:"%",f:"gRet"},
+    {k:"fcf",nm:"FCF-marginal",short:"FCF",op:"≥",u:"%",f:"fcfMargin"},
+    {k:"g1",nm:"Omsättning 1 år",short:"Oms 1å",op:"≥",u:"%",f:"revGrowth1y"},
+    {k:"debt",nm:"Skuld under kontroll",short:"Skuld",op:"≥",u:"",f:"gDebt"}]},
   ftp:{name:"Full Throttle+",short:"FT+",score:"growth",crit:[
     {k:"cagr",nm:"Omsättning 5 år",short:"Oms 5å",op:"≥",u:"%/år",f:"revCagr"},
     {k:"g1",nm:"Omsättning 1 år",short:"Oms 1å",op:"≥",u:"%",f:"revGrowth1y"},
@@ -459,7 +485,7 @@ const GL={
   dist200w:["Avstånd till 200W","Hur många procent kursen ligger över (+) eller under (−) 200-veckorssnittet."],
   swing:["Swing-läge","Aktien klarar Low Risk, High Reward och ligger under Cheap-gränsen mot 200W. Ett kvalitetsbolag som handlas nära sitt långa snitt, där risken nedåt historiskt varit mindre."],
   rea:["Tillväxt på rea","Aktien klarar Full Throttle+ och ligger under Fair Value mot 200W. Ett snabbväxande bolag som för en gångs skull inte är dyrt."],
-  strategies:["Strategierna","FT = Full Throttle (Hello Stocks original). FT+ = Full Throttle med lägre risk. LRHR = Low Risk, High Reward. ✓ klarar alla krav, ≈ missar ett krav, ✕ missar fler."],
+  strategies:["Strategierna","GULD = 200W + stort, stabilt kvalitetsbolag (megabolag eller branschledare, beta ≤ 1,3). FT = Full Throttle (Hello Stocks original). FT+ = Full Throttle med lägre risk. LRHR = Low Risk, High Reward. ✓ klarar alla krav, ≈ missar ett krav, ✕ missar fler."],
   status:["Status","Klarar = uppfyller alla krav i vald strategi. Nära = missar exakt ett krav. Utanför = missar fler. Utesluten sektor = finans, råvaror, energi, kraftbolag och fastigheter ingår inte."],
   score:["Poäng","0–100. Tillväxtpoäng (Full Throttle): tillväxt 30, kvalitet 25, värdering 25, balansräkning 20. Kvalitetspoäng (Low Risk, High Reward): ROE 25, PEG 25, FCF-marginal 15, låg skuld 15, vinsttillväxt 10, omsättningstillväxt 10. Används för att rangordna, inte som köpsignal."],
   miss:["Missar","Vilka krav i vald strategi aktien inte klarar."],
@@ -528,6 +554,11 @@ const GL={
   themes:["Teman","Aktierna grupperas i teman utifrån bransch, t.ex. Halvledare eller Försvar & flyg. Tabellen visar medianen för temats aktier. Klicka på ett tema för att se de största vinnarna och förlorarna."],
   heat:["Värme","Hur starkt temat gått: senaste veckan väger 20 %, senaste månaden 50 % och tre månader 30 %. De två bästa temana är Hetast, de två sämsta Kallast."],
   above200:["Över 200W","Andel av temats aktier som handlas över sitt 200-veckorssnitt. Högt = bred styrka i temat. Lågt = temat är nedtryckt, vilket kan ge köplägen enligt 200W-strategin."],
+  ruleFair:["Förbättrad säljregel","Backtestet visar att det lönar sig att sälja redan vid Fair Value (30 % över 200W) i stället för att vänta på Expensive (40 %). Kortare affärer, fler vinster hemtagna och mindre tid i marknaden när den vänder."],
+  ruleStop:["Stop −20 %","Sälj om aktien faller 20 % från köpkursen. Med 2x hävstång blir det cirka −40 % på din insats. I backtestet tog stoppen bort de värsta fallen (−50 % och mer) utan att sänka avkastningen nämnvärt."],
+  dominance:["Dominans i branschen","Bolagen i samma bransch sorterade efter omsättning (börsvärde delat med P/S). Andel = bolagets del av branschens samlade omsättning bland sidans bolag. Förklaringen jämför ledarens marginaler, avkastning på kapitalet och tillväxt med branschens median."],
+  btAnn:["Median årstakt","Varje affärs avkastning omräknad till takt per år, sedan medianen. Korta vinnande affärer ger höga tal. Jämför mellan reglerna, inte med en portföljs avkastning."],
+  btLev:["Med 2x hävstång","Dubbla veckorörelser minus 5 % ränta per år på den lånade delen. Visar det värsta fallet under en affär. Ett fall på −50 % eller mer kan ge margin call."],
   focus:["Claudes fokus","Varje vardag morgon går Claude igenom aktierna som klarar Lower Risk (Low Risk, High Reward) eller är nära, och som ligger i 200W-köpzonen. Claude läser senaste nyheterna och lyfter de som är mest intressanta just nu, plus kommentarer till dina swingar. Köpläge = klarar strategin och ligger i köpzonen. Bevaka = nära köpzon eller missar ett krav. Undvik = fallet ser fundamentalt motiverat ut."],
   fairValue:["Beräknat värde","DCF-värdet per aktie i basfallet, jämfört med dagens kurs."],
   eps:["EPS, vinst per aktie","Bolagets vinst delat med antalet aktier. Över tid brukar kursen följa vinsten: växer vinsten och kursen står still blir aktien billigare (lägre P/E), och tvärtom."],
@@ -564,6 +595,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")$("pop").hidden=true
 /* ============ state ============ */
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let lim=store.get("ft3-lim",null); if(!lim||!lim.ftp||!lim.lrhr||!lim.zones)lim=JSON.parse(JSON.stringify(DEF));
+if(!lim.gold)lim.gold=JSON.parse(JSON.stringify(DEF.gold));
 const ui=Object.assign({strat:"ftp",filter:"all",zones:[],sort:"score",dir:-1,radar:"lrhr",tf:"D",range:"3Y",bands:true,stab:"analys",showExcl:false},store.get("ft4-ui",{}));
 let watch=store.get("ft3-watch",["SOFI"]);
 let U=null,rows=[],bySym={},detailCache={},chart=null,chartSym=null;
@@ -606,8 +638,17 @@ function qualityScore(d){let s=0;
   if(nn(d.fcfMargin))s+=clamp(d.fcfMargin/30,0,1)*15; if(!d.negEquity&&nn(d.de))s+=clamp((1.5-d.de)/1.5,0,1)*15;
   if(nn(d.earnGrowth1y))s+=clamp(d.earnGrowth1y/30,0,1)*10; if(nn(d.revGrowth1y))s+=clamp(d.revGrowth1y/20,0,1)*10;
   return Math.round(s)}
+let LEAD={};   // branschledare: {ticker: 1 eller 2} efter omsättning bland sidans bolag
+const revEst=d=>nn(d.mcapB)&&nn(d.ps)&&d.ps>0?d.mcapB/d.ps:null;
+function computeLeaders(){
+  const by={};rows.forEach(d=>{if(!d.industry||(d.type&&d.type!=="EQUITY"))return;const r=revEst(d);if(r)(by[d.industry]=by[d.industry]||[]).push([r,d.ticker])});
+  LEAD={};Object.values(by).forEach(l=>{l.sort((a,b)=>b[0]-a[0]);l.slice(0,2).forEach(([,t],i)=>LEAD[t]=i+1)});
+}
 function classify(d){
   d.res={};
+  const ret=Math.max(nn(d.roic)?d.roic:-99,nn(d.roe)?d.roe:-99);d.gRet=ret>-99?ret:null;
+  d.gBig=(d.mcapB||0)>=200||(LEAD[d.ticker]&&(d.mcapB||0)>=50)?1:0;
+  d.gDebt=(!d.negEquity&&nn(d.de)&&d.de<1.5)||(d.negEquity&&(d.roic||0)>=20)?1:0;
   for(const k in STRATS){
     if(d.excluded){d.res[k]={miss:["sector"],status:"excl"};continue}
     const miss=STRATS[k].crit.filter(c=>!test(c,d,lim[k][c.k])).map(c=>c.k);
@@ -619,18 +660,20 @@ function classify(d){
   if(nn(d.dist200w)){
     if(d.res.lrhr.status==="pass"&&d.dist200w<lim.zones.swing)d.sig.push("swing");
     if(d.res.ftp.status==="pass"&&d.dist200w<lim.zones.rea)d.sig.push("rea");
+    if(d.res.gold.status==="pass"&&d.dist200w<lim.zones.swing)d.sig.unshift("guld");
   }
   d.flag=nn(d.peg)&&d.peg>0&&d.peg<0.2;
 }
 const level=(d,p)=>nn(d.ma200w)?d.ma200w*(1+p/100):null;
 const scoreOf=(d,k)=>STRATS[k].score==="quality"?d.qScore:d.gScore;
 const shortName=(s,k)=>k==="sector"?"Sektor":(STRATS[s].crit.find(c=>c.k===k)||{}).short||k;
-function critVal(k,d){const c=Object.values(STRATS).flatMap(s=>s.crit).find(c=>c.k===k);if(!c)return"";if(c.de&&d.negEquity)return"neg. EK";const v=d[c.f];return nn(v)?f(v,k==="pegMax"||k==="deMax"?2:1):"saknas"}
+function critVal(k,d){if(k==="big")return d.gBig?(nn(d.mcapB)&&d.mcapB>=200?"Mega":"Ledare"):"Nej";if(k==="debt")return d.gDebt?"Ja":"Nej";if(k==="ret")return nn(d.gRet)?f(d.gRet,1):"saknas";const c=Object.values(STRATS).flatMap(s=>s.crit).find(c=>c.k===k);if(!c)return"";if(c.de&&d.negEquity)return"neg. EK";const v=d[c.f];return nn(v)?f(v,k==="pegMax"||k==="deMax"?2:1):"saknas"}
 function dropTo(d,p){const t=level(d,p);return nn(t)&&nn(d.price)&&d.price>t?(1-t/d.price)*100:0}
 
 /* ============ små komponenter ============ */
 function zchip(d,dist=true){if(!d.z)return `<span class="z z-none">200W saknas</span>`;return `<span class="z z-${d.z}">${ZNAME[d.z]}${dist?` <span class="n" style="font-size:11.5px">${pct(d.dist200w,1)}</span>`:""}</span>`}
-const sigB=d=>(d.sig||[]).map(s=>`<span class="sig ${s}">${s==="swing"?"SWING":"REA"}</span>`).join(" ");
+const SIGN={guld:"GULD",swing:"SWING",rea:"REA"};
+const sigB=d=>(d.sig||[]).map(s=>`<span class="sig ${s}">${SIGN[s]||s}</span>`).join(" ");
 const co=d=>`<span class="co"><span class="tk">${esc(d.ticker)}</span><span class="nm">${esc(d.name)}</span></span>`;
 const chgCell=d=>`<td class="n ${cls(d.chg)}">${pct(d.chg)}</td>`;
 const link=t=>"#/aktie/"+encodeURIComponent(t);
@@ -705,12 +748,7 @@ function pageStart(){
   <div class="grid g2">
     <section class="card"><div class="hd"><h2>Mina aktier${ib("mine")}</h2><a href="#/mina" class="small">Alla detaljer →</a></div>
       <div class="bd flush">${wl.length?`<div class="tw"><table><thead><tr><th class="l">Aktie</th><th>Kurs</th><th>Idag</th><th class="l">Värdering${ib("valVerdict")}</th><th class="l">Sentiment${ib("sentiment")}</th><th>Quant${ib("quant")}</th><th></th></tr></thead><tbody>${wl.slice(0,12).map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="n">${money(d.price,d.currency)}</td>${chgCell(d)}<td class="l">${vChip(valView(d))}</td><td class="l">${sChip(sentView(d))}</td><td class="n">${d.quant??"–"}</td><td>${starBtn(d.ticker)}</td></tr>`).join("")}</tbody></table></div>${wl.length>12?`<p class="small muted" style="padding:8px 16px">+ ${wl.length-12} till under <a href="#/mina">Mina aktier</a></p>`:""}`:`<p class="empty">Inga aktier än. Lägg till under <a href="#/mina">Mina aktier</a> eller tryck ☆ på en aktie.</p>`}</div></section>
-    <div class="grid" style="align-content:start">
-    <section class="card"><div class="hd"><h2>Swing-läge${ib("swing")}</h2><span class="sub">Low Risk, High Reward och under Cheap</span></div>
-      <div class="bd flush">${sigTable(swing,hasMa?"Inga just nu. Kvalitetsbolagen är dyra mot sitt 200W-snitt. Se Bevakning nedan.":"Väntar på 200W-data.",["ROE",d=>f(d.roe,0,"%")])}</div></section>
-    <section class="card"><div class="hd"><h2>Tillväxt på rea${ib("rea")}</h2><span class="sub">Full Throttle+ och under Fair Value</span></div>
-      <div class="bd flush">${sigTable(rea,hasMa?"Inga just nu.":"Väntar på 200W-data.",["Oms 1 år",d=>f(d.revGrowth1y,0,"%")])}</div></section>
-    </div>
+    ${stratNowCard()}
   </div>
   <div style="margin-top:16px">${focusCard()}</div>
   <details class="xsec" id="xThemes"><summary>Teman just nu <span class="sub">${(()=>{const T=themesCache().filter(t=>nn(t.mom));return T.length?`hetast ${esc(T[0].name)}, kallast ${esc(T[T.length-1].name)}`:""})()}</span></summary><div style="margin-top:12px">${themesCard()}</div></details>
@@ -789,7 +827,7 @@ function pageStock(t){
         <h1>${esc(d.longName||d.name)}</h1>
         <div class="meta">${esc(d.ticker)} · ${esc(d.exch||"")} · ${esc(d.sector||"")}${d.industry&&d.industry!=="ETF"?" · "+esc(d.industry):""}</div>
         <div class="price"><span class="p n">${px(d.price)}</span><span class="muted">${esc(d.currency||"")}</span><span class="ch n ${cls(d.chg)}">${pct(d.chg)}</span><span class="ch n ${cls(d.chg)}" style="font-weight:500">${nn(d.price)&&nn(d.prevClose)?(d.price-d.prevClose>0?"+":"−")+px(Math.abs(d.price-d.prevClose)):""}</span><span class="ts">Uppdaterad ${esc(rel(U.quotesAt||U.updatedAt))} · ca 15–30 min fördröjning</span></div>
-        <div class="chips">${d.type==="EQUITY"||!d.type?`${vChip(valView(d))}${ib("valVerdict")} ${sChip(sentView(d))}${ib("sentiment")} `:""}${zchip(d)}${ib("zones")} ${sigB(d)} ${d.excluded&&d.type==="EQUITY"?`<span class="pill">Sektor utesluten i strategierna</span>`:""} ${days!=null&&days>=0?`<span class="pill" style="${days<=14?"color:var(--warn);background:var(--warn-soft);border-color:transparent":""}">Rapport ${esc(d.nextEarnings)}${days<=14?` · om ${days} d`:""}</span>`:""}</div>
+        <div class="chips">${LEAD[d.ticker]===1?`<span class="pill pass">Branschledare</span>`:""}${d.type==="EQUITY"||!d.type?`${vChip(valView(d))}${ib("valVerdict")} ${sChip(sentView(d))}${ib("sentiment")} `:""}${zchip(d)}${ib("zones")} ${sigB(d)} ${d.excluded&&d.type==="EQUITY"?`<span class="pill">Sektor utesluten i strategierna</span>`:""} ${days!=null&&days>=0?`<span class="pill" style="${days<=14?"color:var(--warn);background:var(--warn-soft);border-color:transparent":""}">Rapport ${esc(d.nextEarnings)}${days<=14?` · om ${days} d`:""}</span>`:""}</div>
       </div>
       <div class="acts">
         <button class="btn${inMine(d.ticker)?" on":""}" id="wbtn">${inMine(d.ticker)?"★ I Mina aktier":"☆ Mina aktier"}</button>
@@ -798,8 +836,10 @@ function pageStock(t){
       </div>
     </div>
   </section>
+  ${stratCard(d)}
   <div id="storyBox" style="margin-top:16px">${story(d,null)}</div>
   <div class="sgrid" id="cardBox">${ivCard(d,null)}${epsCard(d,null)}${insCard(d,null)}${qualCard(d)}</div>
+  ${giantsCard(d)}
   <h2 class="sect">Så har bolaget utvecklats</h2>
   <div id="finBox">${finCards(d,null)}</div>
   <h2 class="sect" id="chartSect">Kursgraf och 200W-zoner</h2>
@@ -821,7 +861,7 @@ function pageStock(t){
     </div>
     <div class="bd" id="stabBody"></div>
   </section>`;
-  bindDrill(d);
+  bindDrill(d);bindRows($("app"));
   $("wbtn").addEventListener("click",()=>{const on=inMine(d.ticker);on?removeMine(d.ticker):addMine(d.ticker);$("wbtn").className="btn"+(on?"":" on");$("wbtn").textContent=on?"☆ Mina aktier":"★ I Mina aktier"});
   document.querySelectorAll("#stabs button").forEach(b=>b.addEventListener("click",()=>{ui.stab=b.dataset.s;saveUi();document.querySelectorAll("#stabs button").forEach(x=>x.setAttribute("aria-selected",x===b));renderStab(d)}));
   document.querySelectorAll("#tfSeg button").forEach(b=>b.addEventListener("click",()=>{ui.tf=b.dataset.tf;if(ui.tf==="D"&&(ui.range==="5Y"||ui.range==="MAX"))ui.range="3Y";saveUi();document.querySelectorAll("#tfSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));document.querySelectorAll("#rgSeg button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.r===ui.range));drawChart(d)}));
@@ -1000,14 +1040,14 @@ function renderStab(d){
   if(ui.stab==="strat"){
     const keys=[];Object.values(STRATS).forEach(s=>s.crit.forEach(c=>{if(!keys.includes(c.k))keys.push(c.k)}));
     const nm=k=>Object.values(STRATS).flatMap(s=>s.crit).find(c=>c.k===k).nm;
-    const CK={cagr:"revCagr",g1:"revGrowth1y",eg1:"earnGrowth1y",roe:"roe",deMax:"de",pegMax:"peg",fcf:"fcfMargin",roic:"roic",gm:"grossMargin",dil:"shareChange",mcap:"mcap"};
+    const CK={beta:"beta",ret:"roic",cagr:"revCagr",g1:"revGrowth1y",eg1:"earnGrowth1y",roe:"roe",deMax:"de",pegMax:"peg",fcf:"fcfMargin",roic:"roic",gm:"grossMargin",dil:"shareChange",mcap:"mcap"};
     const cell=(s,k)=>{const c=STRATS[s].crit.find(c=>c.k===k);if(!c)return `<td class="r faint">–</td>`;if(d.excluded)return `<td class="r faint">–</td>`;const ok=test(c,d,lim[s][k]);return `<td class="r ${ok?"ok":"no"}">${ok?"✓":"✕"} <span class="faint n" style="font-size:11.5px">${c.op} ${f(+lim[s][k],k==="pegMax"||k==="deMax"?1:0)}</span></td>`};
     const card=k=>{const r=d.res[k];return `<div class="sc"><span class="small muted">${esc(STRATS[k].name)}</span><b class="${r.status==="pass"?"ok":r.status==="near"?"":""}" style="${r.status==="near"?"color:var(--warn)":r.status==="pass"?"":"color:var(--muted)"}">${STL[r.status]}${r.status==="near"?": missar "+esc(shortName(k,r.miss[0])):""}</b><span class="small muted">Poäng ${scoreOf(d,k)??"–"} av 100</span></div>`};
-    b.innerHTML=`<div class="scards">${card("ftp")}${card("ft")}${card("lrhr")}</div>
-      ${d.excluded?`<p class="small muted" style="margin-bottom:10px">${d.type!=="EQUITY"?"ETF:er och fonder bedöms inte i strategierna.":`Sektorn ${esc(d.sector)} är utesluten i alla tre strategierna (finans, råvaror, energi, kraftbolag och fastigheter). 200W-zonerna gäller ändå.`}</p>`:""}
-      <div class="tw"><table class="crit"><thead><tr><th>Krav</th><th class="r">Värde</th><th class="r">FT+</th><th class="r">FT</th><th class="r">LRHR</th></tr></thead><tbody>
-      ${keys.map(k=>`<tr><td>${esc(nm(k))}${ib(CK[k])}</td><td class="r n">${critVal(k,d)}</td>${cell("ftp",k)}${cell("ft",k)}${cell("lrhr",k)}</tr>`).join("")}
-      <tr><td>200W-zon${ib("zones")}</td><td class="r">${zchip(d)}</td><td class="r small" colspan="3">${d.sig.length?sigB(d):`<span class="faint">Signal kräver strategi + ${d.res.lrhr.status==="pass"?"under Cheap":"köpzon"}</span>`}</td></tr>
+    b.innerHTML=`<div class="scards" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">${card("gold")}${card("lrhr")}${card("ftp")}${card("ft")}</div>
+      ${d.excluded?`<p class="small muted" style="margin-bottom:10px">${d.type!=="EQUITY"?"ETF:er och fonder bedöms inte i strategierna.":`Sektorn ${esc(d.sector)} är utesluten i alla strategierna (finans, råvaror, energi, kraftbolag och fastigheter). 200W-zonerna gäller ändå.`}</p>`:""}
+      <div class="tw"><table class="crit"><thead><tr><th>Krav</th><th class="r">Värde</th><th class="r">Guld</th><th class="r">LRHR</th><th class="r">FT+</th><th class="r">FT</th></tr></thead><tbody>
+      ${keys.map(k=>`<tr><td>${esc(nm(k))}${ib(CK[k])}</td><td class="r n">${critVal(k,d)}</td>${cell("gold",k)}${cell("lrhr",k)}${cell("ftp",k)}${cell("ft",k)}</tr>`).join("")}
+      <tr><td>200W-zon${ib("zones")}</td><td class="r">${zchip(d)}</td><td class="r small" colspan="4">${d.sig.length?sigB(d):`<span class="faint">Signal kräver strategi + ${d.res.lrhr.status==="pass"?"under Cheap":"köpzon"}</span>`}</td></tr>
       </tbody></table></div>
       ${d.flag?`<p class="small" style="color:var(--warn);margin-top:8px">PEG under 0,2 är ovanligt lågt. Kontrollera om vinsten är på en cyklisk topp.</p>`:""}
       <p class="small muted" style="margin-top:10px">Gränserna ändras under <a href="#/screener">Screener</a>.</p>`;
@@ -1168,9 +1208,9 @@ const COLDEF={
   revCagr:{l:"Oms 5å",c:"cagr",fm:x=>f(x,1,"%")}, revGrowth1y:{l:"Oms 1å",c:"g1",fm:x=>f(x,1,"%")}, earnGrowth1y:{l:"Vinst 1å",c:"eg1",fm:x=>f(x,1,"%")},
   roe:{l:"ROE %",c:"roe",fm:x=>f(x,1)}, peg:{l:"PEG",c:"pegMax",fm:x=>f(x,2)}, de:{l:"D/E",c:"deMax",fm:(x,d)=>d.negEquity?"neg. EK":f(x,2)},
   fcfMargin:{l:"FCF %",c:"fcf",fm:x=>f(x,1)}, roic:{l:"ROIC %",c:"roic",fm:x=>f(x,1)}, grossMargin:{l:"Brutto %",c:"gm",fm:x=>f(x,1)},
-  shareChange:{l:"Aktier %",c:"dil",fm:x=>x==null?"–":(x>0?"+":"")+f(x,1)}, fwdPe:{l:"P/E fr.",fm:x=>f(x,1)}, mcapB:{l:"Börsvärde",c:"mcap",fm:x=>mcap(x)}
+  shareChange:{l:"Aktier %",c:"dil",fm:x=>x==null?"–":(x>0?"+":"")+f(x,1)}, fwdPe:{l:"P/E fr.",fm:x=>f(x,1)}, beta:{l:"Beta",c:"beta",fm:x=>f(x,2)}, gRet:{l:"ROIC/ROE %",c:"ret",fm:x=>f(x,1)}, mcapB:{l:"Börsvärde",c:"mcap",fm:x=>mcap(x)}
 };
-const STRATCOLS={ftp:["revCagr","revGrowth1y","peg","de","fcfMargin","roic","grossMargin","shareChange","fwdPe","mcapB"],ft:["revCagr","revGrowth1y","peg","de","fwdPe","mcapB"],lrhr:["revCagr","revGrowth1y","earnGrowth1y","roe","de","fcfMargin","peg","fwdPe","mcapB"]};
+const STRATCOLS={gold:["mcapB","beta","gRet","fcfMargin","revGrowth1y","de","fwdPe"],ftp:["revCagr","revGrowth1y","peg","de","fcfMargin","roic","grossMargin","shareChange","fwdPe","mcapB"],ft:["revCagr","revGrowth1y","peg","de","fwdPe","mcapB"],lrhr:["revCagr","revGrowth1y","earnGrowth1y","roe","de","fcfMargin","peg","fwdPe","mcapB"]};
 const ASC=new Set(["ticker","status","miss","peg","de","shareChange","fwdPe","dist200w"]);
 function scrCols(){return [{k:"ticker",l:"Aktie",cls:"l stick"},{k:"chg",l:"Idag"},{k:"status",l:"Status",cls:"l"},{k:"dist200w",l:"200W",cls:"l"},{k:"score",l:"Poäng"},{k:"quant",l:"Quant",fm:x=>nn(x)?String(x):"–"},{k:"miss",l:"Missar",cls:"l"}].concat(STRATCOLS[ui.strat].map(k=>Object.assign({k},COLDEF[k])))}
 function pageScreener(){
@@ -2102,11 +2142,111 @@ function todayCard(){
 let _themes=null,_themesFor=null;
 function themesCache(){if(_themesFor!==U){_themes=computeThemes();_themesFor=U}return _themes}
 
+/* ============ DIN STRATEGI ============ */
+const SORDER=["gold","lrhr","ftp","ft"];
+function plan(d,entryPrice){
+  if(!nn(d.ma200w))return null;
+  const z=lim.zones,buy=d.ma200w*(1+z.swing/100),fair=d.ma200w*(1+z.b3/100),exp=d.ma200w*(1+z.b4/100);
+  const inZone=nn(d.dist200w)&&d.dist200w<z.swing,ep=entryPrice||(inZone?d.price:buy);
+  return{buy,fair,exp,stop:ep*0.8,inZone,ep};
+}
+function stratVerdict(d){
+  const R=d.res,pass=SORDER.filter(k=>R[k]&&R[k].status==="pass"),near=SORDER.filter(k=>R[k]&&R[k].status==="near");
+  if(d.excluded)return{k:"mid",t:d.type&&d.type!=="EQUITY"?"ETF:er bedöms inte i strategierna.":`Sektorn ${d.sector} är utesluten i strategierna. 200W-zonerna gäller ändå.`};
+  if(d.sig.includes("guld"))return{k:"gold",t:"Guldläge: ett stort, stabilt kvalitetsbolag i köpzonen mot 200W."};
+  if(d.sig.length)return{k:"pos",t:`Köpläge: klarar ${pass.map(k=>STRATS[k].name).join(" och ")} och ligger i köpzonen.`};
+  if(pass.length){const lv=level(d,lim.zones.swing);return{k:"wait",t:`Klarar ${pass.map(k=>STRATS[k].name).join(" och ")}, men priset är för högt. Köpzon under ${money(lv,d.currency)}, ${f(dropTo(d,lim.zones.swing),0)} % ner.`}}
+  if(near.length){const k=near[0];return{k:"near",t:`Nära ${STRATS[k].name}: missar bara ${shortName(k,R[k].miss[0]).toLowerCase()} (${critVal(R[k].miss[0],d)}).`}}
+  return{k:"mid",t:"Klarar inte dina strategier just nu."};
+}
+function stratCard(d){
+  const v=stratVerdict(d),P=plan(d),own=allPos().find(p=>p.ticker===d.ticker),PO=own?plan(d,own.price):null;
+  const pill=k=>{const r=d.res[k];if(!r)return"";const st=r.status;return `<span class="spill ${st}" title="${esc(STRATS[k].name)}: ${STL[st]}${r.miss.length&&st!=="excl"?" · missar "+esc(r.miss.map(m=>shortName(k,m)).join(", ")):""}">${st==="pass"?"✓":st==="near"?"≈":"✕"} ${esc(STRATS[k].name)}${st==="near"?` <small>missar ${esc(shortName(k,r.miss[0]).toLowerCase())}</small>`:""}</span>`};
+  const showPlan=P&&!d.excluded&&(d.res.gold.status==="pass"||d.res.lrhr.status==="pass"||own);
+  const Q=PO||P;
+  return `<section class="card stratc ${v.k}" style="margin-top:16px"><div class="bd">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap"><span class="small muted" style="font-weight:700;letter-spacing:.05em;text-transform:uppercase">Din strategi${ib("strategies")}</span>${drill("strat","Alla krav")}</div>
+    <p class="sv">${v.k==="gold"?'<span class="sig guld">GULD</span> ':""}${esc(v.t)}</p>
+    <div class="spills">${SORDER.map(pill).join("")}${zchip(d)}</div>
+    ${showPlan?`<div class="plan"><div><span class="sub">${own?"Ditt köp":"Köp under (Cheap)"}</span><b class="n">${money(own?own.price:Q.buy,d.currency)}</b></div>
+      <div><span class="sub">Sälj, förbättrad regel${ib("ruleFair")}</span><b class="n">${money(Q.fair,d.currency)}</b><small>Fair Value · ${pct((Q.fair/d.price-1)*100,0)}</small></div>
+      <div><span class="sub">Sälj, original</span><b class="n">${money(Q.exp,d.currency)}</b><small>Expensive · ${pct((Q.exp/d.price-1)*100,0)}</small></div>
+      <div><span class="sub">Stop −20 %${ib("ruleStop")}</span><b class="n">${money(Q.stop,d.currency)}</b><small>${own?"från ditt köp":Q.inZone?"från dagens kurs":"från köpnivån"}</small></div></div>`:""}
+    ${own&&nn(d.price)&&PO?(d.price<=PO.stop?`<p class="small no" style="margin-top:8px;font-weight:600">Kursen är under stop-nivån från ditt köp.</p>`:d.price>=PO.fair?`<p class="small" style="margin-top:8px;font-weight:600;color:var(--warn)">Kursen har nått Fair Value: enligt den förbättrade regeln är det dags att ta hem vinsten.</p>`:""):""}
+  </div></section>`;
+}
+function stratNowCard(){
+  const buy=rows.filter(d=>d.sig.length).sort((a,b)=>(b.sig.includes("guld")-a.sig.includes("guld"))||a.dist200w-b.dist200w);
+  const near=rows.filter(d=>!d.sig.length&&nn(d.dist200w)&&(d.res.gold.status==="pass"||d.res.lrhr.status==="pass")).map(d=>({d,drop:dropTo(d,lim.zones.swing)})).filter(x=>x.drop>0&&x.drop<=12).sort((a,b)=>a.drop-b.drop).slice(0,8);
+  const act=[];allPos().forEach(p=>{const d=bySym[p.ticker];if(!d||!nn(d.price))return;const P=plan(d,p.price);if(!P)return;
+    if(d.price<=P.stop)act.push([d,`Under stop ${money(P.stop,d.currency)} (−20 % från ditt köp)`,"no"]);
+    else if(d.price>=P.exp)act.push([d,"Nått Expensive: sälj enligt originalet","warn"]);
+    else if(d.price>=P.fair)act.push([d,"Nått Fair Value: sälj enligt förbättrade regeln","warn"]);});
+  const row=(d,right)=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="l">${sigB(d)}</td><td class="l">${zchip(d)}</td><td class="n small">${right}</td></tr>`;
+  const sec=(t,sub,body)=>`<div class="snow"><h3>${t} <span class="sub">${sub}</span></h3>${body}</div>`;
+  return `<section class="card"><div class="hd"><h2>Din strategi just nu${ib("strategies")}</h2><a href="#/strategier" class="small">Backtest →</a></div><div class="bd flush">
+    ${act.length?sec("Dina innehav att agera på","",`<div class="tw"><table><tbody>${act.map(([d,t,c])=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="l small" style="white-space:normal;color:var(--${c==="no"?"down":"warn"});font-weight:600">${esc(t)}</td><td class="n ${cls(d.chg)}">${pct(d.chg,1)}</td></tr>`).join("")}</tbody></table></div>`):""}
+    ${sec("Köpläge nu",`${buy.length} st`,buy.length?`<div class="tw"><table><tbody>${buy.slice(0,10).map(d=>row(d,`sälj vid ${px(plan(d).fair)}`)).join("")}</tbody></table></div>`:`<p class="empty" style="padding:14px">Inga aktier i köpläge just nu. Kvalitetsbolagen är dyra mot 200W.</p>`)}
+    ${sec("Snart köpläge","klarar Guld eller LRHR, högst 12 % kvar",near.length?`<div class="tw"><table><tbody>${near.map(({d,drop})=>row(d,`<span class="down">−${f(drop,0)} % kvar</span>`)).join("")}</tbody></table></div>`:`<p class="empty" style="padding:14px">Inga just nu.</p>`)}
+  </div></section>`;
+}
+/* ---- branschens jättar ---- */
+function giantsCard(d){
+  if(d.type&&d.type!=="EQUITY")return"";
+  const g=d._pg||(d._pg=peerGroup(d));if(!g.peers||g.peers.length<3||(!d.industry&&(!d.sector||d.sector==="Övrigt")))return"";
+  const L=g.peers.map(p=>({p,rev:revEst(p)})).filter(x=>x.rev).sort((a,b)=>b.rev-a.rev);if(L.length<3)return"";
+  const tot=L.reduce((s,x)=>s+x.rev,0),me=L.findIndex(x=>x.p===d),top=L.slice(0,5);if(me>=5)top.push(L[me]);
+  const lead=L[0],two=L[1],ld=lead.p,mGM=peerMed(d,"grossMargin").m,mOM=peerMed(d,"opMargin").m,mG=peerMed(d,"revGrowth1y").m,mR=peerMed(d,"roic").m;
+  const why=[`${f(lead.rev/tot*100,0)} % av branschens omsättning bland sidans ${L.length} bolag, ${f(lead.rev/two.rev,1)} gånger tvåan ${esc(two.p.ticker)}.`];
+  if(nn(ld.grossMargin)&&nn(mGM))why.push(ld.grossMargin>mGM+5?`Bruttomarginal ${f(ld.grossMargin,0)} % mot branschens ${f(mGM,0)} %: kan ta betalt, ett tecken på starkt varumärke eller teknikförsprång.`:`Bruttomarginal ${f(ld.grossMargin,0)} % (branschen ${f(mGM,0)} %): storleken bygger mer på volym än på prissättning.`);
+  if(nn(ld.opMargin)&&nn(mOM)&&ld.opMargin>mOM+5)why.push(`Rörelsemarginal ${f(ld.opMargin,0)} % mot ${f(mOM,0)} %: skalfördelar, kostnaderna växer långsammare än intäkterna.`);
+  if(nn(ld.roic)&&nn(mR))why.push(ld.roic>mR+5?`ROIC ${f(ld.roic,0)} % mot ${f(mR,0)} %: tjänar mer på varje investerad krona, en vallgrav konkurrenterna har svårt att kopiera.`:`ROIC ${f(ld.roic,0)} % (branschen ${f(mR,0)} %).`);
+  if(nn(ld.revGrowth1y)&&nn(mG))why.push(ld.revGrowth1y>mG?`Växer ${f(ld.revGrowth1y,0)} % mot branschens ${f(mG,0)} %: ledaren tar marknadsandelar.`:`Växer ${f(ld.revGrowth1y,0)} % mot branschens ${f(mG,0)} %: utmanarna växer snabbare.`);
+  const meTxt=me===0?`<b>${esc(d.name)} är störst i ${esc(g.label)}.</b>`:me>=0?`<b>${esc(d.name)} är nr ${me+1} av ${L.length}</b> i ${esc(g.label)} efter omsättning, ${f(L[me].rev/tot*100,0)} % av branschen.`:"";
+  return `<section class="card" style="margin-top:16px"><div class="hd"><h2>Vem dominerar branschen?${ib("dominance")}</h2>${drill("peer","Hela branschen")}</div><div class="bd">
+    <p style="font-size:13.5px;line-height:1.55">${meTxt}</p>
+    <div class="tw" style="margin-top:8px"><table class="crit"><thead><tr><th>#</th><th>Bolag</th><th class="r">Omsättning</th><th>Andel</th><th class="r">Börsvärde</th><th class="r">Bruttomarg.</th><th class="r">Tillväxt</th></tr></thead><tbody>
+      ${top.map(x=>{const i=L.indexOf(x),sh=x.rev/tot*100;return `<tr class="go" data-t="${esc(x.p.ticker)}" style="${x.p===d?"background:var(--accent-soft)":""}"><td class="n">${i+1}</td><td>${co(x.p)}</td><td class="r n">${f(x.rev,x.rev>=100?0:1)} md $</td><td style="min-width:110px"><div class="share"><i style="width:${Math.min(100,sh/(L[0].rev/tot*100)*100)}%"></i><span class="n">${f(sh,0)} %</span></div></td><td class="r n">${mcap(x.p.mcapB)}</td><td class="r n">${f(x.p.grossMargin,0," %")}</td><td class="r n ${cls(x.p.revGrowth1y)}">${pct(x.p.revGrowth1y,0)}</td></tr>`}).join("")}
+    </tbody></table></div>
+    <h4 class="qh">Varför är ${esc(ld.name)} störst?</h4>
+    <ul class="why">${why.map(w=>`<li>${w}</li>`).join("")}</ul>
+    <p class="small muted" style="margin-top:6px">Omsättning beräknad som börsvärde / P/S. Jämförelsen gäller bolagen på sidan (S&amp;P 500, Nasdaq-100, Stockholmsbörsen och dina egna), inte hela världsmarknaden.</p>
+  </div></section>`;
+}
+/* ---- backtest ---- */
+let BT=null;
+async function getBT(){if(BT)return BT;try{const r=await fetch("data/backtest.json?v="+encodeURIComponent(U.updatedAt||""));if(r.ok)BT=await r.json()}catch(e){}return BT}
+function btSection(){
+  if(!BT)return `<p class="muted">Backtestet körs i nattkörningen och visas här efteråt.</p>`;
+  const G=[["gold","Guld"],["lrhr","Low Risk, High Reward"],["mega","Megabolag ≥ 200 md $"],["all","Alla aktier"]],RR=[["orig","Original","Köp under Cheap, sälj vid Expensive"],["fairstop","Förbättrad","Köp under Cheap, sälj vid Fair Value eller −20 % stop"],["stop","Original + stop","Sälj vid Expensive eller −20 %"],["deep","Djupare köp","Köp under Very Cheap"]];
+  const tbl=gk=>`<div class="tw"><table class="crit bt"><thead><tr><th>Regel</th><th class="r">Affärer</th><th class="r">Vinnande</th><th class="r">Median per affär</th><th class="r">Median årstakt${ib("btAnn")}</th><th class="r">Snittfall under affär</th><th class="r">Värsta fall</th><th class="r">Värsta fall 2x${ib("btLev")}</th></tr></thead><tbody>
+    ${RR.map(([rk,nm,desc])=>{const v=BT.res[gk+"|"+rk];if(!v)return"";return `<tr style="${rk==="fairstop"?"background:var(--accent-soft)":""}"><td><b>${nm}</b><span class="subv">${desc}</span></td><td class="r n">${v.n}</td><td class="r n">${f(v.win,0)} %</td><td class="r n ${cls(v.med)}">${pct(v.med,0)}</td><td class="r n ${v.ann>BT.spyCagr?"ok":""}">${pct(v.ann,0)}</td><td class="r n">${pct(v.dd,0)}</td><td class="r n down">${pct(v.ddWorst,0)}</td><td class="r n down">${pct(v.lev.ddWorst,0)}</td></tr>`}).join("")}</tbody></table></div>`;
+  const go=BT.res["gold|orig"],gf=BT.res["gold|fairstop"];
+  const tr=(BT.trades.gold||[]).slice(0,12);
+  return `<p>Testperiod från <b>${esc(BT.from||"")}</b> till ${esc(BT.asOf||"")}, veckokurser. S&amp;P 500 (SPY) gav <b>${pct(BT.spyCagr,1)}</b> per år under samma tid. Varje rad är alla affärer i urvalet enligt regeln.</p>
+    ${go&&gf?`<div class="note" style="margin:12px 0"><h4>Slutsats</h4><p>Guld enligt originalet: ${f(go.win,0)} % vinnande affärer, median ${pct(go.med,0)} per affär, men värsta fallet under en affär var ${pct(go.ddWorst,0)} och med 2x hävstång ${pct(go.lev.ddWorst,0)}. <b>Den förbättrade regeln</b> (sälj redan vid Fair Value, stop vid −20 %) gav ${f(gf.win,0)} % vinnande, median årstakt ${pct(gf.ann,0)} mot ${pct(go.ann,0)}, och värsta fall ${pct(gf.ddWorst,0)} (2x: ${pct(gf.lev.ddWorst,0)}). Kortare affärer, mindre tid i marknaden när den vänder, och stoppen tar bort katastroferna. För den som kör med hävstång är det skillnaden som spelar roll.</p></div>`:""}
+    ${G.map(([gk,nm])=>BT.groups[gk]?`<h3 style="font-size:15px;margin-top:18px">${nm} <span class="sub">${BT.groups[gk].n} aktier idag</span></h3>${gk==="gold"?`<p class="small muted">${esc(BT.groups.gold.name)}. Nu: ${BT.groups.gold.tickers.map(t=>`<a href="${link(t)}">${esc(t)}</a>`).join(", ")}</p>`:""}${tbl(gk)}`:"").join("")}
+    ${tr.length?`<h3 style="font-size:15px;margin-top:18px">Senaste Guld-affärerna (originalregeln)</h3><div class="tw"><table class="crit"><thead><tr><th>Aktie</th><th>Köp</th><th>Sälj</th><th class="r">Resultat</th><th class="r">Värsta fall</th><th class="r">Med 2x</th></tr></thead><tbody>${tr.map(t=>`<tr class="go" data-t="${esc(t.t)}"><td class="tk">${esc(t.t)}</td><td class="n">${dayToISO(t.in)}</td><td class="n">${t.done?dayToISO(t.out):"<i>öppen</i>"}</td><td class="r n ${cls(t.r)}">${pct(t.r,0)}</td><td class="r n down">${pct(t.dd,0)}</td><td class="r n ${cls(t.lr)}">${pct(t.lr,0)}</td></tr>`).join("")}</tbody></table></div>`:""}
+    <div class="note" style="margin-top:16px"><h4>Läs detta innan du litar på siffrorna</h4><ul>
+      <li><b>Facit i hand:</b> urvalet (Guld, LRHR, megabolag) görs med dagens nyckeltal. Bolag som är stora och lönsamma idag har per definition gått bra. Därför ser framför allt Megabolag och Guld bättre ut än de skulle gjort i verkligheten. Raden Alla aktier är mest rättvis.</li>
+      <li>Köp- och säljreglerna mot 200W är däremot testade utan att titta framåt, så <b>jämförelsen mellan reglerna</b> är det mest pålitliga.</li>
+      <li>Veckostängningar: en stop kan i verkligheten slå ut på en sämre nivå. Inget courtage, ingen skatt, ingen utdelning.</li>
+      <li>Median årstakt räknar om varje affär till årstakt, korta vinnare blir därför höga tal. Det är inte portföljens avkastning.</li>
+      <li>2x hävstång räknas som dubbla veckorörelser minus 5 % ränta per år på lånet. Ett fall på −50 % eller mer med hävstång kan ge margin call.</li></ul></div>`;
+}
+
 /* ============ STRATEGIER ============ */
 function pageMethod(){
   document.title="Strategier · Full Throttle";
   $("app").innerHTML=`<section class="card"><div class="bd"><div class="prose">
-    <h1 style="font-size:20px">Strategier och metod</h1>
+    <h1 style="font-size:20px">Strategi och backtest</h1>
+    <h2>Guld: din kombinerade strategi</h2>
+    <p><b>Guld</b> = 200W-köpzonen + ett stort, stabilt och dominerande kvalitetsbolag. Byggd för swingar med hävstång, där bolaget måste tåla en dålig period.</p>
+    <ul><li><b>Storlek:</b> börsvärde ≥ 200 md $ (megabolag), eller störst/näst störst i sin bransch efter omsättning och ≥ 50 md $.</li><li><b>Stabilitet:</b> beta ≤ 1,3.</li><li><b>Kvalitet:</b> ROIC eller ROE ≥ 15 %, FCF-marginal ≥ 10 %, omsättningen växer ≥ 3 %, skulden under kontroll (D/E under 1,5).</li><li><b>Pris:</b> under Cheap (högst 20 % över 200W), som Swing-läge.</li></ul>
+    <p>Varför inte bara Low Risk, High Reward? Dess krav på PEG under 1 släpper nästan aldrig igenom megabolagen, så i backtestet fanns bara en handfull LRHR-bolag. Guld mäter kvaliteten med avkastning på kapitalet och kassaflöde i stället och kräver storlek och låg beta.</p>
+    <h2>Backtest</h2>
+    <div id="btBox"><p class="muted">Laddar backtest…</p></div>
+    <h2>Strategierna i detalj</h2>
     <div class="tw"><table class="crit"><thead><tr><th>Krav</th><th>Full Throttle</th><th>Full Throttle+</th><th>Low Risk, High Reward</th></tr></thead><tbody>
       <tr><td>Omsättning 5 år</td><td>&gt; 100 % (≈ 14,9 %/år)</td><td>≥ 15 %/år</td><td>&gt; 50 % (≈ 8,45 %/år)</td></tr>
       <tr><td>Omsättning 1 år</td><td>&gt; 20 %</td><td>≥ 20 %</td><td>&gt; 5 %</td></tr>
@@ -2169,6 +2309,7 @@ function pageMethod(){
     <p>Aktiens avkastning delas upp i <b>marknad</b> (beta × index), <b>sektor</b> (sektor-ETF minus index) och <b>bolagsspecifikt</b> (resten). Den bolagsspecifika delen jämförs med aktiens normala svängningar (σ). Är fallet ovanligt stort (över 1,5 σ) men analytikernas vinstprognoser oförändrade bedöms det som en möjlig överreaktion. Sänks prognoserna samtidigt är fallet fundamentalt motiverat. Domineras rörelsen av marknad eller sektor bedöms den som makro/sektor.</p>
     <p class="muted">Diagram: TradingView Lightweight Charts. Detta är ett analysverktyg, inte investeringsrådgivning.</p>
   </div></div></section>`;
+  getBT().then(()=>{const el=$("btBox");if(el){el.innerHTML=btSection();bindRows(el)}});
 }
 
 /* ============ data ============ */
@@ -2180,7 +2321,7 @@ async function load(){
     const same=U&&U.quotesAt===j.quotesAt&&U.updatedAt===j.updatedAt;
     if(same)return;
     if(U&&U.updatedAt!==j.updatedAt)detailCache={};
-    U=j;rows=(j.rows||[]).map(x=>({...x}));bySym={};rows.forEach(d=>{bySym[d.ticker]=d;classify(d)});
+    U=j;rows=(j.rows||[]).map(x=>({...x}));bySym={};rows.forEach(d=>{bySym[d.ticker]=d});computeLeaders();rows.forEach(classify);
     _pm.clear();computeQuant();
     const side=async n=>{try{const r=await fetch(n+"?t="+Date.now(),{cache:"no-store"});return r.ok?await r.json():null}catch(e){return null}};
     const [fo,rp,mi]=await Promise.all([side("focus.json"),side("positions.json"),side("mina.json")]);

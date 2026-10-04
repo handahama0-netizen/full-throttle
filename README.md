@@ -40,6 +40,14 @@ Fliken **Mina aktier** är din bevakningslista med en rad per aktie:
 
 Lägg till aktier med sökrutan (flera går med komma: `NVDA, AAPL, VOLV-B`) eller ☆ på en aktiesida. De sparas i webbläsaren. Aktier i `config/mina.txt` syns på alla enheter och får data vid nästa nattkörning, även om de inte ingår i S&P 500, Nasdaq-100 eller Stockholmslistan.
 
+## Guld och backtest
+
+**Guld** är den kombinerade strategin för swingar med hävstång: 200W-köpzonen (under Cheap) + ett stort, stabilt och dominerande kvalitetsbolag (börsvärde ≥ 200 md $ eller branschledare ≥ 50 md $, beta ≤ 1,3, ROIC/ROE ≥ 15 %, FCF-marginal ≥ 10 %, växande, skulden under kontroll). Originalstrategierna finns kvar bredvid.
+
+`scripts/backtest.py` testar 200W-reglerna på all kurshistorik varje natt (originalet, sälj vid Fair Value, stop −20 %, djupare köp) för Guld, LRHR, megabolag och alla aktier, även med 2x hävstång. Resultatet visas under **Strategi & backtest**. Slutsatsen hittills: sälj redan vid Fair Value och ha en stop på −20 %. Det ger högre takt och ungefär halverar de värsta fallen. Urvalet bygger på dagens nyckeltal (facit i hand), vilket står på sidan.
+
+Varje aktie har kortet **Din strategi** med vilka strategier den klarar och en handelsplan (köpnivå, sälj enligt förbättrad regel och original, stop), och **Vem dominerar branschen?** med rank efter omsättning och varför ledaren är störst. Översikten har **Din strategi just nu**: innehav att agera på, köplägen och aktier som snart når köpzonen.
+
 ## Startsidan: Dagens läge
 
 Överst berättar sidan vad som hänt: marknaden idag (S&P 500, Nasdaq-100, hur många aktier som steg, starkaste och svagaste tema), Claudes marknadskommentar, hur dina innehav gått, och **Att hålla koll på**: stop som passerats, mål som nåtts, nya signaler, rapporter inom en vecka och stora rörelser i dina aktier. Claudes fokus visar bara rubrikerna, tryck för motiveringen. Teman och övriga listor (radar, bra bolag till fel pris, händelser) ligger i fällbara sektioner.
