@@ -446,6 +446,17 @@ table.corr th{background:none;color:var(--muted)}
 .nextq:hover{text-decoration:underline}
 .sub3{font-size:14px;margin:16px 0 8px;color:var(--muted)}
 #toTop{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;width:44px;height:44px;border-radius:50%;border:1px solid var(--line-strong);background:var(--card);color:var(--ink);font-size:20px;box-shadow:0 4px 14px rgb(0 0 0 / .15);cursor:pointer}
+.sfbox{padding:12px 16px;border-bottom:1px solid var(--line);display:grid;gap:10px;background:var(--sunk)}
+.sfrow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.sfrow>b{font-size:13px;min-width:110px}
+.sfc{display:flex;flex-wrap:wrap;gap:6px}
+.sfk{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-strong);background:var(--card);border-radius:7px;padding:5px 10px;font-size:13px;font-weight:600;cursor:pointer;user-select:none}
+.sfk input{accent-color:var(--accent);margin:0}
+.sfk .c{font-family:var(--mono);font-size:11.5px;color:var(--muted);font-weight:400}
+.sfk.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.sfq{height:32px;border:1px solid var(--line-strong);border-radius:7px;background:var(--card);padding:0 10px;font-size:13px;min-width:160px}
+.sfres{border-top:1px solid var(--line);padding-top:10px}
+.sfcnt{font-size:15px}
 .epsnote{padding:10px 14px;border-top:1px solid var(--line);font-size:13px;line-height:1.55}
 .epsnote:empty{display:none}
 </style>
@@ -1270,24 +1281,33 @@ const COLDEF={
 };
 const STRATCOLS={gold:["mcapB","beta","gRet","fcfMargin","revGrowth1y","de","fwdPe"],ftp:["revCagr","revGrowth1y","peg","de","fcfMargin","roic","grossMargin","shareChange","fwdPe","mcapB"],ft:["revCagr","revGrowth1y","peg","de","fwdPe","mcapB"],lrhr:["revCagr","revGrowth1y","earnGrowth1y","roe","de","fcfMargin","peg","fwdPe","mcapB"]};
 const ASC=new Set(["ticker","status","miss","peg","de","shareChange","fwdPe","dist200w"]);
-function scrCols(){return [{k:"ticker",l:"Aktie",cls:"l stick"},{k:"chg",l:"Idag"},{k:"status",l:"Status",cls:"l"},{k:"dist200w",l:"200W",cls:"l"},{k:"score",l:"Poäng"},{k:"quant",l:"Quant",fm:x=>nn(x)?String(x):"–"},{k:"miss",l:"Missar",cls:"l"}].concat(STRATCOLS[ui.strat].map(k=>Object.assign({k},COLDEF[k])))}
+function scrCols(){return [{k:"ticker",l:"Aktie",cls:"l stick"},{k:"chg",l:"Idag"},{k:"status",l:"Strategier",cls:"l"},{k:"dist200w",l:"200W",cls:"l"},{k:"score",l:"Poäng"},{k:"quant",l:"Quant",fm:x=>nn(x)?String(x):"–"},{k:"miss",l:"Missar",cls:"l"}].concat(STRATCOLS[ui.strat].map(k=>Object.assign({k},COLDEF[k])))}
 function pageScreener(){
   document.title="Screener · Full Throttle";
   $("app").innerHTML=`<section class="card">
-    <div class="tools">
-      <div class="seg" id="stratSeg">${Object.entries(STRATS).map(([k,s])=>`<button data-s="${k}" aria-pressed="${ui.strat===k}">${esc(s.name)}</button>`).join("")}</div>
-      <div class="seg" id="flt"></div>
-      <span style="flex:1"></span>
-      <label class="chk"><input type="checkbox" id="exclChk" ${ui.showExcl?"checked":""}> Visa uteslutna sektorer</label>
-      <button class="btn" id="csv">Ladda ner CSV</button>
+    <div class="sfbox">
+      <div class="sfrow"><b>Klarar strategi</b>${ib("strategies")}<div class="sfc" id="sfStrat"></div>
+        <div class="seg" id="sfMode"><button data-m="and" aria-pressed="${ui.sfMode!=="or"}">Alla valda</button><button data-m="or" aria-pressed="${ui.sfMode==="or"}">Någon av dem</button></div>
+        <label class="chk"><input type="checkbox" id="sfNear" ${ui.sfNear?"checked":""}> Räkna med Nära (missar ett krav)</label></div>
+      <div class="sfrow"><b>200W-zon</b>${ib("zones")}<div class="sfc" id="zf"></div><label class="chk"><input type="checkbox" id="sfSig" ${ui.sfSig?"checked":""}> Bara köpläge (signal)</label></div>
+      <div class="sfrow"><b>Storlek</b><div class="seg" id="sfSize">${[[0,"Alla"],[10,"≥ 10 md $"],[50,"≥ 50 md $"],[200,"Mega ≥ 200 md $"]].map(([v,l])=>`<button data-v="${v}" aria-pressed="${(ui.sfSize||0)===v}">${l}</button>`).join("")}</div>
+        <input id="sfQ" class="sfq" placeholder="Sök i listan" value="${esc(ui.sfQ||"")}"><label class="chk"><input type="checkbox" id="exclChk" ${ui.showExcl?"checked":""}> Visa uteslutna sektorer</label></div>
+      <div class="sfrow sfres"><span id="cnt" class="sfcnt"></span><span id="sfSum" class="small muted"></span><span style="flex:1"></span><button class="btn sm" id="sfClear">Rensa filter</button><button class="btn sm" id="csv">Ladda ner CSV</button></div>
     </div>
-    <div class="tools"><span class="sub">200W-zon</span><div class="seg" id="zf"></div></div>
+    <div class="tools"><span class="sub">Kolumner och gränser för</span><div class="seg" id="stratSeg">${Object.entries(STRATS).map(([k,s])=>`<button data-s="${k}" aria-pressed="${ui.strat===k}">${esc(s.name)}</button>`).join("")}</div></div>
     <details class="critbox" id="critd" ${matchMedia("(max-width:760px)").matches?"":"open"}><summary>Gränser <span class="muted" style="font-weight:400" id="critSum"></span><span style="flex:1"></span><a href="#" id="reset" hidden style="font-weight:500">Återställ</a></summary><div class="cgrid" id="cgrid"></div></details>
     <div class="tw" style="max-height:calc(100vh - 140px);overflow:auto"><table><thead><tr id="th"></tr></thead><tbody id="tb"></tbody></table></div>
-    <div class="tools" style="border-bottom:0;border-top:1px solid var(--line)"><span class="sub" id="cnt"></span><span style="flex:1"></span><span class="sub">Röda celler missar gränsen. Klicka på en rad för aktiesidan.</span></div>
+    <div class="tools" style="border-bottom:0;border-top:1px solid var(--line)"><span style="flex:1"></span><span class="sub">Röda celler missar gränsen i vald strategi. Klicka på en rad för aktiesidan.</span></div>
   </section>`;
   document.querySelectorAll("#stratSeg button").forEach(b=>b.addEventListener("click",()=>{ui.strat=b.dataset.s;if(!["ticker","chg","status","dist200w","score","quant","miss"].includes(ui.sort)&&!STRATCOLS[ui.strat].includes(ui.sort))ui.sort="score";saveUi();pageScreener()}));
   $("exclChk").addEventListener("change",e=>{ui.showExcl=e.target.checked;saveUi();scrFilter();scrTable()});
+  const upd=()=>{saveUi();scrFilter();scrTable()};
+  document.querySelectorAll("#sfMode button").forEach(b=>b.addEventListener("click",()=>{ui.sfMode=b.dataset.m;document.querySelectorAll("#sfMode button").forEach(x=>x.setAttribute("aria-pressed",x===b));upd()}));
+  document.querySelectorAll("#sfSize button").forEach(b=>b.addEventListener("click",()=>{ui.sfSize=+b.dataset.v;document.querySelectorAll("#sfSize button").forEach(x=>x.setAttribute("aria-pressed",x===b));upd()}));
+  $("sfNear").addEventListener("change",e=>{ui.sfNear=e.target.checked;upd()});
+  $("sfSig").addEventListener("change",e=>{ui.sfSig=e.target.checked;upd()});
+  $("sfQ").addEventListener("input",e=>{ui.sfQ=e.target.value;upd()});
+  $("sfClear").addEventListener("click",()=>{ui.sf={};ui.zones=[];ui.sfSig=false;ui.sfSize=0;ui.sfQ="";ui.sfNear=false;ui.sfMode="and";saveUi();pageScreener()});
   $("reset").addEventListener("click",e=>{e.preventDefault();lim[ui.strat]=JSON.parse(JSON.stringify(DEF[ui.strat]));lim.zones=JSON.parse(JSON.stringify(DEF.zones));saveLim();rows.forEach(classify);pageScreener()});
   $("csv").addEventListener("click",csv);
   scrCrit();scrHead();scrFilter();scrTable();
@@ -1307,14 +1327,20 @@ function scrCounts(){
   $("reset").hidden=!ch;$("critSum").textContent=`${STRATS[s].name}: ${STRATS[s].crit.length} krav`+(ch?" · ändrade":"");
 }
 function scrBase(){return rows.filter(d=>ui.showExcl||!d.excluded)}
+function sfOk(d,k){const st=d.res[k]&&d.res[k].status;return st==="pass"||(ui.sfNear&&st==="near")}
+function sfSel(){return SORDER.filter(k=>(ui.sf||{})[k])}
 function scrFilter(){
-  const s=ui.strat,base=scrBase(),n={all:base.length,pass:0,near:0,out:0,sig:0};
-  base.forEach(d=>{const st=d.res[s].status;if(n[st]!=null)n[st]++;if(d.sig.length)n.sig++});
-  $("flt").innerHTML=[["all","Alla"],["pass","Klarar"],["near","Nära"],["out","Utanför"],["sig","Signal"]].map(([k,l])=>`<button data-f="${k}" aria-pressed="${ui.filter===k}">${l}<span class="c">${n[k]}</span></button>`).join("");
-  $("flt").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ui.filter=b.dataset.f;saveUi();scrFilter();scrTable()}));
+  const base=scrBase(),sel=sfSel();ui.sf=ui.sf||{};
+  $("sfStrat").innerHTML=SORDER.map(k=>{const n=base.filter(d=>sfOk(d,k)).length;return `<label class="sfk${ui.sf[k]?" on":""}"><input type="checkbox" data-k="${k}" ${ui.sf[k]?"checked":""}> ${esc(STRATS[k].name)} <span class="c">${n}</span></label>`}).join("");
+  $("sfStrat").querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{ui.sf[i.dataset.k]=i.checked;
+    if(i.checked&&!ui.sf[ui.strat]){ui.strat=i.dataset.k;if(!["ticker","chg","status","dist200w","score","quant","miss"].includes(ui.sort))ui.sort="score";saveUi();pageScreener();return}
+    saveUi();scrFilter();scrTable()}));
   const zc={};base.forEach(d=>{if(d.z)zc[d.z]=(zc[d.z]||0)+1});
-  $("zf").innerHTML=ZONES.map(([z,nm])=>`<button data-z="${z}" aria-pressed="${ui.zones.includes(z)}"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--z-${z});margin-right:5px"></span>${nm}<span class="c">${zc[z]||0}</span></button>`).join("");
-  $("zf").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{const z=b.dataset.z;ui.zones=ui.zones.includes(z)?ui.zones.filter(x=>x!==z):ui.zones.concat(z);saveUi();scrFilter();scrTable()}));
+  $("zf").innerHTML=ZONES.map(([z,nm])=>`<label class="sfk z-${z}${ui.zones.includes(z)?" on":""}"><input type="checkbox" data-z="${z}" ${ui.zones.includes(z)?"checked":""}> ${nm} <span class="c">${zc[z]||0}</span></label>`).join("");
+  $("zf").querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{const z=i.dataset.z;ui.zones=i.checked?ui.zones.concat(z):ui.zones.filter(x=>x!==z);saveUi();scrFilter();scrTable()}));
+  const parts=[];if(sel.length)parts.push((sel.length>1?(ui.sfMode==="or"?"någon av ":"alla av "):"")+sel.map(k=>STRATS[k].name).join(ui.sfMode==="or"?" / ":" + ")+(ui.sfNear?" (eller nära)":""));
+  if(ui.zones.length)parts.push(ui.zones.map(z=>ZNAME[z]).join(" / "));if(ui.sfSig)parts.push("i köpläge");if(ui.sfSize)parts.push(`≥ ${ui.sfSize} md $`);if(ui.sfQ)parts.push(`"${ui.sfQ}"`);
+  $("sfSum").textContent=parts.length?"Filter: "+parts.join(" · "):"Inga filter: visar alla aktier. Bocka i en eller flera strategier ovan.";
 }
 const SCK={ticker:"",chg:"chg",status:"status",dist200w:"zones",score:"score",quant:"quant",miss:"miss",mcapB:"mcap"};
 function scrHead(){
@@ -1322,8 +1348,10 @@ function scrHead(){
   $("th").querySelectorAll("th").forEach(th=>th.addEventListener("click",()=>{const k=th.dataset.k;if(ui.sort===k)ui.dir*=-1;else{ui.sort=k;ui.dir=ASC.has(k)?1:-1}saveUi();scrHead();scrTable()}));
 }
 function scrVisible(){
-  const s=ui.strat,k=ui.sort,dir=ui.dir;
-  const l=scrBase().filter(d=>(ui.filter==="all"||(ui.filter==="sig"?d.sig.length:d.res[s].status===ui.filter))&&(!ui.zones.length||ui.zones.includes(d.z)));
+  const s=ui.strat,k=ui.sort,dir=ui.dir,sel=sfSel(),q=norm(ui.sfQ||"").trim();
+  const l=scrBase().filter(d=>(!sel.length||(ui.sfMode==="or"?sel.some(x=>sfOk(d,x)):sel.every(x=>sfOk(d,x))))
+    &&(!ui.zones.length||ui.zones.includes(d.z))&&(!ui.sfSig||d.sig.length)&&(!ui.sfSize||(d.mcapB||0)>=ui.sfSize)
+    &&(!q||norm(d.ticker+" "+d.name+" "+(d.industry||"")).includes(q)));
   l.sort((a,b)=>{let x,y;
     if(k==="status"){x=ORD[a.res[s].status]*1000-(scoreOf(a,s)||0);y=ORD[b.res[s].status]*1000-(scoreOf(b,s)||0)}
     else if(k==="miss"){x=a.res[s].miss.length*1000-(scoreOf(a,s)||0);y=b.res[s].miss.length*1000-(scoreOf(b,s)||0)}
@@ -1333,12 +1361,12 @@ function scrVisible(){
 }
 function scrTable(){
   const s=ui.strat,C=scrCols(),l=scrVisible();
-  $("cnt").textContent=`Visar ${l.length} av ${scrBase().length} aktier`;
-  if(!l.length){$("tb").innerHTML=`<tr><td colspan="${C.length}" class="empty">Inga aktier matchar.</td></tr>`;return}
+  $("cnt").innerHTML=`<b>${l.length}</b> av ${scrBase().length} aktier`;
+  if(!l.length){$("tb").innerHTML=`<tr><td colspan="${C.length}" class="empty">Inga aktier klarar alla filter just nu.${sfSel().length>1&&ui.sfMode!=="or"?" Prova Någon av dem, eller bocka i Räkna med Nära.":""}</td></tr>`;return}
   $("tb").innerHTML=l.slice(0,400).map(d=>{const m=new Set(d.res[s].miss);return `<tr class="go" data-t="${esc(d.ticker)}">${C.map(c=>{
     if(c.k==="ticker")return `<td class="l stick">${co(d)}</td>`;
     if(c.k==="chg")return chgCell(d);
-    if(c.k==="status")return `<td class="l"><span class="pill ${d.res[s].status==="pass"?"pass":d.res[s].status==="near"?"near":""}">${STL[d.res[s].status]}</span> ${sigB(d)}</td>`;
+    if(c.k==="status")return `<td class="l">${sigB(d)} ${SORDER.map(k=>{const st=d.res[k].status;return st==="pass"||st==="near"?`<span class="spill ${st}" style="font-size:11px;padding:1px 6px" title="${esc(STRATS[k].name)}: ${STL[st]}">${st==="pass"?"✓":"≈"} ${STRATS[k].short}</span>`:""}).join(" ")||'<span class="faint small">–</span>'}</td>`;
     if(c.k==="dist200w")return `<td class="l">${zchip(d)}</td>`;
     if(c.k==="score")return `<td class="n">${scoreOf(d,s)??"–"}</td>`;
     if(c.k==="miss"){const t=[...m].map(x=>shortName(s,x)).join(", ");return t?`<td class="l small" style="color:var(--down);max-width:200px;overflow:hidden;text-overflow:ellipsis" title="${esc(t)}">${esc(t)}</td>`:`<td class="l ok">–</td>`}
