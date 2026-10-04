@@ -40,6 +40,14 @@ Fliken **Mina aktier** är din bevakningslista med en rad per aktie:
 
 Lägg till aktier med sökrutan (flera går med komma: `NVDA, AAPL, VOLV-B`) eller ☆ på en aktiesida. De sparas i webbläsaren. Aktier i `config/mina.txt` syns på alla enheter och får data vid nästa nattkörning, även om de inte ingår i S&P 500, Nasdaq-100 eller Stockholmslistan.
 
+## Branscher och Jordi Visser
+
+Fliken **Branscher** visar vilka branscher som är hetast, vilka som kan vara nästa och vilka som svalnar. Varje bransch har nyckeltal, vilka bolag som dominerar (andel av omsättningen) och vilka stora bolag som ligger i din köpzon. Överst finns Claudes branschanalys och en sammanfattning av **Jordi Vissers** senaste budskap, med en tabell där hans teser möter din strategi med live-data. Texten ligger i `site/insikt.json` och uppdateras varje vecka av en schemalagd Claude-session.
+
+## Portföljanalys
+
+**Portfölj → Analys** räknar på kurshistoriken för dina innehav: riskbetyg 1–10, volatilitet, max drawdown, topp 3-koncentration, beta, Sharpe och Sortino, en korrelationsmatris, ett scorecard (värde, framtid, historik, hälsa, utdelning) och prickdiagram för värdering, tillväxt och finansiell hälsa mot marknaden.
+
 ## Guld och backtest
 
 **Guld** är den kombinerade strategin för swingar med hävstång: 200W-köpzonen (under Cheap) + ett stort, stabilt och dominerande kvalitetsbolag (börsvärde ≥ 200 md $ eller branschledare ≥ 50 md $, beta ≤ 1,3, ROIC/ROE ≥ 15 %, FCF-marginal ≥ 10 %, växande, skulden under kontroll). Originalstrategierna finns kvar bredvid.

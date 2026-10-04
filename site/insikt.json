@@ -1,0 +1,54 @@
+{
+  "_info": "Veckoanalys skriven av Claude: Jordi Vissers senaste budskap och branschanalys. Uppdateras varje vecka. Sidan kopplar ihop aktierna med live-data och din strategi.",
+  "date": "2026-10-04",
+  "visser": {
+    "headline": "AI-agenterna är här: pengarna roterar från minnen och mjukvara till optiska nät, kraft, hälsovård och krypto",
+    "summary": "Jordi Visser (22V Research, Visser Labs) ser inte ett bubbelbrott utan en rotation inom en strukturell AI-tjurmarknad. Hans senaste budskap: AI har gått från chattbotar till agenter (”ChatGPT-ögonblicket för AI-agenter” i slutet av sommaren 2026), och agenter förbrukar beräkningskraft dygnet runt. Det gör att flaskhalsarna flyttar från chip till fysisk infrastruktur: kraft, kemikalier, silver och optiska nätverk. Samtidigt pågår en dold björnmarknad i stora mjukvaru- och betalbolag, där AI urholkar vallgravarna och P/E-talen pressas. Hans största innehav är Marvell och Eli Lilly, och han har ökat i silver och krypto, som han nu kallar sitt ”Micron-ögonblick”.",
+    "episodes": [
+      {"date": "2026-10-04", "title": "Krypto är vid sitt ”Micron-ögonblick”", "points": ["Krypto omvärderas snabbare än investerare väntar sig, som Micron gjorde.", "Tokenvolymer ska gå ”genom taket” via tokenisering, stablecoin-betalningar och AI-agenter.", "Utan agenter skulle han inte vara lika optimistisk: agenter bryr sig inte om kreditkort eller varumärken.", "Kommande: video om ”ghost rails” och tio vertikaler, med tokens som Zcash, Bittensor och Near."]},
+      {"date": "2026-09", "title": "En björnmarknad gömd i AI-tjurmarknaden", "points": ["Två marknader: räntefokuserade investerare blankar en värld som inte finns, medan skuldfria AI-bolag tar marknadsandelar.", "Björnmarknaden syns som P/E-press i stor mjukvara och betalningar: Salesforce −10 % i år, Visa och Mastercard i ”knivslagsmål om P/E-talet”.", "Hans korg för agent-infrastruktur är upp 46 % mot 10 % för MAG-7.", "Metas AI-agent Muse toppade App Store den 21 september, aktien +11,4 % på en dag. Han ser det som den personliga agentens genombrott."]},
+      {"date": "2026-09", "title": "Google som ”compute-OPEC”", "points": ["AI-handeln avgörs inte av vem som har smartast modell utan av vem som äger knappt kisel, kraft och kapital.", "Google kan förlora modellkapplöpningen och ändå bli beräkningskraftens Saudiarabien.", "Minnesbristen hos Samsung och SK Hynix varar efter 2030: varje ny agentgeneration kräver 10–100 gånger mer beräkning."]},
+      {"date": "2026-06", "title": "Fyrverkerierna är över: rotation, inte bubbla", "points": ["Upptäcktsfasen är slut, nu smälts den. Rotation ut ur trånga minnesaffärer till optiska nät, hälsovårds-AI och energi.", "Risk i DRAM: AI kan lösa sin egen minnesflaskhals och få efterfrågan att vända snabbare än investerare hinner sälja.", "Cykeln är inte längre arbete mot kapital utan beräkning mot energi: kapital flyttar från de sju hyperscalers till ~100 bolag inom kemi, kraft och specialhalvledare.", "Silver kan dubblas på ett år om fastkroppsbatterier ersätter litium."]}
+    ],
+    "favor": ["Optiska nätverk (Marvell, optik)", "Kraft och elnät", "Specialkemikalier", "Hälsovård med AI (Eli Lilly)", "Google som ägare av beräkningskraft", "Agent-infrastruktur", "Silver och krypto"],
+    "avoid": ["DRAM och minnen efter den stora uppgången", "Stor mjukvara vars vallgravar urholkas av AI", "Betalbolag (Visa, Mastercard) som pressas på P/E", "Räntekänsliga bolag med mycket skuld"],
+    "sources": [
+      {"t": "TradingView/Stocktwits: Crypto är vid sitt Micron-ögonblick (okt 2026)", "u": "https://www.tradingview.com/news/stocktwits:1912063e8094b:0-jordi-visser-says-crypto-is-at-its-micron-moment-sees-token-volumes-going-through-the-roof/"},
+      {"t": "BigGo: The Bear Market Is Hidden Inside the AI Bull Market", "u": "https://finance.biggo.com/news/3ac8403b55e095a0"},
+      {"t": "BigGo: Google kan bli OPEC of Compute", "u": "https://finance.biggo.com/news/1b2e2130d6932cbe"},
+      {"t": "BigGo: Memory Shortages Will Outlast 2030", "u": "https://finance.biggo.com/news/4f32aac98e13d3ae"},
+      {"t": "BigGo: The Fireworks Show Is Over", "u": "https://finance.biggo.com/news/188fd5bde344e9a4"},
+      {"t": "Jordi Visser på X", "u": "https://x.com/jvisserlabs/status/2104186798373044417"},
+      {"t": "Milk Road: Marvell största innehavet", "u": "https://x.com/MilkRoadStocks/status/2081726364730950051"}
+    ]
+  },
+  "picks": [
+    {"ticker": "GOOGL", "theme": "Compute-OPEC", "visser": "Äger beräkningskraft, kraft och kapital. Hans tes: kan bli ”Saudiarabien för compute”.", "fit": "Megabolag, P/E 17 bakåt. Men 74 % över 200W, långt från din köpzon."},
+    {"ticker": "LLY", "theme": "Hälsovård + AI", "visser": "Ett av hans två största innehav. ”Nästa vågs Google”, där GLP-1 är annonsaffären som betalar resten.", "fit": "Branschledare, men 50 % över 200W (Expensive). Vänta på rekyl."},
+    {"ticker": "MRVL", "theme": "Optiska nät", "visser": "Hans största innehav: 18 egna chipprojekt, varav ett dussin hos de fyra största molnjättarna, och vinnare på Nvidias Vera Rubin.", "fit": "Över 200 % över 200W och P/E 90. Passar inte din strategi just nu."},
+    {"ticker": "META", "theme": "Personliga agenter", "visser": "AI-agenten Muse till toppen av App Store. Han ser det som den personliga agentens genombrott.", "fit": "Megabolag, P/E framåt 21, 46 % över 200W. Bevaka för rekyl mot Fair Value."},
+    {"ticker": "ORCL", "theme": "Äger beräkningskraft", "visser": "Passar tesen om att den som äger kapacitet och kraft vinner, inte den med bästa modellen.", "fit": "Megabolag i din köpzon (under 200W) med P/E framåt 13. Men skuldsatt, kolla Guld-kraven."},
+    {"ticker": "LIN", "theme": "Kemikalier/flaskhals", "visser": "Kemikalier är en av de fysiska flaskhalsar han pekar ut, där kapitalet flyttar.", "fit": "Branschledare 13 % över 200W, i köpzonen (Cheap). Stabil, beta låg."},
+    {"ticker": "CEG", "theme": "Kraft", "visser": "Cykeln är nu beräkning mot energi. Kraft är flaskhalsen.", "fit": "21 % över 200W, precis vid Cheap-gränsen. Stort kärnkraftsbolag."},
+    {"ticker": "ETN", "theme": "Elnät och kraft", "visser": "Fysisk AI-infrastruktur: el, kylning och nät.", "fit": "48 % över 200W. Vänta."},
+    {"ticker": "ISRG", "theme": "Hälsovård + AI/robotik", "visser": "Han roterar mot hälsovård med AI.", "fit": "Branschledare under 200W (Fire Sale). Ovanligt läge för ett kvalitetsbolag."},
+    {"ticker": "ANET", "theme": "Nätverk i datacenter", "visser": "Optiska nät och nätverk är dit pengarna roterar.", "fit": "118 % över 200W. Inte i din zon."}
+  ],
+  "avoidPicks": [
+    {"ticker": "MU", "why": "Visser har gått ur minnen: risk att AI löser sin egen minnesflaskhals. Nästan 390 % över 200W."},
+    {"ticker": "CRM", "why": "Hans exempel på mjukvara som pressas av AI. I din köpzon, men han ser det som en värdefälla."},
+    {"ticker": "V", "why": "Betalningar i ”knivslagsmål om P/E-talet” när AI-agenter inte bryr sig om kortvarumärken."}
+  ],
+  "industry": {
+    "headline": "Halvledarna drar igen, mjukvaran är rean, och de bästa köplägena för din strategi finns i medtech och stor mjukvara",
+    "text": [
+      "Hetast just nu är halvledare och halvledarutrustning: medianaktien +17–20 % på en månad och samtliga över 200W (medianen 82–144 % över). Vinstprognoserna höjs, så rörelsen har stöd, men för din 200W-strategi är branschen för dyr. Det är momentum, inte köpzon.",
+      "Hårdvara och nätverk (optik, nätverk, komponenter) är tvåa och har högst prognoshöjningar av alla teman. Det är exakt Vissers rotation mot optiska nät, och den syns i datan.",
+      "Mjukvaran är kluven: +11 % på tre månader men −2 % senaste månaden, och medianen ligger bara 3 % över 200W. Megabolag som ORCL, CRM, NOW, ADP och UBER ligger i din köpzon. Det är både din chans och Vissers varning (AI urholkar vallgravar). Välj de som säljer beräkningskraft, inte de vars produkt AI kan ersätta.",
+      "Kallast är försvar, fastigheter, dagligvaror och kraft. Kraft är intressant: Visser ser energi som nästa flaskhals, men branschen har fallit 11 % på tre månader. Det kan vara nästa tema som vänder.",
+      "Bäst för dig, som vill ha stora, stabila bolag med hävstång: medtech har sex stora bolag i köpzonen (ABT, DHR, ISRG, MDT, SYK, UNH) och låg beta. Även dagligvaror (PG, PEP) och konsument (COST, HD, MCD) har megabolag i zonen, men med svag tillväxt."
+    ],
+    "next": ["Kraft & el", "Medtech & vård", "Mjukvara"],
+    "nextWhy": {"Kraft & el": "Vissers energiflaskhals, branschen nedtryckt (−11 % på 3 mån) men stabila prognoser.", "Medtech & vård": "Många kvalitetsbolag i köpzonen, Visser roterar mot hälsovård med AI.", "Mjukvara": "Medianen nära 200W efter fallet. Selektivt: de som äger infrastruktur."}
+  }
+}

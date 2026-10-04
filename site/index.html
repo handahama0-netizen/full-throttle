@@ -397,6 +397,38 @@ details.xsec>summary .sub{font-weight:400}
 .share span{position:relative;font-size:11.5px;padding-left:6px;line-height:18px}
 .why{margin:0;padding-left:18px;font-size:13.5px;line-height:1.55;display:grid;gap:4px}
 .crit.bt td{white-space:nowrap}
+.slist{list-style:none;margin:0;padding:0}
+.slist li{padding:8px 0;border-top:1px solid var(--line);cursor:pointer;display:grid;gap:2px}
+.slist li:first-child{border-top:0;padding-top:0}
+.secm{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--muted);margin-top:6px}
+ol.lead{list-style:none;margin:0;padding:0;font-size:13px}
+ol.lead li{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid var(--line);cursor:pointer}
+ol.lead li:last-child{border-bottom:0}
+.chipl{display:flex;flex-wrap:wrap;gap:6px}
+details.ep{border-top:1px solid var(--line);padding:8px 0}
+details.ep summary{cursor:pointer}
+details.ep ul{margin:6px 0 0;padding-left:18px;font-size:13.5px;line-height:1.55}
+.risk{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.rs{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;align-content:center;text-align:center;border:6px solid}
+.rs b{font-size:30px;line-height:1} .rs span{font-size:11px;font-weight:700} .rs small{font-size:10px;color:var(--muted)}
+.rs.lo{border-color:var(--up);color:var(--up)} .rs.md{border-color:var(--z-fair);color:var(--z-fair)} .rs.hi{border-color:var(--down);color:var(--down)}
+.mtiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+.mt{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:2px}
+.mt b{font-size:22px;font-weight:750}
+.scgrid{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:760px){.scgrid{grid-template-columns:1fr}}
+.radar2{width:100%;height:auto}
+.radar2 text{font-family:var(--font);font-size:12px;fill:var(--ink);font-weight:650;cursor:pointer}
+.pa h3{font-size:15px}
+.pa{margin-bottom:12px}
+.strip{width:100%;height:auto;display:block;margin-top:8px}
+.strip text{font-family:var(--font);font-size:11px;fill:var(--muted)}
+.strip .dl{fill:var(--ink);font-weight:650;font-size:11.5px}
+.strip .rl{fill:var(--ink);font-weight:650}
+.strip .dot{cursor:pointer}
+table.corr{border-collapse:collapse;font-size:11.5px}
+table.corr th,table.corr td{padding:6px 7px;text-align:center;border:1px solid var(--card);font-family:var(--mono);white-space:nowrap;position:static}
+table.corr th{background:none;color:var(--muted)}
 .epsnote{padding:10px 14px;border-top:1px solid var(--line);font-size:13px;line-height:1.55}
 .epsnote:empty{display:none}
 </style>
@@ -413,6 +445,7 @@ details.xsec>summary .sub{font-weight:400}
     <nav class="main">
       <a href="#/" data-nav="start">Start</a>
       <a href="#/mina" data-nav="mina">Mina aktier</a>
+      <a href="#/branscher" data-nav="branscher">Branscher</a>
       <a href="#/innehav/swing" data-nav="swing">Live swing</a>
       <a href="#/innehav/port" data-nav="port">Portfölj</a>
       <a href="#/screener" data-nav="screener">Screener</a>
@@ -559,6 +592,11 @@ const GL={
   dominance:["Dominans i branschen","Bolagen i samma bransch sorterade efter omsättning (börsvärde delat med P/S). Andel = bolagets del av branschens samlade omsättning bland sidans bolag. Förklaringen jämför ledarens marginaler, avkastning på kapitalet och tillväxt med branschens median."],
   btAnn:["Median årstakt","Varje affärs avkastning omräknad till takt per år, sedan medianen. Korta vinnande affärer ger höga tal. Jämför mellan reglerna, inte med en portföljs avkastning."],
   btLev:["Med 2x hävstång","Dubbla veckorörelser minus 5 % ränta per år på den lånade delen. Visar det värsta fallet under en affär. Ett fall på −50 % eller mer kan ge margin call."],
+  mdd:["Max drawdown","Största fallet från en topp till en senare botten för portföljen med dagens vikter. Med 2x hävstång blir fallet ungefär dubbelt så stort."],
+  top3:["Topp 3-koncentration","Hur stor del av värdet som ligger i de tre största innehaven. Över 60 % betyder att några få aktier avgör hela resultatet."],
+  sharpe:["Sharpekvot","Avkastning över riskfri ränta delat med volatiliteten. Hur mycket betalt du får per enhet risk. Över 1 är bra, över 2 mycket bra."],
+  sortino:["Sortinokvot","Som Sharpe men räknar bara svängningar nedåt som risk. Uppgångar straffas inte."],
+  corr:["Korrelation","Hur lika innehaven rör sig, från −1 (helt olika) till +1 (exakt lika). Med hög korrelation faller allt samtidigt, och spridningen skyddar inte."],
   focus:["Claudes fokus","Varje vardag morgon går Claude igenom aktierna som klarar Lower Risk (Low Risk, High Reward) eller är nära, och som ligger i 200W-köpzonen. Claude läser senaste nyheterna och lyfter de som är mest intressanta just nu, plus kommentarer till dina swingar. Köpläge = klarar strategin och ligger i köpzonen. Bevaka = nära köpzon eller missar ett krav. Undvik = fallet ser fundamentalt motiverat ut."],
   fairValue:["Beräknat värde","DCF-värdet per aktie i basfallet, jämfört med dagens kurs."],
   eps:["EPS, vinst per aktie","Bolagets vinst delat med antalet aktier. Över tid brukar kursen följa vinsten: växer vinsten och kursen står still blir aktien billigare (lägre P/E), och tvärtom."],
@@ -718,13 +756,15 @@ document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement.t
 function route(){
   const h=location.hash||"#/";const parts=h.slice(2).split("/");
   const page=parts[0]||"start";
-  const navKey=page==="innehav"?((parts[1]||"swing")==="port"?"port":"swing"):page==="aktie"?"":page;
+  const navKey=page==="innehav"?((parts[1]||"swing")==="swing"?"swing":"port"):page==="aktie"?"":page;
   document.querySelectorAll("nav.main a").forEach(a=>a.setAttribute("aria-current",a.dataset.nav===navKey?"page":"false"));
   if(chart&&page!=="aktie"){chart.remove();chart=null;chartSym=null}
   if(!U){$("app").innerHTML=`<div class="skel">Laddar…</div>`;return}
   if(page==="aktie")return pageStock(decodeURIComponent(parts[1]||""));
   if(page==="screener")return pageScreener();
   if(page==="mina")return pageMine();
+  if(page==="branscher")return pageSectors();
+  if(page==="innehav"&&parts[1]==="analys")return pageAnalysis();
   if(page==="innehav")return pageHoldings(parts[1]||"swing",parts[2]==="add"?decodeURIComponent(parts[3]||""):null);
   if(page==="strategier")return pageMethod();
   return pageStart();
@@ -1376,7 +1416,7 @@ function pageHoldings(listKey,addTicker){
       <td class="l" style="white-space:nowrap">${p.src==="repo"?`<span class="pill" title="Inlagd av Claude. Be Claude i chatten om ändringar.">Inlagd av Claude</span>`:`<button class="btn sm" data-edit="${p.id}" title="Ändra">Ändra</button> <button class="btn sm" data-del="${p.id}" title="Ta bort">Ta bort</button>`}</td></tr>`}).join("");
   const F=hForm&&hForm.list===L?hForm:{list:L,ticker:"",price:null,qty:null,sek:null,date:new Date().toISOString().slice(0,10)};
   $("app").innerHTML=`
-  <div class="hero"><h1>${L==="swing"?"Live swing":"Portfölj"}</h1><div class="seg" id="hseg"><button data-l="swing" aria-pressed="${L==="swing"}">Swingar</button><button data-l="port" aria-pressed="${L==="port"}">Portfölj</button></div></div>
+  <div class="hero"><h1>${L==="swing"?"Live swing":"Portfölj"}</h1><div class="seg" id="hseg"><button data-l="swing" aria-pressed="${L==="swing"}">Swingar</button><button data-l="port" aria-pressed="${L==="port"}">Portfölj</button><button data-l="analys">Analys</button></div></div>
   <section class="card"><div class="bd">${tiles(t)}</div></section>
   ${riskCard(list)}
   <section class="card" style="margin-top:16px"><div class="hd"><h2>${F.id?"Ändra":"Lägg till"} ${L==="swing"?"swing":"innehav"}</h2><span class="sub">Ange antal eller belopp i kronor, det andra räknas ut</span></div>
@@ -2155,6 +2195,7 @@ function stratVerdict(d){
   if(d.excluded)return{k:"mid",t:d.type&&d.type!=="EQUITY"?"ETF:er bedöms inte i strategierna.":`Sektorn ${d.sector} är utesluten i strategierna. 200W-zonerna gäller ändå.`};
   if(d.sig.includes("guld"))return{k:"gold",t:"Guldläge: ett stort, stabilt kvalitetsbolag i köpzonen mot 200W."};
   if(d.sig.length)return{k:"pos",t:`Köpläge: klarar ${pass.map(k=>STRATS[k].name).join(" och ")} och ligger i köpzonen.`};
+  if(pass.length&&nn(d.dist200w)&&d.dist200w<lim.zones.swing)return{k:"pos",t:`Klarar ${pass.map(k=>STRATS[k].name).join(" och ")} och ligger i köpzonen mot 200W (${ZNAME[d.z]}).`};
   if(pass.length){const lv=level(d,lim.zones.swing);return{k:"wait",t:`Klarar ${pass.map(k=>STRATS[k].name).join(" och ")}, men priset är för högt. Köpzon under ${money(lv,d.currency)}, ${f(dropTo(d,lim.zones.swing),0)} % ner.`}}
   if(near.length){const k=near[0];return{k:"near",t:`Nära ${STRATS[k].name}: missar bara ${shortName(k,R[k].miss[0]).toLowerCase()} (${critVal(R[k].miss[0],d)}).`}}
   return{k:"mid",t:"Klarar inte dina strategier just nu."};
@@ -2233,6 +2274,193 @@ function btSection(){
       <li>Veckostängningar: en stop kan i verkligheten slå ut på en sämre nivå. Inget courtage, ingen skatt, ingen utdelning.</li>
       <li>Median årstakt räknar om varje affär till årstakt, korta vinnare blir därför höga tal. Det är inte portföljens avkastning.</li>
       <li>2x hävstång räknas som dubbla veckorörelser minus 5 % ränta per år på lånet. Ett fall på −50 % eller mer med hävstång kan ge margin call.</li></ul></div>`;
+}
+
+/* ============ BRANSCHER ============ */
+let INSIKT=null;
+function sectors(big){
+  const g={};rows.forEach(d=>{if(big&&(d.mcapB||0)<50)return;const t=themeOf(d);if(t)(g[t]=g[t]||[]).push(d)});
+  return Object.entries(g).filter(([,m])=>m.length>=(big?3:4)).map(([name,m])=>{
+    const r5=med(m.map(d=>d.r5)),r21=med(m.map(d=>d.r21)),r63=med(m.map(d=>d.r63));
+    const w=(nn(r5)?.2:0)+(nn(r21)?.5:0)+(nn(r63)?.3:0),mom=w?((nn(r5)?r5*.2:0)+(nn(r21)?r21*.5:0)+(nn(r63)?r63*.3:0))/w:null;
+    const wm=m.filter(d=>nn(d.dist200w)),above=wm.length?wm.filter(d=>d.dist200w>0).length/wm.length*100:null;
+    const rv=m.map(d=>d.epsRev30).filter(nn),lead=m.map(d=>({d,rev:revEst(d)})).filter(x=>x.rev).sort((a,b)=>b.rev-a.rev),tot=lead.reduce((s,x)=>s+x.rev,0);
+    return{name,m,n:m.length,r5,r21,r63,mom,accel:nn(r21)&&nn(r63)?r21-r63/3:null,above,dist:med(m.map(d=>d.dist200w)),rev:rv.length>=3?med(rv):null,pe:med(m.map(d=>d.fwdPe>0?d.fwdPe:null)),
+      lead:lead.slice(0,3).map(x=>({d:x.d,share:x.rev/tot*100})),zone:m.filter(d=>(d.mcapB||0)>=50&&nn(d.dist200w)&&d.dist200w<lim.zones.swing&&!d.excluded).sort((a,b)=>(b.mcapB||0)-(a.mcapB||0)),
+      gold:m.filter(d=>d.res&&d.res.gold&&d.res.gold.status==="pass")};
+  }).sort((a,b)=>(b.mom??-9)-(a.mom??-9));
+}
+let openSec=null;
+function pageSectors(){
+  document.title="Branscher · Full Throttle";
+  const S=sectors(!!ui.secBig),I=INSIKT,ind=I&&I.industry,V=I&&I.visser;
+  const hot=S.filter(s=>nn(s.mom)&&s.mom>0).slice(0,4);
+  const nextN=new Set((ind&&ind.next)||[]);
+  const next=S.filter(s=>!hot.includes(s)&&(nextN.has(s.name)||(nn(s.accel)&&s.accel>0.01&&(s.rev??0)>=0&&(s.above??100)<90))).sort((a,b)=>(nextN.has(b.name)-nextN.has(a.name))||(b.accel??-9)-(a.accel??-9)).slice(0,4);
+  const cool=S.filter(s=>!hot.includes(s)&&!next.includes(s)&&nn(s.r63)&&s.r63>0.02&&nn(s.r21)&&s.r21<0).slice(0,4);
+  const pc=x=>`<span class="n ${cls(x)}">${nn(x)?pct(x*100,1):"–"}</span>`;
+  const mini=(s,why)=>`<li data-sec="${esc(s.name)}"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(s.name)}</b><span class="small">1 mån ${pc(s.r21)} · 3 mån ${pc(s.r63)}</span></div><span class="small muted">${why}</span></li>`;
+  const card=s=>{const open=openSec===s.name;return `<section class="card seccard" id="sec-${esc(s.name.replace(/\W/g,""))}"><div class="bd">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><h3 style="font-size:15.5px">${esc(s.name)} <span class="sub">${s.n} bolag</span></h3><span class="pill" style="border-color:transparent;${HEATCLS[heatOf(s,S)]||""}">${heatOf(s,S)}</span></div>
+    <div class="secm"><span>1 v ${pc(s.r5)}</span><span>1 mån ${pc(s.r21)}</span><span>3 mån ${pc(s.r63)}</span><span>Över 200W <b class="n">${nn(s.above)?f(s.above,0," %"):"–"}</b></span><span>P/E fr. <b class="n">${f(s.pe,0)}</b></span><span>Prognos 30 d ${nn(s.rev)?`<b class="n ${cls(s.rev)}">${pct(s.rev,1)}</b>`:"–"}</span></div>
+    <h4 class="qh">Dominerar</h4><ol class="lead">${s.lead.map((x,i)=>`<li data-go="${esc(x.d.ticker)}"><span>${i+1}. <b class="tk">${esc(x.d.ticker)}</b> <span class="muted small">${esc(x.d.name)}</span></span><span class="n small">${f(x.share,0)} % av omsättningen</span></li>`).join("")}</ol>
+    <h4 class="qh">Stora bolag i din köpzon</h4>${s.zone.length?`<div class="chipl">${s.zone.slice(0,6).map(d=>`<a class="pill${d.sig.includes("guld")?" pass":""}" href="${link(d.ticker)}"><span class="tk">${esc(d.ticker)}</span> ${pct(d.dist200w,0)}${d.sig.includes("guld")?" · GULD":""}</a>`).join("")}</div>`:`<p class="small muted">Inga just nu.</p>`}
+    <button class="more" data-open="${esc(s.name)}" style="margin-top:10px">${open?"Dölj bolagen ↑":"Alla bolag i branschen ↓"}</button>
+    ${open?`<div class="tw" style="margin-top:8px"><table class="crit"><thead><tr><th>Bolag</th><th class="r">Börsvärde</th><th class="r">1 mån</th><th class="r">3 mån</th><th>200W</th><th>Strategi</th></tr></thead><tbody>${s.m.slice().sort((a,b)=>(b.mcapB||0)-(a.mcapB||0)).map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td>${co(d)}</td><td class="r n">${mcap(d.mcapB)}</td><td class="r n ${cls(d.r21)}">${nn(d.r21)?pct(d.r21*100,0):"–"}</td><td class="r n ${cls(d.r63)}">${nn(d.r63)?pct(d.r63*100,0):"–"}</td><td>${zchip(d)}</td><td>${sigB(d)||SORDER.filter(k=>d.res[k]&&d.res[k].status==="pass").map(k=>`<span class="pill pass" style="font-size:11px">${STRATS[k].short}</span>`).join(" ")||'<span class="faint">–</span>'}</td></tr>`).join("")}</tbody></table></div>`:""}
+  </div></section>`};
+  // Visser + strategi
+  const picks=((I&&I.picks)||[]).map(p=>({...p,d:bySym[p.ticker]})).filter(p=>p.d);
+  const vis=V?`<section class="card" style="margin-top:16px"><div class="hd"><h2>Jordi Visser denna vecka</h2><span class="sub">Sammanfattat av Claude ${esc(I.date||"")}</span></div><div class="bd">
+      <p class="lead" style="font-size:16.5px;font-weight:650;line-height:1.45">${esc(V.headline)}</p>
+      <p style="margin-top:8px;font-size:14px;line-height:1.6">${esc(V.summary)}</p>
+      <div class="pc" style="margin-top:12px"><div><h4>Han gillar</h4><ul class="pro">${(V.favor||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div><div><h4>Han undviker</h4><ul class="con">${(V.avoid||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div></div>
+      ${(V.episodes||[]).map((e,i)=>`<details class="ep"${i===0?" open":""}><summary><span class="n small muted">${esc(e.date)}</span> <b>${esc(e.title)}</b></summary><ul>${e.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></details>`).join("")}
+      <p class="small muted" style="margin-top:10px">Källor: ${(V.sources||[]).map(s=>`<a href="${esc(s.u)}" target="_blank" rel="noopener">${esc(s.t)}</a>`).join(" · ")}</p>
+    </div></section>
+    ${picks.length?`<section class="card" style="margin-top:16px"><div class="hd"><h2>Där Visser och din strategi möts</h2><span class="sub">Live-läge mot 200W och dina strategier</span></div><div class="bd flush"><div class="tw"><table><thead><tr><th class="l">Aktie</th><th class="l">Tema</th><th class="l">200W</th><th class="l">Din strategi</th><th class="l">Värdering</th><th class="l">Vissers skäl</th></tr></thead><tbody>
+      ${picks.sort((a,b)=>(b.d.sig.length-a.d.sig.length)||(a.d.dist200w??999)-(b.d.dist200w??999)).map(p=>{const v=stratVerdict(p.d);return `<tr class="go" data-t="${esc(p.ticker)}"><td class="l">${co(p.d)}</td><td class="l small">${esc(p.theme)}</td><td class="l">${zchip(p.d)}</td><td class="l small" style="white-space:normal;min-width:200px">${sigB(p.d)} ${esc(v.t)}</td><td class="l">${vChip(valView(p.d))}</td><td class="l small muted" style="white-space:normal;min-width:260px">${esc(p.visser)}</td></tr>`}).join("")}
+      </tbody></table></div>
+      ${(I.avoidPicks||[]).length?`<div style="padding:12px 16px;border-top:1px solid var(--line)"><h4 class="qh" style="margin-top:0">Visser är försiktig med</h4>${I.avoidPicks.map(a=>{const d=bySym[a.ticker];return `<p class="small" style="margin-top:4px"><a href="${link(a.ticker)}"><b class="tk">${esc(a.ticker)}</b></a> ${d?zchip(d):""} ${esc(a.why)}</p>`}).join("")}</div>`:""}
+      <p class="small muted" style="padding:0 16px 12px">Tolkning av offentliga intervjuer och sammanfattningar, inte Vissers egna köpråd och inte investeringsrådgivning.</p></div></section>`:""}`:"";
+  $("app").innerHTML=`
+  <div class="hero"><h1>Branscher</h1><label class="chk"><input type="checkbox" id="secBig" ${ui.secBig?"checked":""}> Bara stora bolag (≥ 50 md $)</label></div>
+  ${ind?`<section class="card story"><div class="bd"><div class="small muted" style="margin-bottom:6px;font-weight:600;letter-spacing:.05em;text-transform:uppercase">Claudes branschanalys ${esc(I.date||"")}</div><p class="lead">${esc(ind.headline)}</p>${ind.text.map(t=>`<p style="margin-top:10px;font-size:14px;line-height:1.6;max-width:85ch">${esc(t)}</p>`).join("")}</div></section>`:""}
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));margin-top:16px">
+    <section class="card"><div class="hd"><h2>🔥 Hetast nu</h2></div><div class="bd"><ul class="slist">${hot.map(s=>mini(s,`${f(s.above,0)} % över 200W${nn(s.rev)&&s.rev>0?", prognoserna höjs":""}`)).join("")||'<li class="muted">Inget tema går upp just nu.</li>'}</ul></div></section>
+    <section class="card"><div class="hd"><h2>🌱 Kan vara nästa</h2></div><div class="bd"><ul class="slist">${next.map(s=>mini(s,esc((ind&&ind.nextWhy&&ind.nextWhy[s.name])||`Senaste månaden bättre än trenden${nn(s.above)?`, bara ${f(s.above,0)} % över 200W`:""}`))).join("")||'<li class="muted">Inga tydliga vändningar.</li>'}</ul></div></section>
+    <section class="card"><div class="hd"><h2>❄️ Svalnar</h2></div><div class="bd"><ul class="slist">${cool.map(s=>mini(s,"Uppe på 3 månader men faller senaste månaden")).join("")||'<li class="muted">Inga just nu.</li>'}</ul></div></section>
+  </div>
+  ${vis}
+  <h2 class="sect">Alla branscher <span class="sub" style="font-weight:400">sorterade efter värme</span></h2>
+  <div class="fgrid" style="grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr))">${S.map(card).join("")}</div>
+  <p class="small muted" style="margin-top:12px">Branscherna bygger på sidans ~600 aktier. Dominerar = störst omsättning (börsvärde / P/S). Värme = 1 vecka 20 %, 1 månad 50 %, 3 månader 30 % (median).</p>`;
+  $("secBig").addEventListener("change",e=>{ui.secBig=e.target.checked;saveUi();pageSectors()});
+  $("app").querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>{openSec=openSec===b.dataset.open?null:b.dataset.open;pageSectors();const el=$("sec-"+b.dataset.open.replace(/\W/g,""));if(el)el.scrollIntoView({block:"start"})}));
+  $("app").querySelectorAll("li[data-sec]").forEach(li=>li.addEventListener("click",()=>{const el=$("sec-"+li.dataset.sec.replace(/\W/g,""));if(el)el.scrollIntoView({behavior:"smooth",block:"start"})}));
+  bindRows($("app"));
+}
+function heatOf(s,S){const k=S.filter(x=>nn(x.mom)),i=k.indexOf(s);if(i<0)return"–";return i<2&&s.mom>0?"Hetast":i<Math.ceil(k.length*.3)&&s.mom>0?"Het":i>=k.length-2&&s.mom<0?"Kallast":i>=Math.floor(k.length*.7)&&s.mom<0?"Sval":"Neutral"}
+
+/* ============ PORTFÖLJANALYS ============ */
+function pctRank(arr,v){const a=arr.filter(nn);if(!a.length||!nn(v))return null;return a.filter(x=>x<v).length/a.length}
+function stripPlot(id,title,desc,items,ref,fmt,goodLow){
+  items=items.filter(x=>nn(x.v));if(!items.length)return `<section class="card pa"><div class="bd"><h3>${title}</h3><p class="muted small">Data saknas för dina innehav.</p></div></section>`;
+  const vs=items.map(x=>x.v).sort((a,b)=>a-b),q1=vs[Math.floor(vs.length*.25)],q3=vs[Math.floor(vs.length*.75)],iqr=Math.max(q3-q1,Math.abs(q3)*.2,1e-9);
+  const out=items.length>=4?items.filter(x=>x.v>q3+3*iqr||x.v<q1-3*iqr):[],ins=items.filter(x=>!out.includes(x));
+  const all=ins.map(x=>x.v).concat(nn(ref.v)?[ref.v]:[]);let lo=Math.min(...all),hi=Math.max(...all);const pad=(hi-lo||Math.abs(hi)||1)*.12;lo-=pad;hi+=pad;
+  const W=innerWidth<640?600:1000,L=34,R=34,X=v=>L+(v-lo)/(hi-lo)*(W-L-R);
+  const placed=[];ins.sort((a,b)=>a.v-b.v).forEach(x=>{const cx=X(x.v);let row=0;while(placed.some(p=>p.row===row&&Math.abs(p.cx-cx)<64))row++;placed.push({...x,cx,row})});
+  const rowsN=Math.max(1,...placed.map(p=>p.row+1)),H=30+rowsN*44+30;
+  let g="";const ticks=5;for(let i=0;i<=ticks;i++){const v=lo+(hi-lo)*i/ticks;g+=`<line x1="${X(v)}" x2="${X(v)}" y1="20" y2="${H-26}" stroke="var(--line)"/><text x="${X(v)}" y="${H-8}" text-anchor="middle">${fmt(v)}</text>`}
+  if(nn(ref.v))g+=`<line x1="${X(ref.v)}" x2="${X(ref.v)}" y1="14" y2="${H-26}" stroke="var(--ink)" stroke-dasharray="4 3"/><text x="${X(ref.v)}" y="11" text-anchor="middle" class="rl">${esc(ref.label)} ${fmt(ref.v)}</text>`;
+  placed.forEach(p=>{const good=nn(ref.v)?(goodLow?p.v<=ref.v:p.v>=ref.v):true,y=34+p.row*44;g+=`<g class="dot" data-t="${esc(p.t)}"><text x="${p.cx}" y="${y}" text-anchor="middle" class="dl">${esc(p.t.replace(/\.ST$/,""))}</text><circle cx="${p.cx}" cy="${y+14}" r="9" fill="${good?"var(--up)":"var(--down)"}" opacity=".85"><title>${esc(p.t)}: ${fmt(p.v)}</title></circle></g>`});
+  return `<section class="card pa"><div class="bd"><h3>${title}</h3><p class="small muted">${desc}</p><svg class="strip" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">${g}</svg>${out.length?`<p class="small muted">Dolt utanför skalan: ${out.map(x=>`${esc(x.t)} (${fmt(x.v)})`).join(", ")}.</p>`:""}</div></section>`;
+}
+function radar(axes){
+  const W=320,c=160,R=118,n=axes.length,pt=(i,r)=>[c+Math.sin(i/n*2*Math.PI)*r,c-Math.cos(i/n*2*Math.PI)*r];
+  let g="";[1,2,3,4,5,6].forEach(k=>{g+=`<polygon points="${axes.map((_,i)=>pt(i,R*k/6).join(",")).join(" ")}" fill="none" stroke="var(--line)"/>`});
+  axes.forEach((a,i)=>{const [x,y]=pt(i,R+22);g+=`<line x1="${c}" y1="${c}" x2="${pt(i,R)[0]}" y2="${pt(i,R)[1]}" stroke="var(--line)"/><text x="${x}" y="${y+4}" text-anchor="middle" class="ax" data-ax="${i}">${esc(a.name)} ${nn(a.v)?f(a.v,1):"–"}</text>`});
+  const poly=axes.map((a,i)=>pt(i,R*(a.v||0)/6).join(",")).join(" ");
+  const avg=axes.filter(a=>nn(a.v)).reduce((s,a)=>s+a.v,0)/Math.max(1,axes.filter(a=>nn(a.v)).length);
+  g+=`<polygon points="${poly}" fill="${avg>=3.5?"var(--up)":avg>=2.5?"var(--z-fair)":"var(--down)"}" fill-opacity=".3" stroke="${avg>=3.5?"var(--up)":avg>=2.5?"var(--z-fair)":"var(--down)"}" stroke-width="2"/>`;
+  return `<svg class="radar2" viewBox="-20 -10 ${W+40} ${W+20}">${g}</svg>`;
+}
+async function pageAnalysis(){
+  document.title="Portföljanalys · Full Throttle";
+  const L=ui.paList||"all";
+  const list=allPos().filter(p=>L==="all"||p.list===L);
+  const head=`<div class="hero"><h1>Portföljanalys</h1><div class="seg" id="hseg"><button data-l="swing">Swingar</button><button data-l="port">Portfölj</button><button data-l="analys" aria-pressed="true">Analys</button></div></div>
+    <div class="seg" id="paSeg" style="margin-bottom:12px">${[["all","Allt"],["port","Bara portfölj"],["swing","Bara swingar"]].map(([k,l])=>`<button data-k="${k}" aria-pressed="${L===k}">${l}</button>`).join("")}</div>`;
+  const bind=()=>{document.querySelectorAll("#hseg button").forEach(b=>b.addEventListener("click",()=>{location.hash="#/innehav/"+b.dataset.l}));document.querySelectorAll("#paSeg button").forEach(b=>b.addEventListener("click",()=>{ui.paList=b.dataset.k;saveUi();pageAnalysis()}))};
+  if(!list.length){$("app").innerHTML=head+`<section class="card"><div class="bd"><p class="muted">Inga innehav än. Lägg in dem under Portfölj eller Live swing.</p></div></section>`;bind();return}
+  $("app").innerHTML=head+`<div class="skel">Räknar på kurshistoriken…</div>`;bind();
+  const byT={};list.forEach(p=>{const c=posCalc(p);if(!nn(c.value)||!c.d.ticker)return;byT[p.ticker]=(byT[p.ticker]||0)+c.value});
+  const T=Object.keys(byT),tot=T.reduce((s,t)=>s+byT[t],0);
+  if(!T.length||!tot){$("app").innerHTML=head+`<section class="card"><div class="bd"><p class="muted">Värdet i kronor kan inte räknas ut än (valutakurser saknas). Försök igen om en stund.</p></div></section>`;bind();return}
+  const W=Object.fromEntries(T.map(t=>[t,byT[t]/tot]));
+  const dets={};await Promise.all(T.concat(bySym.SPY?["SPY"]:[]).map(async t=>{try{dets[t]=await getDetail(t)}catch(e){}}));
+  if(!location.hash.startsWith("#/innehav/analys"))return;
+  // dagliga avkastningar på gemensamma datum
+  const px=t=>{const D=(dets[t]||{}).d;if(!D)return null;const m=new Map();D.t.forEach((d,i)=>m.set(d,D.c[i]));return{m,t:D.t}};
+  const P=Object.fromEntries(T.concat(["SPY"]).map(t=>[t,px(t)]).filter(x=>x[1]));
+  const okT=T.filter(t=>P[t]);
+  const days=[...new Set(okT.flatMap(t=>P[t].t))].sort((a,b)=>a-b).filter(d=>okT.every(t=>P[t].t[0]<=d));
+  const last={},rets={},port=[],spy=[];okT.forEach(t=>{rets[t]=[]});
+  let lastS=null;
+  days.forEach((d,k)=>{let r=0,ok=true;const rr={};okT.forEach(t=>{const v=P[t].m.get(d)??last[t];if(last[t]&&v){rr[t]=v/last[t]-1}else ok=false;if(v)last[t]=v});
+    const sv=P.SPY?(P.SPY.m.get(d)??lastS):null;
+    if(k>0&&ok){okT.forEach(t=>{rets[t].push(rr[t]);r+=W[t]*rr[t]});port.push(r);spy.push(lastS&&sv?sv/lastS-1:0)}
+    if(sv)lastS=sv});
+  const n=port.length,y1=port.slice(-252),s1=spy.slice(-252);
+  const mean=a=>a.reduce((s,x)=>s+x,0)/a.length,sd=a=>{const m=mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/(a.length-1))};
+  const vol=y1.length>20?sd(y1)*Math.sqrt(252):null;
+  const ann=y1.length>20?y1.reduce((s,x)=>s*(1+x),1)**(252/y1.length)-1:null;
+  let peak=1,idx=1,mdd=0;port.forEach(x=>{idx*=1+x;peak=Math.max(peak,idx);mdd=Math.min(mdd,idx/peak-1)});
+  const cov=(a,b)=>{const ma=mean(a),mb=mean(b);return a.reduce((s,x,i)=>s+(x-ma)*(b[i]-mb),0)/(a.length-1)};
+  const beta=P.SPY&&s1.length>20?cov(y1,s1)/cov(s1,s1):null,rf=0.04;
+  const sharpe=nn(vol)&&vol>0?(ann-rf)/vol:null,dn=y1.filter(x=>x<0),ddv=dn.length>5?Math.sqrt(dn.reduce((s,x)=>s+x*x,0)/y1.length)*Math.sqrt(252):null,sortino=nn(ddv)&&ddv>0?(ann-rf)/ddv:null;
+  const ws=T.map(t=>W[t]).sort((a,b)=>b-a),top3=ws.slice(0,3).reduce((s,x)=>s+x,0);
+  let score=nn(vol)?clamp(Math.round(vol*100/5),1,10):null;if(score!=null){if(top3>0.6&&T.length>3)score=Math.min(10,score+1);if(nn(beta)&&beta>1.3)score=Math.min(10,score+1)}
+  const scoreLbl=score==null?"–":score<=3?"Låg risk":score<=6?"Medelrisk":"Hög risk";
+  const tile=(t,v,sub,gk,ref)=>`<div class="mt"><span class="sub">${t}${gk?ib(gk):""}</span><b class="n">${v}</b><span class="small muted">${sub}</span>${ref?`<span class="small">${ref}</span>`:""}</div>`;
+  // korrelation
+  const CT=okT.slice(0,12),corr=(a,b)=>{const x=rets[a].slice(-252),y=rets[b].slice(-252);const c=cov(x,y),va=cov(x,x),vb=cov(y,y);return va>0&&vb>0?c/Math.sqrt(va*vb):null};
+  let avgC=0,nc=0;const M=CT.map(a=>CT.map(b=>{if(a===b)return 1;const c=corr(a,b);if(nn(c)&&a<b){avgC+=c;nc++}return c}));avgC=nc?avgC/nc:null;
+  const ccol=c=>!nn(c)?"var(--sunk)":c>=0?`color-mix(in srgb,var(--down) ${Math.round(c*80)}%,var(--card))`:`color-mix(in srgb,var(--up) ${Math.round(-c*80)}%,var(--card))`;
+  const corrH=CT.length>=2?`<div class="tw"><table class="corr"><thead><tr><th></th>${CT.map(t=>`<th>${esc(t.replace(/\.ST$/,""))}</th>`).join("")}</tr></thead><tbody>${CT.map((a,i)=>`<tr><th>${esc(a.replace(/\.ST$/,""))}</th>${CT.map((b,j)=>`<td style="background:${i===j?"var(--sunk)":ccol(M[i][j])}" title="${esc(a)}–${esc(b)}">${i===j?"":f(M[i][j],2)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+    <p class="small" style="margin-top:8px">Snittkorrelation <b class="n">${f(avgC,2)}</b>: ${avgC>0.6?"innehaven rör sig i stort sett tillsammans, spridningen skyddar lite.":avgC>0.35?"måttlig spridning.":"bra spridning, innehaven rör sig olika."} Rött = rör sig tillsammans, grönt = rör sig olika.</p>`:`<p class="muted small">Minst två innehav med kurshistorik behövs.</p>`;
+  // prickdiagram
+  const H=T.map(t=>bySym[t]).filter(Boolean),eq=rows.filter(d=>(d.type||"EQUITY")==="EQUITY"&&!d.stale);
+  const ig=d=>nn(d.pe)&&nn(d.fwdPe)&&d.pe>0&&d.fwdPe>0?(d.pe/d.fwdPe-1)*100:null;
+  const fv=d=>nn(d.fairUpside)?-d.fairUpside:nn(d.targetMean)&&nn(d.price)?-(d.targetMean/d.price-1)*100:null;
+  const mkt=fn=>med(eq.map(fn).filter(nn));
+  const vk=ui.paVal||"fv",VM={fv:["Pris mot beräknat värde","Hur långt över (+) eller under (−) beräknat värde (DCF, annars riktkurs) varje innehav handlas.",fv,{label:"Rätt värderat",v:0},x=>pct(x,0)],pe:["P/E","Kurs mot vinst senaste 12 månaderna.",d=>d.pe>0?d.pe:null,{label:"Marknaden",v:mkt(d=>d.pe>0&&d.pe<300?d.pe:null)},x=>f(x,0)],ps:["P/S","Börsvärde mot omsättning.",d=>d.ps>0?d.ps:null,{label:"Marknaden",v:mkt(d=>d.ps>0?d.ps:null)},x=>f(x,1)],pb:["P/B","Börsvärde mot eget kapital.",d=>d.pb>0?d.pb:null,{label:"Marknaden",v:mkt(d=>d.pb>0&&d.pb<100?d.pb:null)},x=>f(x,1)]};
+  const gk=ui.paGrow||"eps",GM={eps:["Väntad vinsttillväxt","Hur mycket vinsten per aktie väntas växa kommande 12 månader (P/E bakåt delat med P/E framåt).",ig,x=>pct(x,0)],rev:["Omsättningstillväxt senaste året","Hur mycket omsättningen växte senaste 12 månaderna.",d=>d.revGrowth1y,x=>pct(x,0)]};
+  const it=fn=>H.map(d=>({t:d.ticker,v:fn(d)}));
+  // scorecard
+  const pr=(fn,d,inv)=>{const v=fn(d);if(!nn(v))return null;const p=pctRank(eq.map(fn),v);return p==null?null:(inv?1-p:p)*6};
+  const avg=a=>{const v=a.filter(nn);return v.length?v.reduce((s,x)=>s+x,0)/v.length:null};
+  const SC=[["Värde",d=>{const s=valView(d).score;return nn(s)?(s+1)*3:null}],["Framtid",d=>pr(ig,d)],["Historik",d=>avg([pr(x=>x.revGrowth1y,d),pr(x=>x.earnGrowth1y,d)])],["Hälsa",d=>avg([pr(x=>x.negEquity?null:x.de,d,1),pr(x=>x.fcfMargin,d),pr(x=>x.roic,d)])],["Utdelning",d=>nn(d.divYield)?pr(x=>x.divYield||0,d):0]];
+  const axes=SC.map(([name,fn])=>{let s=0,w=0;const per=H.map(d=>({d,v:fn(d)}));per.forEach(x=>{if(nn(x.v)){s+=x.v*W[x.d.ticker];w+=W[x.d.ticker]}});return{name,v:w?s/w:null,per}});
+  const ax=ui.paAx??0,A=axes[ax];
+  const axList=A.per.filter(x=>nn(x.v)).sort((a,b)=>b.v-a.v);
+  $("app").innerHTML=head+`
+  <section class="card"><div class="hd"><h2>Riskmått${ib("portRisk")}</h2><span class="sub">${T.length} innehav · ${okT.length<T.length?`${T.length-okT.length} saknar kurshistorik · `:""}${n} handelsdagar</span></div><div class="bd">
+    <div class="risk"><div class="rs ${score>6?"hi":score>3?"md":"lo"}"><b class="n">${score??"–"}</b><span>${scoreLbl}</span><small>av 10</small></div>
+    <p style="font-size:14px;line-height:1.6">${nn(vol)?`Portföljen svänger <b>${f(vol*100,0)} %</b> per år${nn(beta)?` och rör sig <b>${f(beta,2)}</b> gånger så mycket som S&amp;P 500`:""}. Största fallet från topp till botten under perioden var <b>${pct(mdd*100,0)}</b>${nn(sharpe)?`, och avkastningen per risk (Sharpe) är <b>${f(sharpe,2)}</b>${sharpe>=1?" (bra)":sharpe>=0.5?" (okej)":" (svag)"}`:""}. De tre största innehaven är <b>${f(top3*100,0)} %</b> av värdet.${nn(beta)&&beta>1.2?" Med hävstång blir svängningarna ännu större.":""}`:"För lite gemensam kurshistorik för att räkna risk."}</p></div>
+    <div class="mtiles">
+      ${tile("Volatilitet",nn(vol)?f(vol*100,0)+" %":"–","per år, senaste året","vol",`S&amp;P 500 ≈ ${f(sd(s1)*Math.sqrt(252)*100||0,0)} %`)}
+      ${tile("Max drawdown",pct(mdd*100,0),"topp till botten","mdd","")}
+      ${tile("Topp 3",f(top3*100,0)+" %","av portföljens värde","top3","")}
+      ${tile("Beta",f(beta,2),"mot S&amp;P 500","beta","1 = som marknaden")}
+      ${tile("Sharpe",f(sharpe,2),"avkastning per risk","sharpe","över 1 = bra")}
+      ${tile("Sortino",f(sortino,2),"avkastning per nedåtrisk","sortino","över 1,5 = bra")}
+    </div></div></section>
+  <section class="card" style="margin-top:16px"><div class="hd"><h2>Scorecard</h2><span class="sub">0–6 per område, vägt efter värde. Tryck på ett område.</span></div><div class="bd scgrid">
+    <div>${radar(axes)}</div>
+    <div><h3 style="font-size:16px">${esc(A.name)} <span class="n">${nn(A.v)?f(A.v,1):"–"}</span><span class="muted"> / 6</span></h3>
+      <div class="seg" id="axSeg" style="margin:8px 0">${axes.map((a,i)=>`<button data-i="${i}" aria-pressed="${i===ax}">${esc(a.name)}</button>`).join("")}</div>
+      <ul class="pl">${axList.map(x=>`<li data-go="${esc(x.d.ticker)}" style="cursor:pointer"><span>${co(x.d)}</span><span class="n ${x.v>=4?"ok":x.v<2?"no":""}" style="text-align:right">${f(x.v,1)}<br><span class="small muted">${f(W[x.d.ticker]*100,0)} % av värdet</span></span></li>`).join("")}</ul>
+      <p class="small muted" style="margin-top:6px">Högst upp lyfter betyget, längst ner håller det tillbaka. Percentil mot alla ~600 aktier på sidan.</p></div>
+  </div></section>
+  <section class="card" style="margin-top:16px"><div class="hd"><h2>Korrelation${ib("corr")}</h2><span class="sub">Fungerar spridningen, eller rör sig innehaven tillsammans?</span></div><div class="bd">${corrH}</div></section>
+  <h2 class="sect">Värdering</h2>
+  <div class="seg" id="valSeg" style="margin-bottom:10px">${Object.entries(VM).map(([k,v])=>`<button data-k="${k}" aria-pressed="${vk===k}">${v[0].split(" ")[0]==="Pris"?"Värde":v[0]}</button>`).join("")}</div>
+  ${stripPlot("val",VM[vk][0],VM[vk][1],it(VM[vk][2]),VM[vk][3],VM[vk][4],true)}
+  <h2 class="sect">Tillväxt</h2>
+  <div class="seg" id="growSeg" style="margin-bottom:10px">${Object.entries(GM).map(([k,v])=>`<button data-k="${k}" aria-pressed="${gk===k}">${k==="eps"?"Vinst framåt":"Omsättning"}</button>`).join("")}</div>
+  ${stripPlot("grow",GM[gk][0],GM[gk][1],it(GM[gk][2]),{label:"Marknaden",v:mkt(GM[gk][2])},GM[gk][3],false)}
+  <h2 class="sect">Finansiell hälsa</h2>
+  ${stripPlot("de","Skuld / eget kapital","Hur mycket skuld varje innehav har per krona eget kapital. Lägre är tryggare, särskilt med hävstång.",H.map(d=>({t:d.ticker,v:d.negEquity?null:d.de})),{label:"Marknaden",v:mkt(d=>d.negEquity?null:d.de)},x=>f(x,2),true)}
+  ${stripPlot("fcf","FCF-marginal","Hur mycket fritt kassaflöde varje innehav gör per såld krona.",it(d=>d.fcfMargin),{label:"Marknaden",v:mkt(d=>d.fcfMargin)},x=>f(x,0," %"),false)}
+  <p class="small muted" style="margin-top:12px">Riskmåtten räknas på dagliga kurser med dagens vikter, senaste året (drawdown över hela den gemensamma historiken, upp till ~3 år). Riskfri ränta 4 %. Riskbetyget: volatiliteten i procent delat med 5, plus 1 om topp 3 är över 60 % och plus 1 om beta är över 1,3.</p>`;
+  bind();
+  document.querySelectorAll("#axSeg button").forEach(b=>b.addEventListener("click",()=>{ui.paAx=+b.dataset.i;saveUi();pageAnalysis()}));
+  document.querySelectorAll("#valSeg button").forEach(b=>b.addEventListener("click",()=>{ui.paVal=b.dataset.k;saveUi();pageAnalysis()}));
+  document.querySelectorAll("#growSeg button").forEach(b=>b.addEventListener("click",()=>{ui.paGrow=b.dataset.k;saveUi();pageAnalysis()}));
+  document.querySelectorAll(".radar2 .ax").forEach(t=>t.addEventListener("click",()=>{ui.paAx=+t.dataset.ax;saveUi();pageAnalysis()}));
+  document.querySelectorAll(".strip .dot").forEach(g=>g.addEventListener("click",()=>{location.hash=link(g.dataset.t)}));
+  bindRows($("app"));
 }
 
 /* ============ STRATEGIER ============ */
@@ -2324,7 +2552,8 @@ async function load(){
     U=j;rows=(j.rows||[]).map(x=>({...x}));bySym={};rows.forEach(d=>{bySym[d.ticker]=d});computeLeaders();rows.forEach(classify);
     _pm.clear();computeQuant();
     const side=async n=>{try{const r=await fetch(n+"?t="+Date.now(),{cache:"no-store"});return r.ok?await r.json():null}catch(e){return null}};
-    const [fo,rp,mi]=await Promise.all([side("focus.json"),side("positions.json"),side("mina.json")]);
+    const [fo,rp,mi,ins]=await Promise.all([side("focus.json"),side("positions.json"),side("mina.json"),side("insikt.json")]);
+    INSIKT=ins&&ins.visser?ins:null;
     REPO_MINE=(mi&&Array.isArray(mi.tickers)?mi.tickers:[]).map(t=>String(t).trim().toUpperCase()).filter(Boolean);
     FOCUS=fo&&fo.picks?fo:null;
     repoPos=(rp&&Array.isArray(rp.positions)?rp.positions:[]).filter(p=>p&&p.ticker&&p.qty).map((p,i)=>({...p,id:"repo"+i,src:"repo",list:p.list==="port"?"port":"swing",ticker:String(p.ticker).toUpperCase()}));
