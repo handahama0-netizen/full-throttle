@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Screener för Full Throttle-strategin med förbättrat riskfilter. Uppdateras varje vardag.">
+<title>Full Throttle Screener</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: instrument panel — status strip, criteria rail beside a ranked table, model portfolio below */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --sunk:#e3e8ee; --line:#cfd7e0;
+  --ink:#12202d; --muted:#5a6b7c; --accent:#0b5cad; --accent-ink:#ffffff;
+  --good:#11744a; --good-bg:#dff2e8; --warn:#9a5b00; --warn-bg:#fbeed6; --bad:#b3261e; --bad-bg:#fbe3e0;
+  --core:#0b5cad; --core-bg:#dbe9f8;
+  --f-display:"Archivo","Arial Narrow",Arial,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-data:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e151c; --surface:#16202a; --sunk:#1c2834; --line:#2b3a49;
+  --ink:#e4ebf2; --muted:#93a4b5; --accent:#6aa9ec; --accent-ink:#0b1622;
+  --good:#5ccf95; --good-bg:#123326; --warn:#f0b65a; --warn-bg:#3a2a10; --bad:#ff8a80; --bad-bg:#3d1916;
+  --core:#8cc0f5; --core-bg:#16314d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e151c; --surface:#16202a; --sunk:#1c2834; --line:#2b3a49;
+  --ink:#e4ebf2; --muted:#93a4b5; --accent:#6aa9ec; --accent-ink:#0b1622;
+  --good:#5ccf95; --good-bg:#123326; --warn:#f0b65a; --warn-bg:#3a2a10; --bad:#ff8a80; --bad-bg:#3d1916;
+  --core:#8cc0f5; --core-bg:#16314d; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+img{max-width:100%}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);padding-inline:16px;padding-block:20px 48px}
+.wrap{max-width:1240px;margin:0 auto;display:grid;gap:24px}
+h1,h2,h3{font-family:var(--f-display);font-stretch:80%;margin:0;text-wrap:balance;letter-spacing:.005em}
+h1{font-size:clamp(30px,5vw,46px);font-weight:800;line-height:1.02}
+h2{font-size:22px;font-weight:750}
+h3{font-size:15px;font-weight:700;font-stretch:90%}
+p{margin:0}
+.muted{color:var(--muted)}
+.mono,td.num,.num{font-family:var(--f-data);font-variant-numeric:tabular-nums}
+.label{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+a{color:var(--accent)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* header */
+header{display:grid;gap:14px}
+.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between}
+.lede{max-width:62ch;color:var(--muted)}
+.status{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;font-size:13px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block;margin-right:6px;vertical-align:1px}
+.dot.live{background:var(--good)} .dot.stale{background:var(--warn)}
+
+/* summary strip */
+.strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--line);background:var(--surface);border-radius:6px}
+.strip>div{padding:14px 16px;display:grid;gap:2px;min-width:0}
+.strip>div+div{border-left:1px solid var(--line)}
+.strip .big{font-family:var(--f-display);font-stretch:75%;font-weight:800;font-size:34px;line-height:1}
+@media (max-width:720px){.strip{grid-template-columns:repeat(2,minmax(0,1fr))}.strip>div:nth-child(3){border-left:0}.strip>div:nth-child(n+3){border-top:1px solid var(--line)}}
+
+/* main grid */
+.main{display:grid;grid-template-columns:300px minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:980px){.main{grid-template-columns:minmax(0,1fr)}}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;display:grid;gap:14px;min-width:0}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--sunk);border-radius:5px;padding:3px;gap:3px}
+.seg button{border:0;background:transparent;padding:7px 8px;border-radius:4px;cursor:pointer;font-weight:600;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--surface);box-shadow:0 1px 2px rgb(0 0 0 / .12)}
+.crit{display:grid;gap:10px}
+.crow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center;padding-bottom:10px;border-bottom:1px dashed var(--line)}
+.crow:last-child{border-bottom:0;padding-bottom:0}
+.crow .nm{font-weight:600;font-size:13.5px}
+.crow .ct{font-family:var(--f-data);font-size:12px;color:var(--muted);text-align:right}
+.crow .ctl{grid-column:1/-1;display:flex;align-items:center;gap:8px}
+.crow input[type=number]{width:76px;padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--bg);font-family:var(--f-data);font-size:13px}
+.crow .op{font-family:var(--f-data);font-size:13px;color:var(--muted)}
+.crow .why{grid-column:1/-1;font-size:12px;color:var(--muted)}
+.crow.locked .ctl{opacity:.7}
+.new{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--core);background:var(--core-bg);padding:1px 5px;border-radius:3px;margin-left:6px;vertical-align:1px}
+.btn{border:1px solid var(--line);background:var(--surface);padding:7px 12px;border-radius:5px;cursor:pointer;font-size:13px;font-weight:600}
+.btn:hover{border-color:var(--accent)}
+
+/* table */
+.tablecard{background:var(--surface);border:1px solid var(--line);border-radius:6px;min-width:0;display:grid}
+.tbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:4px 11px;font-size:12.5px;cursor:pointer;font-weight:600}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.search{padding:6px 10px;border:1px solid var(--line);border-radius:5px;background:var(--bg);font-size:13px;width:190px;max-width:100%}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:980px;font-size:13px}
+th{position:sticky;top:0;background:var(--surface);text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:pointer;user-select:none}
+th.l,td.l{text-align:left}
+th[aria-sort] .ar{color:var(--accent)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:var(--sunk)}
+td.fail{color:var(--bad);font-weight:500}
+td.fail::after{content:"✕";font-size:9px;margin-left:4px;vertical-align:1px}
+.tk{font-family:var(--f-data);font-weight:500}
+.co{color:var(--muted);font-size:12px;display:block;max-width:170px;overflow:hidden;text-overflow:ellipsis}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;letter-spacing:.03em}
+.p-core{background:var(--core-bg);color:var(--core)}
+.p-ft{background:var(--good-bg);color:var(--good)}
+.p-near{background:var(--warn-bg);color:var(--warn)}
+.p-out{background:var(--sunk);color:var(--muted)}
+.score{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.bar{width:64px;height:6px;background:var(--sunk);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.flag{color:var(--warn);font-weight:700;margin-left:4px}
+tr.detail td{background:var(--sunk);white-space:normal;text-align:left;cursor:default}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px 24px;padding:6px 2px;max-width:900px}
+.dgrid ul{margin:4px 0 0;padding-left:18px}
+.empty{padding:40px 16px;text-align:center;color:var(--muted)}
+
+/* portfolio */
+.port{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.pos{border:1px solid var(--line);border-radius:5px;padding:10px 12px;display:grid;gap:2px;background:var(--surface)}
+.pos .w{font-family:var(--f-data);font-size:20px;font-weight:500}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px 28px}
+.rules p{font-size:13.5px}
+.rules b{display:block;font-family:var(--f-display);font-stretch:85%;font-size:15px;margin-bottom:2px}
+footer{font-size:12px;color:var(--muted);max-width:90ch;display:grid;gap:6px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="top">
+    <div style="display:grid;gap:8px;min-width:0">
+      <span class="label">Tillväxt till rimligt pris · lägre risk</span>
+      <h1>Full Throttle Screener</h1>
+      <p class="lede">Hello Stocks Full Throttle-kriterier med ett förbättrat riskfilter ovanpå: samma krav på stark omsättningstillväxt, men med lägre skuld, positivt kassaflöde och lönsamhet som villkor. Justera gränserna till vänster, tabellen räknar om direkt.</p>
+    </div>
+  </div>
+  <div class="status" id="status"><span><span class="dot" id="dot"></span><span id="statusText">Ansluter till datan…</span></span><span id="statusSrc"></span></div>
+</header>
+
+<section class="strip" aria-label="Sammanfattning">
+  <div><span class="label">Kärna</span><span class="big" id="nCore">–</span><span class="muted" style="font-size:12px">klarar förbättrade kriterier</span></div>
+  <div><span class="label">Full Throttle</span><span class="big" id="nFt">–</span><span class="muted" style="font-size:12px">klarar originalet</span></div>
+  <div><span class="label">Nära</span><span class="big" id="nNear">–</span><span class="muted" style="font-size:12px">missar ett krav</span></div>
+  <div><span class="label">Bevakade bolag</span><span class="big" id="nAll">–</span><span class="muted" style="font-size:12px">i universumet</span></div>
+</section>
+
+<div class="main">
+  <aside class="panel" aria-label="Kriterier">
+    <div class="seg" role="group" aria-label="Kriterieuppsättning">
+      <button id="mImp" aria-pressed="true">Förbättrad</button>
+      <button id="mOrig" aria-pressed="false">Original</button>
+    </div>
+    <p class="muted" style="font-size:12.5px" id="modeNote"></p>
+    <div class="crit" id="crit"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="reset">Återställ gränser</button>
+    </div>
+    <p class="muted" style="font-size:12px">Uteslutna sektorer i båda: finans, råvaror, energi, kraftbolag och fastigheter.</p>
+  </aside>
+
+  <section class="tablecard" aria-label="Bolag">
+    <div class="tbar">
+      <div class="chips" id="chips"></div>
+      <input class="search" id="q" type="search" placeholder="Sök ticker eller bolag" aria-label="Sök">
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr id="thead"></tr></thead>
+        <tbody id="tbody"><tr><td colspan="12" class="empty">Hämtar nyckeltal för bolagen…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<section style="display:grid;gap:14px">
+  <div style="display:grid;gap:4px">
+    <span class="label">Modellportfölj</span>
+    <h2>Kärnbolagen, med riskregler</h2>
+    <p class="muted" style="max-width:70ch">Högst rankade kärnbolag, max två från samma korrelationsgrupp och max tio innehav, lika viktade. Bolag som stoppas av gruppregeln visas som reserver.</p>
+  </div>
+  <div class="port" id="port"></div>
+  <p class="muted" style="font-size:13px" id="reserves"></p>
+</section>
+
+<section class="panel" style="gap:16px">
+  <h2>Vad som ändrats mot originalet</h2>
+  <div class="rules">
+    <p><b>Skuld under 1× eget kapital</b>Originalet tillåter D/E upp till 5, vilket släpper in bolag som lever på lån. Under 1 klarar bolaget en räntechock eller ett svagt år utan nyemission.</p>
+    <p><b>Positivt fritt kassaflöde</b>Tillväxt som bränner pengar finansieras till slut av aktieägarna. Kravet på minst 5 % FCF-marginal sorterar bort dem.</p>
+    <p><b>ROIC över 10 %</b>Visar att tillväxten skapar värde och inte bara omsättning. Under kapitalkostnaden växer bolaget sig fattigare.</p>
+    <p><b>Bruttomarginal över 35 %</b>Hög bruttomarginal betyder prissättningsmakt. Lågmarginal hårdvara och återförsäljare faller bort.</p>
+    <p><b>PEG max 1,5</b>Stramare än originalets 2. Bolag med PEG under 0,2 flaggas (!) eftersom det ofta är en cyklisk vinsttopp och inte ett fynd.</p>
+    <p><b>Utspädning max 5 %/år</b>Aktiebaserade löner och nyemissioner äter avkastningen även när bolaget växer.</p>
+    <p><b>Max två per grupp</b>Bolag i samma grupp rör sig tillsammans. Samma regel som portföljvärmen i Swing Value Zones.</p>
+    <p><b>Poäng 0–100</b>Tillväxt 30, kvalitet 25, värdering 25, balansräkning 20. Används för rangordning, inte som köpsignal.</p>
+  </div>
+</section>
+
+<footer>
+  <p>Nyckeltal från Yahoo Finance, hämtade automatiskt varje vardag. 5-årstillväxten räknas som årlig omsättningstillväxt (CAGR) mellan äldsta och senaste helår och jämförs med originalets krav på över 100 % på fem år (motsvarar cirka 14,9 % per år). PEG följer källans definition. ROIC räknas som rörelseresultat efter skatt delat med skuld plus eget kapital minus kassa.</p>
+  <p>Detta är ett screeningverktyg, inte investeringsrådgivning. Kontrollera alltid siffrorna i bolagens egna rapporter innan du handlar.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+const GROUPS_NOTE="Max två per korrelationsgrupp.";
+const DEF={
+  imp:{cagr:15,g1:20,deMax:1,pegMax:1.5,fcf:5,roic:10,gm:35,dil:5,mcap:2},
+  orig:{cagr:14.9,g1:20,deMax:5,pegMax:2}
+};
+let lim=JSON.parse(JSON.stringify(DEF));
+try{const s=JSON.parse(localStorage.getItem("ft-limits")||"null");if(s&&s.imp&&s.orig)lim=s}catch(e){}
+let mode="imp", filter="all", sortKey="score", sortDir=-1, q="", open=null;
+let rows=[], meta=null;
+
+const CRIT={
+  imp:[
+    {k:"cagr",nm:"Omsättning 5 år",op:"≥",unit:"%/år",test:(d,v)=>d.revCagr!=null&&d.revCagr>=v,why:"Årlig tillväxt i snitt"},
+    {k:"g1",nm:"Omsättning 1 år (TTM)",op:"≥",unit:"%",test:(d,v)=>d.revGrowth1y!=null&&d.revGrowth1y>=v},
+    {k:"deMax",nm:"Skuld / eget kapital",op:"≤",unit:"×",test:(d,v)=>!d.negEquity&&d.de!=null&&d.de>=0&&d.de<=v,nw:1},
+    {k:"pegMax",nm:"PEG",op:"≤",unit:"",test:(d,v)=>d.peg!=null&&d.peg>0&&d.peg<=v},
+    {k:"fcf",nm:"FCF-marginal",op:"≥",unit:"%",test:(d,v)=>d.fcfMargin!=null&&d.fcfMargin>=v,nw:1},
+    {k:"roic",nm:"ROIC",op:"≥",unit:"%",test:(d,v)=>d.roic!=null&&d.roic>=v,nw:1},
+    {k:"gm",nm:"Bruttomarginal",op:"≥",unit:"%",test:(d,v)=>d.grossMargin!=null&&d.grossMargin>=v,nw:1},
+    {k:"dil",nm:"Utspädning per år",op:"≤",unit:"%",test:(d,v)=>d.shareChange==null||d.shareChange<=v,nw:1},
+    {k:"mcap",nm:"Börsvärde",op:"≥",unit:"mdr $",test:(d,v)=>d.mcapB!=null&&d.mcapB>=v,nw:1}
+  ],
+  orig:[
+    {k:"cagr",nm:"Omsättning 5 år",op:"≥",unit:"%/år",test:(d,v)=>d.revCagr!=null&&d.revCagr>=v,why:"Över 100 % på 5 år ≈ 14,9 %/år"},
+    {k:"g1",nm:"Omsättning 1 år (TTM)",op:">",unit:"%",test:(d,v)=>d.revGrowth1y!=null&&d.revGrowth1y>v},
+    {k:"deMax",nm:"Skuld / eget kapital",op:"<",unit:"×",test:(d,v)=>!d.negEquity&&d.de!=null&&d.de>=0&&d.de<v},
+    {k:"pegMax",nm:"PEG",op:"<",unit:"",test:(d,v)=>d.peg!=null&&d.peg>0&&d.peg<v}
+  ]
+};
+const FIELD_OF={cagr:"revCagr",g1:"revGrowth1y",deMax:"de",pegMax:"peg",fcf:"fcfMargin",roic:"roic",gm:"grossMargin",dil:"shareChange",mcap:"mcapB"};
+
+function fails(d,set){return CRIT[set].filter(c=>!c.test(d,lim[set][c.k])).map(c=>c.k)}
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+function score(d){
+  let g=0,qy=0,v=0,b=0;
+  if(d.revCagr!=null)g+=clamp(d.revCagr/40,0,1)*15;
+  if(d.revGrowth1y!=null)g+=clamp(d.revGrowth1y/50,0,1)*15;
+  if(d.roic!=null)qy+=clamp(d.roic/30,0,1)*10;
+  if(d.fcfMargin!=null)qy+=clamp(d.fcfMargin/30,0,1)*10;
+  if(d.grossMargin!=null)qy+=clamp((d.grossMargin-20)/60,0,1)*5;
+  if(d.peg!=null&&d.peg>0)v+=clamp((3-d.peg)/2.5,0,1)*15;
+  if(d.fwdPe!=null&&d.fwdPe>0)v+=clamp((80-d.fwdPe)/60,0,1)*10;
+  if(!d.negEquity&&d.de!=null)b+=clamp((2-d.de)/2,0,1)*12;
+  b+=d.shareChange==null?4:clamp((10-d.shareChange)/10,0,1)*8;
+  return Math.round(g+qy+v+b);
+}
+function classify(d){
+  const fi=fails(d,"imp"), fo=fails(d,"orig");
+  d._fi=fi; d._fo=fo; d.score=score(d);
+  d.status = fi.length===0?"core" : fo.length===0?"ft" : fi.length===1?"near" : "out";
+  d.flag = d.peg!=null&&d.peg>0&&d.peg<0.2;
+}
+const ST={core:["Kärna","p-core"],ft:["Full Throttle","p-ft"],near:["Nära","p-near"],out:["Utanför","p-out"]};
+const ORDER={core:0,ft:1,near:2,out:3};
+
+const COLS=[
+  {k:"ticker",l:"Bolag",cls:"l"},
+  {k:"status",l:"Status",cls:"l"},
+  {k:"score",l:"Poäng"},
+  {k:"revCagr",l:"Oms. 5 år",c:"cagr",f:x=>fmt(x,1,"%")},
+  {k:"revGrowth1y",l:"Oms. 1 år",c:"g1",f:x=>fmt(x,1,"%")},
+  {k:"peg",l:"PEG",c:"pegMax",f:x=>fmt(x,2)},
+  {k:"de",l:"D/E",c:"deMax",f:(x,d)=>d.negEquity?"neg. EK":fmt(x,2)},
+  {k:"fcfMargin",l:"FCF-marg.",c:"fcf",f:x=>fmt(x,1,"%")},
+  {k:"roic",l:"ROIC",c:"roic",f:x=>fmt(x,1,"%")},
+  {k:"grossMargin",l:"Bruttomarg.",c:"gm",f:x=>fmt(x,1,"%")},
+  {k:"shareChange",l:"Utspädn.",c:"dil",f:x=>x==null?"–":(x>0?"+":"")+fmt(x,1,"%")},
+  {k:"fwdPe",l:"P/E fram.",f:x=>fmt(x,1)}
+];
+function fmt(x,dp,suf=""){if(x==null||isNaN(x))return"–";const n=Math.abs(x)>=1000?Math.round(x).toLocaleString("sv-SE"):x.toLocaleString("sv-SE",{minimumFractionDigits:dp,maximumFractionDigits:dp});return n+suf}
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function save(){try{localStorage.setItem("ft-limits",JSON.stringify(lim))}catch(e){}}
+
+function renderCrit(){
+  const set=CRIT[mode];
+  document.getElementById("modeNote").textContent = mode==="imp"
+    ? "Status Kärna kräver alla nio villkor. Markerade villkor är nya jämfört med originalet."
+    : "Hello Stocks ursprungliga Full Throttle. Bolag som klarar dessa får status Full Throttle.";
+  document.getElementById("crit").innerHTML=set.map(c=>{
+    const n=rows.filter(d=>c.test(d,lim[mode][c.k])).length;
+    return `<div class="crow"><span class="nm">${esc(c.nm)}${c.nw?'<span class="new">Ny</span>':""}</span>
+      <span class="ct" title="Bolag som klarar villkoret">${rows.length?n+"/"+rows.length:""}</span>
+      <div class="ctl"><span class="op">${c.op}</span><input type="number" step="any" id="c-${mode}-${c.k}" data-k="${c.k}" value="${lim[mode][c.k]}" aria-label="${esc(c.nm)}"><span class="op">${esc(c.unit)}</span></div>
+      ${c.why?`<span class="why">${esc(c.why)}</span>`:""}</div>`}).join("");
+  document.querySelectorAll("#crit input").forEach(inp=>inp.addEventListener("input",()=>{
+    const v=parseFloat(inp.value.replace(",","."));if(isNaN(v))return;
+    lim[mode][inp.dataset.k]=v;save();recompute(false);
+  }));
+  document.getElementById("mImp").setAttribute("aria-pressed",mode==="imp");
+  document.getElementById("mOrig").setAttribute("aria-pressed",mode==="orig");
+}
+function updateCritCounts(){
+  document.querySelectorAll("#crit .crow").forEach((row,i)=>{
+    const c=CRIT[mode][i];const n=rows.filter(d=>c.test(d,lim[mode][c.k])).length;
+    row.querySelector(".ct").textContent=rows.length?n+"/"+rows.length:"";
+  });
+}
+
+function renderHead(){
+  document.getElementById("thead").innerHTML=COLS.map(c=>{
+    const s=sortKey===c.k;return `<th class="${c.cls||""}" data-k="${c.k}" ${s?`aria-sort="${sortDir<0?"descending":"ascending"}"`:""}>${esc(c.l)} <span class="ar">${s?(sortDir<0?"↓":"↑"):""}</span></th>`}).join("");
+  document.querySelectorAll("#thead th").forEach(th=>th.addEventListener("click",()=>{
+    const k=th.dataset.k;if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=(k==="ticker"||k==="status"||k==="peg"||k==="de"||k==="shareChange"||k==="fwdPe")?1:-1}
+    renderHead();renderTable();
+  }));
+}
+function renderChips(){
+  const c={all:rows.length,core:0,ft:0,near:0,out:0};rows.forEach(d=>c[d.status]++);
+  const items=[["all","Alla"],["core","Kärna"],["ft","Full Throttle"],["near","Nära"],["out","Utanför"]];
+  document.getElementById("chips").innerHTML=items.map(([k,l])=>`<button class="chip" data-f="${k}" aria-pressed="${filter===k}">${l} <span class="mono" style="opacity:.7">${c[k]}</span></button>`).join("");
+  document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{filter=b.dataset.f;renderChips();renderTable()}));
+  document.getElementById("nCore").textContent=c.core;
+  document.getElementById("nFt").textContent=rows.filter(d=>d._fo.length===0).length;
+  document.getElementById("nNear").textContent=c.near;
+  document.getElementById("nAll").textContent=rows.length;
+}
+function renderTable(){
+  const tb=document.getElementById("tbody");
+  if(!rows.length){tb.innerHTML=`<tr><td colspan="12" class="empty">Ingen data än. Listan fylls när den dagliga uppdateringen har körts.</td></tr>`;return}
+  const failSet=new Set();
+  let list=rows.filter(d=>(filter==="all"||d.status===filter)&&(!q||(d.ticker+" "+d.name).toLowerCase().includes(q)));
+  list.sort((a,b)=>{
+    let x=a[sortKey],y=b[sortKey];
+    if(sortKey==="status"){x=ORDER[a.status]*1000-a.score;y=ORDER[b.status]*1000-b.score}
+    if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;
+    return (typeof x==="string"?x.localeCompare(y):x-y)*sortDir;
+  });
+  if(!list.length){tb.innerHTML=`<tr><td colspan="12" class="empty">Inga bolag matchar filtret.</td></tr>`;return}
+  const fk=mode==="imp"?"_fi":"_fo";
+  tb.innerHTML=list.map(d=>{
+    const f=new Set(d[fk]);
+    const cells=COLS.map(c=>{
+      if(c.k==="ticker")return `<td class="l"><span class="tk">${esc(d.ticker)}</span><span class="co">${esc(d.name)}</span></td>`;
+      if(c.k==="status"){const[s,cl]=ST[d.status];return `<td class="l"><span class="pill ${cl}">${s}</span></td>`}
+      if(c.k==="score")return `<td><span class="score"><span class="num">${d.score}</span><span class="bar"><i style="width:${d.score}%"></i></span></span></td>`;
+      const bad=c.c&&f.has(c.c);
+      const extra=(c.k==="peg"&&d.flag)?'<span class="flag" title="Mycket låg PEG, kan vara cyklisk vinsttopp">!</span>':"";
+      return `<td class="num${bad?" fail":""}">${c.f(d[c.k],d)}${extra}</td>`}).join("");
+    const det= open===d.ticker ? detail(d) : "";
+    return `<tr data-t="${esc(d.ticker)}" aria-expanded="${open===d.ticker}">${cells}</tr>${det}`}).join("");
+  tb.querySelectorAll("tr[data-t]").forEach(tr=>tr.addEventListener("click",()=>{open=open===tr.dataset.t?null:tr.dataset.t;renderTable()}));
+}
+function critName(set,k){const c=CRIT[set].find(c=>c.k===k);return c?c.nm:k}
+function detail(d){
+  const fi=d._fi.map(k=>`<li>${esc(critName("imp",k))}</li>`).join("")||"<li>Klarar alla</li>";
+  const fo=d._fo.map(k=>`<li>${esc(critName("orig",k))}</li>`).join("")||"<li>Klarar alla</li>";
+  return `<tr class="detail"><td colspan="12"><div class="dgrid">
+    <div><span class="label">Bolag</span><div><b>${esc(d.name)}</b> · ${esc(d.sector)}</div><div class="muted">Grupp: ${esc(d.group)}</div><div class="muted mono">Kurs ${fmt(d.price,2)} $ · Börsvärde ${fmt(d.mcapB,1)} mdr $</div></div>
+    <div><span class="label">Missar förbättrad</span><ul>${fi}</ul></div>
+    <div><span class="label">Missar original</span><ul>${fo}</ul></div>
+    <div><span class="label">Källa</span><div>${d.revCagrYears?`Omsättnings-CAGR över ${d.revCagrYears} år.`:""} ${esc(d.note||"")}</div>${d.stale?'<div style="color:var(--warn)">Kunde inte uppdateras senast, visar föregående siffror.</div>':""}${d.flag?'<div style="color:var(--warn)">PEG under 0,2: kontrollera om vinsten är på en cyklisk topp.</div>':""}<div><a href="${esc(d.source)}" target="_blank" rel="noopener">Öppna på Yahoo Finance</a> · <span class="muted">per ${esc(d.asOf)}</span></div></div>
+  </div></td></tr>`;
+}
+function renderPortfolio(){
+  const core=rows.filter(d=>d.status==="core").sort((a,b)=>b.score-a.score);
+  const per={},pick=[],res=[];
+  for(const d of core){ if((per[d.group]||0)<2&&pick.length<10){pick.push(d);per[d.group]=(per[d.group]||0)+1} else res.push(d) }
+  const el=document.getElementById("port");
+  if(!pick.length){el.innerHTML=`<div class="pos"><span class="muted">Inga bolag klarar de förbättrade kriterierna med nuvarande gränser.</span></div>`;document.getElementById("reserves").textContent="";return}
+  const w=(100/pick.length).toLocaleString("sv-SE",{maximumFractionDigits:1});
+  el.innerHTML=pick.map(d=>`<div class="pos"><span class="label">${esc(d.group)}</span><span><span class="tk">${esc(d.ticker)}</span> <span class="muted" style="font-size:12px">${esc(d.name)}</span></span><span class="w">${w} %</span><span class="muted" style="font-size:12px">Poäng ${d.score}</span></div>`).join("");
+  document.getElementById("reserves").textContent = res.length ? "Reserver (gruppen full): "+res.map(d=>d.ticker+" ("+d.score+")").join(", ") : (pick.length<5?"Färre än fem kärnbolag. Överväg att hålla resten i en global indexfond tills fler kvalificerar sig.":"");
+}
+function recompute(full=true){
+  rows.forEach(classify);
+  if(full)renderCrit();else updateCritCounts();
+  renderChips();renderTable();renderPortfolio();
+}
+function renderStatus(){
+  const dot=document.getElementById("dot"),t=document.getElementById("statusText"),src=document.getElementById("statusSrc");
+  if(!meta){return}
+  const when=meta.updatedAt?new Date(meta.updatedAt):null;
+  const age=when?(Date.now()-when.getTime())/36e5:999;
+  dot.className="dot "+(age<48?"live":"stale");
+  t.textContent=`Data per ${meta.asOf||"–"}`+(when?` · uppdaterad ${when.toLocaleString("sv-SE",{dateStyle:"medium",timeStyle:"short"})}`:"");
+  src.textContent=meta.schedule?meta.schedule:"";
+}
+
+document.getElementById("mImp").addEventListener("click",()=>{mode="imp";recompute()});
+document.getElementById("mOrig").addEventListener("click",()=>{mode="orig";recompute()});
+document.getElementById("reset").addEventListener("click",()=>{lim=JSON.parse(JSON.stringify(DEF));save();recompute()});
+document.getElementById("q").addEventListener("input",e=>{q=e.target.value.trim().toLowerCase();renderTable()});
+
+renderHead();renderCrit();renderChips();renderPortfolio();
+
+async function load(){
+  try{
+    const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const j=await r.json();
+    rows=(j.stocks||[]).map(s=>({...s,source:"https://finance.yahoo.com/quote/"+encodeURIComponent(s.ticker)}));
+    meta={asOf:j.asOf,updatedAt:j.updatedAt,schedule:"Källa: "+(j.source||"–")+" · uppdateras varje vardag efter USA-börsens stängning"};
+    renderStatus();recompute();
+  }catch(e){
+    document.getElementById("statusText").textContent="Kunde inte läsa data.json ("+e.message+"). Öppna sidan via webbadressen, inte som lokal fil.";
+    document.getElementById("tbody").innerHTML=`<tr><td colspan="12" class="empty">Ingen data kunde läsas.</td></tr>`;
+  }
+}
+load();
+setInterval(()=>{if(document.visibilityState==="visible")load()},30*60*1000);
+})();
+</script>
+
+</body>
+</html>
