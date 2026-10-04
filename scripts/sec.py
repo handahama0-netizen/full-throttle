@@ -56,6 +56,9 @@ def _get(url, log):
             _note(r.status_code, url, None if r.status_code in (200, 404) else r.text[:3000])
             if r.status_code == 404:
                 return None
+            if r.status_code == 403:  # SEC spärrar molnservrar (t.ex. GitHub): försök inte igen
+                STATUS["blocked"] = True
+                return None
             if r.status_code in (429, 503):
                 time.sleep(5 * (i + 1))
                 continue
@@ -132,6 +135,8 @@ def load(tickers, log=print, cache=None, names=None):
     for kind, concepts in CONCEPTS.items():
         for c in concepts:
             for y in years:
+                if STATUS.get("blocked") and not STATUS["ok"] and calls >= 1:
+                    break  # även data.sec.gov spärrat: ge upp direkt
                 js = _get(f"https://data.sec.gov/api/xbrl/frames/us-gaap/{c}/USD/CY{y}.json", log)
                 calls += 1
                 for p in (js or {}).get("data", []):
