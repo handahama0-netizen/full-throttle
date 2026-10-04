@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Aktier med 200-veckorszoner, Full Throttle och Low Risk High Reward. Kurser, analytiker och nyckeltal.">
+<title>Full Throttle</title>
+<style>
+/* Layout: app shell — sticky header with search; pages: Start, Aktie, Screener, Strategier */
+:root{
+  --bg:#f3f4f6; --card:#ffffff; --sunk:#f7f8f9; --hover:#f0f2f4; --line:#e3e6e9; --line-strong:#cfd4d9;
+  --ink:#1c2024; --muted:#68717a; --faint:#9aa2aa; --accent:#0b6e5d; --accent-ink:#ffffff; --accent-soft:#e3f2ee;
+  --up:#0a8a4d; --down:#d1342c; --up-soft:#e6f4ec; --down-soft:#fbe9e8; --warn:#a15c00; --warn-soft:#fbf0dc;
+  --z-fire:#7b3fbf; --z-vcheap:#2563c9; --z-cheap:#15803d; --z-fair:#b38600; --z-exp:#d9670b; --z-vexp:#c62828;
+  --z-fire-bg:#efe6fa; --z-vcheap-bg:#e3ecfb; --z-cheap-bg:#e2f4e8; --z-fair-bg:#faf2d6; --z-exp-bg:#fcebdc; --z-vexp-bg:#fbe3e3;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1215; --card:#171b1f; --sunk:#1b2025; --hover:#20262c; --line:#262d34; --line-strong:#353e47;
+  --ink:#e7eaed; --muted:#919aa3; --faint:#6b747d; --accent:#3fb59b; --accent-ink:#0b1714; --accent-soft:#163029;
+  --up:#3fbf7f; --down:#ff6b61; --up-soft:#142a1e; --down-soft:#331a18; --warn:#e6a54a; --warn-soft:#33270f;
+  --z-fire:#b98af0; --z-vcheap:#6fa3f5; --z-cheap:#4cc38a; --z-fair:#e3c04f; --z-exp:#f39a4f; --z-vexp:#ff7b72;
+  --z-fire-bg:#2a1f3a; --z-vcheap-bg:#1a2740; --z-cheap-bg:#16301f; --z-fair-bg:#33290f; --z-exp-bg:#38230f; --z-vexp-bg:#3a1a1a;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1215; --card:#171b1f; --sunk:#1b2025; --hover:#20262c; --line:#262d34; --line-strong:#353e47;
+  --ink:#e7eaed; --muted:#919aa3; --faint:#6b747d; --accent:#3fb59b; --accent-ink:#0b1714; --accent-soft:#163029;
+  --up:#3fbf7f; --down:#ff6b61; --up-soft:#142a1e; --down-soft:#331a18; --warn:#e6a54a; --warn-soft:#33270f;
+  --z-fire:#b98af0; --z-vcheap:#6fa3f5; --z-cheap:#4cc38a; --z-fair:#e3c04f; --z-exp:#f39a4f; --z-vexp:#ff7b72;
+  --z-fire-bg:#2a1f3a; --z-vcheap-bg:#1a2740; --z-cheap-bg:#16301f; --z-fair-bg:#33290f; --z-exp-bg:#38230f; --z-vexp-bg:#3a1a1a;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 var(--font);-webkit-text-size-adjust:100%}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+h1,h2,h3{margin:0;letter-spacing:-.005em}
+p{margin:0}
+.n{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)} .faint{color:var(--faint)} .small{font-size:12.5px}
+.up{color:var(--up)} .down{color:var(--down)}
+.wrap{max-width:1280px;margin:0 auto;padding-inline:16px}
+
+/* header */
+.top{position:sticky;top:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.top .wrap{display:flex;align-items:center;gap:20px;height:58px}
+.brand{font-weight:750;font-size:17px;color:var(--ink);white-space:nowrap;display:flex;align-items:center;gap:8px}
+.brand:hover{text-decoration:none}
+.brand i{width:22px;height:22px;border-radius:6px;background:var(--accent);display:inline-block;position:relative}
+.brand i::after{content:"";position:absolute;left:5px;right:5px;bottom:6px;height:2px;background:var(--accent-ink);box-shadow:0 -4px 0 var(--accent-ink),0 -8px 0 var(--accent-ink);opacity:.9;width:12px}
+.search{position:relative;flex:1;max-width:520px}
+.search input{width:100%;height:38px;border:1px solid var(--line-strong);border-radius:8px;background:var(--sunk);padding:0 12px 0 36px;font-size:14px}
+.search input:focus{background:var(--card);border-color:var(--accent);outline:none}
+.search svg{position:absolute;left:11px;top:11px;width:16px;height:16px;stroke:var(--muted)}
+.dd{position:absolute;left:0;right:0;top:44px;background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgb(0 0 0 / .12);overflow:hidden;max-height:70vh;overflow-y:auto}
+.dd a{display:grid;grid-template-columns:76px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:9px 12px;color:var(--ink);border-bottom:1px solid var(--line)}
+.dd a:last-child{border-bottom:0}
+.dd a[aria-selected="true"],.dd a:hover{background:var(--hover);text-decoration:none}
+.dd .empty{padding:12px;color:var(--muted)}
+nav.main{display:flex;gap:4px}
+nav.main a{color:var(--muted);padding:8px 10px;border-radius:6px;font-weight:550;white-space:nowrap}
+nav.main a:hover{background:var(--hover);text-decoration:none;color:var(--ink)}
+nav.main a[aria-current="page"]{color:var(--ink);background:var(--hover)}
+@media (max-width:760px){
+  .top .wrap{flex-wrap:wrap;height:auto;padding-block:8px;gap:8px 12px}
+  .search{order:3;flex-basis:100%;max-width:none}
+  nav.main{margin-left:auto}
+  nav.main a{padding:6px 8px;font-size:13px}
+}
+
+/* cards & layout */
+main{padding-block:18px 48px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;min-width:0}
+.card>.hd{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
+.card>.hd h2{font-size:15px;font-weight:650}
+.card>.bd{padding:12px 16px}
+.card>.bd.flush{padding:0}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.g-main{grid-template-columns:minmax(0,1fr) 340px}
+@media (max-width:980px){.g2,.g-main{grid-template-columns:minmax(0,1fr)}}
+.sub{font-size:12px;color:var(--muted)}
+
+/* controls */
+.seg{display:inline-flex;background:var(--sunk);border:1px solid var(--line);border-radius:7px;padding:2px;gap:2px;max-width:100%;overflow-x:auto}
+.seg button{border:0;background:transparent;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:13px;white-space:nowrap;color:var(--muted);font-weight:550}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .1)}
+.seg .c{opacity:.7;margin-left:4px;font-family:var(--mono);font-size:11.5px}
+.btn{border:1px solid var(--line-strong);border-radius:7px;background:var(--card);padding:6px 12px;cursor:pointer;font-size:13px;font-weight:550;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;color:var(--ink)}
+.btn:hover{background:var(--hover);text-decoration:none}
+.btn.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;user-select:none}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);padding-inline:12px;overflow-x:auto}
+.tabs button{border:0;background:none;padding:11px 10px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;font-weight:550}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+
+/* chips */
+.z{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:2px 8px;border-radius:5px;white-space:nowrap;font-weight:550}
+.z-fire{color:var(--z-fire);background:var(--z-fire-bg)} .z-vcheap{color:var(--z-vcheap);background:var(--z-vcheap-bg)}
+.z-cheap{color:var(--z-cheap);background:var(--z-cheap-bg)} .z-fair{color:var(--z-fair);background:var(--z-fair-bg)}
+.z-exp{color:var(--z-exp);background:var(--z-exp-bg)} .z-vexp{color:var(--z-vexp);background:var(--z-vexp-bg)}
+.z-none{color:var(--muted);background:var(--sunk)}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:2px 8px;border-radius:5px;white-space:nowrap;font-weight:550;background:var(--sunk);color:var(--muted);border:1px solid var(--line)}
+.pill.pass{background:var(--up-soft);color:var(--up);border-color:transparent}
+.pill.near{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.sig{font-size:10.5px;font-weight:750;padding:2px 6px;border-radius:4px;letter-spacing:.04em;white-space:nowrap}
+.sig.swing{background:var(--z-cheap);color:var(--card)} .sig.rea{background:var(--z-vcheap);color:var(--card)}
+
+/* tables */
+.tw{overflow-x:auto}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:13px}
+th,td{padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:right}
+th{font-weight:600;font-size:12px;color:var(--muted);background:var(--card);position:sticky;top:0;z-index:2}
+th.l,td.l{text-align:left}
+tr.go{cursor:pointer}
+tr.go:hover td{background:var(--hover)}
+tbody tr:last-child td{border-bottom:0}
+.tk{font-family:var(--mono);font-weight:650;font-size:12.5px}
+.nm{color:var(--muted);font-size:12.5px;max-width:170px;overflow:hidden;text-overflow:ellipsis;display:inline-block;vertical-align:bottom}
+.co{display:flex;flex-direction:column;line-height:1.25}
+.co .nm{max-width:190px}
+td.bad{color:var(--down);background:var(--down-soft)}
+.empty{text-align:center;color:var(--muted);padding:28px 12px}
+.stick{position:sticky;left:0;z-index:1;background:var(--card)}
+th.stick{z-index:3}
+
+/* stock page */
+.sh{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 24px;padding:16px}
+@media (max-width:760px){.sh{grid-template-columns:minmax(0,1fr)}}
+.sh h1{font-size:22px;font-weight:700}
+.sh .meta{color:var(--muted);font-size:13px;margin-top:2px}
+.price{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:10px}
+.price .p{font-size:30px;font-weight:700;letter-spacing:-.01em}
+.price .ch{font-size:15px;font-weight:600}
+.price .ts{font-size:12px;color:var(--muted)}
+.acts{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;align-items:center}
+.ctool{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}
+.chartbox{position:relative;height:470px}
+@media (max-width:760px){.chartbox{height:340px}}
+.legend{position:absolute;left:10px;top:8px;z-index:3;font-size:12px;pointer-events:none;display:flex;flex-wrap:wrap;gap:2px 10px;max-width:calc(100% - 80px)}
+.legend b{font-weight:600}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0 18px}
+.kv div{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+.kv span:first-child{color:var(--muted)}
+.ladder{display:grid;gap:3px;font-size:13px}
+.ladder div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 10px;border-radius:6px}
+.ladder div.here{box-shadow:inset 0 0 0 1.5px currentColor}
+.ladder small{font-size:11.5px;opacity:.85;margin-left:6px}
+.crit{width:100%;border-collapse:collapse;font-size:13px}
+.crit td,.crit th{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:normal;position:static}
+.crit th{font-size:12px}
+.crit .r{text-align:right}
+.ok{color:var(--up)} .no{color:var(--down)}
+.scards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}
+@media (max-width:760px){.scards{grid-template-columns:minmax(0,1fr)}}
+.sc{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:4px}
+.sc b{font-size:13.5px}
+.bar{height:10px;border-radius:5px;overflow:hidden;display:flex;background:var(--sunk)}
+.bar i{display:block;height:100%}
+.tgt{position:relative;height:44px;margin:6px 4px 0}
+.tgt .rail{position:absolute;left:0;right:0;top:18px;height:6px;border-radius:3px;background:var(--sunk);border:1px solid var(--line)}
+.tgt .mk{position:absolute;top:10px;width:2px;height:22px;background:var(--ink)}
+.tgt .mk span{position:absolute;top:24px;left:50%;transform:translateX(-50%);font-size:11px;white-space:nowrap;color:var(--muted)}
+.tgt .mk.mean{background:var(--accent)}
+.tgt .mk.mean span{top:-16px;color:var(--accent);font-weight:600}
+.about{font-size:13.5px;line-height:1.6;max-width:75ch}
+.fbars{width:100%;height:auto;display:block}
+.fbars text{font-family:var(--font);font-size:11px;fill:var(--muted)}
+
+/* start */
+.hero{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;justify-content:space-between;margin-bottom:16px}
+.hero h1{font-size:20px}
+.radar{width:100%;height:auto;display:block;touch-action:manipulation}
+.radar text{font-family:var(--font);font-size:10.5px;fill:var(--muted)}
+.radar .pt{cursor:pointer}
+.radar .lab{font-family:var(--mono);font-size:10.5px;fill:var(--ink);font-weight:600;pointer-events:none}
+.lg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11.5px;color:var(--muted);padding-top:6px}
+.lg span{display:inline-flex;align-items:center;gap:5px}
+.lg i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.ev{list-style:none;margin:0;padding:0;font-size:13px}
+.ev li{display:grid;grid-template-columns:52px 84px minmax(0,1fr);gap:8px;padding:7px 0;border-bottom:1px solid var(--line);align-items:center}
+.ev li:last-child{border-bottom:0}
+.star{background:none;border:0;cursor:pointer;color:var(--faint);font-size:16px;line-height:1;padding:2px 4px}
+.star.on{color:#e0a100}
+#tip{position:fixed;z-index:40;pointer-events:none;background:var(--ink);color:var(--card);font-size:12px;padding:6px 9px;border-radius:6px;max-width:260px;line-height:1.35}
+
+/* screener */
+.tools{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+.critbox{padding:10px 16px;border-bottom:1px solid var(--line);background:var(--sunk)}
+.critbox summary{cursor:pointer;font-size:13px;font-weight:600;list-style:none;display:flex;gap:8px;align-items:center}
+.critbox summary::-webkit-details-marker{display:none}
+.critbox summary::before{content:"▸";color:var(--muted)}
+.critbox[open] summary::before{content:"▾"}
+.cgrid{display:flex;flex-wrap:wrap;gap:8px 18px;padding-top:10px}
+.cf{display:flex;align-items:center;gap:6px;font-size:13px;white-space:nowrap}
+.cf input{width:60px;padding:4px 6px;border:1px solid var(--line-strong);border-radius:5px;background:var(--card);font-family:var(--mono);font-size:12.5px;text-align:right}
+.cf .k{color:var(--muted);font-family:var(--mono);font-size:11.5px}
+.cf.changed input{border-color:var(--accent)}
+.prose{max-width:80ch;display:grid;gap:12px;font-size:14px}
+.prose h2{font-size:16px;margin-top:8px}
+.prose ul{margin:0;padding-left:20px;display:grid;gap:4px}
+.foot{padding-block:24px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);margin-top:24px}
+.skel{color:var(--muted);padding:40px 0;text-align:center}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#/"><i></i>Full Throttle</a>
+    <div class="search" role="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Sök aktie, t.ex. SoFi, NVDA eller Atlas Copco" autocomplete="off" aria-label="Sök aktie" aria-controls="dd">
+      <div class="dd" id="dd" role="listbox" hidden></div>
+    </div>
+    <nav class="main">
+      <a href="#/" data-nav="start">Start</a>
+      <a href="#/screener" data-nav="screener">Screener</a>
+      <a href="#/strategier" data-nav="strategier">Strategier</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap" id="app"><div class="skel">Laddar…</div></main>
+<div id="tip" hidden></div>
+
+<script src="lightweight-charts.js"></script>
+<script>
+(function(){
+"use strict";
+/* ============ konfiguration ============ */
+const LRHR_CAGR=+(((1.5**(1/5))-1)*100).toFixed(2);
+const DEF={
+  ftp:{cagr:15,g1:20,deMax:1,pegMax:1.5,fcf:5,roic:10,gm:35,dil:5,mcap:2},
+  ft:{cagr:14.9,g1:20,deMax:5,pegMax:2},
+  lrhr:{cagr:LRHR_CAGR,g1:5,eg1:5,roe:15,deMax:1,fcf:0,pegMax:1,mcap:10},
+  zones:{b1:10,b2:20,b3:30,b4:40,swing:20,rea:30}
+};
+const STRATS={
+  ftp:{name:"Full Throttle+",short:"FT+",score:"growth",crit:[
+    {k:"cagr",nm:"Omsättning 5 år",short:"Oms 5å",op:"≥",u:"%/år",f:"revCagr"},
+    {k:"g1",nm:"Omsättning 1 år",short:"Oms 1å",op:"≥",u:"%",f:"revGrowth1y"},
+    {k:"deMax",nm:"Skuld / eget kapital",short:"Skuld",op:"≤",u:"×",f:"de",de:1},
+    {k:"pegMax",nm:"PEG",short:"PEG",op:"≤",u:"",f:"peg",pos:1},
+    {k:"fcf",nm:"FCF-marginal",short:"FCF",op:"≥",u:"%",f:"fcfMargin"},
+    {k:"roic",nm:"ROIC",short:"ROIC",op:"≥",u:"%",f:"roic"},
+    {k:"gm",nm:"Bruttomarginal",short:"Bruttomarg",op:"≥",u:"%",f:"grossMargin"},
+    {k:"dil",nm:"Utspädning per år",short:"Utspädn",op:"≤",u:"%",f:"shareChange",nullOk:1},
+    {k:"mcap",nm:"Börsvärde",short:"Storlek",op:"≥",u:"mdr $",f:"mcapB"}]},
+  ft:{name:"Full Throttle",short:"FT",score:"growth",crit:[
+    {k:"cagr",nm:"Omsättning 5 år",short:"Oms 5å",op:"≥",u:"%/år",f:"revCagr"},
+    {k:"g1",nm:"Omsättning 1 år",short:"Oms 1å",op:">",u:"%",f:"revGrowth1y"},
+    {k:"deMax",nm:"Skuld / eget kapital",short:"Skuld",op:"<",u:"×",f:"de",de:1},
+    {k:"pegMax",nm:"PEG",short:"PEG",op:"<",u:"",f:"peg",pos:1}]},
+  lrhr:{name:"Low Risk, High Reward",short:"LRHR",score:"quality",crit:[
+    {k:"cagr",nm:"Omsättning 5 år",short:"Oms 5å",op:">",u:"%/år",f:"revCagr"},
+    {k:"g1",nm:"Omsättning 1 år",short:"Oms 1å",op:">",u:"%",f:"revGrowth1y"},
+    {k:"eg1",nm:"Vinst per aktie 1 år",short:"Vinst 1å",op:">",u:"%",f:"earnGrowth1y"},
+    {k:"roe",nm:"ROE",short:"ROE",op:">",u:"%",f:"roe"},
+    {k:"deMax",nm:"Skuld / eget kapital",short:"Skuld",op:"<",u:"×",f:"de",de:1},
+    {k:"fcf",nm:"FCF-marginal",short:"FCF",op:">",u:"%",f:"fcfMargin"},
+    {k:"pegMax",nm:"PEG",short:"PEG",op:"<",u:"",f:"peg",pos:1},
+    {k:"mcap",nm:"Börsvärde",short:"Storlek",op:"≥",u:"mdr $",f:"mcapB"}]}
+};
+const ZONES=[["fire","Fire Sale"],["vcheap","Very Cheap"],["cheap","Cheap"],["fair","Fair Value"],["exp","Expensive"],["vexp","Very Expensive"]];
+const ZNAME=Object.fromEntries(ZONES);
+const STL={pass:"Klarar",near:"Nära",out:"Utanför",excl:"Utesluten sektor"};
+const ORD={pass:0,near:1,out:2,excl:3};
+const REC={strong_buy:"Starkt köp",buy:"Köp",hold:"Behåll",underperform:"Underprestera",sell:"Sälj",none:"–"};
+const UDA={up:"Uppgradering",down:"Nedgradering",main:"Bekräftar",reit:"Upprepar",init:"Ny bevakning"};
+
+/* ============ state ============ */
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let lim=store.get("ft3-lim",null); if(!lim||!lim.ftp||!lim.lrhr||!lim.zones)lim=JSON.parse(JSON.stringify(DEF));
+const ui=Object.assign({strat:"ftp",filter:"all",zones:[],sort:"score",dir:-1,radar:"lrhr",tf:"D",range:"3Y",bands:true,stab:"strat",showExcl:false},store.get("ft3-ui",{}));
+let watch=store.get("ft3-watch",["SOFI"]);
+let U=null,rows=[],bySym={},detailCache={},chart=null,chartSym=null;
+const saveUi=()=>store.set("ft3-ui",ui), saveLim=()=>store.set("ft3-lim",lim), saveWatch=()=>store.set("ft3-watch",watch);
+
+/* ============ format ============ */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const nn=x=>x!=null&&!isNaN(x)&&isFinite(x);
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+function f(x,dp=1,suf=""){if(!nn(x))return"–";return x.toLocaleString("sv-SE",{minimumFractionDigits:dp,maximumFractionDigits:dp})+suf}
+function px(x){if(!nn(x))return"–";const a=Math.abs(x);return f(x,a>=1000?0:a>=10?2:a>=1?2:4)}
+const curSym=c=>!c||c==="USD"?"$":c==="SEK"?"kr":c==="EUR"?"€":c;
+const money=(x,c)=>nn(x)?px(x)+" "+curSym(c):"–";
+const pct=(x,dp=2)=>!nn(x)?"–":(x>0?"+":x<0?"−":"")+f(Math.abs(x),dp," %");
+const cls=x=>!nn(x)||x===0?"":x>0?"up":"down";
+function big(x){if(!nn(x))return"–";const a=Math.abs(x);return a>=1e12?f(x/1e12,2)+" bn":a>=1e9?f(x/1e9,1)+" md":a>=1e6?f(x/1e6,0)+" mn":f(x,0)}
+const mcap=b=>!nn(b)?"–":b>=1000?f(b/1000,2)+" bn $":f(b,b>=100?0:1)+" md $";
+const dayToISO=d=>new Date(d*864e5).toISOString().slice(0,10);
+function rel(iso){if(!iso)return"";const t=new Date(iso),m=(Date.now()-t)/6e4;if(m<2)return"nyss";if(m<60)return Math.round(m)+" min sedan";if(m<60*24)return t.toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit"});return t.toLocaleString("sv-SE",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}
+
+/* ============ strategilogik ============ */
+function test(c,d,v){
+  const x=d[c.f];
+  if(c.nullOk&&x==null)return true;
+  if(!nn(x))return false;
+  if(c.de&&(d.negEquity||x<0))return false;
+  if(c.pos&&x<=0)return false;
+  return c.op==="≥"?x>=v:c.op===">"?x>v:c.op==="≤"?x<=v:x<v;
+}
+function zoneOf(dist){if(!nn(dist))return null;const z=lim.zones;return dist<0?"fire":dist<z.b1?"vcheap":dist<z.b2?"cheap":dist<z.b3?"fair":dist<z.b4?"exp":"vexp"}
+function growthScore(d){let s=0;
+  if(nn(d.revCagr))s+=clamp(d.revCagr/40,0,1)*15; if(nn(d.revGrowth1y))s+=clamp(d.revGrowth1y/50,0,1)*15;
+  if(nn(d.roic))s+=clamp(d.roic/30,0,1)*10; if(nn(d.fcfMargin))s+=clamp(d.fcfMargin/30,0,1)*10;
+  if(nn(d.grossMargin))s+=clamp((d.grossMargin-20)/60,0,1)*5; if(nn(d.peg)&&d.peg>0)s+=clamp((3-d.peg)/2.5,0,1)*15;
+  if(nn(d.fwdPe)&&d.fwdPe>0)s+=clamp((80-d.fwdPe)/60,0,1)*10; if(!d.negEquity&&nn(d.de))s+=clamp((2-d.de)/2,0,1)*12;
+  s+=d.shareChange==null?4:clamp((10-d.shareChange)/10,0,1)*8; return Math.round(s)}
+function qualityScore(d){let s=0;
+  if(nn(d.roe))s+=clamp(d.roe/40,0,1)*25; if(nn(d.peg)&&d.peg>0)s+=clamp((2-d.peg)/1.7,0,1)*25;
+  if(nn(d.fcfMargin))s+=clamp(d.fcfMargin/30,0,1)*15; if(!d.negEquity&&nn(d.de))s+=clamp((1.5-d.de)/1.5,0,1)*15;
+  if(nn(d.earnGrowth1y))s+=clamp(d.earnGrowth1y/30,0,1)*10; if(nn(d.revGrowth1y))s+=clamp(d.revGrowth1y/20,0,1)*10;
+  return Math.round(s)}
+function classify(d){
+  d.res={};
+  for(const k in STRATS){
+    if(d.excluded){d.res[k]={miss:["sector"],status:"excl"};continue}
+    const miss=STRATS[k].crit.filter(c=>!test(c,d,lim[k][c.k])).map(c=>c.k);
+    d.res[k]={miss,status:!miss.length?"pass":miss.length===1?"near":"out"};
+  }
+  d.gScore=d.excluded?null:growthScore(d);d.qScore=d.excluded?null:qualityScore(d);
+  d.z=zoneOf(d.dist200w);
+  d.sig=[];
+  if(nn(d.dist200w)){
+    if(d.res.lrhr.status==="pass"&&d.dist200w<lim.zones.swing)d.sig.push("swing");
+    if(d.res.ftp.status==="pass"&&d.dist200w<lim.zones.rea)d.sig.push("rea");
+  }
+  d.flag=nn(d.peg)&&d.peg>0&&d.peg<0.2;
+}
+const level=(d,p)=>nn(d.ma200w)?d.ma200w*(1+p/100):null;
+const scoreOf=(d,k)=>STRATS[k].score==="quality"?d.qScore:d.gScore;
+const shortName=(s,k)=>k==="sector"?"Sektor":(STRATS[s].crit.find(c=>c.k===k)||{}).short||k;
+function critVal(k,d){const c=Object.values(STRATS).flatMap(s=>s.crit).find(c=>c.k===k);if(!c)return"";if(c.de&&d.negEquity)return"neg. EK";const v=d[c.f];return nn(v)?f(v,k==="pegMax"||k==="deMax"?2:1):"saknas"}
+function dropTo(d,p){const t=level(d,p);return nn(t)&&nn(d.price)&&d.price>t?(1-t/d.price)*100:0}
+
+/* ============ små komponenter ============ */
+function zchip(d,dist=true){if(!d.z)return `<span class="z z-none">200W saknas</span>`;return `<span class="z z-${d.z}">${ZNAME[d.z]}${dist?` <span class="n" style="font-size:11.5px">${pct(d.dist200w,1)}</span>`:""}</span>`}
+const sigB=d=>d.sig.map(s=>`<span class="sig ${s}">${s==="swing"?"SWING":"REA"}</span>`).join(" ");
+const co=d=>`<span class="co"><span class="tk">${esc(d.ticker)}</span><span class="nm">${esc(d.name)}</span></span>`;
+const chgCell=d=>`<td class="n ${cls(d.chg)}">${pct(d.chg)}</td>`;
+const link=t=>"#/aktie/"+encodeURIComponent(t);
+function bindRows(root){root.querySelectorAll("tr[data-t],li[data-t],[data-go]").forEach(el=>el.addEventListener("click",e=>{if(e.target.closest("button.star,a"))return;location.hash=link(el.dataset.t||el.dataset.go)}))}
+function starBtn(t){const on=watch.includes(t);return `<button class="star${on?" on":""}" data-star="${esc(t)}" title="${on?"Ta bort från bevakning":"Lägg till i bevakning"}" aria-pressed="${on}">${on?"★":"☆"}</button>`}
+function bindStars(root,after){root.querySelectorAll("button[data-star]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();const t=b.dataset.star;watch=watch.includes(t)?watch.filter(x=>x!==t):watch.concat(t);saveWatch();after?after():route()}))}
+
+/* ============ sök ============ */
+const q=$("q"),dd=$("dd");let ddSel=0,ddItems=[];
+function norm(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")}
+function searchRows(s){
+  s=norm(s.trim());if(!s)return[];
+  const out=[];
+  for(const d of rows){
+    const t=norm(d.ticker),tb=t.replace(/\.st$/,""),n=norm(d.name+" "+(d.longName||""));
+    let sc=-1;
+    if(t===s||tb===s)sc=0;else if(t.startsWith(s)||tb.startsWith(s))sc=1;else if(n.startsWith(s))sc=2;else if(n.includes(" "+s))sc=3;else if(n.includes(s))sc=4;
+    if(sc>=0)out.push([sc,(d.mcapB||0),d]);
+  }
+  return out.sort((a,b)=>a[0]-b[0]||b[1]-a[1]).slice(0,8).map(x=>x[2]);
+}
+function renderDD(){
+  ddItems=searchRows(q.value);
+  if(!q.value.trim()){dd.hidden=true;return}
+  dd.hidden=false;
+  dd.innerHTML=ddItems.length?ddItems.map((d,i)=>`<a href="${link(d.ticker)}" role="option" aria-selected="${i===ddSel}"><span class="tk">${esc(d.ticker)}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.name)}</span><span class="n">${money(d.price,d.currency)}</span><span class="n ${cls(d.chg)}" style="min-width:64px;text-align:right">${pct(d.chg)}</span></a>`).join("")
+    :`<div class="empty">Hittar ingen aktie som matchar "${esc(q.value)}". Listan innehåller ${rows.length} aktier. Saknas en, lägg till den i <span class="n">config/egna.txt</span> i repot.</div>`;
+}
+q.addEventListener("input",()=>{ddSel=0;renderDD()});
+q.addEventListener("focus",renderDD);
+q.addEventListener("keydown",e=>{
+  if(e.key==="ArrowDown"){ddSel=Math.min(ddSel+1,ddItems.length-1);renderDD();e.preventDefault()}
+  else if(e.key==="ArrowUp"){ddSel=Math.max(ddSel-1,0);renderDD();e.preventDefault()}
+  else if(e.key==="Enter"&&ddItems[ddSel]){location.hash=link(ddItems[ddSel].ticker);q.value="";dd.hidden=true;q.blur()}
+  else if(e.key==="Escape"){dd.hidden=true;q.blur()}
+});
+dd.addEventListener("click",()=>{q.value="";dd.hidden=true});
+document.addEventListener("click",e=>{if(!e.target.closest(".search"))dd.hidden=true});
+document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement.tagName!=="INPUT"){e.preventDefault();q.focus()}});
+
+/* ============ router ============ */
+function route(){
+  const h=location.hash||"#/";const parts=h.slice(2).split("/");
+  const page=parts[0]||"start";
+  document.querySelectorAll("nav.main a").forEach(a=>a.setAttribute("aria-current",a.dataset.nav===page?"page":"false"));
+  if(chart&&page!=="aktie"){chart.remove();chart=null;chartSym=null}
+  if(!U){$("app").innerHTML=`<div class="skel">Laddar…</div>`;return}
+  if(page==="aktie")return pageStock(decodeURIComponent(parts[1]||""));
+  if(page==="screener")return pageScreener();
+  if(page==="strategier")return pageMethod();
+  return pageStart();
+}
+addEventListener("hashchange",()=>{route();scrollTo(0,0)});
+
+/* ============ START ============ */
+function pageStart(){
+  const hasMa=rows.some(d=>nn(d.dist200w));
+  const swing=rows.filter(d=>d.sig.includes("swing")).sort((a,b)=>a.dist200w-b.dist200w);
+  const rea=rows.filter(d=>d.sig.includes("rea")).sort((a,b)=>a.dist200w-b.dist200w);
+  const wl=watch.map(t=>bySym[t]).filter(Boolean);
+  const watchList=rows.filter(d=>nn(d.dist200w)&&!d.sig.length&&(d.res.lrhr.status==="pass"||d.res.ftp.status==="pass"))
+    .map(d=>{const k=d.res.lrhr.status==="pass"?"lrhr":"ftp";return{d,k,drop:dropTo(d,k==="lrhr"?lim.zones.swing:lim.zones.rea)}}).sort((a,b)=>a.drop-b.drop).slice(0,10);
+  const near=rows.filter(d=>d.res.lrhr.status==="near"&&nn(d.dist200w)&&d.dist200w<lim.zones.swing).sort((a,b)=>b.qScore-a.qScore).slice(0,8);
+  const ev=(U.events||[]).filter(e=>bySym[e.ticker]).slice(0,25);
+  const sigTable=(list,empty,extra)=>list.length?`<div class="tw"><table><thead><tr><th class="l">Aktie</th><th>Kurs</th><th>Idag</th><th class="l">200W</th><th>${extra[0]}</th></tr></thead><tbody>${list.map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="n">${money(d.price,d.currency)}</td>${chgCell(d)}<td class="l">${zchip(d)}</td><td class="n">${extra[1](d)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">${empty}</p>`;
+  $("app").innerHTML=`
+  <div class="hero"><h1>Översikt</h1><span class="sub">${rows.length} aktier · nyckeltal per ${esc(U.asOf||"–")} · kurser ${esc(rel(U.quotesAt||U.updatedAt))}</span></div>
+  ${hasMa?"":`<div class="card" style="margin-bottom:16px"><div class="bd">200W-data saknas än. Den kommer när uppdateringen har körts första gången under Actions i GitHub.</div></div>`}
+  <div class="grid g2">
+    <section class="card"><div class="hd"><h2>Min bevakning</h2><span class="sub">Lägg till med ☆ på en aktie</span></div>
+      <div class="bd flush">${wl.length?`<div class="tw"><table><thead><tr><th class="l">Aktie</th><th>Kurs</th><th>Idag</th><th class="l">200W</th><th class="l">Signal</th><th></th></tr></thead><tbody>${wl.map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="n">${money(d.price,d.currency)}</td>${chgCell(d)}<td class="l">${zchip(d)}</td><td class="l">${sigB(d)||'<span class="faint">–</span>'}</td><td>${starBtn(d.ticker)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">Ingen bevakning än. Sök upp en aktie och tryck på ☆.</p>`}</div></section>
+    <section class="card"><div class="hd"><h2>Swing-läge</h2><span class="sub">Low Risk, High Reward och under Cheap</span></div>
+      <div class="bd flush">${sigTable(swing,hasMa?"Inga just nu. Kvalitetsbolagen är dyra mot sitt 200W-snitt. Se Bevakning nedan.":"Väntar på 200W-data.",["ROE",d=>f(d.roe,0,"%")])}</div></section>
+    <section class="card"><div class="hd"><h2>Tillväxt på rea</h2><span class="sub">Full Throttle+ och under Fair Value</span></div>
+      <div class="bd flush">${sigTable(rea,hasMa?"Inga just nu.":"Väntar på 200W-data.",["Oms 1 år",d=>f(d.revGrowth1y,0,"%")])}</div></section>
+    <section class="card"><div class="hd"><h2>Bevakning: bra bolag, fel pris</h2><span class="sub">Fall som krävs till köpzon</span></div>
+      <div class="bd flush">${watchList.length?`<div class="tw"><table><thead><tr><th class="l">Aktie</th><th class="l">Strategi</th><th class="l">200W</th><th>Köpzon under</th><th>Kvar</th></tr></thead><tbody>${watchList.map(({d,k,drop})=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="l small">${STRATS[k].short}</td><td class="l">${zchip(d)}</td><td class="n">${money(level(d,k==="lrhr"?lim.zones.swing:lim.zones.rea),d.currency)}</td><td class="n down">−${f(drop,0," %")}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">${hasMa?"Inga bolag i bevakning.":"Väntar på 200W-data."}</p>`}</div></section>
+  </div>
+  <div class="grid g-main" style="margin-top:16px">
+    <section class="card"><div class="hd"><h2>Radar: kvalitet mot pris</h2>
+      <div class="seg" id="radarSeg"><button data-r="lrhr" aria-pressed="${ui.radar==="lrhr"}">Low Risk, High Reward</button><button data-r="ftp" aria-pressed="${ui.radar==="ftp"}">Full Throttle+</button></div></div>
+      <div class="bd"><svg class="radar" id="radar" viewBox="0 0 760 400" role="img" aria-label="Aktierna efter avstånd till 200W och poäng"></svg>
+      <div class="lg"><span><i style="background:var(--ink)"></i>Klarar strategin</span><span><i style="border:1.5px solid var(--ink)"></i>Missar ett krav</span><span><i style="background:var(--faint)"></i>Övriga</span><span>Höger = dyrare mot 200W · Upp = högre poäng</span></div></div></section>
+    <div class="grid" style="align-content:start">
+      <section class="card"><div class="hd"><h2>Nära Low Risk, High Reward</h2></div>
+        <div class="bd flush">${near.length?`<div class="tw"><table><tbody>${near.map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="l">${zchip(d,false)}</td><td class="l small muted">Missar ${esc(shortName("lrhr",d.res.lrhr.miss[0]))}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">Inga just nu.</p>`}</div></section>
+      <section class="card"><div class="hd"><h2>Händelser</h2></div>
+        <div class="bd">${ev.length?`<ul class="ev">${ev.map(e=>`<li data-t="${esc(e.ticker)}" style="cursor:pointer"><span class="n faint" style="font-size:12px">${esc((e.date||"").slice(5))}</span><span class="tk">${esc(e.ticker)}</span><span>${e.type==="zone"?`<span class="z z-${esc(e.from)}">${esc(ZNAME[e.from]||"")}</span> → <span class="z z-${esc(e.to)}">${esc(ZNAME[e.to]||"")}</span>`:e.type==="in"?`<span class="ok">Ny signal: ${e.signal==="swing"?"Swing-läge":"Tillväxt på rea"}</span>`:`<span class="muted">Signal borta: ${e.signal==="swing"?"Swing-läge":"Tillväxt på rea"}</span>`}</span></li>`).join("")}</ul>`:`<p class="muted small">Zonbyten och nya signaler loggas från andra körningen och framåt.</p>`}</div></section>
+    </div>
+  </div>`;
+  bindRows($("app"));bindStars($("app"));
+  document.querySelectorAll("#radarSeg button").forEach(b=>b.addEventListener("click",()=>{ui.radar=b.dataset.r;saveUi();document.querySelectorAll("#radarSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));renderRadar()}));
+  renderRadar();
+}
+function xs(d){const v=clamp(d,-40,250);return v<=60?(v+40)/100*0.72:0.72+Math.log(1+(v-60)/40)/Math.log(1+190/40)*0.28}
+function renderRadar(){
+  const svg=$("radar");if(!svg)return;
+  const narrow=(svg.clientWidth||760)<560,W=narrow?420:760,H=narrow?360:400,L=30,R=10,T=12,B=30,pw=W-L-R,ph=H-T-B,k=ui.radar;
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  const X=d=>L+xs(d)*pw,Y=s=>T+(1-s/100)*ph,z=lim.zones,edges=[-40,0,z.b1,z.b2,z.b3,z.b4,250];
+  let g="";
+  ZONES.forEach(([c],i)=>{g+=`<rect x="${X(edges[i]).toFixed(1)}" y="${T}" width="${(X(edges[i+1])-X(edges[i])).toFixed(1)}" height="${ph}" fill="var(--z-${c}-bg)"/>`});
+  [0,25,50,75,100].forEach(s=>{g+=`<line x1="${L}" x2="${W-R}" y1="${Y(s)}" y2="${Y(s)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(s)+3.5}" text-anchor="end">${s}</text>`});
+  (narrow?[-30,0,z.b2,z.b4,100,250]:[-30,0,z.b1,z.b2,z.b3,z.b4,60,100,150,250]).forEach(t=>{g+=`<text x="${X(t)}" y="${H-12}" text-anchor="middle">${t>0?"+":""}${t}%</text>`});
+  g+=`<line x1="${X(0)}" x2="${X(0)}" y1="${T}" y2="${T+ph}" stroke="var(--z-fire)" stroke-width="1.2"/>`;
+  const pts=rows.filter(d=>nn(d.dist200w)&&!d.excluded).map(d=>({d,st:d.res[k].status,s:scoreOf(d,k)})).sort((a,b)=>ORD[b.st]-ORD[a.st]);
+  const placed=[];const free=(x,y,w)=>!placed.some(b=>x<b[0]+b[2]&&x+w>b[0]&&Math.abs(y-b[1])<11);
+  pts.forEach(({d,st,s})=>{
+    const cx=+X(d.dist200w).toFixed(1),cy=+Y(s).toFixed(1),col=`var(--z-${d.z})`;
+    g+=`<g class="pt" data-t="${esc(d.ticker)}" tabindex="0">${st==="pass"?`<circle cx="${cx}" cy="${cy}" r="6.5" fill="${col}" stroke="var(--card)" stroke-width="1.5"/>`:st==="near"?`<circle cx="${cx}" cy="${cy}" r="5" fill="var(--card)" stroke="${col}" stroke-width="2"/>`:`<circle cx="${cx}" cy="${cy}" r="3" fill="var(--faint)" opacity=".55"/>`}<circle cx="${cx}" cy="${cy}" r="11" fill="transparent"/></g>`;
+    if(st==="pass"){const t=d.ticker.replace(/\.ST$/,""),w=t.length*6.6+2;let x=cx+9;if(x+w>W-R)x=cx-9-w;if(free(x,cy,w)){placed.push([x,cy,w]);g+=`<text class="lab" x="${x.toFixed(1)}" y="${(cy+3.5).toFixed(1)}">${esc(t)}</text>`}}
+  });
+  if(!pts.length)g+=`<text x="${W/2}" y="${H/2}" text-anchor="middle" style="font-size:13px">Ingen 200W-data än</text>`;
+  svg.innerHTML=g;
+  const tip=$("tip");
+  svg.querySelectorAll(".pt").forEach(el=>{const d=bySym[el.dataset.t];
+    const show=e=>{const r=d.res[k];tip.innerHTML=`<b>${esc(d.ticker)}</b> ${esc(d.name)}<br>${ZNAME[d.z]} ${pct(d.dist200w,1)} · poäng ${scoreOf(d,k)}<br>${r.miss.length?"Missar: "+esc(r.miss.map(m=>shortName(k,m)).join(", ")):"Klarar "+esc(STRATS[k].name)}`;tip.hidden=false;tip.style.left=Math.min(e.clientX+12,innerWidth-270)+"px";tip.style.top=(e.clientY+12)+"px"};
+    el.addEventListener("mousemove",show);el.addEventListener("mouseleave",()=>tip.hidden=true);
+    el.addEventListener("click",()=>{tip.hidden=true;location.hash=link(d.ticker)});el.addEventListener("keydown",e=>{if(e.key==="Enter")location.hash=link(d.ticker)});
+  });
+}
+let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if($("radar"))renderRadar()},150)});
+
+/* ============ AKTIE ============ */
+async function getDetail(t){
+  if(detailCache[t])return detailCache[t];
+  const fn=t.replace(/[\^/]/g,"_")+".json";
+  const r=await fetch("data/t/"+encodeURIComponent(fn)+"?v="+encodeURIComponent(U.updatedAt||""),{cache:"default"});
+  if(!r.ok)throw new Error("HTTP "+r.status);
+  return detailCache[t]=await r.json();
+}
+function pageStock(t){
+  const d=bySym[t]||bySym[t.toUpperCase()];
+  if(!d){$("app").innerHTML=`<div class="card"><div class="bd"><h1 style="font-size:18px">Hittar inte ${esc(t)}</h1><p class="muted" style="margin-top:6px">Aktien finns inte i listan på ${rows.length} aktier. Lägg till Yahoo-symbolen i <span class="n">config/egna.txt</span> i repot så kommer den med vid nästa uppdatering. <a href="https://www.tradingview.com/symbols/${encodeURIComponent(t)}/" target="_blank" rel="noopener">Öppna i TradingView ↗</a></p></div></div>`;return}
+  document.title=`${d.name} (${d.ticker}) · Full Throttle`;
+  const days=d.nextEarnings?Math.round((new Date(d.nextEarnings)-Date.now())/864e5):null;
+  const stratPill=k=>{const s=d.res[k].status;return `<span class="pill ${s==="pass"?"pass":s==="near"?"near":""}" title="${esc(STRATS[k].name)}: ${STL[s]}">${s==="pass"?"✓":s==="near"?"≈":"✕"} ${STRATS[k].short}</span>`};
+  const tvSym=d.ticker.endsWith(".ST")?"OMXSTO-"+d.ticker.replace(/\.ST$/,"").replace(/-/g,"_"):d.ticker;
+  $("app").innerHTML=`
+  <section class="card">
+    <div class="sh">
+      <div style="min-width:0">
+        <h1>${esc(d.longName||d.name)}</h1>
+        <div class="meta">${esc(d.ticker)} · ${esc(d.exch||"")} · ${esc(d.sector||"")}${d.industry&&d.industry!=="ETF"?" · "+esc(d.industry):""}</div>
+        <div class="price"><span class="p n">${px(d.price)}</span><span class="muted">${esc(d.currency||"")}</span><span class="ch n ${cls(d.chg)}">${pct(d.chg)}</span><span class="ch n ${cls(d.chg)}" style="font-weight:500">${nn(d.price)&&nn(d.prevClose)?(d.price-d.prevClose>0?"+":"−")+px(Math.abs(d.price-d.prevClose)):""}</span><span class="ts">Uppdaterad ${esc(rel(U.quotesAt||U.updatedAt))} · ca 15–30 min fördröjning</span></div>
+        <div class="chips">${zchip(d)} ${sigB(d)} ${stratPill("ftp")} ${stratPill("ft")} ${stratPill("lrhr")} ${d.excluded&&d.type==="EQUITY"?`<span class="pill">Sektor utesluten i strategierna</span>`:""} ${days!=null&&days>=0?`<span class="pill" style="${days<=14?"color:var(--warn);background:var(--warn-soft);border-color:transparent":""}">Rapport ${esc(d.nextEarnings)}${days<=14?` · om ${days} d`:""}</span>`:""}</div>
+      </div>
+      <div class="acts">
+        <button class="btn${watch.includes(d.ticker)?" on":""}" id="wbtn">${watch.includes(d.ticker)?"★ Bevakad":"☆ Bevaka"}</button>
+        <a class="btn" href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(tvSym)}" target="_blank" rel="noopener">TradingView ↗</a>
+      </div>
+    </div>
+  </section>
+  <section class="card" style="margin-top:16px">
+    <div class="ctool">
+      <div class="seg" id="tfSeg"><button data-tf="D" aria-pressed="${ui.tf==="D"}">Dag</button><button data-tf="W" aria-pressed="${ui.tf==="W"}">Vecka</button></div>
+      <div class="seg" id="rgSeg">${["6M","1Y","3Y","5Y","MAX"].map(r=>`<button data-r="${r}" aria-pressed="${ui.range===r}">${{"6M":"6 mån","1Y":"1 år","3Y":"3 år","5Y":"5 år","MAX":"Max"}[r]}</button>`).join("")}</div>
+      <span style="flex:1"></span>
+      <label class="chk"><input type="checkbox" id="bandsChk" ${ui.bands?"checked":""}> 200W-zoner</label>
+    </div>
+    <div class="chartbox" id="chartbox"><div class="legend" id="legend"></div><div class="skel" id="chartMsg">Laddar diagram…</div></div>
+  </section>
+  <div class="grid g-main" style="margin-top:16px">
+    <section class="card">
+      <div class="tabs" role="tablist" id="stabs">
+        ${[["strat","Strategier"],["an","Analytiker"],["key","Nyckeltal"],["about","Om bolaget"]].map(([k,l])=>`<button role="tab" data-s="${k}" aria-selected="${ui.stab===k}">${l}</button>`).join("")}
+      </div>
+      <div class="bd" id="stabBody"></div>
+    </section>
+    <div class="grid" style="align-content:start">
+      <section class="card"><div class="hd"><h2>Köpnivåer mot 200W</h2><span class="sub">200W ${money(d.ma200w,d.currency)}</span></div><div class="bd">${ladder(d)}</div></section>
+      <section class="card"><div class="hd"><h2>Analytikerna</h2>${d.nAnalysts?`<span class="sub">${d.nAnalysts} analytiker</span>`:""}</div><div class="bd" id="anSmall">${anSummary(d)}</div></section>
+    </div>
+  </div>`;
+  $("wbtn").addEventListener("click",()=>{const on=watch.includes(d.ticker);watch=on?watch.filter(x=>x!==d.ticker):watch.concat(d.ticker);saveWatch();$("wbtn").className="btn"+(on?"":" on");$("wbtn").textContent=on?"☆ Bevaka":"★ Bevakad"});
+  document.querySelectorAll("#stabs button").forEach(b=>b.addEventListener("click",()=>{ui.stab=b.dataset.s;saveUi();document.querySelectorAll("#stabs button").forEach(x=>x.setAttribute("aria-selected",x===b));renderStab(d)}));
+  document.querySelectorAll("#tfSeg button").forEach(b=>b.addEventListener("click",()=>{ui.tf=b.dataset.tf;if(ui.tf==="D"&&(ui.range==="5Y"||ui.range==="MAX"))ui.range="3Y";saveUi();document.querySelectorAll("#tfSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));document.querySelectorAll("#rgSeg button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.r===ui.range));drawChart(d)}));
+  document.querySelectorAll("#rgSeg button").forEach(b=>b.addEventListener("click",()=>{ui.range=b.dataset.r;if((ui.range==="5Y"||ui.range==="MAX")&&ui.tf==="D"){ui.tf="W";document.querySelectorAll("#tfSeg button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.tf==="W"))}saveUi();document.querySelectorAll("#rgSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawChart(d)}));
+  $("bandsChk").addEventListener("change",e=>{ui.bands=e.target.checked;saveUi();drawChart(d)});
+  renderStab(d);
+  getDetail(d.ticker).then(det=>{if(location.hash!==link(d.ticker)&&decodeURIComponent(location.hash)!==decodeURIComponent(link(d.ticker)))return;d._det=det;drawChart(d);renderStab(d)})
+    .catch(()=>{const m=$("chartMsg");if(m)m.textContent="Kunde inte ladda kursdata för den här aktien."});
+}
+function ladder(d){
+  if(!nn(d.ma200w))return `<p class="muted small">200W-snitt saknas (för kort historik eller ingen data än).</p>`;
+  const z=lim.zones,lv=[["vexp",null,z.b4],["exp",z.b4,z.b3],["fair",z.b3,z.b2],["cheap",z.b2,z.b1],["vcheap",z.b1,0],["fire",0,null]];
+  return `<div class="ladder">`+lv.map(([c,hi,lo])=>{
+    const txt=c==="vexp"?`över ${money(level(d,z.b4),d.currency)}`:c==="fire"?`under ${money(d.ma200w,d.currency)}`:`${money(level(d,lo),d.currency)} – ${px(level(d,hi))}`;
+    return `<div class="z-${c}${d.z===c?" here":""}"><span><b style="font-weight:600">${ZNAME[c]}</b>${d.z===c?"<small>← nu</small>":""}</span><span class="n" style="font-size:12.5px">${txt}</span></div>`}).join("")+`</div>
+    <p class="small muted" style="margin-top:8px">${d.z==="fire"||d.z==="vcheap"||d.z==="cheap"?`Kursen ligger i köpzonen.`:`Kursen behöver falla ${f(dropTo(d,z.b2),0," %")} för att nå Cheap.`}</p>`;
+}
+function anSummary(d){
+  if(!d.nAnalysts&&!nn(d.targetMean))return `<p class="muted small">Ingen analytikerbevakning.</p>`;
+  const up=nn(d.targetMean)&&nn(d.price)?(d.targetMean/d.price-1)*100:null;
+  return `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><b style="font-size:18px">${esc(REC[d.recKey]||d.recKey||"–")}</b><span class="small muted">snitt ${f(d.recMean,1)} av 5 (1 = starkt köp)</span></div>
+    <div class="kv" style="margin-top:6px"><div><span>Riktkurs snitt</span><span class="n">${money(d.targetMean,d.currency)}</span></div><div><span>Uppsida</span><span class="n ${cls(up)}">${pct(up,1)}</span></div></div>
+    ${targetBar(d)}`;
+}
+function targetBar(d){
+  if(!nn(d.targetLow)||!nn(d.targetHigh)||!nn(d.price))return"";
+  const lo=Math.min(d.targetLow,d.price)*0.97,hi=Math.max(d.targetHigh,d.price)*1.03,X=v=>clamp((v-lo)/(hi-lo)*100,0,100);
+  return `<div class="tgt" title="Riktkurser mot nuvarande kurs"><div class="rail" style="left:${X(d.targetLow)}%;right:${100-X(d.targetHigh)}%"></div>
+    <div class="mk" style="left:${X(d.targetLow)}%;background:var(--faint)"></div>
+    <div class="mk mean" style="left:${X(d.targetMean)}%"><span>Snitt</span></div>
+    <div class="mk" style="left:${X(d.targetHigh)}%;background:var(--faint)"></div>
+    <div class="mk" style="left:${X(d.price)}%;background:var(--ink);width:3px"><span style="color:var(--ink);font-weight:600">Kurs</span></div></div>
+    <div class="small muted" style="display:flex;justify-content:space-between;gap:8px;margin-top:14px"><span>Lägst <span class="n">${px(d.targetLow)}</span></span><span>Snitt <span class="n" style="color:var(--accent)">${px(d.targetMean)}</span></span><span>Högst <span class="n">${px(d.targetHigh)}</span></span></div>`;
+}
+function renderStab(d){
+  const b=$("stabBody");if(!b)return;const det=d._det;
+  if(ui.stab==="strat"){
+    const keys=[];Object.values(STRATS).forEach(s=>s.crit.forEach(c=>{if(!keys.includes(c.k))keys.push(c.k)}));
+    const nm=k=>Object.values(STRATS).flatMap(s=>s.crit).find(c=>c.k===k).nm;
+    const cell=(s,k)=>{const c=STRATS[s].crit.find(c=>c.k===k);if(!c)return `<td class="r faint">–</td>`;if(d.excluded)return `<td class="r faint">–</td>`;const ok=test(c,d,lim[s][k]);return `<td class="r ${ok?"ok":"no"}">${ok?"✓":"✕"} <span class="faint n" style="font-size:11.5px">${c.op} ${f(+lim[s][k],k==="pegMax"||k==="deMax"?1:0)}</span></td>`};
+    const card=k=>{const r=d.res[k];return `<div class="sc"><span class="small muted">${esc(STRATS[k].name)}</span><b class="${r.status==="pass"?"ok":r.status==="near"?"":""}" style="${r.status==="near"?"color:var(--warn)":r.status==="pass"?"":"color:var(--muted)"}">${STL[r.status]}${r.status==="near"?": missar "+esc(shortName(k,r.miss[0])):""}</b><span class="small muted">Poäng ${scoreOf(d,k)??"–"} av 100</span></div>`};
+    b.innerHTML=`<div class="scards">${card("ftp")}${card("ft")}${card("lrhr")}</div>
+      ${d.excluded?`<p class="small muted" style="margin-bottom:10px">${d.type!=="EQUITY"?"ETF:er och fonder bedöms inte i strategierna.":`Sektorn ${esc(d.sector)} är utesluten i alla tre strategierna (finans, råvaror, energi, kraftbolag och fastigheter). 200W-zonerna gäller ändå.`}</p>`:""}
+      <div class="tw"><table class="crit"><thead><tr><th>Krav</th><th class="r">Värde</th><th class="r">FT+</th><th class="r">FT</th><th class="r">LRHR</th></tr></thead><tbody>
+      ${keys.map(k=>`<tr><td>${esc(nm(k))}</td><td class="r n">${critVal(k,d)}</td>${cell("ftp",k)}${cell("ft",k)}${cell("lrhr",k)}</tr>`).join("")}
+      <tr><td>200W-zon</td><td class="r">${zchip(d)}</td><td class="r small" colspan="3">${d.sig.length?sigB(d):`<span class="faint">Signal kräver strategi + ${d.res.lrhr.status==="pass"?"under Cheap":"köpzon"}</span>`}</td></tr>
+      </tbody></table></div>
+      ${d.flag?`<p class="small" style="color:var(--warn);margin-top:8px">PEG under 0,2 är ovanligt lågt. Kontrollera om vinsten är på en cyklisk topp.</p>`:""}
+      <p class="small muted" style="margin-top:10px">Gränserna ändras under <a href="#/screener">Screener</a>.</p>`;
+  }else if(ui.stab==="an"){
+    if(!det){b.innerHTML=`<p class="muted">Laddar…</p>`;return}
+    const recs=det.recs||[],ud=det.ud||[];
+    const lbl={"0m":"Denna mån","-1m":"1 mån sedan","-2m":"2 mån sedan","-3m":"3 mån sedan"};
+    const cols=[["strongBuy","Starkt köp","var(--up)"],["buy","Köp","color-mix(in srgb,var(--up) 60%,var(--card))"],["hold","Behåll","var(--faint)"],["sell","Sälj","color-mix(in srgb,var(--down) 60%,var(--card))"],["strongSell","Starkt sälj","var(--down)"]];
+    b.innerHTML=`${anSummary(d)}
+      <h3 style="font-size:14px;margin:16px 0 8px">Rekommendationer över tid</h3>
+      ${recs.length?recs.map(r=>{const tot=cols.reduce((s,c)=>s+(r[c[0]]||0),0)||1;return `<div style="display:grid;grid-template-columns:96px minmax(0,1fr) 40px;gap:10px;align-items:center;margin-bottom:6px;font-size:12.5px"><span class="muted">${lbl[r.period]||esc(r.period)}</span><div class="bar">${cols.map(c=>`<i style="width:${(r[c[0]]||0)/tot*100}%;background:${c[2]}" title="${c[1]}: ${r[c[0]]||0}"></i>`).join("")}</div><span class="n muted" style="text-align:right">${tot}</span></div>`}).join("")+`<div class="lg">${cols.map(c=>`<span><i style="background:${c[2]};border-radius:2px"></i>${c[1]}</span>`).join("")}</div>`:`<p class="muted small">Ingen historik.</p>`}
+      <h3 style="font-size:14px;margin:18px 0 6px">Senaste ändringar</h3>
+      ${ud.length?`<div class="tw"><table class="crit"><thead><tr><th>Datum</th><th>Bank</th><th>Åtgärd</th><th>Betyg</th><th class="r">Riktkurs</th></tr></thead><tbody>${ud.map(u=>`<tr><td class="n">${esc(u.date)}</td><td>${esc(u.firm)}</td><td class="${u.action==="up"?"ok":u.action==="down"?"no":""}">${esc(UDA[u.action]||u.action||"")}</td><td>${u.from&&u.from!==u.to?esc(u.from)+" → ":""}${esc(u.to||"")}</td><td class="r n">${nn(u.pt)&&u.pt>0?(nn(u.ptPrev)&&u.ptPrev>0&&u.ptPrev!==u.pt?`<span class="faint">${px(u.ptPrev)} →</span> `:"")+px(u.pt):"–"}</td></tr>`).join("")}</tbody></table></div>`:`<p class="muted small">Inga registrerade ändringar.</p>`}
+      <p class="small muted" style="margin-top:10px">Källa: Yahoo Finance. Nästa rapport: ${esc(d.nextEarnings||"okänt")}.</p>`;
+  }else if(ui.stab==="key"){
+    const kv=(a)=>`<div class="kv">${a.map(([l,v])=>`<div><span>${l}</span><span class="n">${v}</span></div>`).join("")}</div>`;
+    b.innerHTML=`<h3 style="font-size:13px;margin-bottom:4px" class="muted">Värdering</h3>${kv([["Börsvärde",mcap(d.mcapB)],["P/E",f(d.pe,1)],["P/E framåt",f(d.fwdPe,1)],["PEG",f(d.peg,2)],["P/S",f(d.ps,1)],["P/B",f(d.pb,1)],["EV/EBITDA",f(d.evEbitda,1)],["Direktavkastning",nn(d.divYield)?f(d.divYield,2," %"):"–"]])}
+      <h3 style="font-size:13px;margin:14px 0 4px" class="muted">Lönsamhet och tillväxt</h3>${kv([["ROE",f(d.roe,1," %")],["ROIC",f(d.roic,1," %")],["Bruttomarginal",f(d.grossMargin,1," %")],["Rörelsemarginal",f(d.opMargin,1," %")],["Nettomarginal",f(d.netMargin,1," %")],["FCF-marginal",f(d.fcfMargin,1," %")],["Oms. 5 år/år",f(d.revCagr,1," %")],["Oms. 1 år",f(d.revGrowth1y,1," %")],["Vinst/aktie 1 år",f(d.earnGrowth1y,1," %")]])}
+      <h3 style="font-size:13px;margin:14px 0 4px" class="muted">Risk och kurs</h3>${kv([["Skuld / EK",d.negEquity?"neg. EK":f(d.de,2)],["Utspädning/år",nn(d.shareChange)?pct(d.shareChange,1):"–"],["Beta",f(d.beta,2)],["52 v högsta",px(d.hi52)],["52 v lägsta",px(d.lo52)],["200W-snitt",px(d.ma200w)]])}
+      ${det&&det.fin&&det.fin.rev&&det.fin.rev.length?finBars(det.fin,det.finCur||d.currency):""}`;
+  }else{
+    b.innerHTML=det?`<p class="about">${esc(det.about||"Ingen beskrivning.")}</p>
+      <div class="kv" style="margin-top:12px">${[["Bransch",esc(d.industry||"–")],["Land",esc([det.city,det.country].filter(Boolean).join(", ")||"–")],["Anställda",nn(det.emp)?det.emp.toLocaleString("sv-SE"):"–"],["Webb",det.web?`<a href="${esc(det.web)}" target="_blank" rel="noopener">${esc(det.web.replace(/^https?:\/\/(www\.)?/,"").replace(/\/$/,""))}</a>`:"–"]].map(([l,v])=>`<div><span>${l}</span><span>${v}</span></div>`).join("")}</div>
+      <p class="small muted" style="margin-top:10px">Beskrivningen kommer från Yahoo Finance (engelska).</p>`:`<p class="muted">Laddar…</p>`;
+  }
+}
+function finBars(fin,cur){
+  const y=fin.y,rev=fin.rev,ni=fin.ni||[],n=y.length;if(!n)return"";
+  const W=560,H=190,L=44,B=22,T=10,pw=W-L-10,ph=H-T-B,mx=Math.max(...rev.filter(nn),...ni.filter(nn),1),mn=Math.min(0,...ni.filter(nn));
+  const Y=v=>T+(1-(v-mn)/(mx-mn))*ph,bw=pw/n;
+  let g="";[0,mx/2,mx].forEach(v=>{g+=`<line x1="${L}" x2="${W-10}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(v)+3.5}" text-anchor="end">${big(v)}</text>`});
+  y.forEach((yr,i)=>{const x=L+i*bw+bw*0.18,w=bw*0.3;
+    if(nn(rev[i]))g+=`<rect x="${x}" y="${Y(Math.max(rev[i],0))}" width="${w}" height="${Math.abs(Y(rev[i])-Y(0))}" fill="var(--accent)" rx="2"><title>Omsättning ${yr}: ${big(rev[i])}</title></rect>`;
+    if(nn(ni[i]))g+=`<rect x="${x+w+3}" y="${Y(Math.max(ni[i],0))}" width="${w}" height="${Math.abs(Y(ni[i])-Y(0))}" fill="${ni[i]>=0?"var(--z-fair)":"var(--down)"}" rx="2"><title>Nettoresultat ${yr}: ${big(ni[i])}</title></rect>`;
+    g+=`<text x="${L+i*bw+bw/2}" y="${H-6}" text-anchor="middle">${esc(yr)}</text>`});
+  return `<h3 style="font-size:13px;margin:16px 0 4px" class="muted">Omsättning och resultat per år (${esc(cur||"")})</h3><svg class="fbars" viewBox="0 0 ${W} ${H}">${g}</svg><div class="lg"><span><i style="background:var(--accent);border-radius:2px"></i>Omsättning</span><span><i style="background:var(--z-fair);border-radius:2px"></i>Nettoresultat</span></div>`;
+}
+
+/* ---- diagram (TradingView Lightweight Charts) ---- */
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
+function hexA(c,a){if(c.startsWith("#")){let h=c.slice(1);if(h.length===3)h=h.split("").map(x=>x+x).join("");const n=parseInt(h,16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`}return c}
+class ZoneBands{
+  constructor(){this.pts=[];this.fire=[];this.cols=[];this._v=[{zOrder:()=>"bottom",renderer:()=>({draw:t=>this.draw(t)})}]}
+  attached(p){this.chart=p.chart;this.series=p.series}
+  paneViews(){return this._v}
+  updateAllViews(){}
+  set(pts,fire,cols){this.pts=pts;this.fire=fire;this.cols=cols}
+  draw(target){
+    if(!this.chart||!this.pts.length)return;
+    const ts=this.chart.timeScale(),s=this.series;
+    target.useBitmapCoordinateSpace(sc=>{
+      const ctx=sc.context,hr=sc.horizontalPixelRatio,vr=sc.verticalPixelRatio,H=sc.bitmapSize.height;
+      const sp=ts.options().barSpacing*hr;
+      // Fire Sale-bakgrund
+      ctx.fillStyle=this.cols.fire;
+      for(const t of this.fire){const x=ts.timeToCoordinate(t);if(x==null)continue;ctx.fillRect(Math.round(x*hr-sp/2),0,Math.ceil(sp)+1,H)}
+      // zonband
+      const xy=this.pts.map(p=>({x:ts.timeToCoordinate(p.t),y:p.v.map(v=>s.priceToCoordinate(v))})).filter(p=>p.x!=null);
+      if(xy.length<2)return;
+      for(let b=0;b<this.cols.bands.length;b++){
+        ctx.beginPath();
+        xy.forEach((p,i)=>{const x=p.x*hr,y=p.y[b+1]*vr;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});
+        for(let i=xy.length-1;i>=0;i--)ctx.lineTo(xy[i].x*hr,xy[i].y[b]*vr);
+        ctx.closePath();ctx.fillStyle=this.cols.bands[b];ctx.fill();
+      }
+    });
+  }
+}
+function buildBars(d,det){
+  const D=det.d,W=det.w;
+  let daily=D.t.map((t,i)=>({t,o:D.o[i],h:D.h[i],l:D.l[i],c:D.c[i],v:D.v?D.v[i]:0}));
+  let weekly=W.t.map((t,i)=>({t,o:W.o[i],h:W.h[i],l:W.l[i],c:W.c[i]}));
+  const lb=d.lastBar;
+  if(lb&&daily.length){
+    const last=daily[daily.length-1];
+    if(lb.t===last.t)Object.assign(last,{o:lb.o,h:lb.h,l:lb.l,c:lb.c});else if(lb.t>last.t)daily.push({t:lb.t,o:lb.o,h:lb.h,l:lb.l,c:lb.c,v:0});
+    const wk=weekly[weekly.length-1],wkEnd=t=>t+((5-((t+4)%7))+7)%7; // fredag i samma vecka (dag 0 = torsdag)
+    if(wk&&wkEnd(lb.t)===wk.t){wk.h=Math.max(wk.h,lb.h);wk.l=Math.min(wk.l,lb.l);wk.c=lb.c}
+    else if(wk&&lb.t>wk.t)weekly.push({t:wkEnd(lb.t),o:lb.o,h:lb.h,l:lb.l,c:lb.c});
+  }
+  return{daily,weekly};
+}
+function maSeries(weekly,daily,tf){
+  const c=weekly.map(w=>w.c),N=c.length,pre=[0];for(let i=0;i<N;i++)pre.push(pre[i]+c[i]);
+  const maW=i=>i>=199?(pre[i+1]-pre[i-199])/200:null;
+  if(tf==="W")return weekly.map((w,i)=>({t:w.t,ma:maW(i),c:w.c}));
+  // dag: utvecklande snitt = 199 hela veckor före + dagens kurs (som request.security i TradingView)
+  let j=0;const out=[];
+  for(const b of daily){
+    while(j<N&&weekly[j].t<b.t)j++; // j = veckan som innehåller dagen (veckor slutar på fredag)
+    const k=Math.min(j,N-1);
+    const ma=k>=199?(pre[k]-pre[k-199]+b.c)/200:null;
+    out.push({t:b.t,ma,c:b.c});
+  }
+  return out;
+}
+function drawChart(d){
+  const det=d._det,box=$("chartbox");if(!box)return;
+  if(!det||!det.d){return}
+  if(typeof LightweightCharts==="undefined"){$("chartMsg").textContent="Diagrambiblioteket kunde inte laddas.";return}
+  const msg=$("chartMsg");if(msg)msg.remove();
+  if(chart){chart.remove();chart=null}
+  const dark=matchMedia("(prefers-color-scheme: dark)").matches&&document.documentElement.dataset.theme!=="light"||document.documentElement.dataset.theme==="dark";
+  const ink=css("--ink"),muted=css("--muted"),line=css("--line");
+  chart=LightweightCharts.createChart(box,{autoSize:true,layout:{background:{type:"solid",color:css("--card")},textColor:muted,fontFamily:css("--font"),fontSize:11.5},
+    grid:{vertLines:{color:hexA(line,dark?.5:.7)},horzLines:{color:hexA(line,dark?.5:.7)}},
+    rightPriceScale:{borderColor:line,mode:LightweightCharts.PriceScaleMode.Logarithmic,scaleMargins:{top:.08,bottom:.12}},
+    timeScale:{borderColor:line,rightOffset:8,timeVisible:false},
+    crosshair:{mode:LightweightCharts.CrosshairMode.Normal},localization:{locale:"sv-SE",priceFormatter:p=>px(p)}});
+  chartSym=d.ticker;
+  const {daily,weekly}=buildBars(d,det);
+  const bars=ui.tf==="W"?weekly:daily;
+  const T=b=>b.t*86400;
+  const upC=css("--up"),dnC=css("--down");
+  const cs=chart.addCandlestickSeries({upColor:upC,downColor:dnC,wickUpColor:upC,wickDownColor:dnC,borderVisible:false,priceLineColor:ink,priceLineStyle:2});
+  cs.setData(bars.map(b=>({time:T(b),open:b.o,high:b.h,low:b.l,close:b.c})));
+  if(ui.tf==="D"&&daily[0]&&daily[0].v!=null){
+    const vs=chart.addHistogramSeries({priceScaleId:"vol",priceFormat:{type:"volume"},lastValueVisible:false,priceLineVisible:false});
+    chart.priceScale("vol").applyOptions({scaleMargins:{top:.86,bottom:0},visible:false});
+    vs.setData(daily.map(b=>({time:T(b),value:b.v||0,color:hexA(b.c>=b.o?upC:dnC,.28)})));
+  }
+  const z=lim.zones,mults=[0,z.b1,z.b2,z.b3,z.b4,z.b4+15].map(p=>1+p/100);
+  const ma=maSeries(weekly,daily,ui.tf).filter(p=>p.ma!=null);
+  let maLine=null;
+  if(ui.bands&&ma.length){
+    const zc=["--z-vcheap","--z-cheap","--z-fair","--z-exp","--z-vexp"].map(v=>css(v));
+    const prim=new ZoneBands();
+    prim.set(ma.map(p=>({t:T(p),v:mults.map(m=>p.ma*m)})),ma.filter(p=>p.c<p.ma).map(p=>T(p)),{fire:hexA(css("--z-fire"),dark?.16:.11),bands:zc.map(c=>hexA(c,dark?.16:.13))});
+    zc.forEach((c,i)=>{const ls=chart.addLineSeries({color:hexA(c,.75),lineWidth:1,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});ls.setData(ma.map(p=>({time:T(p),value:p.ma*mults[i+1]})))});
+    maLine=chart.addLineSeries({color:ink,lineWidth:2,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false});
+    maLine.setData(ma.map(p=>({time:T(p),value:p.ma})));
+    maLine.attachPrimitive(prim);
+    const lm=ma[ma.length-1].ma;
+    const labels=[["Very Expensive",(mults[4]+mults[5])/2,"--z-vexp"],["Expensive",(mults[3]+mults[4])/2,"--z-exp"],["Fair Value",(mults[2]+mults[3])/2,"--z-fair"],["Cheap",(mults[1]+mults[2])/2,"--z-cheap"],["Very Cheap",(mults[0]+mults[1])/2,"--z-vcheap"],["Fire Sale",0.93,"--z-fire"]];
+    labels.forEach(([t,m,c])=>maLine.createPriceLine({price:lm*m,color:css(c),lineVisible:false,axisLabelVisible:true,title:t,axisLabelColor:css(c),axisLabelTextColor:"#ffffff"}));
+  }
+  // intervall
+  const lastT=bars[bars.length-1].t,span={"6M":182,"1Y":365,"3Y":1095,"5Y":1826,"MAX":1e6}[ui.range]||1095;
+  const from=Math.max(bars[0].t,lastT-span);
+  chart.timeScale().setVisibleRange({from:from*86400,to:(lastT+3)*86400});
+  // legend
+  const lg=$("legend"),fmtL=p=>px(p);
+  const maMap=new Map(ma.map(p=>[T(p),p.ma]));
+  const setLeg=(bar,maV)=>{
+    if(!bar){lg.innerHTML="";return}
+    const ch=bar.c&&bar.o?(bar.c/bar.o-1)*100:null;
+    lg.innerHTML=`<span><b>${esc(d.ticker)}</b> <span class="muted">${ui.tf==="W"?"1V":"1D"}</span></span><span class="muted">Ö <span class="n" style="color:var(--ink)">${fmtL(bar.o)}</span> H <span class="n" style="color:var(--ink)">${fmtL(bar.h)}</span> L <span class="n" style="color:var(--ink)">${fmtL(bar.l)}</span> S <span class="n" style="color:var(--ink)">${fmtL(bar.c)}</span></span>`+
+      (maV&&ui.bands?`<span style="flex-basis:100%"></span><span class="muted">200W <span class="n" style="color:var(--ink)">${fmtL(maV)}</span></span>${[["--z-vcheap",1],["--z-cheap",2],["--z-fair",3],["--z-exp",4]].map(([c,i])=>`<span class="n" style="color:var(${c})">${fmtL(maV*mults[i])}</span>`).join("")}`:"");
+  };
+  const barMap=new Map(bars.map(b=>[T(b),b]));
+  setLeg(bars[bars.length-1],ma.length?ma[ma.length-1].ma:null);
+  chart.subscribeCrosshairMove(p=>{if(!p||!p.time){setLeg(bars[bars.length-1],ma.length?ma[ma.length-1].ma:null);return}setLeg(barMap.get(p.time),maMap.get(p.time))});
+}
+
+/* ============ SCREENER ============ */
+const COLDEF={
+  revCagr:{l:"Oms 5å",c:"cagr",fm:x=>f(x,1,"%")}, revGrowth1y:{l:"Oms 1å",c:"g1",fm:x=>f(x,1,"%")}, earnGrowth1y:{l:"Vinst 1å",c:"eg1",fm:x=>f(x,1,"%")},
+  roe:{l:"ROE %",c:"roe",fm:x=>f(x,1)}, peg:{l:"PEG",c:"pegMax",fm:x=>f(x,2)}, de:{l:"D/E",c:"deMax",fm:(x,d)=>d.negEquity?"neg. EK":f(x,2)},
+  fcfMargin:{l:"FCF %",c:"fcf",fm:x=>f(x,1)}, roic:{l:"ROIC %",c:"roic",fm:x=>f(x,1)}, grossMargin:{l:"Brutto %",c:"gm",fm:x=>f(x,1)},
+  shareChange:{l:"Aktier %",c:"dil",fm:x=>x==null?"–":(x>0?"+":"")+f(x,1)}, fwdPe:{l:"P/E fr.",fm:x=>f(x,1)}, mcapB:{l:"Börsvärde",c:"mcap",fm:x=>mcap(x)}
+};
+const STRATCOLS={ftp:["revCagr","revGrowth1y","peg","de","fcfMargin","roic","grossMargin","shareChange","fwdPe","mcapB"],ft:["revCagr","revGrowth1y","peg","de","fwdPe","mcapB"],lrhr:["revCagr","revGrowth1y","earnGrowth1y","roe","de","fcfMargin","peg","fwdPe","mcapB"]};
+const ASC=new Set(["ticker","status","miss","peg","de","shareChange","fwdPe","dist200w"]);
+function scrCols(){return [{k:"ticker",l:"Aktie",cls:"l stick"},{k:"chg",l:"Idag"},{k:"status",l:"Status",cls:"l"},{k:"dist200w",l:"200W",cls:"l"},{k:"score",l:"Poäng"},{k:"miss",l:"Missar",cls:"l"}].concat(STRATCOLS[ui.strat].map(k=>Object.assign({k},COLDEF[k])))}
+function pageScreener(){
+  document.title="Screener · Full Throttle";
+  $("app").innerHTML=`<section class="card">
+    <div class="tools">
+      <div class="seg" id="stratSeg">${Object.entries(STRATS).map(([k,s])=>`<button data-s="${k}" aria-pressed="${ui.strat===k}">${esc(s.name)}</button>`).join("")}</div>
+      <div class="seg" id="flt"></div>
+      <span style="flex:1"></span>
+      <label class="chk"><input type="checkbox" id="exclChk" ${ui.showExcl?"checked":""}> Visa uteslutna sektorer</label>
+      <button class="btn" id="csv">Ladda ner CSV</button>
+    </div>
+    <div class="tools"><span class="sub">200W-zon</span><div class="seg" id="zf"></div></div>
+    <details class="critbox" id="critd" ${matchMedia("(max-width:760px)").matches?"":"open"}><summary>Gränser <span class="muted" style="font-weight:400" id="critSum"></span><span style="flex:1"></span><a href="#" id="reset" hidden style="font-weight:500">Återställ</a></summary><div class="cgrid" id="cgrid"></div></details>
+    <div class="tw" style="max-height:calc(100vh - 140px);overflow:auto"><table><thead><tr id="th"></tr></thead><tbody id="tb"></tbody></table></div>
+    <div class="tools" style="border-bottom:0;border-top:1px solid var(--line)"><span class="sub" id="cnt"></span><span style="flex:1"></span><span class="sub">Röda celler missar gränsen. Klicka på en rad för aktiesidan.</span></div>
+  </section>`;
+  document.querySelectorAll("#stratSeg button").forEach(b=>b.addEventListener("click",()=>{ui.strat=b.dataset.s;if(!["ticker","chg","status","dist200w","score","miss"].includes(ui.sort)&&!STRATCOLS[ui.strat].includes(ui.sort))ui.sort="score";saveUi();pageScreener()}));
+  $("exclChk").addEventListener("change",e=>{ui.showExcl=e.target.checked;saveUi();scrFilter();scrTable()});
+  $("reset").addEventListener("click",e=>{e.preventDefault();lim[ui.strat]=JSON.parse(JSON.stringify(DEF[ui.strat]));lim.zones=JSON.parse(JSON.stringify(DEF.zones));saveLim();rows.forEach(classify);pageScreener()});
+  $("csv").addEventListener("click",csv);
+  scrCrit();scrHead();scrFilter();scrTable();
+}
+function scrCrit(){
+  const s=ui.strat,zf=[["b1","Very Cheap <"],["b2","Cheap <"],["b3","Fair <"],["b4","Expensive <"],["swing","Swing <"],["rea","Rea <"]];
+  $("cgrid").innerHTML=STRATS[s].crit.map(c=>`<label class="cf${lim[s][c.k]!==DEF[s][c.k]?" changed":""}">${esc(c.nm)} <span class="k">${c.op}</span><input id="c-${s}-${c.k}" data-g="${s}" data-k="${c.k}" inputmode="decimal" value="${String(+(+lim[s][c.k]).toFixed(2)).replace(".",",")}"><span class="sub">${esc(c.u)}</span><span class="k" data-n="${c.k}"></span></label>`).join("")
+    +`<span style="flex-basis:100%;height:0"></span><span class="sub" style="align-self:center">200W-zoner, % över snittet:</span>`
+    +zf.map(([k,nm])=>`<label class="cf${lim.zones[k]!==DEF.zones[k]?" changed":""}">${nm}<input id="c-z-${k}" data-g="zones" data-k="${k}" inputmode="decimal" value="${String(lim.zones[k]).replace(".",",")}"><span class="sub">%</span></label>`).join("");
+  $("cgrid").querySelectorAll("input").forEach(inp=>inp.addEventListener("input",()=>{const v=parseFloat(inp.value.replace(",","."));if(isNaN(v))return;lim[inp.dataset.g][inp.dataset.k]=v;saveLim();inp.parentElement.classList.toggle("changed",v!==DEF[inp.dataset.g][inp.dataset.k]);rows.forEach(classify);scrCounts();scrFilter();scrTable()}));
+  scrCounts();
+}
+function scrCounts(){
+  const s=ui.strat,base=rows.filter(d=>!d.excluded);
+  STRATS[s].crit.forEach(c=>{const el=document.querySelector(`#cgrid [data-n="${c.k}"]`);if(el)el.textContent=base.filter(d=>test(c,d,lim[s][c.k])).length+"/"+base.length});
+  const ch=[s,"zones"].some(g=>Object.keys(lim[g]).some(k=>lim[g][k]!==DEF[g][k]));
+  $("reset").hidden=!ch;$("critSum").textContent=`${STRATS[s].name}: ${STRATS[s].crit.length} krav`+(ch?" · ändrade":"");
+}
+function scrBase(){return rows.filter(d=>ui.showExcl||!d.excluded)}
+function scrFilter(){
+  const s=ui.strat,base=scrBase(),n={all:base.length,pass:0,near:0,out:0,sig:0};
+  base.forEach(d=>{const st=d.res[s].status;if(n[st]!=null)n[st]++;if(d.sig.length)n.sig++});
+  $("flt").innerHTML=[["all","Alla"],["pass","Klarar"],["near","Nära"],["out","Utanför"],["sig","Signal"]].map(([k,l])=>`<button data-f="${k}" aria-pressed="${ui.filter===k}">${l}<span class="c">${n[k]}</span></button>`).join("");
+  $("flt").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ui.filter=b.dataset.f;saveUi();scrFilter();scrTable()}));
+  const zc={};base.forEach(d=>{if(d.z)zc[d.z]=(zc[d.z]||0)+1});
+  $("zf").innerHTML=ZONES.map(([z,nm])=>`<button data-z="${z}" aria-pressed="${ui.zones.includes(z)}"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--z-${z});margin-right:5px"></span>${nm}<span class="c">${zc[z]||0}</span></button>`).join("");
+  $("zf").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{const z=b.dataset.z;ui.zones=ui.zones.includes(z)?ui.zones.filter(x=>x!==z):ui.zones.concat(z);saveUi();scrFilter();scrTable()}));
+}
+function scrHead(){
+  $("th").innerHTML=scrCols().map(c=>`<th class="${c.cls||""}" data-k="${c.k}" style="cursor:pointer" aria-sort="${ui.sort===c.k?(ui.dir<0?"descending":"ascending"):"none"}">${esc(c.l)}${ui.sort===c.k?` <span style="color:var(--accent)">${ui.dir<0?"↓":"↑"}</span>`:""}</th>`).join("");
+  $("th").querySelectorAll("th").forEach(th=>th.addEventListener("click",()=>{const k=th.dataset.k;if(ui.sort===k)ui.dir*=-1;else{ui.sort=k;ui.dir=ASC.has(k)?1:-1}saveUi();scrHead();scrTable()}));
+}
+function scrVisible(){
+  const s=ui.strat,k=ui.sort,dir=ui.dir;
+  const l=scrBase().filter(d=>(ui.filter==="all"||(ui.filter==="sig"?d.sig.length:d.res[s].status===ui.filter))&&(!ui.zones.length||ui.zones.includes(d.z)));
+  l.sort((a,b)=>{let x,y;
+    if(k==="status"){x=ORD[a.res[s].status]*1000-(scoreOf(a,s)||0);y=ORD[b.res[s].status]*1000-(scoreOf(b,s)||0)}
+    else if(k==="miss"){x=a.res[s].miss.length*1000-(scoreOf(a,s)||0);y=b.res[s].miss.length*1000-(scoreOf(b,s)||0)}
+    else if(k==="score"){x=scoreOf(a,s);y=scoreOf(b,s)}else{x=a[k];y=b[k]}
+    if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return(typeof x==="string"?x.localeCompare(y,"sv"):x-y)*dir});
+  return l;
+}
+function scrTable(){
+  const s=ui.strat,C=scrCols(),l=scrVisible();
+  $("cnt").textContent=`Visar ${l.length} av ${scrBase().length} aktier`;
+  if(!l.length){$("tb").innerHTML=`<tr><td colspan="${C.length}" class="empty">Inga aktier matchar.</td></tr>`;return}
+  $("tb").innerHTML=l.slice(0,400).map(d=>{const m=new Set(d.res[s].miss);return `<tr class="go" data-t="${esc(d.ticker)}">${C.map(c=>{
+    if(c.k==="ticker")return `<td class="l stick">${co(d)}</td>`;
+    if(c.k==="chg")return chgCell(d);
+    if(c.k==="status")return `<td class="l"><span class="pill ${d.res[s].status==="pass"?"pass":d.res[s].status==="near"?"near":""}">${STL[d.res[s].status]}</span> ${sigB(d)}</td>`;
+    if(c.k==="dist200w")return `<td class="l">${zchip(d)}</td>`;
+    if(c.k==="score")return `<td class="n">${scoreOf(d,s)??"–"}</td>`;
+    if(c.k==="miss"){const t=[...m].map(x=>shortName(s,x)).join(", ");return t?`<td class="l small" style="color:var(--down);max-width:200px;overflow:hidden;text-overflow:ellipsis" title="${esc(t)}">${esc(t)}</td>`:`<td class="l ok">–</td>`}
+    const bad=c.c&&m.has(c.c)&&!d.excluded;return `<td class="n${bad?" bad":""}">${c.fm(d[c.k],d)}${c.k==="peg"&&d.flag?' <span style="color:var(--warn);font-weight:700" title="PEG under 0,2">!</span>':""}</td>`}).join("")}</tr>`}).join("");
+  bindRows($("tb"));
+}
+function csv(){
+  const s=ui.strat,cl=["ticker","name","sector","price","currency","chg","ma200w","dist200w","revCagr","revGrowth1y","earnGrowth1y","roe","peg","de","fcfMargin","roic","grossMargin","shareChange","fwdPe","mcapB","targetMean","recKey"];
+  const lines=[cl.concat(["zon","status","signaler","missar"]).join(";")].concat(scrVisible().map(d=>cl.map(c=>d[c]).concat([d.z?ZNAME[d.z]:"",STL[d.res[s].status],d.sig.join(" "),d.res[s].miss.map(m=>shortName(s,m)).join(", ")]).map(v=>{if(typeof v==="number")v=String(v).replace(".",",");return `"${String(v??"").replace(/"/g,'""')}"`}).join(";")));
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["﻿"+lines.join("\n")],{type:"text/csv;charset=utf-8"}));a.download=`screener-${s}-${U.asOf||"data"}.csv`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+
+/* ============ STRATEGIER ============ */
+function pageMethod(){
+  document.title="Strategier · Full Throttle";
+  $("app").innerHTML=`<section class="card"><div class="bd"><div class="prose">
+    <h1 style="font-size:20px">Strategier och metod</h1>
+    <div class="tw"><table class="crit"><thead><tr><th>Krav</th><th>Full Throttle</th><th>Full Throttle+</th><th>Low Risk, High Reward</th></tr></thead><tbody>
+      <tr><td>Omsättning 5 år</td><td>&gt; 100 % (≈ 14,9 %/år)</td><td>≥ 15 %/år</td><td>&gt; 50 % (≈ 8,45 %/år)</td></tr>
+      <tr><td>Omsättning 1 år</td><td>&gt; 20 %</td><td>≥ 20 %</td><td>&gt; 5 %</td></tr>
+      <tr><td>Vinst per aktie 1 år</td><td>–</td><td>–</td><td>&gt; 5 %</td></tr>
+      <tr><td>ROE</td><td>–</td><td>–</td><td>&gt; 15 %</td></tr>
+      <tr><td>ROIC</td><td>–</td><td>≥ 10 %</td><td>–</td></tr>
+      <tr><td>Skuld / eget kapital</td><td>0 – 5</td><td>0 – 1</td><td>0 – 1</td></tr>
+      <tr><td>Fritt kassaflöde</td><td>–</td><td>marginal ≥ 5 %</td><td>positivt</td></tr>
+      <tr><td>PEG</td><td>0 – 2</td><td>0 – 1,5</td><td>0 – 1</td></tr>
+      <tr><td>Bruttomarginal</td><td>–</td><td>≥ 35 %</td><td>–</td></tr>
+      <tr><td>Utspädning per år</td><td>–</td><td>≤ 5 %</td><td>–</td></tr>
+      <tr><td>Börsvärde</td><td>–</td><td>≥ 2 md $</td><td>≥ 10 md $</td></tr>
+      <tr><td>Sektorer</td><td colspan="3">Finans, råvaror, energi, kraftbolag och fastigheter är uteslutna i alla tre</td></tr>
+    </tbody></table></div>
+    <h2>200-veckorszoner</h2>
+    <p>Samma logik som din indikator Universal Value Zones. Kursen jämförs med 200-veckors glidande medelvärde. På dagsdiagrammet räknas snittet som 199 hela veckor plus dagens kurs, precis som <span class="n">request.security</span> i TradingView.</p>
+    <p style="display:flex;flex-wrap:wrap;gap:6px"><span class="z z-fire">Fire Sale: under 200W</span><span class="z z-vcheap">Very Cheap: 0–10 %</span><span class="z z-cheap">Cheap: 10–20 %</span><span class="z z-fair">Fair Value: 20–30 %</span><span class="z z-exp">Expensive: 30–40 %</span><span class="z z-vexp">Very Expensive: över 40 %</span></p>
+    <h2>Kombinerade signaler</h2>
+    <ul><li><span class="sig swing">SWING</span> Klarar Low Risk, High Reward och ligger under Cheap.</li><li><span class="sig rea">REA</span> Klarar Full Throttle+ och ligger under Fair Value.</li></ul>
+    <p>Nya signaler skickas som mejl via en issue i GitHub-repot.</p>
+    <h2>Poäng</h2>
+    <p><b>Tillväxtpoäng</b> (Full Throttle): tillväxt 30, kvalitet 25, värdering 25, balansräkning 20. <b>Kvalitetspoäng</b> (Low Risk, High Reward): ROE 25, PEG 25, FCF-marginal 15, låg skuld 15, vinsttillväxt 10, omsättningstillväxt 10.</p>
+    <h2>Data</h2>
+    <p>Yahoo Finance. Nyckeltal och analytiker uppdateras varje natt efter USA-börsens stängning, kurser ungefär var 30:e minut under börsdagen. 5-årstillväxt = årlig tillväxt mellan äldsta och senaste helår. Tillväxt 1 år = senaste 12 månader mot 12 månader innan. Börsvärde omräknat till USD. Siffror kan skilja något mot andra sajter.</p>
+    <p class="muted">Diagram: TradingView Lightweight Charts. Detta är ett analysverktyg, inte investeringsrådgivning.</p>
+  </div></div></section>`;
+}
+
+/* ============ data ============ */
+async function load(){
+  try{
+    const r=await fetch("data/universe.json?t="+Date.now(),{cache:"no-store"});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const j=await r.json();
+    const same=U&&U.quotesAt===j.quotesAt&&U.updatedAt===j.updatedAt;
+    if(same)return;
+    if(U&&U.updatedAt!==j.updatedAt)detailCache={};
+    U=j;rows=(j.rows||[]).map(x=>({...x}));bySym={};rows.forEach(d=>{bySym[d.ticker]=d;classify(d)});
+    // behåll laddad detaljdata på öppen aktie
+    const h=location.hash;if(h.startsWith("#/aktie/")){const t=decodeURIComponent(h.slice(8));if(detailCache[t]&&bySym[t])bySym[t]._det=detailCache[t]}
+    if(!same&&document.activeElement!==$("q"))route();
+  }catch(e){
+    $("app").innerHTML=`<div class="card"><div class="bd"><h1 style="font-size:18px">Ingen data än</h1><p class="muted" style="margin-top:6px">${location.protocol==="file:"?"Öppna sidan via webbadressen, inte som fil.":"Datan skapas när uppdateringen har körts första gången (GitHub → Actions → Bygg och uppdatera → Run workflow)."}</p></div></div>`;
+  }
+}
+load();
+setInterval(()=>{if(document.visibilityState==="visible"&&!location.hash.startsWith("#/aktie/"))load()},5*60*1000);
+})();
+</script>
+</body>
+</html>
