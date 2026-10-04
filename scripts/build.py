@@ -597,7 +597,7 @@ def _clean_name(name):
     return n.strip() or name
 
 
-_rss_stat = {"yahoo": 0, "google": 0, "empty": 0, "errors": []}
+_rss_stat = {"yahoo": 0, "yahooFail": 0, "google": 0, "empty": 0, "errors": []}
 
 
 def _rss_err(src, e):
@@ -609,13 +609,14 @@ def rss_news(tk, name):
     """Nyheter utan nyckel: Yahoos RSS-flöde, annars Google News (fungerar även för svenska bolag)."""
     from urllib.parse import quote
     swe = tk.upper().endswith(".ST")
-    if not swe:
+    if not swe and (_rss_stat["yahoo"] > 0 or _rss_stat["yahooFail"] < 5):  # Yahoos RSS svarar ofta 429 till GitHub: ge upp efter 5 misslyckanden
         try:
             items = _rss_items(_rss_get(f"https://feeds.finance.yahoo.com/rss/2.0/headline?s={quote(tk)}&region=US&lang=en-US"))
             if items:
                 _rss_stat["yahoo"] += 1
                 return items
         except Exception as e:  # noqa: BLE001
+            _rss_stat["yahooFail"] += 1
             _rss_err("yahoo", e)
     q = f'"{_clean_name(name)}" aktie' if swe else f'"{_clean_name(name)}" {tk} stock'
     loc = "hl=sv&gl=SE&ceid=SE:sv" if swe else "hl=en-US&gl=US&ceid=US:en"
@@ -762,7 +763,8 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
     rf_usd = float(tnx.iloc[-1]) / 100 if tnx is not None and len(tnx) else 0.043
     try:  # officiella siffror från amerikanska årsredovisningar (gratis)
         import sec as SEC
-        secd = SEC.load(tickers, log, load_json(prev / "data" / "sec_cik.json", {}))
+        secd = SEC.load(tickers, log, load_json(prev / "data" / "sec_cik.json", {}),
+                        {t: (prev_rows.get(t) or {}).get("longName") or (prev_rows.get(t) or {}).get("name") for t in tickers})
         if SEC.STATUS.get("cikMap"):
             write_json(out / "data" / "sec_cik.json", SEC.STATUS.get("cikMap"))
     except Exception as e:  # noqa: BLE001

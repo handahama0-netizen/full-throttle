@@ -29,8 +29,20 @@ CONCEPTS = {
 STATUS = {"calls": 0, "ok": 0, "codes": {}, "errors": []}
 
 
+def _plain(msg):
+    """Gör SEC:s HTML-felsidor läsbara: titel + första texten."""
+    import re
+    if "<" not in msg:
+        return msg
+    t = re.search(r"<title>(.*?)</title>", msg, re.S | re.I)
+    body = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", re.sub(r"(?is)<(script|style|head).*?</\1>", " ", msg))).strip()
+    return ((t.group(1).strip() + " – ") if t else "") + body[:200]
+
+
 def _note(code, url, msg=None):
     STATUS["codes"][str(code)] = STATUS["codes"].get(str(code), 0) + 1
+    if msg:
+        msg = _plain(msg)
     if msg and len(STATUS["errors"]) < 8:
         STATUS["errors"].append(f"{url.split('.gov', 1)[-1][:80]}: {msg[:160]}")
 
@@ -41,7 +53,7 @@ def _get(url, log):
     for i in range(3):
         try:
             r = requests.get(url, headers=UA, timeout=60)
-            _note(r.status_code, url, None if r.status_code in (200, 404) else r.text[:160])
+            _note(r.status_code, url, None if r.status_code in (200, 404) else r.text[:3000])
             if r.status_code == 404:
                 return None
             if r.status_code in (429, 503):
@@ -73,7 +85,7 @@ def _ticker_map(log, cache):
     import requests
     try:
         r = requests.get("https://www.sec.gov/include/ticker.txt", headers=UA, timeout=60)
-        _note(r.status_code, "https://www.sec.gov/include/ticker.txt", None if r.ok else r.text[:160])
+        _note(r.status_code, "https://www.sec.gov/include/ticker.txt", None if r.ok else r.text[:3000])
         if r.ok:
             out = {}
             for line in r.text.splitlines():
@@ -91,27 +103,31 @@ def _ticker_map(log, cache):
     return {}
 
 
-def load(tickers, log=print, cache=None):
+_SUFFIX = {"inc", "incorporated", "corp", "corporation", "co", "company", "companies", "ltd", "limited", "plc",
+           "holdings", "holding", "group", "class", "a", "b", "c", "sa", "nv", "ag", "se", "llc", "lp", "the",
+           "com", "de", "new", "reit", "trust", "intl", "international"}
+
+
+def norm_name(n):
+    """'The Coca-Cola Company' -> 'cocacola', 'Alphabet Inc. Class A' -> 'alphabet'."""
+    import re
+    w = re.sub(r"[^a-z0-9 ]", "", (n or "").lower().replace("&", " and ").replace("-", "").replace("/", " ")).split()
+    w = [x for x in w if x not in _SUFFIX]
+    return "".join(w)
+
+
+def load(tickers, log=print, cache=None, names=None):
     """Returnerar {ticker: {...}} för amerikanska bolag i listan. Tomt vid fel.
-    cache = förra nattens {ticker: cik} om SEC:s tickerlista inte går att hämta."""
+    cache = förra nattens {ticker: cik}. names = {ticker: bolagsnamn}: används för att para ihop
+    via bolagsnamnet i SEC:s data om tickerlistan på www.sec.gov är spärrad."""
     want = {t.upper() for t in tickers if "." not in t and not t.startswith("^")}
     tmap = _ticker_map(log, cache)
-    if not tmap:
-        log("SEC: kunde inte hämta tickerlistan")
-        return {}
-    STATUS["cikMap"] = {tk: tmap[tk] for tk in sorted(want) if tk in tmap}
-    cik_tk = {}
-    for tk in sorted(want):
-        cik = tmap.get(tk) or tmap.get(tk.replace("-", "."))
-        if cik and cik not in cik_tk:
-            cik_tk[cik] = tk
-    log(f"SEC: {len(cik_tk)} av {len(want)} amerikanska symboler hittade")
-    STATUS["matched"] = len(cik_tk)
 
     this_year = date.today().year
     years = range(this_year - 7, this_year + 1)
-    # series[kind][concept][cik] = {end: val}
-    series = {k: {c: {} for c in cs} for k, cs in CONCEPTS.items()}
+    # raw[kind][concept][cik] = {end: val}, för alla bolag (filtreras efter matchning)
+    raw = {k: {c: {} for c in cs} for k, cs in CONCEPTS.items()}
+    ent = {}
     calls = 0
     for kind, concepts in CONCEPTS.items():
         for c in concepts:
@@ -120,9 +136,38 @@ def load(tickers, log=print, cache=None):
                 calls += 1
                 for p in (js or {}).get("data", []):
                     cik = p.get("cik")
-                    if cik in cik_tk and p.get("val") is not None and p.get("end"):
-                        series[kind][c].setdefault(cik, {})[p["end"]] = float(p["val"])
-    log(f"SEC: {calls} anrop klara")
+                    if cik is None or p.get("val") is None or not p.get("end"):
+                        continue
+                    raw[kind][c].setdefault(cik, {})[p["end"]] = float(p["val"])
+                    if kind == "rev" and p.get("entityName"):
+                        ent[cik] = p["entityName"]
+    log(f"SEC: {calls} anrop klara, {len(ent)} bolag i SEC:s data")
+    if not ent:
+        return {}
+
+    cik_tk = {}
+    if tmap:
+        for tk in sorted(want):
+            cik = tmap.get(tk) or tmap.get(tk.replace("-", "."))
+            if cik and cik not in cik_tk:
+                cik_tk[cik] = tk
+    if names:  # bolagsnamn som reserv (eller komplement) till tickerlistan
+        by_name = {}
+        for cik, nm in ent.items():
+            by_name.setdefault(norm_name(nm), set()).add(cik)
+        have = set(cik_tk.values())
+        for tk in sorted(want - have):
+            key = norm_name(names.get(tk) or "")
+            ciks = by_name.get(key) if key else None
+            if ciks and len(ciks) == 1:
+                cik = next(iter(ciks))
+                if cik not in cik_tk:
+                    cik_tk[cik] = tk
+    STATUS["cikMap"] = {tk: cik for cik, tk in cik_tk.items()}
+    STATUS["matched"] = len(cik_tk)
+    log(f"SEC: {len(cik_tk)} av {len(want)} amerikanska symboler hittade")
+    series = {k: {c: {cik: v for cik, v in raw[k][c].items() if cik in cik_tk} for c in cs}
+              for k, cs in CONCEPTS.items()}
 
     def pick(kind, cik):
         best = None
