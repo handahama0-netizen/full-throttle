@@ -70,8 +70,8 @@ nav.main a[aria-current="page"]{color:var(--ink);background:var(--hover)}
 @media (max-width:760px){
   .top .wrap{flex-wrap:wrap;height:auto;padding-block:8px;gap:8px 12px}
   .search{order:3;flex-basis:100%;max-width:none}
-  nav.main{margin-left:auto}
-  nav.main a{padding:6px 8px;font-size:13px}
+  nav.main{margin-left:auto;min-width:0;max-width:100%;overflow-x:auto;scrollbar-width:none}
+  nav.main a{padding:6px 7px;font-size:13px}
 }
 
 /* cards & layout */
@@ -213,6 +213,8 @@ th.stick{z-index:3}
 .prose ul{margin:0;padding-left:20px;display:grid;gap:4px}
 .foot{padding-block:24px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);margin-top:24px}
 .skel{color:var(--muted);padding:40px 0;text-align:center}
+.sens td.base{font-weight:700;outline:2px solid var(--accent);outline-offset:-2px}
+.sens td.ok{color:var(--up)}.sens td.no{color:var(--down)}
 .pbar{position:relative;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--down-soft),var(--sunk),var(--up-soft));border:1px solid var(--line)}
 .pbar i{position:absolute;top:-4px;width:4px;height:12px;border-radius:2px;margin-left:-2px}
 .tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
@@ -410,6 +412,14 @@ const GL={
   stopTarget:["Stop och mål","Dina egna nivåer. Stop = kurs där du tänkt sälja för att begränsa förlusten. Mål = kurs där du tänkt ta hem vinsten. Du får en markering när kursen passerat någon av dem."],
   held:["Dagar","Antal dagar sedan köpet."],
   industryRank:["Plats i branschen","Bolaget jämförs med andra bolag i samma bransch bland sidans ~600 aktier. För varje nyckeltal inom tillväxt, lönsamhet, värdering och risk räknas var bolaget hamnar (bäst = 100 %, sämst = 0 %). Snittet av dessa ger den sammanvägda platsen. Är branschen för liten används tema eller sektor."],
+  wacc:["WACC (avkastningskrav)","Vägd kapitalkostnad: vad ägare och långivare tillsammans kräver i avkastning. Eget kapital = riskfri ränta + beta × 5 % (CAPM). Lån = riskfri ränta + 1,5 %, minus 21 % skatt eftersom räntor är avdragsgilla. Vikterna är börsvärde och skuld. Hålls mellan 6 och 14 %."],
+  tvShare:["Andel terminalvärde","Hur stor del av DCF-värdet som kommer från åren efter år 10. Över 75 % betyder att värdet mest vilar på antaganden om en avlägsen framtid och därför är osäkert. Under 40 % kan tyda på för försiktiga antaganden."],
+  sens:["Känslighetstabell","Visar hur DCF-värdet ändras om avkastningskravet (rader) eller den eviga tillväxten (kolumner) är lite högre eller lägre. Mittenrutan är basfallet. Ett stort spann betyder att värderingen är känslig."],
+  secData:["SEC EDGAR","Siffror direkt från bolagets årsredovisningar (10-K) hos den amerikanska finansinspektionen SEC. Officiella och reviderade, gratis. Fritt kassaflöde = kassaflöde från verksamheten minus investeringar i anläggningar. Används för 5-års omsättningstillväxt och DCF när Yahoo saknar data."],
+  peerQuart:["Kvartiler","25 % av bolagen i branschen ligger under 25:e percentilen och 25 % över 75:e. Visar spridningen: ligger bolaget över 75:e percentilen hör det till branschens bästa (eller dyraste) fjärdedel."],
+  peerPe:["Värde enligt branschens P/E","Vad aktien skulle vara värd om den värderades som branschens medianbolag: bolagets väntade vinst per aktie × branschens median-P/E framåt. Ett enkelt jämförelsevärde, inte en riktkurs."],
+  rule40:["Rule of 40","Tumregel för mjukvara och tillväxtbolag: omsättningstillväxt + FCF-marginal bör vara minst 40 %. Visar balansen mellan att växa och att tjäna pengar."],
+  fcfYield:["FCF-avkastning","Fritt kassaflöde delat med börsvärdet, i procent. Hur mycket kontanter bolaget genererar per investerad krona. Högre = billigare."],
   peerMedian:["Branschmedian","Mittenvärdet bland bolagen i branschen. Hälften ligger över och hälften under. Påverkas mindre av extremvärden än ett vanligt snitt."],
   themes:["Teman","Aktierna grupperas i teman utifrån bransch, t.ex. Halvledare eller Försvar & flyg. Tabellen visar medianen för temats aktier. Klicka på ett tema för att se de största vinnarna och förlorarna."],
   heat:["Värme","Hur starkt temat gått: senaste veckan väger 20 %, senaste månaden 50 % och tre månader 30 %. De två bästa temana är Hetast, de två sämsta Kallast."],
@@ -765,6 +775,23 @@ function footballField(d,det){
   g+=`<line x1="${X(d.price)}" x2="${X(d.price)}" y1="2" y2="${H-24}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="4 3"/><text x="${X(d.price)}" y="${H-24+11}" text-anchor="middle" style="fill:var(--ink);font-weight:600"></text>`;
   return `<svg class="ff" viewBox="0 0 ${W} ${H}" role="img" aria-label="Värderingsintervall mot kurs">${g}</svg><div class="lg"><span><i style="background:var(--ink);border-radius:0;width:12px;height:2px"></i>Nuvarande kurs ${money(d.price,d.currency)}</span><span>Tjockt streck = huvudfall/snitt</span></div>`;
 }
+function sensTable(d,val){
+  const s=val.sens;if(!s||!s.p||!val.dcf||!nn(val.dcf.base))return "";
+  return `<h4 style="margin:16px 0 6px;font-size:13px">Känslighet: värde per aktie${ib("sens")}</h4>
+  <div class="tw"><table class="crit sens"><thead><tr><th class="l">WACC ↓ · evig tillväxt →</th>${s.g.map(g=>`<th class="r">${f(g*100,1," %")}</th>`).join("")}</tr></thead><tbody>
+  ${s.w.map((w,i)=>`<tr><td class="l n">${f(w*100,1," %")}</td>${s.p[i].map((p,j)=>{const up=nn(p)&&nn(d.price)?(p/d.price-1)*100:null;return `<td class="r n ${i===2&&j===2?"base":""} ${nn(up)?(up>=0?"ok":"no"):""}" title="${nn(up)?pct(up,0)+" mot kursen":""}">${nn(p)?money(p,d.currency):"–"}</td>`}).join("")}</tr>`).join("")}
+  </tbody></table></div><p class="small muted">Mittenrutan är basfallet. Grönt = över dagens kurs, rött = under.</p>`;
+}
+function secTable(det){
+  const s=det.sec;if(!s||!(s.years||[]).length)return "";
+  const ys=s.years.slice(-6);
+  const row=(lbl,k)=>`<tr><td class="l">${lbl}</td>${ys.map(y=>`<td class="r n">${nn(y[k])?big(y[k]):"–"}</td>`).join("")}</tr>`;
+  const mg=`<tr><td class="l">FCF-marginal</td>${ys.map(y=>`<td class="r n">${nn(y.fcf)&&y.rev?f(y.fcf/y.rev*100,1," %"):"–"}</td>`).join("")}</tr>`;
+  return `<h4 style="margin:16px 0 6px;font-size:13px">Officiella siffror ur årsredovisningen (USD)${ib("secData")}</h4>
+  <div class="tw"><table class="crit"><thead><tr><th class="l">Räkenskapsår</th>${ys.map(y=>`<th class="r">${esc(String(y.end).slice(0,7))}</th>`).join("")}</tr></thead><tbody>
+  ${row("Omsättning","rev")}${row("Nettoresultat","ni")}${row("Fritt kassaflöde","fcf")}${mg}${row("Aktiebaserade löner","sbc")}
+  </tbody></table></div><p class="small muted">Källa: <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${encodeURIComponent(s.cik)}&type=10-K" target="_blank" rel="noopener">SEC EDGAR, bolagets 10-K</a>.</p>`;
+}
 function renderAnalysis(d,det){
   const att=det.att,val=det.val||{},est=det.est||{},ai=det.ai,news=det.news||[];
   const w21=att&&att.w.find(w=>w.h===21);
@@ -812,7 +839,7 @@ function renderAnalysis(d,det){
   const tr=est.trend;
   const trendHtml=tr?`<div class="kv"><div><span>EPS ${tr.period==="+1y"?"nästa år":"i år"} nu</span><span class="n">${f(tr.cur,2)}</span></div><div><span>för 7 dagar sedan</span><span class="n">${f(tr.d7,2)}</span></div><div><span>för 30 dagar sedan</span><span class="n">${f(tr.d30,2)}</span></div><div><span>för 90 dagar sedan</span><span class="n">${f(tr.d90,2)}</span></div>${nn(rv.up30)?`<div><span>Höjningar 30 d</span><span class="n ok">${rv.up30}</span></div><div><span>Sänkningar 30 d</span><span class="n no">${rv.down30||0}</span></div>`:""}${(est.rev||{})["+1y"]&&nn(est.rev["+1y"].growth)?`<div><span>Väntad oms.-tillväxt nästa år</span><span class="n">${pct(est.rev["+1y"].growth*100,1)}</span></div>`:""}${(est.eps||{})["+1y"]&&nn(est.eps["+1y"].growth)?`<div><span>Väntad vinsttillväxt nästa år</span><span class="n">${pct(est.eps["+1y"].growth*100,1)}</span></div>`:""}</div>`:`<p class="muted small">Inga prognoser.</p>`;
   const valHtml=`${footballField(d,det)}
-    <div class="small muted" style="margin-top:10px;line-height:1.6">${nn(base)?`<b style="color:var(--ink)">DCF${ib("dcf")}:</b> ägarkassaflöde ${big(val.ownerFcf)} ${esc(val.finCur||"")} (fritt kassaflöde ${big(val.fcf)} minus aktiebaserade löner ${big(val.sbc||0)}), tillväxt ${f(g1*100,1," %")} år 1–5 som trappas ner till ${f(val.gt*100,1," %")}, avkastningskrav ${f(r*100,1," %")} (ränta ${f(val.rf*100,1," %")} + beta ${f(val.beta,2)} × 5 %). Bear: halva tillväxten och +1 procentenhet krav. Bull: 1,4 × tillväxten och −1 procentenhet. `:"DCF saknas (negativt eller okänt kassaflöde). "}${nn(val.graham)?`<b style="color:var(--ink)">Graham${ib("graham")}:</b> EPS framåt × (8,5 + 2 × ${f(val.grahamG,0)}) × 4,4 / ${f(val.aaa,1)}. `:""}${nn(ig)?`<b style="color:var(--ink)">Omvänd DCF${ib("reverseDcf")}:</b> kursen förutsätter ${f(ig*100,1," %")} årlig tillväxt år 1–5.`:""}</div>`;
+    <div class="small muted" style="margin-top:10px;line-height:1.6">${nn(base)?`<b style="color:var(--ink)">DCF${ib("dcf")}:</b> ägarkassaflöde ${big(val.ownerFcf)} ${esc(val.finCur||"")} (fritt kassaflöde ${big(val.fcf)} minus aktiebaserade löner ${big(val.sbc||0)}), tillväxt ${f(g1*100,1," %")} år 1–5 som trappas ner till ${f(val.gt*100,1," %")}, ${val.method===2?`avkastningskrav (WACC${ib("wacc")}) ${f(r*100,1," %")}: eget kapital ${f(val.ke*100,1," %")} (ränta ${f(val.rf*100,1," %")} + beta ${f(val.beta,2)} × 5 %) och lån ${f(val.kd*100,1," %")} före skatt, viktat med ${f((val.wD||0)*100,0," %")} skuld. Kassaflödena räknas mitt i året. Källa för kassaflödet: ${esc(val.fcfSrc||"Yahoo Finance")}.`:`avkastningskrav ${f(r*100,1," %")} (ränta ${f(val.rf*100,1," %")} + beta ${f(val.beta,2)} × 5 %).`} Bear: halva tillväxten och +1 procentenhet krav. Bull: 1,4 × tillväxten och −1 procentenhet. ${nn(val.tvShare)?`Terminalvärdet${ib("tvShare")} står för ${f(val.tvShare*100,0," %")} av värdet${val.tvShare>0.75?", så resultatet är känsligt för antagandena på lång sikt":""}. `:""}`:"DCF saknas (negativt eller okänt kassaflöde). "}${nn(val.graham)?`<b style="color:var(--ink)">Graham${ib("graham")}:</b> EPS framåt × (8,5 + 2 × ${f(val.grahamG,0)}) × 4,4 / ${f(val.aaa,1)}. `:""}${nn(ig)?`<b style="color:var(--ink)">Omvänd DCF${ib("reverseDcf")}:</b> kursen förutsätter ${f(ig*100,1," %")} årlig tillväxt år 1–5.`:""}</div>${sensTable(d,val)}${secTable(det)}`;
   return `${aiHtml?aiHtml+'<div style="height:16px"></div>':""}
     <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px"><h3 style="font-size:15px">Sammanfattning</h3><span class="verdict ${tone[1]}">Signalbild: ${tone[0]}</span>${ib("signalbild")}</div>
     <ul class="sum">${sumItems.map(([k,v])=>`<li><span>${k}${ib({"Kursrörelse":"attribution","Värdering":"dcf","Kvalitet":"roic","Prognoser":"epsRev","Analytiker":"recMean","200W":"zones"}[k])}</span><span>${v}</span></li>`).join("")}</ul>
@@ -822,9 +849,9 @@ function renderAnalysis(d,det){
     <div class="asec"><h3>Nyheter</h3>${newsHtml}</div>
     <div class="asec"><h3>Källor</h3><div class="src">
       <b>Kurser och index</b>: Yahoo Finance (<a href="https://finance.yahoo.com/quote/${encodeURIComponent(d.ticker)}" target="_blank" rel="noopener">${esc(d.ticker)}</a>, ${esc(att?att.mkt:"index")}${att&&att.sec?", "+esc(att.sec):""}), hämtat ${esc(rel(U.quotesAt||U.updatedAt))}.<br>
-      <b>Nyckeltal, kassaflöde, balansräkning</b>: Yahoo Finance (bolagets rapporter), per ${esc(U.asOf||"")}.<br>
+      <b>Nyckeltal, kassaflöde, balansräkning</b>: Yahoo Finance (bolagets rapporter)${det.sec?`, för amerikanska bolag kompletterat med <a href="https://www.sec.gov/edgar/search/" target="_blank" rel="noopener">SEC EDGAR</a> (10-K)`:""}, per ${esc(U.asOf||"")}.<br>
       <b>Analytiker, prognoser, rapportutfall</b>: Yahoo Finance (sammanställning av bankernas prognoser).<br>
-      <b>Nyheter</b>: Yahoo Finance nyhetsflöde, utgivare anges per artikel.${ai?" Analysbrevet: Claude Sonnet 5.5 med webbsök, källor anges i brevet.":""}<br>
+      <b>Nyheter</b>: Yahoo Finance och Google News (RSS), utgivaren anges per artikel.${ai?" Analysbrevet: Claude Sonnet 5.5 med webbsök, källor anges i brevet.":""}<br>
       <b>Beräkningar</b>: 200W, kursattribution, DCF, omvänd DCF och Graham räknas av sidan själv med formlerna ovan. <a href="#/strategier">Metod &amp; källor</a>.
     </div></div>`;
 }
@@ -1269,22 +1296,32 @@ function bindThemes(){
 /* ---- branschjämförelse ---- */
 const PEERM=[
   ["Tillväxt",[["revGrowth1y","Omsättning 1 år",1,"%"],["revCagr","Omsättning per år (3–5 år)",1,"%"],["earnGrowth1y","Vinst per aktie 1 år",1,"%"]]],
-  ["Lönsamhet",[["grossMargin","Bruttomarginal",1,"%"],["opMargin","Rörelsemarginal",1,"%"],["fcfMargin","FCF-marginal",1,"%"],["roe","ROE",1,"%"],["roic","ROIC",1,"%"]]],
-  ["Värdering",[["fwdPe","P/E framåt",-1,"",1],["peg","PEG",-1,"",1],["evEbitda","EV/EBITDA",-1,"",1],["ps","P/S",-1,"",1]]],
+  ["Lönsamhet",[["grossMargin","Bruttomarginal",1,"%"],["opMargin","Rörelsemarginal",1,"%"],["fcfMargin","FCF-marginal",1,"%"],["roe","ROE",1,"%"],["roic","ROIC",1,"%"],["_rule40","Rule of 40",1,"%"]]],
+  ["Värdering",[["fwdPe","P/E framåt",-1,"",1],["peg","PEG",-1,"",1],["evEbitda","EV/EBITDA",-1,"",1],["ps","P/S",-1,"",1],["_fcfYield","FCF-avkastning",1,"%"]]],
   ["Risk",[["de","Skuld / eget kapital",-1,"",0,1],["beta","Beta",-1,""]]],
   ["Kurs",[["r21","Kurs 1 månad",1,"r"],["r63","Kurs 3 månader",1,"r"],["dist200w","Avstånd till 200W",-1,"%"]]]
 ];
-const PEER_GL={revGrowth1y:"revGrowth1y",revCagr:"revCagr",earnGrowth1y:"earnGrowth1y",grossMargin:"grossMargin",opMargin:"opMargin",fcfMargin:"fcfMargin",roe:"roe",roic:"roic",fwdPe:"fwdPe",peg:"peg",evEbitda:"evEbitda",ps:"ps",de:"de",beta:"beta",dist200w:"dist200w"};
-function peerVal(d,m){const [k,, ,,pos,deOnly]=m;let v=d[k];if(!nn(v))return null;if(pos&&v<=0)return null;if(deOnly&&d.negEquity)return null;return v}
+const PEER_GL={revGrowth1y:"revGrowth1y",revCagr:"revCagr",earnGrowth1y:"earnGrowth1y",grossMargin:"grossMargin",opMargin:"opMargin",fcfMargin:"fcfMargin",roe:"roe",roic:"roic",fwdPe:"fwdPe",peg:"peg",evEbitda:"evEbitda",ps:"ps",de:"de",beta:"beta",dist200w:"dist200w",_rule40:"rule40",_fcfYield:"fcfYield",pb:"pb"};
+const DERIV={
+  _rule40:d=>nn(d.revGrowth1y)&&nn(d.fcfMargin)?d.revGrowth1y+d.fcfMargin:null,
+  _fcfYield:d=>nn(d.fcfMargin)&&nn(d.ps)&&d.ps>0?d.fcfMargin/d.ps:null   // FCF/börsvärde = FCF-marginal / (börsvärde/omsättning)
+};
+const FIN_SKIP=new Set(["roic","grossMargin","opMargin","fcfMargin","evEbitda","ps","de","_rule40","_fcfYield"]);
+function peerMetrics(d){
+  const fin=d.sector==="Finans"||d.sectorEn==="Financial Services",tech=d.sector==="Teknik"||d.sectorEn==="Technology"||/software/i.test(d.industry||"");
+  return PEERM.map(([g,ms])=>[g,ms.filter(m=>fin?!FIN_SKIP.has(m[0]):m[0]!=="_rule40"||tech).concat(fin&&g==="Värdering"?[["pb","P/B (kurs / eget kapital)",-1,"",1]]:[])]).filter(x=>x[1].length);
+}
+function quant(vals,q){const s=vals.slice().sort((a,b)=>a-b);if(!s.length)return null;const i=(s.length-1)*q,lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo)}
+function peerVal(d,m){const [k,, ,,pos,deOnly]=m;let v=k[0]==="_"?DERIV[k](d):d[k];if(!nn(v))return null;if(pos&&v<=0)return null;if(deOnly&&d.negEquity)return null;return v}
 function peerGroup(d){
   const eq=r=>r.type==="EQUITY"||!r.type;
   if(d.industry){const p=rows.filter(r=>eq(r)&&r.industry===d.industry);if(p.length>=5)return{label:d.industry,kind:"bransch",peers:p}}
   const t=themeOf(d);if(t){const p=rows.filter(r=>eq(r)&&themeOf(r)===t);if(p.length>=5)return{label:t,kind:"tema",peers:p}}
   const p=rows.filter(r=>eq(r)&&r.sector===d.sector);return{label:d.sector||"–",kind:"sektor",peers:p};
 }
-function peerScores(peers){
-  // sammanvägd percentil per bolag över tillväxt, lönsamhet, värdering och risk
-  const ms=PEERM.slice(0,4).flatMap(g=>g[1]);const sc=new Map();
+function peerScores(peers,d){
+  // sammanvägd percentil per bolag över tillväxt, lönsamhet, värdering och risk (branschanpassade nyckeltal)
+  const ms=peerMetrics(d||peers[0]||{}).filter(g=>g[0]!=="Kurs").flatMap(g=>g[1]);const sc=new Map();
   ms.forEach(m=>{const vals=peers.map(p=>[p,peerVal(p,m)]).filter(x=>x[1]!=null).sort((a,b)=>(a[1]-b[1])*m[2]*-1);
     vals.forEach(([p],i)=>{const pctl=vals.length>1?1-i/(vals.length-1):0.5;const s=sc.get(p)||[];s.push(pctl);sc.set(p,s)})});
   const arr=peers.map(p=>{const s=sc.get(p)||[];return{p,score:s.length>=5?s.reduce((a,b)=>a+b,0)/s.length:null}}).filter(x=>x.score!=null).sort((a,b)=>b.score-a.score);
@@ -1292,23 +1329,27 @@ function peerScores(peers){
 }
 function industryRank(d){
   if(d._ir!==undefined)return d._ir;
-  const g=peerGroup(d);const sc=peerScores(g.peers);const me=sc.find(x=>x.p===d);
+  const g=peerGroup(d);const sc=peerScores(g.peers,d);const me=sc.find(x=>x.p===d);
   return d._ir=me?{rank:me.rank,n:sc.length,label:g.label,kind:g.kind}:null;
 }
 function renderPeers(d){
-  const g=peerGroup(d),peers=g.peers,sc=peerScores(peers),me=sc.find(x=>x.p===d);
+  const g=peerGroup(d),peers=g.peers,sc=peerScores(peers,d),me=sc.find(x=>x.p===d);
   const fmtV=(v,u)=>!nn(v)?"–":u==="r"?pct(v*100,1):u==="%"?f(v,1," %"):f(v,v>=100?0:2);
-  const rowsH=PEERM.map(([grp,ms])=>`<tr><td colspan="5" class="l" style="background:var(--sunk);font-weight:600;font-size:12px;color:var(--muted)">${grp}</td></tr>`+ms.map(m=>{
-    const v=peerVal(d,m),vals=peers.map(p=>peerVal(p,m)).filter(x=>x!=null),md=med(vals);
-    if(v==null)return `<tr><td class="l">${esc(m[1])}${ib(PEER_GL[m[0]])}</td><td class="r n">–</td><td class="r n">${fmtV(md,m[3])}</td><td class="r n faint">–</td><td></td></tr>`;
+  const rowsH=peerMetrics(d).map(([grp,ms])=>`<tr><td colspan="7" class="l" style="background:var(--sunk);font-weight:600;font-size:12px;color:var(--muted)">${grp}</td></tr>`+ms.map(m=>{
+    const v=peerVal(d,m),vals=peers.map(p=>peerVal(p,m)).filter(x=>x!=null),md=med(vals),q1=quant(vals,0.25),q3=quant(vals,0.75);
+    const qs=`<td class="r n muted">${fmtV(q1,m[3])}</td><td class="r n muted">${fmtV(md,m[3])}</td><td class="r n muted">${fmtV(q3,m[3])}</td>`;
+    if(v==null)return `<tr><td class="l">${esc(m[1])}${ib(PEER_GL[m[0]])}</td><td class="r n">–</td>${qs}<td class="r n faint">–</td><td></td></tr>`;
     const sorted=vals.slice().sort((a,b)=>(a-b)*m[2]*-1),rank=sorted.findIndex(x=>x===v)+1,n=sorted.length;
     const pctl=n>1?1-(rank-1)/(n-1):0.5,good=pctl>=0.67,bad=pctl<=0.33;
-    return `<tr><td class="l">${esc(m[1])}${ib(PEER_GL[m[0]])}</td><td class="r n ${good?"ok":bad?"no":""}">${fmtV(v,m[3])}</td><td class="r n muted">${fmtV(md,m[3])}</td><td class="r n">${rank} av ${n}</td><td style="min-width:110px"><div class="pbar"><i style="left:${pctl*100}%;background:${good?"var(--up)":bad?"var(--down)":"var(--ink)"}"></i></div></td></tr>`}).join("")).join("");
+    return `<tr><td class="l">${esc(m[1])}${ib(PEER_GL[m[0]])}</td><td class="r n ${good?"ok":bad?"no":""}">${fmtV(v,m[3])}</td>${qs}<td class="r n">${rank} av ${n}</td><td style="min-width:110px"><div class="pbar"><i style="left:${pctl*100}%;background:${good?"var(--up)":bad?"var(--down)":"var(--ink)"}"></i></div></td></tr>`}).join("")).join("");
   const top=sc.slice(0,12);if(me&&!top.includes(me))top.push(me);
+  const pes=peers.map(p=>p.fwdPe).filter(v=>nn(v)&&v>0&&v<200),mpe=med(pes);
+  const peV=nn(d.fwdPe)&&d.fwdPe>0&&nn(mpe)&&pes.length>=5&&nn(d.price)?d.price*mpe/d.fwdPe:null;
   return `<div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;margin-bottom:10px">
       <h3 style="font-size:15px">${me?`Plats ${me.rank} av ${sc.length}`:"Rank saknas"} i ${esc(g.label)}${ib("industryRank")}</h3>
       <span class="small muted">Jämförs med ${peers.length} bolag (${g.kind}) bland sidans aktier</span></div>
-    <div class="tw"><table class="crit"><thead><tr><th>Nyckeltal</th><th class="r">${esc(d.ticker)}</th><th class="r">Branschmedian${ib("peerMedian")}</th><th class="r">Plats</th><th>Läge i branschen</th></tr></thead><tbody>${rowsH}</tbody></table></div>
+    ${nn(peV)?`<p class="small" style="margin:0 0 10px">Värde vid branschens P/E${ib("peerPe")}: <b class="n">${money(peV,d.currency)}</b> <span class="${cls(peV/d.price-1)}">(${pct((peV/d.price-1)*100,0)} mot kursen)</span> <span class="muted">· median-P/E framåt ${f(mpe,1)} mot bolagets ${f(d.fwdPe,1)}</span></p>`:""}
+    <div class="tw"><table class="crit"><thead><tr><th>Nyckeltal</th><th class="r">${esc(d.ticker)}</th><th class="r">25 %${ib("peerQuart")}</th><th class="r">Median${ib("peerMedian")}</th><th class="r">75 %</th><th class="r">Plats</th><th>Läge i branschen</th></tr></thead><tbody>${rowsH}</tbody></table></div>
     <div class="lg"><span>Stapeln: vänster = sämst i branschen, höger = bäst. Grönt = topp tredjedel, rött = botten tredjedel.</span></div>
     <h3 style="font-size:14px;margin:18px 0 6px">Branschens bästa enligt sammanvägd rank</h3>
     <div class="tw"><table class="crit"><thead><tr><th>#</th><th>Aktie</th><th class="r">Oms 1 år</th><th class="r">Bruttomarg.</th><th class="r">ROE</th><th class="r">P/E fr.</th><th class="r">PEG</th><th>200W</th><th class="r">1 mån</th></tr></thead><tbody>
@@ -1378,7 +1419,8 @@ function pageMethod(){
       <tr><td>Omsättning, resultat, kassaflöde, balansräkning, marginaler</td><td>Yahoo Finance (från bolagens rapporter)</td><td>Varje natt</td></tr>
       <tr><td>Analytiker: rekommendationer, riktkurser, upp- och nedgraderingar</td><td>Yahoo Finance (sammanställning av bankernas analyser)</td><td>Varje natt</td></tr>
       <tr><td>Vinstprognoser, revideringar, rapportöverraskningar</td><td>Yahoo Finance (analytikernas konsensus)</td><td>Varje natt</td></tr>
-      <tr><td>Nyheter</td><td>Yahoo Finance nyhetsflöde, utgivaren anges per artikel</td><td>Varje natt</td></tr>
+      <tr><td>Nyheter</td><td>Yahoo Finance och Google News (RSS), utgivaren anges per artikel</td><td>Varje natt</td></tr>
+      <tr><td>Officiella årssiffror (USA)</td><td>SEC EDGAR: omsättning, resultat, fritt kassaflöde och aktiebaserade löner ur 10-K. Används för 5-års tillväxt och DCF</td><td>Varje natt</td></tr>
       <tr><td>Analysbrev (om påslaget)</td><td>Claude Sonnet 5.5 (Anthropic) med webbsök, källor anges i varje brev</td><td>Varje vecka, eller vid stor kursrörelse</td></tr>
       <tr><td>S&amp;P 500- och Nasdaq-100-listorna</td><td>Wikipedia</td><td>Varje natt</td></tr>
       <tr><td>200W, zoner, signaler, kursattribution, DCF, omvänd DCF, Graham, poäng</td><td>Beräknas av sidan själv, formler ovan och på varje aktie</td><td>Med datan</td></tr>

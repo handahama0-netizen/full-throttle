@@ -14,7 +14,7 @@ GitHub Actions hämtar data från Yahoo Finance och publicerar sidan till grenen
 | Var 30:e minut 09–23 svensk tid | Senaste kurserna (ca 15–30 min fördröjning) |
 | När du ändrar något i repot | Sidan byggs om |
 
-Allt är gratis och kräver ingen API-nyckel.
+Allt är gratis och kräver ingen API-nyckel. Källor: Yahoo Finance (kurser, nyckeltal, prognoser), SEC EDGAR (officiella årssiffror för amerikanska bolag), Yahoo Finance och Google News via RSS (nyheter).
 
 ## Inställningar (en gång)
 
@@ -37,8 +37,11 @@ Alla nyckeltal, kolumner och analyser har en liten **i**-knapp som förklarar va
 Fliken **Analys** på varje aktie visar:
 
 - **Varför aktien rört sig** (1 vecka, 1 månad, 3 månader), uppdelat i marknad, sektor och bolagsspecifikt, och om rörelsen stöds av ändrade vinstprognoser. Bedömningen blir *Möjlig överreaktion*, *Fundamentalt motiverat*, *Makro/sektor* m.fl.
-- **Intrinsic value**: DCF (bear/bas/bull), omvänd DCF, Graham, analytikernas riktkurser och 200W-köpzon i samma diagram.
+- **Intrinsic value**: DCF (bear/bas/bull) med WACC, mid-year-konvention, andel terminalvärde och känslighetstabell (WACC × evig tillväxt), omvänd DCF, Graham, analytikernas riktkurser och 200W-köpzon i samma diagram.
+- **Officiella siffror** ur årsredovisningen (SEC 10-K) för amerikanska bolag.
 - **Prognoser och rapporter**, **nyheter** och **källor**.
+
+Fliken **Bransch** jämför bolaget med branschen: 25:e percentil, median och 75:e percentil per nyckeltal, plats i branschen, värde vid branschens P/E och branschanpassade nyckeltal (t.ex. P/B istället för bruttomarginal för banker, Rule of 40 för teknik).
 
 ### Analysbrev från Claude (valfritt)
 
@@ -63,6 +66,7 @@ Skriv Yahoo-symbolen på en egen rad i `config/egna.txt` (svenska aktier slutar 
 | `site/lightweight-charts.js` | Diagrambiblioteket (TradingView Lightweight Charts, Apache 2.0) |
 | `scripts/build.py` | Hämtar data och bygger sidan |
 | `scripts/analysis.py` | Kursattribution och värdering |
+| `scripts/sec.py` | Årssiffror från SEC EDGAR |
 | `scripts/ai_notes.py` | Analysbrev från Claude (valfritt) |
 | `config/ai.txt` | Aktier som får analysbrev |
 | `config/*.txt` | Aktielistor |

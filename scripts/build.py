@@ -593,6 +593,24 @@ def diff_events(old, new, today):
     return ev
 
 
+def apply_sec(rec, det, raw, s):
+    """Siffror från SEC: 5-års omsättningstillväxt och fritt kassaflöde, fyller luckor från Yahoo."""
+    det["sec"] = {"cik": s["cik"], "years": [{k: (sig(v, 5) if isinstance(v, float) else v) for k, v in r.items()}
+                                             for r in s["years"]]}
+    if s.get("revCagr") is not None:
+        rec["revCagr"], rec["revCagrYears"], rec["revCagrSrc"] = s["revCagr"], s["revCagrYears"], "SEC"
+    for k in ("revGrowth1y", "fcfMargin"):
+        if rec.get(k) is None and s.get(k) is not None:
+            rec[k] = s[k]
+    usd = raw and (raw.get("finCur") or "USD") == "USD"
+    if usd and raw.get("fcf") is None and s.get("fcf") is not None:
+        raw["fcf"], raw["sbc"], raw["fcfSrc"] = s["fcf"], s.get("sbc"), "SEC"
+    if raw and raw.get("revG") is None:  # prognos från tidigare natt om den finns
+        e = det.get("est") or {}
+        raw["revG"] = ((e.get("rev") or {}).get("+1y") or {}).get("growth")
+        raw["epsG"] = raw.get("epsG") or ((e.get("eps") or {}).get("+1y") or {}).get("growth")
+
+
 def analyse(t, df, rec, det, raw, bench, rf_usd):
     """Kursattribution och värdering för en aktie (läggs i detaljfilen och sammanfattningen)."""
     se = t.endswith(".ST")
@@ -610,7 +628,7 @@ def analyse(t, df, rec, det, raw, bench, rf_usd):
     trend = (det.get("est") or {}).get("trend")
     rv = A.revision_pct(trend, 21)
     rec["epsRev30"] = round(rv * 100, 2) if rv is not None else None
-    if raw and not raw.get("extras") and det.get("val"):
+    if raw and raw.get("fcf") is None and det.get("val"):  # inget nytt kassaflöde i natt: behåll senaste värderingen
         base = (det["val"].get("dcf") or {}).get("base")
         rec["fairValue"] = base
         rec["fairUpside"] = round((base / rec["price"] - 1) * 100, 1) if base and rec.get("price") else None
@@ -625,6 +643,7 @@ def analyse(t, df, rec, det, raw, bench, rf_usd):
                                        eps_fwd=raw["epsFwd"], eps_growth_est=raw["epsG"], aaa=rf_usd * 100 + 1.0))
         if val:
             val["finCur"] = raw.get("finCur")
+            val["fcfSrc"] = raw.get("fcfSrc") or "Yahoo Finance"
             det["val"] = val
             base = (val.get("dcf") or {}).get("base")
             rec["fairValue"] = base
@@ -646,6 +665,12 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
     bench = {k: v["Close"] for k, v in download_prices(A.BENCHMARKS).items()}
     tnx = bench.get("^TNX")
     rf_usd = float(tnx.iloc[-1]) / 100 if tnx is not None and len(tnx) else 0.043
+    try:  # officiella siffror från amerikanska årsredovisningar (gratis)
+        import sec as SEC
+        secd = SEC.load(tickers, log)
+    except Exception as e:  # noqa: BLE001
+        log("SEC hoppas över:", str(e)[:150])
+        secd = {}
 
     # Tunga analysanrop: dina listor och aktier med signal varje natt, övriga roterar var tredje natt
     import zlib
@@ -715,6 +740,9 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
                     det[k] = old_det[k]
             if raw and not raw.get("extras") and old_det.get("val"):
                 det["val"] = old_det["val"]
+        s = secd.get(t.upper())
+        if s and det is not None:
+            apply_sec(rec, det, raw, s)
         if det is not None and rec.get("type", "EQUITY") == "EQUITY":
             analyse(t, df, rec, det, raw, bench, rf_usd)
         rec["signals"] = signals(rec)

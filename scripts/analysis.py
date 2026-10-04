@@ -9,6 +9,8 @@ import math
 
 ERP = 0.05            # marknadens riskpremie
 TERMINAL_G = 0.025    # evig tillväxt efter år 10
+KD_SPREAD = 0.015     # lånekostnad = riskfri ränta + 1,5 %
+TAX = 0.21            # skattesats för skatteskölden på räntor
 SECTOR_ETF = {
     "Technology": "XLK", "Communication Services": "XLC", "Consumer Cyclical": "XLY",
     "Consumer Defensive": "XLP", "Healthcare": "XLV", "Industrials": "XLI", "Financial Services": "XLF",
@@ -124,17 +126,25 @@ def revision_pct(trend, days):
 
 # ---------------- värdering ----------------
 
-def dcf_value(fcf0, g1, r, gt=TERMINAL_G, years=10):
-    """Tvåstegs-DCF: g1 i år 1–5, linjär avtrappning till gt år 6–10, sedan evig tillväxt."""
+def dcf_parts(fcf0, g1, r, gt=TERMINAL_G, years=10):
+    """Tvåstegs-DCF: g1 i år 1–5, linjär avtrappning till gt år 6–10, sedan evig tillväxt (Gordon).
+    Mid-year-konvention: kassaflödena antas komma mitt i året (period y − 0,5), som i bankmodeller.
+    Returnerar (EV, nuvärde av terminalvärdet)."""
     if fcf0 is None or fcf0 <= 0 or r <= gt:
         return None
     pv, f = 0.0, fcf0
     for y in range(1, years + 1):
         g = g1 if y <= 5 else g1 + (gt - g1) * (y - 5) / 5
         f *= 1 + g
-        pv += f / (1 + r) ** y
+        pv += f / (1 + r) ** (y - 0.5)
     tv = f * (1 + gt) / (r - gt)
-    return pv + tv / (1 + r) ** years
+    tv_pv = tv / (1 + r) ** (years - 0.5)
+    return pv + tv_pv, tv_pv
+
+
+def dcf_value(fcf0, g1, r, gt=TERMINAL_G, years=10):
+    p = dcf_parts(fcf0, g1, r, gt, years)
+    return p[0] if p else None
 
 
 def implied_growth(target_ev, fcf0, r):
@@ -158,10 +168,15 @@ def implied_growth(target_ev, fcf0, r):
 def valuation(*, fcf, sbc, cash, debt, mcap_trading, price, fx_fin_to_trading, beta, rf, rev_growth_est,
               rev_cagr, eps_fwd, eps_growth_est, aaa):
     """Värde per aktie i handelsvalutan. Använder börsvärdet för att räkna per aktie (fungerar för ADR:er)."""
-    out = {"rf": _r(rf), "erp": ERP, "gt": TERMINAL_G}
+    out = {"rf": _r(rf), "erp": ERP, "gt": TERMINAL_G, "method": 2}
     b = max(0.6, min(2.0, beta if beta is not None else 1.0))
-    r = max(0.07, min(0.14, rf + b * ERP))
-    out.update({"beta": round(b, 2), "r": _r(r)})
+    ke = rf + b * ERP                       # avkastningskrav på eget kapital (CAPM)
+    kd = rf + KD_SPREAD                     # lånekostnad före skatt
+    e_val = mcap_trading / fx_fin_to_trading if mcap_trading and fx_fin_to_trading else None
+    d_val = debt if debt and debt > 0 else 0.0
+    wd = d_val / (e_val + d_val) if e_val else 0.0
+    r = max(0.06, min(0.14, (1 - wd) * ke + wd * kd * (1 - TAX)))   # WACC
+    out.update({"beta": round(b, 2), "r": _r(r), "ke": _r(ke), "kd": _r(kd), "tax": TAX, "wD": _r(wd)})
     gs = [g for g in (rev_growth_est, (rev_cagr / 100 if rev_cagr is not None else None)) if g is not None]
     g1 = max(-0.05, min(0.30, sum(gs) / len(gs))) if gs else 0.05
     out["g1"] = _r(g1)
@@ -184,6 +199,19 @@ def valuation(*, fcf, sbc, cash, debt, mcap_trading, price, fx_fin_to_trading, b
         out["dcf"] = res or None
         ig = implied_growth(mcap_fin - net_cash, owner_fcf, r)
         out["impliedG"] = _r(ig)
+        parts = dcf_parts(owner_fcf, g1, r)
+        if parts:  # hur stor del av värdet som ligger i terminalvärdet (>75 % = känsligt för antaganden)
+            out["tvShare"] = _r(parts[1] / parts[0], 3)
+
+        def per_share(ev):
+            return _r(price * (ev + net_cash) / mcap_fin, 4) if ev is not None and ev + net_cash > 0 else 0.0
+
+        # Känslighetstabell: WACC (rader) × evig tillväxt (kolumner), mittencellen = basfallet
+        steps = (-0.01, -0.005, 0, 0.005, 0.01)
+        ws = [r + d for d in steps]
+        gs_ = [TERMINAL_G + d for d in steps]
+        out["sens"] = {"w": [round(w, 4) for w in ws], "g": [round(g, 4) for g in gs_],
+                       "p": [[per_share(dcf_value(owner_fcf, g1, w, gg)) if w > gg else None for gg in gs_] for w in ws]}
     out["graham"] = None
     if eps_fwd and eps_fwd > 0:
         g = eps_growth_est * 100 if eps_growth_est is not None else (rev_cagr if rev_cagr is not None else 5)
