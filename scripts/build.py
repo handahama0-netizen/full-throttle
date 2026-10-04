@@ -570,6 +570,14 @@ def _clean_name(name):
     return n.strip() or name
 
 
+_rss_stat = {"yahoo": 0, "google": 0, "empty": 0, "errors": []}
+
+
+def _rss_err(src, e):
+    if len(_rss_stat["errors"]) < 6:
+        _rss_stat["errors"].append(f"{src}: {type(e).__name__} {str(e)[:120]}")
+
+
 def rss_news(tk, name):
     """Nyheter utan nyckel: Yahoos RSS-flöde, annars Google News (fungerar även för svenska bolag)."""
     from urllib.parse import quote
@@ -578,14 +586,19 @@ def rss_news(tk, name):
         try:
             items = _rss_items(_rss_get(f"https://feeds.finance.yahoo.com/rss/2.0/headline?s={quote(tk)}&region=US&lang=en-US"))
             if items:
+                _rss_stat["yahoo"] += 1
                 return items
-        except Exception:  # noqa: BLE001
-            pass
+        except Exception as e:  # noqa: BLE001
+            _rss_err("yahoo", e)
     q = f'"{_clean_name(name)}" aktie' if swe else f'"{_clean_name(name)}" {tk} stock'
     loc = "hl=sv&gl=SE&ceid=SE:sv" if swe else "hl=en-US&gl=US&ceid=US:en"
     try:
-        return _rss_items(_rss_get(f"https://news.google.com/rss/search?q={quote(q + ' when:30d')}&{loc}"), True)
-    except Exception:  # noqa: BLE001
+        items = _rss_items(_rss_get(f"https://news.google.com/rss/search?q={quote(q + ' when:30d')}&{loc}"), True)
+        _rss_stat["google" if items else "empty"] += 1
+        return items
+    except Exception as e:  # noqa: BLE001
+        _rss_err("google", e)
+        _rss_stat["empty"] += 1
         return []
 
 
@@ -722,7 +735,9 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
     rf_usd = float(tnx.iloc[-1]) / 100 if tnx is not None and len(tnx) else 0.043
     try:  # officiella siffror från amerikanska årsredovisningar (gratis)
         import sec as SEC
-        secd = SEC.load(tickers, log)
+        secd = SEC.load(tickers, log, load_json(prev / "data" / "sec_cik.json", {}))
+        if SEC.STATUS.get("cikMap"):
+            write_json(out / "data" / "sec_cik.json", SEC.STATUS.get("cikMap"))
     except Exception as e:  # noqa: BLE001
         log("SEC hoppas över:", str(e)[:150])
         secd = {}
@@ -771,7 +786,7 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
             if old:
                 rec = {k: v for k, v in old.items() if k not in ("price", "prevClose", "chg", "ma200w", "dist200w", "zone", "signals", "stale")}
                 old_det = load_json(prev / "data" / "t" / fname(t), {})
-                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att", "epsq")}
+                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att", "epsq", "sec")}
             else:
                 rec = {"ticker": t, "name": t, "type": "EQUITY", "currency": "SEK" if t.endswith(".ST") else "USD",
                        "sector": "Övrigt", "excluded": True}
@@ -802,6 +817,10 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
         s = secd.get(t.upper())
         if s and det is not None:
             apply_sec(rec, det, raw, s)
+        elif det is not None and not secd and not det.get("sec"):  # SEC nere i natt: behåll förra tabellen
+            old_sec = load_json(prev / "data" / "t" / fname(t), {}).get("sec")
+            if old_sec:
+                det["sec"] = old_sec
         if det is not None and rec.get("type", "EQUITY") == "EQUITY":
             analyse(t, df, rec, det, raw, bench, rf_usd)
         rec["signals"] = signals(rec)
@@ -827,6 +846,15 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
         "source": "Yahoo Finance", "rows": rows, "fx": fx_sek({r.get("currency") for r in rows}),
         "events": (events + prev_u.get("events", []))[:MAX_EVENTS]})
     write_alerts(alerts, today)
+    try:  # diagnostik som går att läsa på sidan (jobbloggarna är inte alltid tillgängliga)
+        import sec as SEC
+        sec_status = {k: v for k, v in SEC.STATUS.items() if k != "cikMap"}
+    except Exception:  # noqa: BLE001
+        sec_status = None
+    write_json(out / "data" / "status.json", {
+        "updatedAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "rows": len(rows),
+        "fresh": len(funds), "limited": _state["limited"], "news": _state["news"], "noNews": _state["nonews"],
+        "rss": _rss_stat, "sec": sec_status})
     log(f"Klart: {len(rows)} aktier, {len(funds)} med färska nyckeltal, {len(events)} händelser, "
         f"{len(alerts)} nya signaler, strypt {_state['limited']} gånger, nyheter för {_state['news']} aktier (saknas för {_state['nonews']})")
     return 0

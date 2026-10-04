@@ -11,8 +11,8 @@ from __future__ import annotations
 import time
 from datetime import date, datetime
 
-UA = {"User-Agent": "FullThrottle aktiesida github.com/handahama0-netizen/full-throttle "
-                    "handahama0-netizen@users.noreply.github.com",
+# SEC:s format: "Företagsnamn kontakt@domän"
+UA = {"User-Agent": "FullThrottle Research handahama0-netizen@users.noreply.github.com",
       "Accept-Encoding": "gzip, deflate"}
 
 # Första begreppet som finns för bolaget används (blandas inte mellan begrepp).
@@ -26,11 +26,22 @@ CONCEPTS = {
 }
 
 
+STATUS = {"calls": 0, "ok": 0, "codes": {}, "errors": []}
+
+
+def _note(code, url, msg=None):
+    STATUS["codes"][str(code)] = STATUS["codes"].get(str(code), 0) + 1
+    if msg and len(STATUS["errors"]) < 8:
+        STATUS["errors"].append(f"{url.split('.gov', 1)[-1][:80]}: {msg[:160]}")
+
+
 def _get(url, log):
     import requests
+    STATUS["calls"] += 1
     for i in range(3):
         try:
             r = requests.get(url, headers=UA, timeout=60)
+            _note(r.status_code, url, None if r.status_code in (200, 404) else r.text[:160])
             if r.status_code == 404:
                 return None
             if r.status_code in (429, 503):
@@ -38,8 +49,11 @@ def _get(url, log):
                 continue
             r.raise_for_status()
             time.sleep(0.15)
-            return r.json()
+            js = r.json()
+            STATUS["ok"] += 1
+            return js
         except Exception as e:  # noqa: BLE001
+            _note(type(e).__name__, url, str(e))
             if i == 2:
                 log("SEC fel", url.rsplit("/", 3)[-3:], str(e)[:100])
             time.sleep(2 * (i + 1))
@@ -50,19 +64,49 @@ def _d(s):
     return datetime.strptime(s[:10], "%Y-%m-%d").date()
 
 
-def load(tickers, log=print):
-    """Returnerar {ticker: {...}} för amerikanska bolag i listan. Tomt vid fel."""
-    want = {t.upper() for t in tickers if "." not in t and not t.startswith("^")}
+def _ticker_map(log, cache):
+    """{TICKER: cik} från SEC, med reservfil och förra nattens kopia."""
     m = _get("https://www.sec.gov/files/company_tickers.json", log)
-    if not m:
+    if m:
+        STATUS["map"] = "company_tickers.json"
+        return {str(v.get("ticker", "")).upper(): int(v["cik_str"]) for v in m.values() if v.get("cik_str")}
+    import requests
+    try:
+        r = requests.get("https://www.sec.gov/include/ticker.txt", headers=UA, timeout=60)
+        _note(r.status_code, "https://www.sec.gov/include/ticker.txt", None if r.ok else r.text[:160])
+        if r.ok:
+            out = {}
+            for line in r.text.splitlines():
+                p = line.split()
+                if len(p) == 2 and p[1].isdigit():
+                    out[p[0].upper()] = int(p[1])
+            if out:
+                STATUS["map"] = "ticker.txt"
+                return out
+    except Exception as e:  # noqa: BLE001
+        _note(type(e).__name__, "ticker.txt", str(e))
+    if cache:
+        STATUS["map"] = "cache"
+        return {k.upper(): int(v) for k, v in cache.items()}
+    return {}
+
+
+def load(tickers, log=print, cache=None):
+    """Returnerar {ticker: {...}} för amerikanska bolag i listan. Tomt vid fel.
+    cache = förra nattens {ticker: cik} om SEC:s tickerlista inte går att hämta."""
+    want = {t.upper() for t in tickers if "." not in t and not t.startswith("^")}
+    tmap = _ticker_map(log, cache)
+    if not tmap:
         log("SEC: kunde inte hämta tickerlistan")
         return {}
+    STATUS["cikMap"] = {tk: tmap[tk] for tk in sorted(want) if tk in tmap}
     cik_tk = {}
-    for v in m.values():
-        tk = str(v.get("ticker", "")).upper()
-        if tk in want and v.get("cik_str") not in cik_tk:
-            cik_tk[int(v["cik_str"])] = tk
+    for tk in sorted(want):
+        cik = tmap.get(tk) or tmap.get(tk.replace("-", "."))
+        if cik and cik not in cik_tk:
+            cik_tk[cik] = tk
     log(f"SEC: {len(cik_tk)} av {len(want)} amerikanska symboler hittade")
+    STATUS["matched"] = len(cik_tk)
 
     this_year = date.today().year
     years = range(this_year - 7, this_year + 1)
@@ -131,4 +175,6 @@ def load(tickers, log=print):
         rec["fcf"], rec["sbc"] = last["fcf"], last["sbc"]
         out[tk] = rec
     log(f"SEC: nyckeltal för {len(out)} bolag")
+    STATUS["companies"] = len(out)
+    STATUS["withData"] = {k: sum(1 for c in series[k].values() for _ in c) for k in series}
     return out
