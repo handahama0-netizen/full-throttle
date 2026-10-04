@@ -213,6 +213,11 @@ th.stick{z-index:3}
 .prose ul{margin:0;padding-left:20px;display:grid;gap:4px}
 .foot{padding-block:24px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);margin-top:24px}
 .skel{color:var(--muted);padding:40px 0;text-align:center}
+.pbar{position:relative;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--down-soft),var(--sunk),var(--up-soft));border:1px solid var(--line)}
+.pbar i{position:absolute;top:-4px;width:4px;height:12px;border-radius:2px;margin-left:-2px}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
+.tcard{border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:4px;align-content:start}
+.tcard p{margin:0;font-size:13.5px;line-height:1.55}
 .focus{border-color:var(--accent)}
 .fm{font-size:14px;line-height:1.6;margin-bottom:12px}
 .flist{list-style:none;margin:0;padding:0;display:grid;gap:0}
@@ -404,6 +409,11 @@ const GL={
   todayPl:["Idag","Hur mycket värdet ändrats sedan gårdagens stängning."],
   stopTarget:["Stop och mål","Dina egna nivåer. Stop = kurs där du tänkt sälja för att begränsa förlusten. Mål = kurs där du tänkt ta hem vinsten. Du får en markering när kursen passerat någon av dem."],
   held:["Dagar","Antal dagar sedan köpet."],
+  industryRank:["Plats i branschen","Bolaget jämförs med andra bolag i samma bransch bland sidans ~600 aktier. För varje nyckeltal inom tillväxt, lönsamhet, värdering och risk räknas var bolaget hamnar (bäst = 100 %, sämst = 0 %). Snittet av dessa ger den sammanvägda platsen. Är branschen för liten används tema eller sektor."],
+  peerMedian:["Branschmedian","Mittenvärdet bland bolagen i branschen. Hälften ligger över och hälften under. Påverkas mindre av extremvärden än ett vanligt snitt."],
+  themes:["Teman","Aktierna grupperas i teman utifrån bransch, t.ex. Halvledare eller Försvar & flyg. Tabellen visar medianen för temats aktier. Klicka på ett tema för att se de största vinnarna och förlorarna."],
+  heat:["Värme","Hur starkt temat gått: senaste veckan väger 20 %, senaste månaden 50 % och tre månader 30 %. De två bästa temana är Hetast, de två sämsta Kallast."],
+  above200:["Över 200W","Andel av temats aktier som handlas över sitt 200-veckorssnitt. Högt = bred styrka i temat. Lågt = temat är nedtryckt, vilket kan ge köplägen enligt 200W-strategin."],
   focus:["Claudes fokus","Varje vardag morgon går Claude igenom aktierna som klarar Lower Risk (Low Risk, High Reward) eller är nära, och som ligger i 200W-köpzonen. Claude läser senaste nyheterna och lyfter de som är mest intressanta just nu, plus kommentarer till dina swingar. Köpläge = klarar strategin och ligger i köpzonen. Bevaka = nära köpzon eller missar ett krav. Undvik = fallet ser fundamentalt motiverat ut."],
   fairValue:["Beräknat värde","DCF-värdet per aktie i basfallet, jämfört med dagens kurs."],
 };
@@ -565,6 +575,7 @@ function pageStart(){
   $("app").innerHTML=`
   <div class="hero"><h1>Översikt</h1><span class="sub">${rows.length} aktier · nyckeltal per ${esc(U.asOf||"–")} · kurser ${esc(rel(U.quotesAt||U.updatedAt))}</span></div>
   ${focusCard()}
+  ${themesCard()}
   ${startHoldings()}
   ${hasMa?"":`<div class="card" style="margin-bottom:16px"><div class="bd">200W-data saknas än. Den kommer när uppdateringen har körts första gången under Actions i GitHub.</div></div>`}
   <div class="grid g2">
@@ -589,7 +600,7 @@ function pageStart(){
         <div class="bd">${ev.length?`<ul class="ev">${ev.map(e=>`<li data-t="${esc(e.ticker)}" style="cursor:pointer"><span class="n faint" style="font-size:12px">${esc((e.date||"").slice(5))}</span><span class="tk">${esc(e.ticker)}</span><span>${e.type==="zone"?`<span class="z z-${esc(e.from)}">${esc(ZNAME[e.from]||"")}</span> → <span class="z z-${esc(e.to)}">${esc(ZNAME[e.to]||"")}</span>`:e.type==="in"?`<span class="ok">Ny signal: ${e.signal==="swing"?"Swing-läge":"Tillväxt på rea"}</span>`:`<span class="muted">Signal borta: ${e.signal==="swing"?"Swing-läge":"Tillväxt på rea"}</span>`}</span></li>`).join("")}</ul>`:`<p class="muted small">Zonbyten och nya signaler loggas från andra körningen och framåt.</p>`}</div></section>
     </div>
   </div>`;
-  bindRows($("app"));bindStars($("app"));
+  bindRows($("app"));bindStars($("app"));bindThemes();
   document.querySelectorAll("#radarSeg button").forEach(b=>b.addEventListener("click",()=>{ui.radar=b.dataset.r;saveUi();document.querySelectorAll("#radarSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));renderRadar()}));
   renderRadar();
 }
@@ -644,7 +655,7 @@ function pageStock(t){
         <h1>${esc(d.longName||d.name)}</h1>
         <div class="meta">${esc(d.ticker)} · ${esc(d.exch||"")} · ${esc(d.sector||"")}${d.industry&&d.industry!=="ETF"?" · "+esc(d.industry):""}</div>
         <div class="price"><span class="p n">${px(d.price)}</span><span class="muted">${esc(d.currency||"")}</span><span class="ch n ${cls(d.chg)}">${pct(d.chg)}</span><span class="ch n ${cls(d.chg)}" style="font-weight:500">${nn(d.price)&&nn(d.prevClose)?(d.price-d.prevClose>0?"+":"−")+px(Math.abs(d.price-d.prevClose)):""}</span><span class="ts">Uppdaterad ${esc(rel(U.quotesAt||U.updatedAt))} · ca 15–30 min fördröjning</span></div>
-        <div class="chips">${zchip(d)}${ib("zones")} ${sigB(d)} ${stratPill("ftp")} ${stratPill("ft")} ${stratPill("lrhr")}${ib("strategies")} ${d.excluded&&d.type==="EQUITY"?`<span class="pill">Sektor utesluten i strategierna</span>`:""} ${days!=null&&days>=0?`<span class="pill" style="${days<=14?"color:var(--warn);background:var(--warn-soft);border-color:transparent":""}">Rapport ${esc(d.nextEarnings)}${days<=14?` · om ${days} d`:""}</span>`:""}</div>
+        <div class="chips">${zchip(d)}${ib("zones")} ${sigB(d)} ${stratPill("ftp")} ${stratPill("ft")} ${stratPill("lrhr")}${ib("strategies")} ${(()=>{const r=industryRank(d);return r?`<span class="pill" title="${esc(r.label)}">Plats ${r.rank} av ${r.n} i branschen</span>${ib("industryRank")}`:""})()} ${d.excluded&&d.type==="EQUITY"?`<span class="pill">Sektor utesluten i strategierna</span>`:""} ${days!=null&&days>=0?`<span class="pill" style="${days<=14?"color:var(--warn);background:var(--warn-soft);border-color:transparent":""}">Rapport ${esc(d.nextEarnings)}${days<=14?` · om ${days} d`:""}</span>`:""}</div>
       </div>
       <div class="acts">
         <button class="btn${watch.includes(d.ticker)?" on":""}" id="wbtn">${watch.includes(d.ticker)?"★ Bevakad":"☆ Bevaka"}</button>
@@ -665,7 +676,7 @@ function pageStock(t){
   <div class="grid g-main" style="margin-top:16px">
     <section class="card">
       <div class="tabs" role="tablist" id="stabs">
-        ${[["analys","Analys"],["strat","Strategier"],["an","Analytiker"],["key","Nyckeltal"],["about","Om bolaget"]].map(([k,l])=>`<button role="tab" data-s="${k}" aria-selected="${ui.stab===k}">${l}</button>`).join("")}
+        ${[["analys","Analys"],["peer","Bransch"],["strat","Strategier"],["an","Analytiker"],["key","Nyckeltal"],["about","Om bolaget"]].map(([k,l])=>`<button role="tab" data-s="${k}" aria-selected="${ui.stab===k}">${l}</button>`).join("")}
       </div>
       <div class="bd" id="stabBody"></div>
     </section>
@@ -820,6 +831,7 @@ function renderAnalysis(d,det){
 function renderStab(d){
   const b=$("stabBody");if(!b)return;const det=d._det;
   if(ui.stab==="analys"){b.innerHTML=det?renderAnalysis(d,det):`<p class="muted">Laddar analys…</p>`;return}
+  if(ui.stab==="peer"){b.innerHTML=renderPeers(d);bindRows(b);return}
   if(ui.stab==="strat"){
     const keys=[];Object.values(STRATS).forEach(s=>s.crit.forEach(c=>{if(!keys.includes(c.k))keys.push(c.k)}));
     const nm=k=>Object.values(STRATS).flatMap(s=>s.crit).find(c=>c.k===k).nm;
@@ -1200,11 +1212,115 @@ function pageHoldings(listKey,addTicker){
   });
 }
 
+/* ============ TEMAN OCH BRANSCHER ============ */
+const THEME_RULES=[
+  [/semiconductor equipment/i,"Halvledarutrustning"],[/semiconductor/i,"Halvledare"],
+  [/software/i,"Mjukvara"],[/information technology services/i,"IT-tjänster"],
+  [/internet content|internet retail|electronic gaming|advertising/i,"Internet & e-handel"],
+  [/communication equipment|computer hardware|electronic components|scientific & technical/i,"Hårdvara & nätverk"],
+  [/drug manufacturers|biotechnology|pharmaceutical/i,"Läkemedel & bioteknik"],
+  [/medical|diagnostics|health/i,"Medtech & vård"],
+  [/aerospace|defense/i,"Försvar & flyg"],
+  [/bank|insurance|asset management|capital markets|credit services|financial/i,"Finans"],
+  [/oil|gas|uranium|coal/i,"Energi"],[/utilities/i,"Kraft & el"],[/reit|real estate/i,"Fastigheter"],
+  [/telecom/i,"Telekom"],[/entertainment|broadcasting|publishing/i,"Media & underhållning"],
+  [/restaurant|apparel|footwear|specialty retail|home improvement|discount stores|auto|travel|resorts|leisure|luxury|department/i,"Konsument"],
+  [/beverages|household|packaged foods|tobacco|confectioners|farm products|grocery/i,"Dagligvaror"],
+  [/chemical|steel|gold|copper|aluminum|building materials|packaging|lumber|agricultural/i,"Råvaror & material"],
+  [/machinery|electrical equipment|industrial|engineering|construction|railroads|freight|trucking|airlines|conglomerates|building products|waste|security|business services|staffing|tools/i,"Industri"]
+];
+function themeOf(d){if(d.type&&d.type!=="EQUITY")return null;const i=d.industry||"";for(const [re,t] of THEME_RULES)if(re.test(i))return t;return d.sector&&d.sector!=="Övrigt"?d.sector:null}
+const med=a=>{const v=a.filter(nn).sort((x,y)=>x-y);if(!v.length)return null;const m=v.length>>1;return v.length%2?v[m]:(v[m-1]+v[m])/2};
+function computeThemes(){
+  const g={};
+  rows.forEach(d=>{const t=themeOf(d);if(!t)return;(g[t]=g[t]||[]).push(d)});
+  const out=Object.entries(g).filter(([,m])=>m.length>=4).map(([name,m])=>{
+    const r5=med(m.map(d=>d.r5)),r21=med(m.map(d=>d.r21)),r63=med(m.map(d=>d.r63));
+    const wsum=(nn(r5)?.2:0)+(nn(r21)?.5:0)+(nn(r63)?.3:0);
+    const mom=wsum?((nn(r5)?r5*.2:0)+(nn(r21)?r21*.5:0)+(nn(r63)?r63*.3:0))/wsum:null;
+    const withMa=m.filter(d=>nn(d.dist200w));
+    const rev=m.map(d=>d.epsRev30).filter(nn);
+    return{name,m,n:m.length,r5,r21,r63,mom,above:withMa.length?withMa.filter(d=>d.dist200w>0).length/withMa.length*100:null,dist:med(m.map(d=>d.dist200w)),
+      rev:rev.length>=3?med(rev):null,pe:med(m.map(d=>d.fwdPe>0?d.fwdPe:null)),sig:m.filter(d=>(d.sig||[]).length).length};
+  }).sort((a,b)=>(b.mom??-9)-(a.mom??-9));
+  const k=out.filter(t=>nn(t.mom)).length;
+  out.forEach((t,i)=>{t.heat=!nn(t.mom)?"–":(i<2&&t.mom>0)?"Hetast":(i<Math.ceil(k*0.3)&&t.mom>0)?"Het":(i>=k-2&&t.mom<0)?"Kallast":(i>=Math.floor(k*0.7)&&t.mom<0)?"Sval":"Neutral"});
+  return out;
+}
+const HEATCLS={"Hetast":"background:var(--z-vexp-bg);color:var(--z-vexp)","Het":"background:var(--z-exp-bg);color:var(--z-exp)","Neutral":"background:var(--sunk);color:var(--muted)","Sval":"background:var(--z-vcheap-bg);color:var(--z-vcheap)","Kallast":"background:var(--z-vcheap-bg);color:var(--z-vcheap);font-weight:700"};
+let openTheme=null;
+function themesCard(){
+  const T=computeThemes();if(!T.length)return"";
+  const ai=(FOCUS&&FOCUS.themes)||[];
+  const pc=x=>`<td class="n ${cls(x)}">${nn(x)?pct(x*100,1):"–"}</td>`;
+  const body=T.map(t=>`<tr class="go" data-theme="${esc(t.name)}"><td class="l"><b style="font-weight:600">${esc(t.name)}</b> <span class="faint small">${t.n}</span></td><td class="l"><span class="pill" style="border-color:transparent;${HEATCLS[t.heat]||""}">${t.heat}</span></td>${pc(t.r5)}${pc(t.r21)}${pc(t.r63)}<td class="n">${nn(t.above)?f(t.above,0," %"):"–"}</td><td class="n">${nn(t.dist)?pct(t.dist,0):"–"}</td><td class="n ${cls(t.rev)}">${nn(t.rev)?pct(t.rev,1):"–"}</td><td class="n">${f(t.pe,1)}</td><td class="n">${t.sig||"–"}</td></tr>`+
+    (openTheme===t.name?`<tr><td colspan="10" class="l" style="background:var(--sunk);white-space:normal"><div class="small muted" style="margin-bottom:6px">Störst rörelse senaste månaden</div><div style="display:flex;flex-wrap:wrap;gap:6px">${t.m.filter(d=>nn(d.r21)).sort((a,b)=>b.r21-a.r21).filter((d,i,a)=>i<5||i>=a.length-3).map(d=>`<a class="pill" href="${link(d.ticker)}"><span class="tk">${esc(d.ticker)}</span> <span class="${cls(d.r21)}">${pct(d.r21*100,1)}</span></a>`).join("")}</div></td></tr>`:"")).join("");
+  return `<section class="card" style="margin-bottom:16px"><div class="hd"><h2>Teman just nu${ib("themes")}</h2><span class="sub">Sorterat efter värme: 1 v, 1 mån och 3 mån viktat</span></div>
+    ${ai.length?`<div class="bd"><div class="tgrid">${ai.map(a=>`<div class="tcard"><div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><b>${esc(a.name)}</b>${a.heat?`<span class="pill" style="border-color:transparent;${HEATCLS[a.heat]||""}">${esc(a.heat)}</span>`:""}</div>
+      <p><span class="muted">Nuläge:</span> ${esc(a.now||"")}</p><p><span class="muted">Framåt:</span> ${esc(a.outlook||"")}</p><p><span class="muted">Varför:</span> ${esc(a.why||"")}</p>
+      ${(a.sources||[]).length?`<p class="small muted">Källor: ${a.sources.slice(0,3).map(s=>/^https?:/.test(s.u||"")?`<a href="${esc(s.u)}" target="_blank" rel="noopener">${esc((s.t||s.u).slice(0,48))}</a>`:"").join(" · ")}</p>`:""}</div>`).join("")}</div>
+      <p class="small muted" style="margin-top:8px">Temaanalysen skrivs av Claude ${esc(FOCUS.date||"")} utifrån tabellen nedan och nyheter. Inte ett köp- eller säljråd.</p></div>`:""}
+    <div class="bd flush"><div class="tw"><table><thead><tr><th class="l">Tema</th><th class="l">Värme${ib("heat")}</th><th>1 v</th><th>1 mån</th><th>3 mån</th><th>Över 200W${ib("above200")}</th><th>Median 200W</th><th>Prognos 30 d${ib("epsRev")}</th><th>P/E fr.</th><th>Signaler</th></tr></thead><tbody id="themeBody">${body}</tbody></table></div></div></section>`;
+}
+function bindThemes(){
+  document.querySelectorAll("tr[data-theme]").forEach(tr=>tr.addEventListener("click",()=>{openTheme=openTheme===tr.dataset.theme?null:tr.dataset.theme;const card=tr.closest("section");card.outerHTML=themesCard();bindThemes()}));
+}
+
+/* ---- branschjämförelse ---- */
+const PEERM=[
+  ["Tillväxt",[["revGrowth1y","Omsättning 1 år",1,"%"],["revCagr","Omsättning per år (3–5 år)",1,"%"],["earnGrowth1y","Vinst per aktie 1 år",1,"%"]]],
+  ["Lönsamhet",[["grossMargin","Bruttomarginal",1,"%"],["opMargin","Rörelsemarginal",1,"%"],["fcfMargin","FCF-marginal",1,"%"],["roe","ROE",1,"%"],["roic","ROIC",1,"%"]]],
+  ["Värdering",[["fwdPe","P/E framåt",-1,"",1],["peg","PEG",-1,"",1],["evEbitda","EV/EBITDA",-1,"",1],["ps","P/S",-1,"",1]]],
+  ["Risk",[["de","Skuld / eget kapital",-1,"",0,1],["beta","Beta",-1,""]]],
+  ["Kurs",[["r21","Kurs 1 månad",1,"r"],["r63","Kurs 3 månader",1,"r"],["dist200w","Avstånd till 200W",-1,"%"]]]
+];
+const PEER_GL={revGrowth1y:"revGrowth1y",revCagr:"revCagr",earnGrowth1y:"earnGrowth1y",grossMargin:"grossMargin",opMargin:"opMargin",fcfMargin:"fcfMargin",roe:"roe",roic:"roic",fwdPe:"fwdPe",peg:"peg",evEbitda:"evEbitda",ps:"ps",de:"de",beta:"beta",dist200w:"dist200w"};
+function peerVal(d,m){const [k,, ,,pos,deOnly]=m;let v=d[k];if(!nn(v))return null;if(pos&&v<=0)return null;if(deOnly&&d.negEquity)return null;return v}
+function peerGroup(d){
+  const eq=r=>r.type==="EQUITY"||!r.type;
+  if(d.industry){const p=rows.filter(r=>eq(r)&&r.industry===d.industry);if(p.length>=5)return{label:d.industry,kind:"bransch",peers:p}}
+  const t=themeOf(d);if(t){const p=rows.filter(r=>eq(r)&&themeOf(r)===t);if(p.length>=5)return{label:t,kind:"tema",peers:p}}
+  const p=rows.filter(r=>eq(r)&&r.sector===d.sector);return{label:d.sector||"–",kind:"sektor",peers:p};
+}
+function peerScores(peers){
+  // sammanvägd percentil per bolag över tillväxt, lönsamhet, värdering och risk
+  const ms=PEERM.slice(0,4).flatMap(g=>g[1]);const sc=new Map();
+  ms.forEach(m=>{const vals=peers.map(p=>[p,peerVal(p,m)]).filter(x=>x[1]!=null).sort((a,b)=>(a[1]-b[1])*m[2]*-1);
+    vals.forEach(([p],i)=>{const pctl=vals.length>1?1-i/(vals.length-1):0.5;const s=sc.get(p)||[];s.push(pctl);sc.set(p,s)})});
+  const arr=peers.map(p=>{const s=sc.get(p)||[];return{p,score:s.length>=5?s.reduce((a,b)=>a+b,0)/s.length:null}}).filter(x=>x.score!=null).sort((a,b)=>b.score-a.score);
+  arr.forEach((x,i)=>x.rank=i+1);return arr;
+}
+function industryRank(d){
+  if(d._ir!==undefined)return d._ir;
+  const g=peerGroup(d);const sc=peerScores(g.peers);const me=sc.find(x=>x.p===d);
+  return d._ir=me?{rank:me.rank,n:sc.length,label:g.label,kind:g.kind}:null;
+}
+function renderPeers(d){
+  const g=peerGroup(d),peers=g.peers,sc=peerScores(peers),me=sc.find(x=>x.p===d);
+  const fmtV=(v,u)=>!nn(v)?"–":u==="r"?pct(v*100,1):u==="%"?f(v,1," %"):f(v,v>=100?0:2);
+  const rowsH=PEERM.map(([grp,ms])=>`<tr><td colspan="5" class="l" style="background:var(--sunk);font-weight:600;font-size:12px;color:var(--muted)">${grp}</td></tr>`+ms.map(m=>{
+    const v=peerVal(d,m),vals=peers.map(p=>peerVal(p,m)).filter(x=>x!=null),md=med(vals);
+    if(v==null)return `<tr><td class="l">${esc(m[1])}${ib(PEER_GL[m[0]])}</td><td class="r n">–</td><td class="r n">${fmtV(md,m[3])}</td><td class="r n faint">–</td><td></td></tr>`;
+    const sorted=vals.slice().sort((a,b)=>(a-b)*m[2]*-1),rank=sorted.findIndex(x=>x===v)+1,n=sorted.length;
+    const pctl=n>1?1-(rank-1)/(n-1):0.5,good=pctl>=0.67,bad=pctl<=0.33;
+    return `<tr><td class="l">${esc(m[1])}${ib(PEER_GL[m[0]])}</td><td class="r n ${good?"ok":bad?"no":""}">${fmtV(v,m[3])}</td><td class="r n muted">${fmtV(md,m[3])}</td><td class="r n">${rank} av ${n}</td><td style="min-width:110px"><div class="pbar"><i style="left:${pctl*100}%;background:${good?"var(--up)":bad?"var(--down)":"var(--ink)"}"></i></div></td></tr>`}).join("")).join("");
+  const top=sc.slice(0,12);if(me&&!top.includes(me))top.push(me);
+  return `<div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;margin-bottom:10px">
+      <h3 style="font-size:15px">${me?`Plats ${me.rank} av ${sc.length}`:"Rank saknas"} i ${esc(g.label)}${ib("industryRank")}</h3>
+      <span class="small muted">Jämförs med ${peers.length} bolag (${g.kind}) bland sidans aktier</span></div>
+    <div class="tw"><table class="crit"><thead><tr><th>Nyckeltal</th><th class="r">${esc(d.ticker)}</th><th class="r">Branschmedian${ib("peerMedian")}</th><th class="r">Plats</th><th>Läge i branschen</th></tr></thead><tbody>${rowsH}</tbody></table></div>
+    <div class="lg"><span>Stapeln: vänster = sämst i branschen, höger = bäst. Grönt = topp tredjedel, rött = botten tredjedel.</span></div>
+    <h3 style="font-size:14px;margin:18px 0 6px">Branschens bästa enligt sammanvägd rank</h3>
+    <div class="tw"><table class="crit"><thead><tr><th>#</th><th>Aktie</th><th class="r">Oms 1 år</th><th class="r">Bruttomarg.</th><th class="r">ROE</th><th class="r">P/E fr.</th><th class="r">PEG</th><th>200W</th><th class="r">1 mån</th></tr></thead><tbody>
+      ${top.map(x=>{const p=x.p;return `<tr class="go" data-t="${esc(p.ticker)}" style="${p===d?"background:var(--accent-soft)":""}"><td class="n">${x.rank}</td><td>${co(p)}</td><td class="r n">${f(p.revGrowth1y,1," %")}</td><td class="r n">${f(p.grossMargin,0," %")}</td><td class="r n">${f(p.roe,0," %")}</td><td class="r n">${f(p.fwdPe,1)}</td><td class="r n">${f(p.peg,2)}</td><td>${zchip(p,false)}</td><td class="r n ${cls(p.r21)}">${nn(p.r21)?pct(p.r21*100,1):"–"}</td></tr>`}).join("")}
+    </tbody></table></div>`;
+}
+
 /* ============ CLAUDES FOKUS ============ */
 const FL={"Köpläge":"pass","Bevaka":"near","Undvik":"","Behåll":"pass","Överväg vinsthemtagning":"near","Stop nära":"","Varning":""};
 function focusCard(){
   if(!FOCUS)return"";
-  const F=FOCUS,picks=F.picks||[],sw=F.swings||[];
+  const F=FOCUS,picks=(F.picks||[]).filter(x=>x.label!=="Undvik"),sw=F.swings||[];
   const pill=l=>`<span class="pill ${FL[l]||""}" style="${/Undvik|Stop|Varning/.test(l||"")?"color:var(--down);background:var(--down-soft);border-color:transparent":""}">${esc(l||"")}</span>`;
   const item=x=>{const d=bySym[x.ticker]||{ticker:x.ticker,name:""};
     return `<li class="fi" data-go="${esc(x.ticker)}">

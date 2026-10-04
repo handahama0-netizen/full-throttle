@@ -532,9 +532,10 @@ def analyse(t, df, rec, det, raw, bench, rf_usd):
         att["mkt"] = "OMX Stockholm 30" if se else "S&P 500 (SPY)"
         att["sec"] = None if sec is None else A.SECTOR_ETF.get(rec.get("sectorEn") or "")
         det["att"] = att
-        w21 = next((w for w in att["w"] if w["h"] == 21), None)
-        if w21:
-            rec["r21"], rec["z21"] = w21["r"], w21["z"]
+        for w in att["w"]:  # avkastning 1 vecka, 1 månad, 3 månader (för tema- och branschjämförelse)
+            rec[{5: "r5", 21: "r21", 63: "r63"}[w["h"]]] = w["r"]
+            if w["h"] == 21:
+                rec["z21"] = w["z"]
     trend = (det.get("est") or {}).get("trend")
     rv = A.revision_pct(trend, 21)
     rec["epsRev30"] = round(rv * 100, 2) if rv is not None else None
