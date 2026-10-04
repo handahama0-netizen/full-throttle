@@ -213,6 +213,15 @@ th.stick{z-index:3}
 .prose ul{margin:0;padding-left:20px;display:grid;gap:4px}
 .foot{padding-block:24px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);margin-top:24px}
 .skel{color:var(--muted);padding:40px 0;text-align:center}
+.focus{border-color:var(--accent)}
+.fm{font-size:14px;line-height:1.6;margin-bottom:12px}
+.flist{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.fi{padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
+.fi:first-child{border-top:0;padding-top:4px}
+.fi:hover .tk{text-decoration:underline}
+.fh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.ft{display:block;margin-top:6px;font-size:14px}
+.fi p{margin:4px 0 0;font-size:13.5px;line-height:1.55}
 /* innehav */
 .tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .tiles>div{display:grid;gap:2px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;min-width:0}
@@ -275,7 +284,8 @@ th.stick{z-index:3}
     </div>
     <nav class="main">
       <a href="#/" data-nav="start">Start</a>
-      <a href="#/innehav" data-nav="innehav">Mina innehav</a>
+      <a href="#/innehav/swing" data-nav="swing">Live swing</a>
+      <a href="#/innehav/port" data-nav="port">Portfölj</a>
       <a href="#/screener" data-nav="screener">Screener</a>
       <a href="#/strategier" data-nav="strategier">Metod &amp; källor</a>
     </nav>
@@ -394,6 +404,7 @@ const GL={
   todayPl:["Idag","Hur mycket värdet ändrats sedan gårdagens stängning."],
   stopTarget:["Stop och mål","Dina egna nivåer. Stop = kurs där du tänkt sälja för att begränsa förlusten. Mål = kurs där du tänkt ta hem vinsten. Du får en markering när kursen passerat någon av dem."],
   held:["Dagar","Antal dagar sedan köpet."],
+  focus:["Claudes fokus","Varje vardag morgon går Claude igenom aktierna som klarar Lower Risk (Low Risk, High Reward) eller är nära, och som ligger i 200W-köpzonen. Claude läser senaste nyheterna och lyfter de som är mest intressanta just nu, plus kommentarer till dina swingar. Köpläge = klarar strategin och ligger i köpzonen. Bevaka = nära köpzon eller missar ett krav. Undvik = fallet ser fundamentalt motiverat ut."],
   fairValue:["Beräknat värde","DCF-värdet per aktie i basfallet, jämfört med dagens kurs."],
 };
 function ib(k){const g=GL[k];if(!g)return"";return `<button type="button" class="ib" data-i="${k}" aria-label="Vad är ${esc(g[0])}?">i</button>`}
@@ -483,7 +494,7 @@ function dropTo(d,p){const t=level(d,p);return nn(t)&&nn(d.price)&&d.price>t?(1-
 
 /* ============ små komponenter ============ */
 function zchip(d,dist=true){if(!d.z)return `<span class="z z-none">200W saknas</span>`;return `<span class="z z-${d.z}">${ZNAME[d.z]}${dist?` <span class="n" style="font-size:11.5px">${pct(d.dist200w,1)}</span>`:""}</span>`}
-const sigB=d=>d.sig.map(s=>`<span class="sig ${s}">${s==="swing"?"SWING":"REA"}</span>`).join(" ");
+const sigB=d=>(d.sig||[]).map(s=>`<span class="sig ${s}">${s==="swing"?"SWING":"REA"}</span>`).join(" ");
 const co=d=>`<span class="co"><span class="tk">${esc(d.ticker)}</span><span class="nm">${esc(d.name)}</span></span>`;
 const chgCell=d=>`<td class="n ${cls(d.chg)}">${pct(d.chg)}</td>`;
 const link=t=>"#/aktie/"+encodeURIComponent(t);
@@ -528,7 +539,8 @@ document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement.t
 function route(){
   const h=location.hash||"#/";const parts=h.slice(2).split("/");
   const page=parts[0]||"start";
-  document.querySelectorAll("nav.main a").forEach(a=>a.setAttribute("aria-current",a.dataset.nav===page?"page":"false"));
+  const navKey=page==="innehav"?((parts[1]||"swing")==="port"?"port":"swing"):page;
+  document.querySelectorAll("nav.main a").forEach(a=>a.setAttribute("aria-current",a.dataset.nav===navKey?"page":"false"));
   if(chart&&page!=="aktie"){chart.remove();chart=null;chartSym=null}
   if(!U){$("app").innerHTML=`<div class="skel">Laddar…</div>`;return}
   if(page==="aktie")return pageStock(decodeURIComponent(parts[1]||""));
@@ -552,6 +564,7 @@ function pageStart(){
   const sigTable=(list,empty,extra)=>list.length?`<div class="tw"><table><thead><tr><th class="l">Aktie</th><th>Kurs</th><th>Idag</th><th class="l">200W</th><th>${extra[0]}</th></tr></thead><tbody>${list.map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="n">${money(d.price,d.currency)}</td>${chgCell(d)}<td class="l">${zchip(d)}</td><td class="n">${extra[1](d)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">${empty}</p>`;
   $("app").innerHTML=`
   <div class="hero"><h1>Översikt</h1><span class="sub">${rows.length} aktier · nyckeltal per ${esc(U.asOf||"–")} · kurser ${esc(rel(U.quotesAt||U.updatedAt))}</span></div>
+  ${focusCard()}
   ${startHoldings()}
   ${hasMa?"":`<div class="card" style="margin-bottom:16px"><div class="bd">200W-data saknas än. Den kommer när uppdateringen har körts första gången under Actions i GitHub.</div></div>`}
   <div class="grid g2">
@@ -1065,6 +1078,9 @@ function csv(){
 
 /* ============ MINA INNEHAV (Swing + Portfölj) ============ */
 let pos=store.get("ft4-pos",[]);
+let repoPos=[];   // positioner som Claude lagt in i repot (site/positions.json)
+let FOCUS=null;   // Claudes dagliga analys (site/focus.json)
+const allPos=()=>repoPos.concat(pos);
 const savePos=()=>store.set("ft4-pos",pos);
 const LISTS={swing:"Swingar",port:"Portfölj"};
 const fxOf=c=>c==="SEK"?1:(U&&U.fx&&U.fx[c])||null;
@@ -1106,8 +1122,8 @@ function bestWorst(list){
   return `<div class="bw"><div><h3>Bäst</h3><ul class="pl">${best.map(row).join("")}</ul></div>${worst.length?`<div><h3>Sämst</h3><ul class="pl">${worst.map(row).join("")}</ul></div>`:""}</div>`;
 }
 function startHoldings(){
-  const sw=pos.filter(p=>p.list==="swing"),pf=pos.filter(p=>p.list==="port");
-  if(!pos.length)return `<section class="card" style="margin-bottom:16px"><div class="hd"><h2>Mina swingar</h2><a class="btn" href="#/innehav">+ Lägg till</a></div><div class="bd"><p class="muted">Lägg in dina swingar och ditt långsiktiga innehav så ser du resultatet här, med bäst och sämst.</p></div></section>`;
+  const sw=allPos().filter(p=>p.list==="swing"),pf=allPos().filter(p=>p.list==="port");
+  if(!allPos().length)return `<section class="card" style="margin-bottom:16px"><div class="hd"><h2>Mina swingar</h2><a class="btn" href="#/innehav/swing">+ Lägg till</a></div><div class="bd"><p class="muted">Lägg in dina swingar och ditt långsiktiga innehav så ser du resultatet här, med bäst och sämst.</p></div></section>`;
   const blk=(name,list,key)=>list.length?`<div class="hblk"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><h3>${name} <span class="sub">${list.length} st</span></h3><a href="#/innehav/${key}" class="small">Visa alla →</a></div>${tiles(posTotals(list))}${bestWorst(list)}</div>`:"";
   return `<section class="card" style="margin-bottom:16px"><div class="hd"><h2>Mina innehav</h2><span class="sub">Kurser ${esc(rel(U.quotesAt||U.updatedAt))}</span></div><div class="bd"><div class="hgrid">${blk("Swingar",sw,"swing")}${blk("Portfölj",pf,"port")}</div></div></section>`;
 }
@@ -1116,7 +1132,7 @@ function pageHoldings(listKey,addTicker){
   const L=listKey==="port"?"port":"swing";
   document.title=`${LISTS[L]} · Full Throttle`;
   if(addTicker&&bySym[addTicker]&&(!hForm||hForm.ticker!==addTicker)){const d=bySym[addTicker];hForm={list:L,ticker:addTicker,price:d.price,qty:null,sek:null,date:new Date().toISOString().slice(0,10)}}
-  const list=pos.filter(p=>p.list===L);
+  const list=allPos().filter(p=>p.list===L);
   const t=posTotals(list);
   const rowsH=list.map(p=>{const c=posCalc(p),d=c.d;return `<tr class="go" data-t="${esc(p.ticker)}">
       <td class="l stick">${co(d.ticker?d:{ticker:p.ticker,name:"saknas i listan"})}</td>
@@ -1125,10 +1141,10 @@ function pageHoldings(listKey,addTicker){
       <td class="l">${zchip(d)}</td><td class="l">${sigB(d)||'<span class="faint">–</span>'}</td>
       <td class="n">${c.days??"–"}</td><td class="n small">${nn(p.stop)?px(p.stop):"–"} / ${nn(p.target)?px(p.target):"–"}</td>
       <td class="l">${c.flags.map(([t,k])=>`<span class="pill ${k==="ok"?"pass":k==="warn"?"near":""}" style="${k==="no"?"color:var(--down);background:var(--down-soft);border-color:transparent":""}">${esc(t)}</span>`).join(" ")}</td>
-      <td class="l" style="white-space:nowrap"><button class="btn sm" data-edit="${p.id}" title="Ändra">Ändra</button> <button class="btn sm" data-del="${p.id}" title="Ta bort">Ta bort</button></td></tr>`}).join("");
+      <td class="l" style="white-space:nowrap">${p.src==="repo"?`<span class="pill" title="Inlagd av Claude. Be Claude i chatten om ändringar.">Inlagd av Claude</span>`:`<button class="btn sm" data-edit="${p.id}" title="Ändra">Ändra</button> <button class="btn sm" data-del="${p.id}" title="Ta bort">Ta bort</button>`}</td></tr>`}).join("");
   const F=hForm&&hForm.list===L?hForm:{list:L,ticker:"",price:null,qty:null,sek:null,date:new Date().toISOString().slice(0,10)};
   $("app").innerHTML=`
-  <div class="hero"><h1>Mina innehav</h1><div class="seg" id="hseg"><button data-l="swing" aria-pressed="${L==="swing"}">Swingar</button><button data-l="port" aria-pressed="${L==="port"}">Portfölj</button></div></div>
+  <div class="hero"><h1>${L==="swing"?"Live swing":"Portfölj"}</h1><div class="seg" id="hseg"><button data-l="swing" aria-pressed="${L==="swing"}">Swingar</button><button data-l="port" aria-pressed="${L==="port"}">Portfölj</button></div></div>
   <section class="card"><div class="bd">${tiles(t)}</div></section>
   <section class="card" style="margin-top:16px"><div class="hd"><h2>${F.id?"Ändra":"Lägg till"} ${L==="swing"?"swing":"innehav"}</h2><span class="sub">Ange antal eller belopp i kronor, det andra räknas ut</span></div>
     <div class="bd"><form id="hform" class="hform" autocomplete="off">
@@ -1145,7 +1161,7 @@ function pageHoldings(listKey,addTicker){
   <section class="card" style="margin-top:16px"><div class="hd"><h2>${LISTS[L]} <span class="sub">${list.length} st</span></h2><div style="display:flex;gap:8px"><button class="btn sm" id="h-export">Flytta till annan enhet</button></div></div>
     <div class="bd flush">${list.length?`<div class="tw"><table><thead><tr><th class="l stick">Aktie</th><th>Antal</th><th>Köpkurs</th><th>Kurs${ib("price")}</th><th>Idag</th><th>Insats${ib("invested")}</th><th>Värde${ib("value")}</th><th>Resultat${ib("pl")}</th><th>%</th><th class="l">200W${ib("zones")}</th><th class="l">Signal</th><th>Dagar${ib("held")}</th><th>Stop / mål${ib("stopTarget")}</th><th class="l">Varningar</th><th></th></tr></thead><tbody>${rowsH}</tbody></table></div>`:`<p class="empty">Inga ${L==="swing"?"swingar":"innehav"} än. Lägg till med formuläret ovan, eller via knappen + Swing på en aktie.</p>`}</div>
     <div class="bd" id="h-io" hidden></div></section>
-  <p class="small muted" style="margin-top:10px">Dina innehav sparas bara i den här webbläsaren. Använd Flytta till annan enhet för att föra över dem till mobilen eller en annan dator. Belopp i kronor räknas med dagens valutakurs från Yahoo Finance.</p>`;
+  <p class="small muted" style="margin-top:10px">Positioner du lägger in här sparas i den här webbläsaren (Flytta till annan enhet för mobilen). Positioner som Claude lagt in på din begäran syns på alla enheter. Be Claude i chatten, t.ex. "lägg till 200 SOFI à 15,20 med stop 13". Belopp i kronor räknas med dagens valutakurs från Yahoo Finance.</p>`;
   document.querySelectorAll("#hseg button").forEach(b=>b.addEventListener("click",()=>{hForm=null;location.hash="#/innehav/"+b.dataset.l}));
   // formulär
   const tk=$("h-tk"),dd2=$("h-dd"),pr=$("h-price"),qt=$("h-qty"),sk=$("h-sek"),msg=$("h-msg");
@@ -1182,6 +1198,31 @@ function pageHoldings(listKey,addTicker){
     $("h-copy").addEventListener("click",()=>{const ta=$("h-json");navigator.clipboard.writeText(ta.value).then(()=>{$("h-iomsg").textContent="Kopierat."}).catch(()=>{ta.select();$("h-iomsg").textContent="Markerat, tryck Ctrl+C."})});
     $("h-import").addEventListener("click",()=>{try{const a=JSON.parse($("h-json").value);if(!Array.isArray(a))throw 0;const ids=new Set(pos.map(p=>p.id));a.forEach(p=>{if(p&&p.ticker&&p.qty&&!ids.has(p.id))pos.push(p)});savePos();route()}catch(e){$("h-iomsg").innerHTML='<span class="no">Texten gick inte att läsa.</span>'}});
   });
+}
+
+/* ============ CLAUDES FOKUS ============ */
+const FL={"Köpläge":"pass","Bevaka":"near","Undvik":"","Behåll":"pass","Överväg vinsthemtagning":"near","Stop nära":"","Varning":""};
+function focusCard(){
+  if(!FOCUS)return"";
+  const F=FOCUS,picks=F.picks||[],sw=F.swings||[];
+  const pill=l=>`<span class="pill ${FL[l]||""}" style="${/Undvik|Stop|Varning/.test(l||"")?"color:var(--down);background:var(--down-soft);border-color:transparent":""}">${esc(l||"")}</span>`;
+  const item=x=>{const d=bySym[x.ticker]||{ticker:x.ticker,name:""};
+    return `<li class="fi" data-go="${esc(x.ticker)}">
+      <div class="fh"><span class="co"><span class="tk">${esc(x.ticker)}</span><span class="nm">${esc(d.name||"")}</span></span>${pill(x.label)}<span style="flex:1"></span>${d.price!=null?`<span class="n small">${money(d.price,d.currency)} <span class="${cls(d.chg)}">${pct(d.chg)}</span></span>`:""} ${d.z?zchip(d):""}</div>
+      ${x.title?`<b class="ft">${esc(x.title)}</b>`:""}
+      <p>${esc(x.why||"")}</p>
+      ${x.levels?`<p class="small"><span class="muted">Nivåer:</span> ${esc(x.levels)}</p>`:""}
+      ${x.risk?`<p class="small"><span class="muted">Risk:</span> ${esc(x.risk)}</p>`:""}
+      ${(x.sources||[]).length?`<p class="small muted">Källor: ${x.sources.slice(0,4).map(s=>/^https?:/.test(s.u||"")?`<a href="${esc(s.u)}" target="_blank" rel="noopener">${esc((s.t||s.u).slice(0,50))}</a>`:"").join(" · ")}</p>`:""}
+    </li>`};
+  return `<section class="card focus" style="margin-bottom:16px">
+    <div class="hd"><h2>Claudes fokus${ib("focus")}</h2><span class="sub">Analys ${esc(F.date||"")} ${esc(F.time||"")}</span></div>
+    <div class="bd">
+      ${F.market?`<p class="fm">${esc(F.market)}</p>`:""}
+      ${picks.length?`<ul class="flist">${picks.map(item).join("")}</ul>`:`<p class="muted">Inga aktier sticker ut idag.</p>`}
+      ${sw.length?`<h3 style="font-size:14px;margin:16px 0 6px">Dina swingar</h3><ul class="flist">${sw.map(item).join("")}</ul>`:""}
+      <p class="small muted" style="margin-top:12px">Skriven av Claude utifrån sidans data (Yahoo Finance) och nyheter från webben. Strategi: Lower Risk / Low Risk, High Reward + 200W. Inte ett köp- eller säljråd.</p>
+    </div></section>`;
 }
 
 /* ============ STRATEGIER ============ */
@@ -1248,6 +1289,10 @@ async function load(){
     if(same)return;
     if(U&&U.updatedAt!==j.updatedAt)detailCache={};
     U=j;rows=(j.rows||[]).map(x=>({...x}));bySym={};rows.forEach(d=>{bySym[d.ticker]=d;classify(d)});
+    const side=async n=>{try{const r=await fetch(n+"?t="+Date.now(),{cache:"no-store"});return r.ok?await r.json():null}catch(e){return null}};
+    const [fo,rp]=await Promise.all([side("focus.json"),side("positions.json")]);
+    FOCUS=fo&&fo.picks?fo:null;
+    repoPos=(rp&&Array.isArray(rp.positions)?rp.positions:[]).filter(p=>p&&p.ticker&&p.qty).map((p,i)=>({...p,id:"repo"+i,src:"repo",list:p.list==="port"?"port":"swing",ticker:String(p.ticker).toUpperCase()}));
     // behåll laddad detaljdata på öppen aktie
     const h=location.hash;if(h.startsWith("#/aktie/")){const t=decodeURIComponent(h.slice(8));if(detailCache[t]&&bySym[t])bySym[t]._det=detailCache[t]}
     if(!same&&document.activeElement!==$("q")&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#hform")))route();

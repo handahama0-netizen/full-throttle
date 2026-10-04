@@ -1,0 +1,4 @@
+{
+  "_info": "Positioner som Claude lagt in på din begäran. Format: list = swing eller port, ticker = Yahoo-symbol, price = köpkurs, qty = antal, sek = insats i kronor, date = köpdatum, stop och target valfria.",
+  "positions": []
+}
