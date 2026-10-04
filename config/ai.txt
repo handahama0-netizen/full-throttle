@@ -1,0 +1,4 @@
+# Aktier som får ett analysbrev skrivet av Claude (kräver ANTHROPIC_API_KEY i repots Secrets).
+# Brevet skrivs om varje vecka, eller när kursen rört sig mer än 4 % på en dag.
+# Aktier med Swing- eller Rea-signal får automatiskt ett brev. Max 12 brev per natt.
+SOFI

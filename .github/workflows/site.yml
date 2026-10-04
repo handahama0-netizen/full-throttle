@@ -2,15 +2,19 @@ name: Bygg och uppdatera
 
 on:
   schedule:
-    - cron: "15 22 * * 1-5"
-    - cron: "*/30 7-21 * * 1-5"
+    - cron: "15 22 * * 1-5"      # varje natt: allt (nyckeltal, analytiker, 200W)
+    - cron: "*/30 7-21 * * 1-5"  # under börsdagen: kurser var 30:e minut
   workflow_dispatch:
     inputs:
       mode:
-        description: "full = allt, quotes = bara kurser, site = bara sidan"
+        description: "full = allt, quotes = bara kurser, site = bara sidan, ai = analysbrev"
         default: full
         type: choice
-        options: [full, quotes, site]
+        options: [full, quotes, site, ai]
+      tickers:
+        description: "Bara för ai: aktier, t.ex. SOFI,NVDA (tomt = din lista i config/ai.txt)"
+        default: ""
+        type: string
   push:
     branches: [main]
 
@@ -28,6 +32,8 @@ jobs:
     timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Hitta projektmappen
         id: src
@@ -40,10 +46,13 @@ jobs:
         id: mode
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then m="${{ inputs.mode }}"
-          elif [ "${{ github.event_name }}" = "push" ]; then m="site"
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            # ändrade skript eller aktielistor = hämta allt, annars bara bygg om sidan
+            if git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -qE '(^|/)(scripts|config)/|requirements\.txt'; then m="full"; else m="site"; fi
           elif [ "${{ github.event.schedule }}" = "15 22 * * 1-5" ]; then m="full"
           else m="quotes"; fi
           echo "mode=$m" >> "$GITHUB_OUTPUT"
+          echo "Läge: $m"
 
       - name: Hämta förra versionen av sidan
         continue-on-error: true
@@ -60,7 +69,9 @@ jobs:
         run: pip install -r "${{ steps.src.outputs.dir }}/requirements.txt"
 
       - name: Bygg
-        run: python "${{ steps.src.outputs.dir }}/scripts/build.py" --mode "${{ steps.mode.outputs.mode }}" --prev _prev --out _site
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python "${{ steps.src.outputs.dir }}/scripts/build.py" --mode "${{ steps.mode.outputs.mode }}" --tickers "${{ inputs.tickers }}" --prev _prev --out _site
 
       - name: Mejllarm vid nya signaler
         if: hashFiles('alerts.md') != ''

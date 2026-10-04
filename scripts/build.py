@@ -23,6 +23,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import analysis as A  # noqa: E402
+
 SRC = Path(__file__).resolve().parent.parent
 MA_WEEKS = 200
 DAILY_DAYS = 800       # ~3 år handelsdagar sparas per aktie
@@ -333,6 +336,14 @@ def fundamentals(tk: str):
     bal = safe(lambda: t.balance_sheet) if qtype == "EQUITY" else None
     recs = safe(lambda: t.recommendations) if qtype == "EQUITY" else None
     ud = safe(lambda: t.upgrades_downgrades) if qtype == "EQUITY" else None
+    eq = qtype == "EQUITY"
+    cf = safe(lambda: t.cashflow) if eq else None
+    eps_trend = safe(lambda: t.eps_trend) if eq else None
+    eps_rev = safe(lambda: t.eps_revisions) if eq else None
+    rev_est = safe(lambda: t.revenue_estimate) if eq else None
+    eps_est = safe(lambda: t.earnings_estimate) if eq else None
+    earn_hist = safe(lambda: t.earnings_history) if eq else None
+    news = safe(lambda: t.news) or []
 
     rev_a = row(inc_a, "Total Revenue", "Operating Revenue")
     rev_q = row(inc_q, "Total Revenue", "Operating Revenue")
@@ -382,7 +393,7 @@ def fundamentals(tk: str):
         "targetMean": rnd(info.get("targetMeanPrice")), "targetHigh": rnd(info.get("targetHighPrice")),
         "targetLow": rnd(info.get("targetLowPrice")), "recKey": info.get("recommendationKey"),
         "recMean": rnd(info.get("recommendationMean")), "nAnalysts": info.get("numberOfAnalystOpinions"),
-        "nextEarnings": next_earn,
+        "nextEarnings": next_earn, "sectorEn": info.get("sector"),
     }
     detail = {
         "about": (info.get("longBusinessSummary") or "")[:1400], "web": info.get("website"),
@@ -403,7 +414,35 @@ def fundamentals(tk: str):
             detail["ud"].append({"date": str(idx)[:10], "firm": r.get("Firm"), "to": r.get("ToGrade"),
                                  "from": r.get("FromGrade"), "action": r.get("Action"),
                                  "pt": num(r.get("currentPriceTarget")), "ptPrev": num(r.get("priorPriceTarget"))})
-    return rec, detail
+    est = safe(lambda: A.estimates(eps_trend, eps_rev, rev_est, eps_est, earn_hist), {}) if eq else {}
+    detail["est"] = est
+    detail["news"] = parse_news(news)
+    raw = {"fcf": first(row(cf, "Free Cash Flow")), "sbc": first(row(cf, "Stock Based Compensation")),
+           "cash": num(info.get("totalCash")) if num(info.get("totalCash")) is not None else cash,
+           "debt": num(info.get("totalDebt")) if num(info.get("totalDebt")) is not None else debt,
+           "mcap": mcap, "beta": num(info.get("beta")), "finCur": fin_cur, "cur": cur,
+           "epsFwd": num(info.get("forwardEps")),
+           "revG": ((est.get("rev") or {}).get("+1y") or {}).get("growth"),
+           "epsG": ((est.get("eps") or {}).get("+1y") or {}).get("growth")}
+    return rec, detail, raw
+
+
+def parse_news(items):
+    out = []
+    for it in items[:20]:
+        c = it.get("content") if isinstance(it, dict) and isinstance(it.get("content"), dict) else it
+        if not isinstance(c, dict):
+            continue
+        title = c.get("title")
+        url = ((c.get("canonicalUrl") or {}).get("url") or (c.get("clickThroughUrl") or {}).get("url")
+               or c.get("link"))
+        pub = (c.get("provider") or {}).get("displayName") or c.get("publisher")
+        date = c.get("pubDate") or c.get("displayTime")
+        if not date and c.get("providerPublishTime"):
+            date = datetime.fromtimestamp(int(c["providerPublishTime"]), tz=timezone.utc).isoformat()
+        if title and url:
+            out.append({"t": title, "p": pub, "d": (date or "")[:10], "u": url, "s": (c.get("summary") or "")[:280]})
+    return out[:12]
 
 
 # ---------------- huvudflöden ----------------
@@ -445,6 +484,39 @@ def diff_events(old, new, today):
     return ev
 
 
+def analyse(t, df, rec, det, raw, bench, rf_usd):
+    """Kursattribution och värdering för en aktie (läggs i detaljfilen och sammanfattningen)."""
+    se = t.endswith(".ST")
+    mkt = bench.get("^OMX" if se else "SPY")
+    sec = None if se else bench.get(A.SECTOR_ETF.get(rec.get("sectorEn") or ""))
+    att = safe(lambda: A.attribution(df["Close"], mkt, sec)) if mkt is not None else None
+    if att:
+        att["mkt"] = "OMX Stockholm 30" if se else "S&P 500 (SPY)"
+        att["sec"] = None if sec is None else A.SECTOR_ETF.get(rec.get("sectorEn") or "")
+        det["att"] = att
+        w21 = next((w for w in att["w"] if w["h"] == 21), None)
+        if w21:
+            rec["r21"], rec["z21"] = w21["r"], w21["z"]
+    trend = (det.get("est") or {}).get("trend")
+    rv = A.revision_pct(trend, 21)
+    rec["epsRev30"] = round(rv * 100, 2) if rv is not None else None
+    if raw:
+        fx_t, fx_f = usd_rate(raw.get("cur")), usd_rate(raw.get("finCur"))
+        fx = fx_f / fx_t if fx_t and fx_f else None
+        rf = rf_usd if (raw.get("finCur") or "USD") == "USD" else 0.025
+        val = safe(lambda: A.valuation(fcf=raw["fcf"], sbc=raw["sbc"], cash=raw["cash"], debt=raw["debt"],
+                                       mcap_trading=raw["mcap"], price=rec.get("price"), fx_fin_to_trading=fx,
+                                       beta=raw["beta"], rf=rf, rev_growth_est=raw["revG"], rev_cagr=rec.get("revCagr"),
+                                       eps_fwd=raw["epsFwd"], eps_growth_est=raw["epsG"], aaa=rf_usd * 100 + 1.0))
+        if val:
+            val["finCur"] = raw.get("finCur")
+            det["val"] = val
+            base = (val.get("dcf") or {}).get("base")
+            rec["fairValue"] = base
+            rec["fairUpside"] = round((base / rec["price"] - 1) * 100, 1) if base and rec.get("price") else None
+            rec["impliedG"] = val.get("impliedG")
+
+
 def run_full(prev: Path, out: Path, limit: int | None = None):
     prev_u = load_json(prev / "data" / "universe.json", {})
     prev_rows = {r["ticker"]: r for r in prev_u.get("rows", [])}
@@ -456,6 +528,9 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
 
     prices = download_prices(tickers)
     log(f"Kurser: {len(prices)} st")
+    bench = {k: v["Close"] for k, v in download_prices(A.BENCHMARKS).items()}
+    tnx = bench.get("^TNX")
+    rf_usd = float(tnx.iloc[-1]) / 100 if tnx is not None and len(tnx) else 0.043
 
     funds = {}
     with ThreadPoolExecutor(WORKERS) as ex:
@@ -481,13 +556,13 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
                 if pf.exists():
                     shutil.copy(pf, out / "data" / "t" / fname(t))
             continue
-        rec, det = funds.get(t, (None, None))
+        rec, det, raw = funds.get(t, (None, None, None))
         old = prev_rows.get(t)
         if rec is None:
             if old:
                 rec = {k: v for k, v in old.items() if k not in ("price", "prevClose", "chg", "ma200w", "dist200w", "zone", "signals", "stale")}
                 old_det = load_json(prev / "data" / "t" / fname(t), {})
-                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud")}
+                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att")}
             else:
                 rec = {"ticker": t, "name": t, "type": "EQUITY", "currency": "USD", "sector": "Övrigt", "excluded": True}
                 det = {}
@@ -504,12 +579,19 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
         if rec.get("hi52") is None:
             last = df.tail(252)
             rec["hi52"], rec["lo52"] = sig(last["High"].max()), sig(last["Low"].min())
+        if det is not None and rec.get("type", "EQUITY") == "EQUITY":
+            analyse(t, df, rec, det, raw, bench, rf_usd)
         rec["signals"] = signals(rec)
         if not first_time:
             evs = diff_events(old, rec, today)
             events += evs
             alerts += [(rec, e["signal"]) for e in evs if e["type"] == "in"]
         rows.append(rec)
+        if det is not None and "ai" not in det:  # behåll senaste AI-analysbrevet
+            prev_ai = load_json(prev / "data" / "t" / fname(t), {}).get("ai")
+            if prev_ai:
+                det["ai"] = prev_ai
+                rec["aiDate"] = prev_ai.get("date")
         write_json(out / "data" / "t" / fname(t), {**(det or {}), "d": pack_bars(df, DAILY_DAYS),
                                                     "w": pack_bars(wk, WEEKLY_WEEKS, with_vol=False)})
 
@@ -578,7 +660,8 @@ def write_alerts(alerts, today):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--mode", default="full", choices=["full", "quotes", "site"])
+    ap.add_argument("--mode", default="full", choices=["full", "quotes", "site", "ai"])
+    ap.add_argument("--tickers", default="", help="AI-läge: kommaseparerade symboler, t.ex. SOFI,NVDA")
     ap.add_argument("--prev", default="_prev")
     ap.add_argument("--out", default="_site")
     ap.add_argument("--limit", type=int, default=None, help="bara de första N aktierna (test)")
@@ -588,13 +671,20 @@ def main():
         shutil.rmtree(out)
     out.mkdir(parents=True)
     has_prev = (prev / "data" / "universe.json").exists()
-    if a.mode == "site" and has_prev:
+    if a.mode in ("site", "ai") and has_prev:
         shutil.copytree(prev / "data", out / "data")
         code = 0
+        if a.mode == "ai":
+            import ai_notes
+            tk = [x.strip().upper() for x in a.tickers.replace(";", ",").split(",") if x.strip()]
+            ai_notes.run(out, tk or None, read_list(SRC / "config" / "ai.txt"), max_n=12, log=log)
     elif a.mode == "quotes" and has_prev:
         code = run_quotes(prev, out)
     else:
         code = run_full(prev, out, a.limit)
+        if code == 0:
+            import ai_notes
+            ai_notes.run(out, None, read_list(SRC / "config" / "ai.txt"), max_n=12, log=log)
     if code != 0:
         if has_prev:  # publicera förra datan istället för att lämna sidan tom
             shutil.rmtree(out)

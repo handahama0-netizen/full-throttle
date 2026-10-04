@@ -146,7 +146,7 @@ th.stick{z-index:3}
 @media (max-width:760px){.chartbox{height:340px}}
 .legend{position:absolute;left:10px;top:8px;z-index:3;font-size:12px;pointer-events:none;display:flex;flex-wrap:wrap;gap:2px 10px;max-width:calc(100% - 80px)}
 .legend b{font-weight:600}
-.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0 18px}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:0 18px}
 .kv div{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
 .kv span:first-child{color:var(--muted)}
 .ladder{display:grid;gap:3px;font-size:13px}
@@ -208,6 +208,33 @@ th.stick{z-index:3}
 .prose ul{margin:0;padding-left:20px;display:grid;gap:4px}
 .foot{padding-block:24px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);margin-top:24px}
 .skel{color:var(--muted);padding:40px 0;text-align:center}
+/* analys */
+.verdict{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:650;padding:3px 9px;border-radius:5px}
+.v-over{background:var(--z-vcheap-bg);color:var(--z-vcheap)} .v-fund{background:var(--down-soft);color:var(--down)}
+.v-fundup{background:var(--up-soft);color:var(--up)} .v-macro{background:var(--z-fair-bg);color:var(--z-fair)}
+.v-hot{background:var(--z-exp-bg);color:var(--z-exp)} .v-none,.v-mix{background:var(--sunk);color:var(--muted)}
+.sum{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.sum li{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;font-size:13.5px;line-height:1.5;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.sum li:last-child{border-bottom:0;padding-bottom:0}
+.sum li>span:first-child{color:var(--muted);font-size:12.5px;padding-top:1px}
+@media (max-width:560px){.sum li{grid-template-columns:minmax(0,1fr);gap:2px}}
+.asec{margin-top:22px}
+.asec>h3{font-size:14.5px;margin-bottom:8px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.attr td,.attr th{padding:7px 8px;font-size:12.5px;white-space:nowrap}
+.contrib{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--sunk);min-width:90px}
+.ff{width:100%;height:auto;display:block}
+.ff text{font-family:var(--font);font-size:11.5px;fill:var(--muted)}
+.ff .lbl{fill:var(--ink);font-size:12px}
+.note{border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:var(--sunk)}
+.note h4{margin:0 0 6px;font-size:15px}
+.note p{font-size:13.5px;line-height:1.6;margin:6px 0 0}
+.note ul{margin:6px 0 0;padding-left:18px;font-size:13.5px;line-height:1.55}
+.news{list-style:none;margin:0;padding:0}
+.news li{padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.news li:last-child{border-bottom:0}
+.news .m{font-size:12px;color:var(--muted);margin-top:2px}
+.src{font-size:12.5px;color:var(--muted);line-height:1.6}
+.src b{color:var(--ink);font-weight:600}
 </style>
 </head>
 <body>
@@ -222,7 +249,7 @@ th.stick{z-index:3}
     <nav class="main">
       <a href="#/" data-nav="start">Start</a>
       <a href="#/screener" data-nav="screener">Screener</a>
-      <a href="#/strategier" data-nav="strategier">Strategier</a>
+      <a href="#/strategier" data-nav="strategier">Metod &amp; källor</a>
     </nav>
   </div>
 </header>
@@ -277,10 +304,10 @@ const UDA={up:"Uppgradering",down:"Nedgradering",main:"Bekräftar",reit:"Upprepa
 /* ============ state ============ */
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let lim=store.get("ft3-lim",null); if(!lim||!lim.ftp||!lim.lrhr||!lim.zones)lim=JSON.parse(JSON.stringify(DEF));
-const ui=Object.assign({strat:"ftp",filter:"all",zones:[],sort:"score",dir:-1,radar:"lrhr",tf:"D",range:"3Y",bands:true,stab:"strat",showExcl:false},store.get("ft3-ui",{}));
+const ui=Object.assign({strat:"ftp",filter:"all",zones:[],sort:"score",dir:-1,radar:"lrhr",tf:"D",range:"3Y",bands:true,stab:"analys",showExcl:false},store.get("ft4-ui",{}));
 let watch=store.get("ft3-watch",["SOFI"]);
 let U=null,rows=[],bySym={},detailCache={},chart=null,chartSym=null;
-const saveUi=()=>store.set("ft3-ui",ui), saveLim=()=>store.set("ft3-lim",lim), saveWatch=()=>store.set("ft3-watch",watch);
+const saveUi=()=>store.set("ft4-ui",ui), saveLim=()=>store.set("ft3-lim",lim), saveWatch=()=>store.set("ft3-watch",watch);
 
 /* ============ format ============ */
 const $=id=>document.getElementById(id);
@@ -288,7 +315,7 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const nn=x=>x!=null&&!isNaN(x)&&isFinite(x);
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 function f(x,dp=1,suf=""){if(!nn(x))return"–";return x.toLocaleString("sv-SE",{minimumFractionDigits:dp,maximumFractionDigits:dp})+suf}
-function px(x){if(!nn(x))return"–";const a=Math.abs(x);return f(x,a>=1000?0:a>=10?2:a>=1?2:4)}
+function px(x){if(!nn(x))return"–";if(x===0)return"0";const a=Math.abs(x);return f(x,a>=1000?0:a>=10?2:a>=1?2:4)}
 const curSym=c=>!c||c==="USD"?"$":c==="SEK"?"kr":c==="EUR"?"€":c;
 const money=(x,c)=>nn(x)?px(x)+" "+curSym(c):"–";
 const pct=(x,dp=2)=>!nn(x)?"–":(x>0?"+":x<0?"−":"")+f(Math.abs(x),dp," %");
@@ -509,7 +536,7 @@ function pageStock(t){
   <div class="grid g-main" style="margin-top:16px">
     <section class="card">
       <div class="tabs" role="tablist" id="stabs">
-        ${[["strat","Strategier"],["an","Analytiker"],["key","Nyckeltal"],["about","Om bolaget"]].map(([k,l])=>`<button role="tab" data-s="${k}" aria-selected="${ui.stab===k}">${l}</button>`).join("")}
+        ${[["analys","Analys"],["strat","Strategier"],["an","Analytiker"],["key","Nyckeltal"],["about","Om bolaget"]].map(([k,l])=>`<button role="tab" data-s="${k}" aria-selected="${ui.stab===k}">${l}</button>`).join("")}
       </div>
       <div class="bd" id="stabBody"></div>
     </section>
@@ -552,8 +579,118 @@ function targetBar(d){
     <div class="mk" style="left:${X(d.price)}%;background:var(--ink);width:3px"><span style="color:var(--ink);font-weight:600">Kurs</span></div></div>
     <div class="small muted" style="display:flex;justify-content:space-between;gap:8px;margin-top:14px"><span>Lägst <span class="n">${px(d.targetLow)}</span></span><span>Snitt <span class="n" style="color:var(--accent)">${px(d.targetMean)}</span></span><span>Högst <span class="n">${px(d.targetHigh)}</span></span></div>`;
 }
+/* ---- fundamental analys ---- */
+const WN={5:"1 vecka",21:"1 månad",63:"3 månader"};
+const VCL={"Möjlig överreaktion":"v-over","Fundamentalt motiverat":"v-fund","Fundamentalt stöd":"v-fundup","Makro/sektor":"v-macro","Uppgång utan stöd i prognoserna":"v-hot","Ingen tydlig rörelse":"v-none","Blandat":"v-mix","Överreaktion":"v-over"};
+function epsRev(det,h){const t=(det.est||{}).trend;if(!t)return null;const old=t[{5:"d7",21:"d30",63:"d90"}[h]];if(!nn(t.cur)||!nn(old)||old===0)return null;return (t.cur/old-1)*(old>0?1:-1)*100}
+function verdict(w,rev,vol){
+  const s=vol*Math.sqrt(w.h);
+  const parts=[["marknaden",w.mkt],["sektorn",w.sec],["bolagsspecifikt",w.idio]].sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]));
+  if(Math.abs(w.z)<1.5){
+    if(Math.abs(w.r)<s*0.8)return["Ingen tydlig rörelse","Rörelsen ligger inom aktiens normala svängningar."];
+    if(parts[0][0]!=="bolagsspecifikt")return["Makro/sektor",`Det mesta förklaras av ${parts[0][0]}. Sådana rörelser brukar inte ändra bolagets långsiktiga värde.`];
+  }
+  if(Math.abs(w.z)>=1.5){
+    if(w.idio<0){if(rev==null)return["Blandat","Ovanligt bolagsspecifikt fall, men prognosdata saknas för att avgöra om det är motiverat."];
+      return rev>-1?["Möjlig överreaktion",`Ovanligt stort bolagsspecifikt fall (${f(Math.abs(w.z),1)} standardavvikelser) medan analytikernas vinstprognos ${rev>=0?"höjts":"bara sänkts"} ${f(Math.abs(rev),1," %")}.`]:["Fundamentalt motiverat",`Kursfallet följs av sänkta vinstprognoser (${f(rev,1," %")}). Marknaden prisar in sämre utsikter.`]}
+    if(rev==null)return["Blandat","Ovanligt bolagsspecifik uppgång, men prognosdata saknas."];
+    return rev<1?["Uppgång utan stöd i prognoserna",`Kursen har stigit ${f(Math.abs(w.z),1)} standardavvikelser mer än väntat, men vinstprognosen har bara ändrats ${pct(rev,1)}. Risk för rekyl.`]:["Fundamentalt stöd",`Uppgången följs av höjda vinstprognoser (${pct(rev,1)}).`];
+  }
+  return["Blandat","Både marknad och bolagsspecifika faktorer bidrar, utan att något sticker ut statistiskt."];
+}
+function contribBar(w){
+  const tot=Math.abs(w.mkt)+Math.abs(w.sec)+Math.abs(w.idio)||1;
+  const seg=(v,c)=>`<i style="width:${Math.abs(v)/tot*100}%;background:${c};opacity:${v<0?.55:1}" title="${pct(v*100,1)}"></i>`;
+  return `<div class="contrib">${seg(w.mkt,"var(--z-fair)")}${seg(w.sec,"var(--z-exp)")}${seg(w.idio,"var(--accent)")}</div>`;
+}
+function footballField(d,det){
+  const v=det.val||{},rows=[];
+  if(v.dcf&&nn(v.dcf.base))rows.push(["DCF (bear–bull)",v.dcf.bear,v.dcf.bull,v.dcf.base,"var(--accent)"]);
+  if(nn(v.graham))rows.push(["Graham-formeln",v.graham*0.9,v.graham*1.1,v.graham,"var(--z-vcheap)"]);
+  if(nn(d.targetLow)&&nn(d.targetHigh))rows.push(["Analytikernas riktkurser",d.targetLow,d.targetHigh,d.targetMean,"var(--z-cheap)"]);
+  if(nn(d.ma200w))rows.push(["200W köpzon (0–20 %)",d.ma200w,d.ma200w*(1+lim.zones.b2/100),null,"var(--z-fire)"]);
+  if(nn(d.lo52)&&nn(d.hi52))rows.push(["52 veckor",d.lo52,d.hi52,null,"var(--faint)"]);
+  if(!rows.length||!nn(d.price))return `<p class="muted small">För lite data för värdering.</p>`;
+  let lo=Math.min(d.price,...rows.map(r=>r[1]).filter(nn)),hi=Math.max(d.price,...rows.map(r=>r[2]).filter(nn));
+  const pad=(hi-lo)*0.08;lo=Math.max(0,lo-pad);hi+=pad;
+  const nar=innerWidth<640,W=nar?380:640,L=nar?96:170,R=nar?10:16,rh=34,H=rows.length*rh+34,X=x=>L+(x-lo)/(hi-lo)*(W-L-R);
+  if(nar)rows.forEach(r=>{r[0]={"DCF (bear–bull)":"DCF","Graham-formeln":"Graham","Analytikernas riktkurser":"Analytiker","200W köpzon (0–20 %)":"200W köpzon","52 veckor":"52 veckor"}[r[0]]||r[0]});
+  let g="";
+  const ticks=nar?3:5;for(let i=0;i<=ticks;i++){const v=lo+(hi-lo)*i/ticks;g+=`<line x1="${X(v)}" x2="${X(v)}" y1="6" y2="${H-24}" stroke="var(--line)"/><text x="${X(v)}" y="${H-8}" text-anchor="middle">${px(v)}</text>`}
+  rows.forEach(([n,a,b,m,c],i)=>{const y=10+i*rh;
+    g+=`<text class="lbl" x="0" y="${y+15}">${esc(n)}</text>`;
+    if(nn(a)&&nn(b))g+=`<rect x="${X(Math.min(a,b))}" y="${y+4}" width="${Math.max(3,Math.abs(X(b)-X(a)))}" height="16" rx="3" fill="${c}" opacity=".28"/><rect x="${X(Math.min(a,b))}" y="${y+4}" width="${Math.max(3,Math.abs(X(b)-X(a)))}" height="16" rx="3" fill="none" stroke="${c}"/>`;
+    if(nn(m))g+=`<line x1="${X(m)}" x2="${X(m)}" y1="${y+2}" y2="${y+22}" stroke="${c}" stroke-width="3"/>`;
+  });
+  g+=`<line x1="${X(d.price)}" x2="${X(d.price)}" y1="2" y2="${H-24}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="4 3"/><text x="${X(d.price)}" y="${H-24+11}" text-anchor="middle" style="fill:var(--ink);font-weight:600"></text>`;
+  return `<svg class="ff" viewBox="0 0 ${W} ${H}" role="img" aria-label="Värderingsintervall mot kurs">${g}</svg><div class="lg"><span><i style="background:var(--ink);border-radius:0;width:12px;height:2px"></i>Nuvarande kurs ${money(d.price,d.currency)}</span><span>Tjockt streck = huvudfall/snitt</span></div>`;
+}
+function renderAnalysis(d,det){
+  const att=det.att,val=det.val||{},est=det.est||{},ai=det.ai,news=det.news||[];
+  const w21=att&&att.w.find(w=>w.h===21);
+  const v21=w21?verdict(w21,epsRev(det,21),att.vol):null;
+  const r=val.r,g1=val.g1,ig=val.impliedG,base=val.dcf&&val.dcf.base;
+  const up=nn(base)&&nn(d.price)?(base/d.price-1)*100:null;
+  const rev30=epsRev(det,21),rev90=epsRev(det,63),rv=est.revisions||{};
+  const tUp=nn(d.targetMean)&&nn(d.price)?(d.targetMean/d.price-1)*100:null;
+  // signalbild
+  let pos=0,neg=0;
+  if(nn(up)){up>15?pos++:up<-15?neg++:0}
+  if(nn(d.roic)&&nn(r)){d.roic/100>r?pos++:neg++}
+  if(nn(rev90)){rev90>1?pos++:rev90<-1?neg++:0}
+  if(d.z){["fire","vcheap","cheap"].includes(d.z)?pos++:d.z==="vexp"?neg++:0}
+  if(nn(tUp)){tUp>15?pos++:tUp<0?neg++:0}
+  const tone=pos-neg>=2?["Övervägande positiv","v-fundup"]:neg-pos>=2?["Övervägande negativ","v-fund"]:["Blandad","v-mix"];
+  const sumItems=[];
+  if(w21)sumItems.push(["Kursrörelse",`${pct(w21.r*100,1)} senaste månaden. <span class="verdict ${VCL[v21[0]]}">${v21[0]}</span> ${esc(v21[1])}`]);
+  if(nn(base))sumItems.push(["Värdering",`DCF ger ${money(base,d.currency)} per aktie, ${up>=0?f(up,0," %")+" över":f(-up,0," %")+" under"} dagens kurs. ${nn(ig)?`Kursen förutsätter att kassaflödet växer ${f(ig*100,0," %")} per år i fem år, mot ${f(g1*100,0," %")} i prognoserna${ig>g1+0.05?", alltså högt ställda förväntningar":ig<g1-0.05?", alltså lågt ställda förväntningar":""}.`:""}`]);
+  else if(val.ownerFcf!=null&&val.ownerFcf<=0)sumItems.push(["Värdering","Kassaflödet efter aktiebaserade löner är negativt, så DCF går inte att använda. Värderingen vilar på framtida lönsamhet."]);
+  if(nn(d.roic)&&nn(r))sumItems.push(["Kvalitet",`ROIC ${f(d.roic,0," %")} mot avkastningskrav ${f(r*100,1," %")}: ${d.roic/100>r?"bolaget skapar värde på kapitalet det investerar.":"bolaget tjänar mindre än kapitalkostnaden."}`]);
+  if(nn(rev30)||nn(rev90))sumItems.push(["Prognoser",`Vinstprognosen (EPS ${esc((est.trend||{}).period==="+1y"?"nästa år":"i år")}) har ändrats ${pct(rev30,1)} senaste månaden och ${pct(rev90,1)} på tre månader${nn(rv.up30)?` (${rv.up30} höjningar, ${rv.down30||0} sänkningar senaste 30 dagarna)`:""}.`]);
+  if(d.nAnalysts)sumItems.push(["Analytiker",`${esc(REC[d.recKey]||d.recKey||"–")} från ${d.nAnalysts} analytiker, riktkurs ${money(d.targetMean,d.currency)} (${pct(tUp,0)}).`]);
+  if(d.z)sumItems.push(["200W",`${zchip(d)} ${["fire","vcheap","cheap"].includes(d.z)?"Kursen ligger i köpzonen mot 200-veckorssnittet.":`${f(dropTo(d,lim.zones.b2),0," %")} kvar till Cheap.`}`]);
+  // AI-brev
+  const aiHtml=ai?`<div class="note"><div class="small muted" style="margin-bottom:4px">Analysbrev skrivet av Claude (AI) ${esc(ai.date)} utifrån datan nedan och nyheter från webben. Inte från en bank och inte ett köp- eller säljråd.</div>
+    <h4>${esc(ai.rubrik||"")}</h4><p>${esc(ai.slutsats||"")}</p>
+    ${ai.bedomning?`<p><span class="verdict ${VCL[ai.bedomning]||"v-mix"}">${esc(ai.bedomning)}</span> ${esc(ai.bedomning_motiv||"")}</p>`:""}
+    <p><b>Varför kursen rört sig.</b> ${esc(ai.rorelse||"")}</p><p><b>Värdering.</b> ${esc(ai.vardering||"")}</p>
+    ${(ai.risker||[]).length?`<p style="margin-top:8px"><b>Risker</b></p><ul>${ai.risker.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
+    ${(ai.katalysatorer||[]).length?`<p style="margin-top:8px"><b>Katalysatorer</b></p><ul>${ai.katalysatorer.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
+    ${(ai.nyheter||[]).length?`<p style="margin-top:8px"><b>Nyheter som påverkat</b></p><ul>${ai.nyheter.map(n=>`<li><span class="n small">${esc(n.datum||"")}</span> ${n.url&&/^https?:/.test(n.url)?`<a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.rubrik)}</a>`:esc(n.rubrik)} <span class="muted small">${esc(n.kalla||"")}</span> <span class="${n.paverkan==="positiv"?"ok":n.paverkan==="negativ"?"no":"muted"} small">${esc(n.paverkan||"")}</span></li>`).join("")}</ul>`:""}
+    ${(ai.kallor||[]).length?`<p class="small muted" style="margin-top:8px">Källor: ${ai.kallor.slice(0,8).map(k=>/^https?:/.test(k.url)?`<a href="${esc(k.url)}" target="_blank" rel="noopener">${esc((k.titel||k.url).slice(0,60))}</a>`:"").join(" · ")}</p>`:""}
+  </div>`:"";
+  // attribution
+  const attHtml=att?`<div class="tw"><table class="crit attr"><thead><tr><th>Period</th><th class="r">Aktien</th><th class="r">Marknad</th><th class="r">Sektor</th><th class="r">Bolagsspec.</th><th>Fördelning</th><th class="r">Ovanlighet</th><th class="r">Prognos EPS</th><th>Bedömning</th></tr></thead><tbody>
+    ${att.w.map(w=>{const rv=epsRev(det,w.h),vd=verdict(w,rv,att.vol);return `<tr><td>${WN[w.h]}</td><td class="r n ${cls(w.r)}">${pct(w.r*100,1)}</td><td class="r n">${pct(w.mkt*100,1)}</td><td class="r n">${att.sec?pct(w.sec*100,1):"–"}</td><td class="r n">${pct(w.idio*100,1)}</td><td>${contribBar(w)}</td><td class="r n">${f(w.z,1)} σ</td><td class="r n ${cls(rv)}">${pct(rv,1)}</td><td><span class="verdict ${VCL[vd[0]]}" title="${esc(vd[1])}">${vd[0]}</span></td></tr>`}).join("")}
+    </tbody></table></div>
+    <div class="lg"><span><i style="background:var(--z-fair);border-radius:2px"></i>Marknad = beta ${f(att.beta,2)} × ${esc(att.mkt)}</span>${att.sec?`<span><i style="background:var(--z-exp);border-radius:2px"></i>Sektor = ${esc(att.sec)} minus index</span>`:""}<span><i style="background:var(--accent);border-radius:2px"></i>Bolagsspecifikt = resten</span><span>σ = hur ovanlig den bolagsspecifika rörelsen är mot aktiens normala svängningar</span></div>`:`<p class="muted small">För kort kurshistorik.</p>`;
+  // nyheter i fönstret
+  const from63=att&&att.w.find(w=>w.h===63)?att.w.find(w=>w.h===63).from:null;
+  const hist=(est.hist||[]);
+  const newsHtml=news.length?`<ul class="news">${news.map(n=>`<li><a href="${esc(n.u)}" target="_blank" rel="noopener">${esc(n.t)}</a><div class="m">${esc(n.p||"")} · ${esc(n.d||"")}${n.s?` · ${esc(n.s.slice(0,180))}`:""}</div></li>`).join("")}</ul>`:`<p class="muted small">Inga nyheter hittades.</p>`;
+  const surpHtml=hist.length?`<div class="tw"><table class="crit"><thead><tr><th>Kvartal</th><th class="r">Förväntat EPS</th><th class="r">Utfall</th><th class="r">Överraskning</th></tr></thead><tbody>${hist.slice().reverse().map(e=>`<tr><td class="n">${esc(e.q)}</td><td class="r n">${f(e.est,2)}</td><td class="r n">${f(e.act,2)}</td><td class="r n ${cls(e.surp)}">${nn(e.surp)?pct(e.surp*100,1):"–"}</td></tr>`).join("")}</tbody></table></div>`:"";
+  const tr=est.trend;
+  const trendHtml=tr?`<div class="kv"><div><span>EPS ${tr.period==="+1y"?"nästa år":"i år"} nu</span><span class="n">${f(tr.cur,2)}</span></div><div><span>för 7 dagar sedan</span><span class="n">${f(tr.d7,2)}</span></div><div><span>för 30 dagar sedan</span><span class="n">${f(tr.d30,2)}</span></div><div><span>för 90 dagar sedan</span><span class="n">${f(tr.d90,2)}</span></div>${nn(rv.up30)?`<div><span>Höjningar 30 d</span><span class="n ok">${rv.up30}</span></div><div><span>Sänkningar 30 d</span><span class="n no">${rv.down30||0}</span></div>`:""}${(est.rev||{})["+1y"]&&nn(est.rev["+1y"].growth)?`<div><span>Väntad oms.-tillväxt nästa år</span><span class="n">${pct(est.rev["+1y"].growth*100,1)}</span></div>`:""}${(est.eps||{})["+1y"]&&nn(est.eps["+1y"].growth)?`<div><span>Väntad vinsttillväxt nästa år</span><span class="n">${pct(est.eps["+1y"].growth*100,1)}</span></div>`:""}</div>`:`<p class="muted small">Inga prognoser.</p>`;
+  const valHtml=`${footballField(d,det)}
+    <div class="small muted" style="margin-top:10px;line-height:1.6">${nn(base)?`<b style="color:var(--ink)">DCF:</b> ägarkassaflöde ${big(val.ownerFcf)} ${esc(val.finCur||"")} (fritt kassaflöde ${big(val.fcf)} minus aktiebaserade löner ${big(val.sbc||0)}), tillväxt ${f(g1*100,1," %")} år 1–5 som trappas ner till ${f(val.gt*100,1," %")}, avkastningskrav ${f(r*100,1," %")} (ränta ${f(val.rf*100,1," %")} + beta ${f(val.beta,2)} × 5 %). Bear: halva tillväxten och +1 procentenhet krav. Bull: 1,4 × tillväxten och −1 procentenhet. `:"DCF saknas (negativt eller okänt kassaflöde). "}${nn(val.graham)?`<b style="color:var(--ink)">Graham:</b> EPS framåt × (8,5 + 2 × ${f(val.grahamG,0)}) × 4,4 / ${f(val.aaa,1)}. `:""}${nn(ig)?`<b style="color:var(--ink)">Omvänd DCF:</b> kursen förutsätter ${f(ig*100,1," %")} årlig tillväxt år 1–5.`:""}</div>`;
+  return `${aiHtml?aiHtml+'<div style="height:16px"></div>':""}
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px"><h3 style="font-size:15px">Sammanfattning</h3><span class="verdict ${tone[1]}">Signalbild: ${tone[0]}</span></div>
+    <ul class="sum">${sumItems.map(([k,v])=>`<li><span>${k}</span><span>${v}</span></li>`).join("")}</ul>
+    <div class="asec"><h3>Varför har aktien rört sig?</h3>${attHtml}</div>
+    <div class="asec"><h3>Värdering och intrinsic value</h3>${valHtml}</div>
+    <div class="asec"><h3>Prognoser och rapporter</h3>${trendHtml}${surpHtml?`<div style="height:10px"></div>${surpHtml}`:""}</div>
+    <div class="asec"><h3>Nyheter</h3>${newsHtml}</div>
+    <div class="asec"><h3>Källor</h3><div class="src">
+      <b>Kurser och index</b>: Yahoo Finance (<a href="https://finance.yahoo.com/quote/${encodeURIComponent(d.ticker)}" target="_blank" rel="noopener">${esc(d.ticker)}</a>, ${esc(att?att.mkt:"index")}${att&&att.sec?", "+esc(att.sec):""}), hämtat ${esc(rel(U.quotesAt||U.updatedAt))}.<br>
+      <b>Nyckeltal, kassaflöde, balansräkning</b>: Yahoo Finance (bolagets rapporter), per ${esc(U.asOf||"")}.<br>
+      <b>Analytiker, prognoser, rapportutfall</b>: Yahoo Finance (sammanställning av bankernas prognoser).<br>
+      <b>Nyheter</b>: Yahoo Finance nyhetsflöde, utgivare anges per artikel.${ai?" Analysbrevet: Claude Sonnet 5.5 med webbsök, källor anges i brevet.":""}<br>
+      <b>Beräkningar</b>: 200W, kursattribution, DCF, omvänd DCF och Graham räknas av sidan själv med formlerna ovan. <a href="#/strategier">Metod &amp; källor</a>.
+    </div></div>`;
+}
 function renderStab(d){
   const b=$("stabBody");if(!b)return;const det=d._det;
+  if(ui.stab==="analys"){b.innerHTML=det?renderAnalysis(d,det):`<p class="muted">Laddar analys…</p>`;return}
   if(ui.stab==="strat"){
     const keys=[];Object.values(STRATS).forEach(s=>s.crit.forEach(c=>{if(!keys.includes(c.k))keys.push(c.k)}));
     const nm=k=>Object.values(STRATS).flatMap(s=>s.crit).find(c=>c.k===k).nm;
@@ -836,6 +973,27 @@ function pageMethod(){
     <p><b>Tillväxtpoäng</b> (Full Throttle): tillväxt 30, kvalitet 25, värdering 25, balansräkning 20. <b>Kvalitetspoäng</b> (Low Risk, High Reward): ROE 25, PEG 25, FCF-marginal 15, låg skuld 15, vinsttillväxt 10, omsättningstillväxt 10.</p>
     <h2>Data</h2>
     <p>Yahoo Finance. Nyckeltal och analytiker uppdateras varje natt efter USA-börsens stängning, kurser ungefär var 30:e minut under börsdagen. 5-årstillväxt = årlig tillväxt mellan äldsta och senaste helår. Tillväxt 1 år = senaste 12 månader mot 12 månader innan. Börsvärde omräknat till USD. Siffror kan skilja något mot andra sajter.</p>
+    <h2>Datakällor</h2>
+    <div class="tw"><table class="crit"><thead><tr><th>Data</th><th>Källa</th><th>Uppdateras</th></tr></thead><tbody>
+      <tr><td>Kurser (dag och vecka, 10 år), volym</td><td>Yahoo Finance via biblioteket yfinance</td><td>Var 30:e min under börsdagen, ca 15–30 min fördröjning</td></tr>
+      <tr><td>Index och sektorer för kursattribution</td><td>Yahoo Finance: SPY (S&amp;P 500), ^OMX (OMX Stockholm 30), sektor-ETF:er XLK, XLV, XLY m.fl.</td><td>Varje natt</td></tr>
+      <tr><td>Räntan i värderingen</td><td>Yahoo Finance: ^TNX (amerikansk 10-årsränta). Svenska och europeiska bolag: 2,5 %.</td><td>Varje natt</td></tr>
+      <tr><td>Omsättning, resultat, kassaflöde, balansräkning, marginaler</td><td>Yahoo Finance (från bolagens rapporter)</td><td>Varje natt</td></tr>
+      <tr><td>Analytiker: rekommendationer, riktkurser, upp- och nedgraderingar</td><td>Yahoo Finance (sammanställning av bankernas analyser)</td><td>Varje natt</td></tr>
+      <tr><td>Vinstprognoser, revideringar, rapportöverraskningar</td><td>Yahoo Finance (analytikernas konsensus)</td><td>Varje natt</td></tr>
+      <tr><td>Nyheter</td><td>Yahoo Finance nyhetsflöde, utgivaren anges per artikel</td><td>Varje natt</td></tr>
+      <tr><td>Analysbrev (om påslaget)</td><td>Claude Sonnet 5.5 (Anthropic) med webbsök, källor anges i varje brev</td><td>Varje vecka, eller vid stor kursrörelse</td></tr>
+      <tr><td>S&amp;P 500- och Nasdaq-100-listorna</td><td>Wikipedia</td><td>Varje natt</td></tr>
+      <tr><td>200W, zoner, signaler, kursattribution, DCF, omvänd DCF, Graham, poäng</td><td>Beräknas av sidan själv, formler ovan och på varje aktie</td><td>Med datan</td></tr>
+    </tbody></table></div>
+    <h2>Värderingsmetoder</h2>
+    <ul>
+      <li><b>DCF:</b> ägarkassaflöde (fritt kassaflöde minus aktiebaserade löner) växer med prognostillväxten år 1–5, trappas ner till 2,5 % år 6–10, sedan evig tillväxt 2,5 %. Diskonteras med 10-årsränta + beta × 5 %. Nettokassa läggs till. Bear och bull ändrar tillväxt och avkastningskrav.</li>
+      <li><b>Omvänd DCF:</b> vilken tillväxt år 1–5 som dagens börsvärde förutsätter. Högre än prognosen = högt ställda förväntningar.</li>
+      <li><b>Graham:</b> EPS framåt × (8,5 + 2 × tillväxt) × 4,4 / obligationsränta.</li>
+    </ul>
+    <h2>Kursattribution och överreaktion</h2>
+    <p>Aktiens avkastning delas upp i <b>marknad</b> (beta × index), <b>sektor</b> (sektor-ETF minus index) och <b>bolagsspecifikt</b> (resten). Den bolagsspecifika delen jämförs med aktiens normala svängningar (σ). Är fallet ovanligt stort (över 1,5 σ) men analytikernas vinstprognoser oförändrade bedöms det som en möjlig överreaktion. Sänks prognoserna samtidigt är fallet fundamentalt motiverat. Domineras rörelsen av marknad eller sektor bedöms den som makro/sektor.</p>
     <p class="muted">Diagram: TradingView Lightweight Charts. Detta är ett analysverktyg, inte investeringsrådgivning.</p>
   </div></div></section>`;
 }
