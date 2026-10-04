@@ -22,6 +22,28 @@ Allt är gratis och kräver ingen API-nyckel. Källor: Yahoo Finance (kurser, ny
 2. **Actions → Bygg och uppdatera → Run workflow** (läge `full`). Första körningen tar 30–60 minuter.
 3. **Settings → Pages:** *Deploy from a branch* → branch **gh-pages**, mapp **/ (root)** → Save.
 
+## Mina aktier
+
+Fliken **Mina aktier** är din bevakningslista med en rad per aktie:
+
+| Kolumn | Vad |
+|---|---|
+| Kurs, Idag | Senaste kurs och dagens förändring |
+| 52 veckor | Var kursen ligger mellan årets lägsta och högsta, och hur långt från toppen |
+| Värdering | **Undervärderad / Rimligt värderad / Övervärderad**: DCF, riktkurs, P/E framåt mot branschen, PEG, 200W och Value-faktorn vägda ihop |
+| P/E, P/E fr., PEG | Med branschmedianen under. Grönt = minst 10 % billigare än branschen, rött = minst 10 % dyrare |
+| Sentiment | **Bullish / Neutral / Bearish**: analytikerbetyg, prognosändringar, momentum, trend och blankning |
+| Bransch | Plats i branschen (sammanvägd rank) |
+| Quant | Faktorpoäng 0–100 och profil i Value, Growth, Quality, Momentum, Revisions och Low risk |
+
+Öppna en rad (▶) för att se exakt vad som drar värdering och sentiment åt vilket håll, faktorprofilen och nyckeltalen mot branschmedianen.
+
+Lägg till aktier med sökrutan (flera går med komma: `NVDA, AAPL, VOLV-B`) eller ☆ på en aktiesida. De sparas i webbläsaren. Aktier i `config/mina.txt` syns på alla enheter och får data vid nästa nattkörning, även om de inte ingår i S&P 500, Nasdaq-100 eller Stockholmslistan.
+
+## Quant-profil och risk
+
+Varje aktiesida har en **Quant-profil** med faktorpercentiler, värdering och sentiment. Under **Portfölj** och **Live swing** visar **Risk och exponering** vägd beta, volatilitet, effektivt antal aktier, största position, fördelning per tema och valuta och portföljens faktorlutning, med varningar vid hög koncentration. Screenern har en kolumn **Quant** att sortera på.
+
 ## Mina innehav
 
 Fliken **Mina innehav** har två listor: **Swingar** och **Portfölj**. Lägg till en aktie med köpkurs och antingen antal eller belopp i kronor, plus valfri stop och mål. Sidan visar värde, resultat i kronor och procent (inklusive valutaeffekt), dagens förändring, 200W-zon, signal och varningar (stop passerad, mål nått, Very Expensive, rapport inom en vecka). Översikten visar summan och dina bästa och sämsta innehav.
@@ -69,6 +91,7 @@ Skriv Yahoo-symbolen på en egen rad i `config/egna.txt` (svenska aktier slutar 
 | `scripts/sec.py` | Årssiffror från SEC EDGAR |
 | `scripts/ai_notes.py` | Analysbrev från Claude (valfritt) |
 | `config/ai.txt` | Aktier som får analysbrev |
+| `config/mina.txt` | Mina aktier (syns på alla enheter) |
 | `config/*.txt` | Aktielistor |
 | `.github/workflows/site.yml` | Schemat |
 

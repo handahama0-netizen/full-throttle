@@ -1,0 +1,4 @@
+# Mina aktier: aktier du vill följa i fliken Mina aktier, en Yahoo-symbol per rad.
+# Listan syns på alla dina enheter. Du kan också lägga till aktier direkt på sidan (sparas i webbläsaren).
+# Svenska aktier slutar på .ST (t.ex. EVO.ST). Nya aktier får data vid nästa nattkörning.
+NVDA

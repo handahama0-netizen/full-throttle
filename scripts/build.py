@@ -226,7 +226,7 @@ def wiki_tickers():
 
 def universe(prev_universe):
     cfg = SRC / "config"
-    tick = wiki_tickers() + read_list(cfg / "stockholm.txt") + read_list(cfg / "egna.txt")
+    tick = wiki_tickers() + read_list(cfg / "stockholm.txt") + read_list(cfg / "egna.txt") + read_list(cfg / "mina.txt")
     if len(tick) < 200 and prev_universe:  # Wikipedia nere – använd förra listan
         tick += [r["ticker"] for r in prev_universe]
     seen, out = set(), []
@@ -279,6 +279,33 @@ def pack_bars(df, n, with_vol=True):
            "l": [sig(v) for v in df["Low"]], "c": [sig(v) for v in df["Close"]]}
     if with_vol and "Volume" in df:
         out["v"] = [int((num(v) or 0) // 1000) for v in df["Volume"]]
+    return out
+
+
+def momentum(df):
+    """Kursbaserade quant-mått: avkastning 6 och 12 månader, 12-1-momentum, volatilitet och glidande snitt."""
+    c = df["Close"].dropna()
+    n = len(c)
+    out = {}
+
+    def ret(h, skip=0):
+        if n <= h:
+            return None
+        a, b = num(c.iloc[-1 - h]), num(c.iloc[-1 - skip])
+        return round(b / a - 1, 4) if a and b else None
+
+    out["r126"], out["r252"] = ret(126), ret(252)
+    out["r12_1"] = ret(252, 21)  # 12 månader exklusive senaste månaden (klassisk momentumfaktor)
+    if n > 60:
+        lr = (c / c.shift(1)).apply(lambda x: math.log(x) if x and x > 0 else None).dropna().tail(252)
+        sd = num(lr.std())
+        out["vol"] = round(sd * math.sqrt(252) * 100, 1) if sd else None
+    for w in (50, 200):
+        if n >= w:
+            out[f"sma{w}"] = sig(c.tail(w).mean(), 6)
+    if n >= 252:  # största fall från topp senaste året
+        last = c.tail(252)
+        out["mdd1y"] = round(num((last / last.cummax() - 1).min()) * 100, 1)
     return out
 
 
@@ -434,6 +461,9 @@ def fundamentals(tk: str, extras: bool = True):
         "targetLow": rnd(info.get("targetLowPrice")), "recKey": info.get("recommendationKey"),
         "recMean": rnd(info.get("recommendationMean")), "nAnalysts": info.get("numberOfAnalystOpinions"),
         "nextEarnings": next_earn, "sectorEn": info.get("sector"),
+        "shortPct": rnd(num(info.get("shortPercentOfFloat")) * 100) if num(info.get("shortPercentOfFloat")) is not None else None,
+        "shortDays": rnd(info.get("shortRatio"), 1),
+        "instPct": rnd(num(info.get("heldPercentInstitutions")) * 100, 1) if num(info.get("heldPercentInstitutions")) is not None else None,
     }
     detail = {
         "about": (info.get("longBusinessSummary") or "")[:1400], "web": info.get("website"),
@@ -578,6 +608,8 @@ def copy_site(out: Path):
         if f.is_file():
             shutil.copy(f, out / f.name)
     (out / ".nojekyll").write_text("")
+    # Mina aktier: listan i config/mina.txt syns på alla enheter
+    write_json(out / "mina.json", {"tickers": read_list(SRC / "config" / "mina.txt")})
 
 
 def diff_events(old, new, today):
@@ -675,7 +707,7 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
     # Tunga analysanrop: dina listor och aktier med signal varje natt, övriga roterar var tredje natt
     import zlib
     cfg = SRC / "config"
-    prio = set(read_list(cfg / "egna.txt")) | set(read_list(cfg / "ai.txt")) | {r["ticker"] for r in prev_u.get("rows", []) if r.get("signals")}
+    prio = set(read_list(cfg / "egna.txt")) | set(read_list(cfg / "ai.txt")) | set(read_list(cfg / "mina.txt")) | {r["ticker"] for r in prev_u.get("rows", []) if r.get("signals")}
     doy = datetime.now(ZoneInfo("Europe/Stockholm")).timetuple().tm_yday
     extra_set, missing = set(), 0
     for t in tickers:
@@ -718,7 +750,8 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
                 old_det = load_json(prev / "data" / "t" / fname(t), {})
                 det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att")}
             else:
-                rec = {"ticker": t, "name": t, "type": "EQUITY", "currency": "USD", "sector": "Övrigt", "excluded": True}
+                rec = {"ticker": t, "name": t, "type": "EQUITY", "currency": "SEK" if t.endswith(".ST") else "USD",
+                       "sector": "Övrigt", "excluded": True}
                 det = {}
         wk = weekly(df)
         closes = [num(v) for v in wk["Close"]]
@@ -730,6 +763,7 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
                     "chg": rnd((price / prev_close - 1) * 100) if price and prev_close else None,
                     "ma200w": sig(ma, 6) if ma else None, "dist200w": rnd(dist), "zone": zone_of(dist),
                     "asOf": today, "stale": False})
+        rec.update(safe(lambda: momentum(df), {}))
         if rec.get("hi52") is None:
             last = df.tail(252)
             rec["hi52"], rec["lo52"] = sig(last["High"].max()), sig(last["Low"].min())
