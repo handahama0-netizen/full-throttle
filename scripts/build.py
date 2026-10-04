@@ -309,7 +309,7 @@ def usd_rate(cur):
 import threading  # noqa: E402
 
 _gate = threading.Lock()
-_state = {"next": 0.0, "cool": 0.0, "limited": 0}
+_state = {"next": 0.0, "cool": 0.0, "limited": 0, "news": 0, "nonews": 0}
 MIN_GAP = 0.35  # sekunder mellan anrop till Yahoo (alla trådar tillsammans)
 
 
@@ -382,6 +382,8 @@ def fundamentals(tk: str, extras: bool = True):
     eps_est = call(lambda: t.earnings_estimate) if ex else None
     earn_hist = call(lambda: t.earnings_history) if ex else None
     news = (call(lambda: t.news) or []) if ex else []
+    if eq and not news:  # Yahoos nyhets-API ger ofta tomt till GitHubs servrar, ta RSS istället
+        news = rss_news(tk, info.get("shortName") or info.get("longName") or tk)
 
     rev_a = row(inc_a, "Total Revenue", "Operating Revenue")
     rev_q = row(inc_q, "Total Revenue", "Operating Revenue")
@@ -454,7 +456,8 @@ def fundamentals(tk: str, extras: bool = True):
                                  "pt": num(r.get("currentPriceTarget")), "ptPrev": num(r.get("priorPriceTarget"))})
     est = safe(lambda: A.estimates(eps_trend, eps_rev, rev_est, eps_est, earn_hist), {}) if ex else None
     detail["est"] = est
-    detail["news"] = parse_news(news) if ex else None
+    detail["news"] = parse_news(news) or None
+    _state["news" if detail["news"] else "nonews"] += 1
     raw = {"fcf": first(row(cf, "Free Cash Flow")), "sbc": first(row(cf, "Stock Based Compensation")),
            "cash": num(info.get("totalCash")) if num(info.get("totalCash")) is not None else cash,
            "debt": num(info.get("totalDebt")) if num(info.get("totalDebt")) is not None else debt,
@@ -463,6 +466,74 @@ def fundamentals(tk: str, extras: bool = True):
            "revG": (((est or {}).get("rev") or {}).get("+1y") or {}).get("growth"),
            "epsG": (((est or {}).get("eps") or {}).get("+1y") or {}).get("growth"), "extras": ex}
     return rec, detail, raw
+
+
+_rss_gate = threading.Lock()
+_rss_next = [0.0]
+UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"}
+
+
+def _rss_get(url):
+    import requests
+    with _rss_gate:
+        w = _rss_next[0] - time.time()
+        if w > 0:
+            time.sleep(w)
+        _rss_next[0] = time.time() + 0.6
+    r = requests.get(url, headers=UA, timeout=15)
+    r.raise_for_status()
+    return r.content
+
+
+def _rss_items(xml, strip_source=False):
+    import xml.etree.ElementTree as ET
+    from email.utils import parsedate_to_datetime
+    out = []
+    for it in ET.fromstring(xml).iter("item"):
+        title = (it.findtext("title") or "").strip()
+        link = (it.findtext("link") or "").strip()
+        src = it.find("source")
+        pub = src.text.strip() if src is not None and src.text else None
+        if strip_source and pub and title.endswith(" - " + pub):
+            title = title[: -len(pub) - 3]
+        date = ""
+        try:
+            date = parsedate_to_datetime(it.findtext("pubDate")).astimezone(timezone.utc).isoformat()
+        except Exception:  # noqa: BLE001
+            pass
+        desc = it.findtext("description") or ""
+        if "<" in desc:  # Google lägger HTML i beskrivningen
+            desc = ""
+        if title and link:
+            out.append({"title": title, "link": link, "publisher": pub or "Yahoo Finance",
+                        "pubDate": date, "summary": desc.strip()})
+    out.sort(key=lambda x: x["pubDate"], reverse=True)
+    return out
+
+
+def _clean_name(name):
+    import re
+    n = re.sub(r"[,.]?\s+(Inc|Incorporated|Corp|Corporation|Co|Company|Ltd|Limited|plc|PLC|AB|ASA|A/S|Oyj|N\.V|NV|SA|S\.A|Holdings?|Group|Class [A-C]|\(publ\)|ser\. ?[A-C])\.?\b.*$", "", name or "")
+    return n.strip() or name
+
+
+def rss_news(tk, name):
+    """Nyheter utan nyckel: Yahoos RSS-flöde, annars Google News (fungerar även för svenska bolag)."""
+    from urllib.parse import quote
+    swe = tk.upper().endswith(".ST")
+    if not swe:
+        try:
+            items = _rss_items(_rss_get(f"https://feeds.finance.yahoo.com/rss/2.0/headline?s={quote(tk)}&region=US&lang=en-US"))
+            if items:
+                return items
+        except Exception:  # noqa: BLE001
+            pass
+    q = f'"{_clean_name(name)}" aktie' if swe else f'"{_clean_name(name)}" {tk} stock'
+    loc = "hl=sv&gl=SE&ceid=SE:sv" if swe else "hl=en-US&gl=US&ceid=US:en"
+    try:
+        return _rss_items(_rss_get(f"https://news.google.com/rss/search?q={quote(q + ' when:30d')}&{loc}"), True)
+    except Exception:  # noqa: BLE001
+        return []
 
 
 def parse_news(items):
@@ -670,7 +741,7 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
         "events": (events + prev_u.get("events", []))[:MAX_EVENTS]})
     write_alerts(alerts, today)
     log(f"Klart: {len(rows)} aktier, {len(funds)} med färska nyckeltal, {len(events)} händelser, "
-        f"{len(alerts)} nya signaler, strypt {_state['limited']} gånger")
+        f"{len(alerts)} nya signaler, strypt {_state['limited']} gånger, nyheter för {_state['news']} aktier (saknas för {_state['nonews']})")
     return 0
 
 
