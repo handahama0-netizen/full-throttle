@@ -409,6 +409,7 @@ def fundamentals(tk: str, extras: bool = True):
     eps_est = call(lambda: t.earnings_estimate) if ex else None
     earn_hist = call(lambda: t.earnings_history) if ex else None
     earn_dates = call(lambda: t.get_earnings_dates(limit=48)) if ex else None
+    ins_tx = call(lambda: t.insider_transactions) if ex and not tk.endswith(".ST") else None
     news = (call(lambda: t.news) or []) if ex else []
     if eq and not news:  # Yahoos nyhets-API ger ofta tomt till GitHubs servrar, ta RSS istället
         news = rss_news(tk, info.get("shortName") or info.get("longName") or tk)
@@ -476,6 +477,7 @@ def fundamentals(tk: str, extras: bool = True):
         dates_lbl = [str(c)[:10] for c in inc_a.columns][:5]
         detail["fin"] = {"y": years_lbl[::-1], "d": dates_lbl[::-1], "rev": [sig(v, 4) for v in (rev_a or [])[:5]][::-1],
                          "ni": [sig(v, 4) for v in (ni_a or [])[:5]][::-1],
+                         "op": [sig(v, 4) for v in (row(inc_a, "Operating Income", "EBIT") or [])[:5]][::-1],
                          "eps": [sig(v, 4) for v in (row(inc_a, "Diluted EPS", "Basic EPS") or [])[:5]][::-1]}
     if recs is not None and not getattr(recs, "empty", True):
         for _, r in recs.head(4).iterrows():
@@ -489,6 +491,7 @@ def fundamentals(tk: str, extras: bool = True):
     est = safe(lambda: A.estimates(eps_trend, eps_rev, rev_est, eps_est, earn_hist), {}) if ex else None
     detail["est"] = est
     detail["epsq"] = safe(lambda: eps_quarters(earn_dates)) or None
+    detail["ins"] = safe(lambda: insiders(ins_tx)) if ins_tx is not None else None
     detail["news"] = parse_news(news) or None
     _state["news" if detail["news"] else "nonews"] += 1
     raw = {"fcf": first(row(cf, "Free Cash Flow")), "sbc": first(row(cf, "Stock Based Compensation")),
@@ -512,6 +515,30 @@ def eps_quarters(df):
             continue  # kommande rapport
         out[str(idx)[:10]] = {"d": str(idx)[:10], "a": round(a, 4), "e": rnd(r.get("EPS Estimate"), 4)}
     return [out[k] for k in sorted(out)]
+
+
+def insiders(df):
+    """Insiders köp och försäljningar senaste 12 månaderna (bara riktiga köp/sälj, inte tilldelningar)."""
+    if df is None or getattr(df, "empty", True):
+        return []
+    cut = datetime.now(timezone.utc).date().toordinal() - 370
+    out = []
+    for _, r in df.iterrows():
+        txt = str(r.get("Text") or r.get("Transaction") or "")
+        low = txt.lower()
+        kind = "S" if "sale" in low or "sold" in low else "B" if "purchase" in low or "buy" in low or "bought" in low else None
+        if not kind:
+            continue
+        try:
+            d = str(r.get("Start Date"))[:10]
+            if datetime.strptime(d, "%Y-%m-%d").date().toordinal() < cut:
+                continue
+        except Exception:  # noqa: BLE001
+            continue
+        out.append({"d": d, "k": kind, "v": rnd(r.get("Value"), 0), "sh": rnd(r.get("Shares"), 0),
+                    "who": str(r.get("Insider") or "")[:40].title(), "pos": str(r.get("Position") or "")[:40]})
+    out.sort(key=lambda x: x["d"], reverse=True)
+    return out[:60]
 
 
 def merge_eps(old, new):
@@ -786,7 +813,7 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
             if old:
                 rec = {k: v for k, v in old.items() if k not in ("price", "prevClose", "chg", "ma200w", "dist200w", "zone", "signals", "stale")}
                 old_det = load_json(prev / "data" / "t" / fname(t), {})
-                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att", "epsq", "sec")}
+                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att", "epsq", "sec", "ins")}
             else:
                 rec = {"ticker": t, "name": t, "type": "EQUITY", "currency": "SEK" if t.endswith(".ST") else "USD",
                        "sector": "Övrigt", "excluded": True}
@@ -807,7 +834,7 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
             rec["hi52"], rec["lo52"] = sig(last["High"].max()), sig(last["Low"].min())
         if det is not None and (det.get("est") is None or det.get("news") is None or (raw and not raw.get("extras"))):
             old_det = load_json(prev / "data" / "t" / fname(t), {})
-            for k in ("est", "news"):
+            for k in ("est", "news", "ins"):
                 if det.get(k) is None and old_det.get(k) is not None:
                     det[k] = old_det[k]
             if raw and not raw.get("extras") and old_det.get("val"):

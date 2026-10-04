@@ -224,7 +224,11 @@ th.stick{z-index:3}
 .focus{border-color:var(--accent)}
 .fm{font-size:14px;line-height:1.6;margin-bottom:12px}
 .flist{list-style:none;margin:0;padding:0;display:grid;gap:0}
-.fi{padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
+.fi{padding:12px 0;border-top:1px solid var(--line)}
+.fi summary{cursor:pointer;list-style:none}
+.fi summary::-webkit-details-marker{display:none}
+.fi summary .ft::after{content:" ▸";color:var(--muted);font-weight:400}
+.fi details[open] summary .ft::after{content:" ▾"}
 .fi:first-child{border-top:0;padding-top:4px}
 .fi:hover .tk{text-decoration:underline}
 .fh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
@@ -314,6 +318,67 @@ tr.xrow td{background:var(--sunk);white-space:normal;text-align:left;padding:12p
 @media (max-width:560px){.keyt th:nth-child(4),.keyt td:nth-child(4){display:none}.keyt td,.keyt th{padding:7px 5px}}
 .vb{font-size:11.5px;font-weight:650;padding:1px 7px;border-radius:4px;white-space:nowrap}
 .vb.bra{background:var(--up-soft);color:var(--up)} .vb.ok{background:var(--sunk);color:var(--muted)} .vb.svag{background:var(--down-soft);color:var(--down)}
+/* berättelse */
+.story .lead{font-size:18px;font-weight:650;line-height:1.45;max-width:70ch}
+.chap{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:16px 22px;margin-top:16px}
+.chap>div{border-left:3px solid var(--accent);padding:2px 0 2px 12px;display:flex;flex-direction:column;gap:4px}
+.chap b{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.chap p{font-size:13.5px;line-height:1.55;flex:1}
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:8px 22px;margin-top:18px}
+@media (max-width:640px){.pc{grid-template-columns:1fr}}
+.pc h4{margin:0 0 4px;font-size:12.5px;color:var(--muted)}
+.pc ul{margin:0;padding:0;list-style:none;font-size:13px}
+.pc li{padding:5px 0 5px 20px;position:relative;border-bottom:1px solid var(--line)}
+.pc li:last-child{border-bottom:0}
+.pc li::before{position:absolute;left:2px;font-weight:800}
+.pc .pro li::before{content:"+";color:var(--up)} .pc .con li::before{content:"−";color:var(--down)}
+.more{background:none;border:0;color:var(--accent);font-weight:600;cursor:pointer;padding:0;font-size:12.5px;text-align:left;white-space:nowrap}
+.more:hover{text-decoration:underline}
+.sgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}
+@media (max-width:860px){.sgrid{grid-template-columns:minmax(0,1fr)}}
+.scard{display:flex;flex-direction:column}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:16px}
+.sect{font-size:17px;font-weight:700;margin:28px 0 12px;display:flex;align-items:center;gap:12px;scroll-margin-top:80px}
+.sect::after{content:"";flex:1;height:1px;background:var(--line)}
+.kpi{display:flex;align-items:baseline;line-height:1}
+.kpi b{font-size:36px;font-weight:750;color:var(--accent);letter-spacing:-.02em}
+.kpi s{text-decoration:none;font-size:19px;font-weight:650;color:var(--accent);margin-left:1px}
+.klbl{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);margin-top:6px;display:flex;align-items:center}
+.badge{display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:13px;padding:4px 10px;border-radius:6px;white-space:nowrap}
+.badge.up{background:var(--up-soft);color:var(--up)} .badge.down{background:var(--down-soft);color:var(--down)}
+.gchips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.gchips span{border:1px solid var(--line-strong);border-radius:6px;padding:4px 10px;font-size:12.5px;display:inline-flex;gap:8px;white-space:nowrap}
+.finv,.epsv{width:100%;height:auto;display:block;margin-top:12px}
+.finv text,.epsv text{font-family:var(--font);font-size:10px;fill:var(--muted)}
+.epsv text.lb{fill:var(--ink);font-weight:700;font-size:11px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.duo>div{background:var(--sunk);border-radius:8px;padding:10px 12px;display:grid;gap:2px;min-width:0}
+.duo b{font-size:22px;font-weight:750}
+.duo small{font-size:13px;color:var(--muted);font-weight:500}
+.ivwrap{position:relative;margin-top:44px;display:grid;gap:6px}
+.ivtag{position:absolute;top:-34px;max-width:100%;height:26px;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:750;letter-spacing:.06em;border-radius:5px;white-space:nowrap;min-width:150px;padding:0 8px}
+.ivtag.up{background:var(--up-soft);color:var(--up)} .ivtag.down{background:var(--down-soft);color:var(--down)}
+.ivrow{height:34px;border-radius:6px;display:flex;align-items:center;padding:0 12px;font-size:13px;font-weight:650;white-space:nowrap;min-width:120px}
+.ivrow.iv{background:var(--accent);color:var(--accent-ink)}
+.ivrow.px{background:var(--sunk);border:1px solid var(--line-strong);color:var(--ink)}
+.ivrow.px.over{background:var(--down-soft);border-color:transparent;color:var(--down)}
+.insg{display:grid;grid-template-columns:70px 1fr 1fr;gap:6px 8px;align-items:center;margin-top:12px}
+.insg>b{font-size:12.5px;text-align:center}
+.ib-s,.ib-b{position:relative;height:28px;background:var(--sunk);border-radius:5px;overflow:hidden}
+.ib-s i{position:absolute;right:0;top:0;bottom:0;background:var(--down-soft);border-right:3px solid var(--down)}
+.ib-b i{position:absolute;left:0;top:0;bottom:0;background:var(--up-soft);border-left:3px solid var(--up)}
+.ib-s em,.ib-b em{position:relative;font-style:normal;font-size:11.5px;line-height:28px;padding:0 8px;display:block;white-space:nowrap}
+.ib-s em{text-align:right}
+details.xsec{margin-top:16px}
+details.xsec>summary{cursor:pointer;list-style:none;font-weight:650;font-size:14px;padding:12px 16px;background:var(--card);border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;gap:8px}
+details.xsec>summary::-webkit-details-marker{display:none}
+details.xsec>summary::before{content:"▸";color:var(--muted)}
+details.xsec[open]>summary::before{content:"▾"}
+details.xsec>summary .sub{font-weight:400}
+.today .alerts{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:0}
+.today .alerts li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:13.5px;cursor:pointer}
+.today .alerts li:hover b{text-decoration:underline}
+.today .ic{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800}
 .epsnote{padding:10px 14px;border-top:1px solid var(--line);font-size:13px;line-height:1.55}
 .epsnote:empty{display:none}
 </style>
@@ -465,6 +530,8 @@ const GL={
   above200:["Över 200W","Andel av temats aktier som handlas över sitt 200-veckorssnitt. Högt = bred styrka i temat. Lågt = temat är nedtryckt, vilket kan ge köplägen enligt 200W-strategin."],
   focus:["Claudes fokus","Varje vardag morgon går Claude igenom aktierna som klarar Lower Risk (Low Risk, High Reward) eller är nära, och som ligger i 200W-köpzonen. Claude läser senaste nyheterna och lyfter de som är mest intressanta just nu, plus kommentarer till dina swingar. Köpläge = klarar strategin och ligger i köpzonen. Bevaka = nära köpzon eller missar ett krav. Undvik = fallet ser fundamentalt motiverat ut."],
   fairValue:["Beräknat värde","DCF-värdet per aktie i basfallet, jämfört med dagens kurs."],
+  eps:["EPS, vinst per aktie","Bolagets vinst delat med antalet aktier. Över tid brukar kursen följa vinsten: växer vinsten och kursen står still blir aktien billigare (lägre P/E), och tvärtom."],
+  insiders:["Insiders","Personer i ledningen, styrelsen och storägare som köper och säljer aktier i bolaget. Uppgifterna kommer från de amerikanska Form 4-anmälningarna via Yahoo Finance. Köp med egna pengar är en stark signal, försäljningar säger mindre eftersom de ofta är planerade i förväg eller görs för att betala skatt på aktielöner."],
   keyVerdict:["Bra eller dåligt?","Varje nyckeltal jämförs med bolagen i samma bransch bland sidans aktier. Bra = bland den bästa tredjedelen, Svag = bland den sämsta tredjedelen, Okej = mitten. Omdömet vägs mot tumregler (t.ex. ROIC över 15 % är bra, P/E över 35 är dyrt) så att ett nyckeltal inte blir Bra bara för att hela branschen är svag. Med för få jämförbara bolag används bara tumreglerna. För värdering är lägre bättre, för lönsamhet och tillväxt högre."],
   mine:["Mina aktier","Aktier du följer, med kurs, 52-veckorsspann, värdering, sentiment och jämförelse med branschen. Lägg till med sökrutan eller ☆ på en aktie."],
   valVerdict:["Värdering: undervärderad eller inte","Sammanvägning av upp till sex mått, var och en från −100 (dyr) till +100 (billig): DCF-värde mot kurs, analytikernas riktkurs (minus 10 % eftersom riktkurser brukar ligga högt), P/E framåt mot branschmedianen (väger 1,5), PEG, avstånd till 200W och Value-faktorn. Över +25 = Undervärderad, under −25 = Övervärderad, annars Rimligt värderad. Öppna raden för att se varje del."],
@@ -633,36 +700,43 @@ function pageStart(){
   const ev=(U.events||[]).filter(e=>bySym[e.ticker]).slice(0,25);
   const sigTable=(list,empty,extra)=>list.length?`<div class="tw"><table><thead><tr><th class="l">Aktie</th><th>Kurs</th><th>Idag</th><th class="l">200W</th><th>${extra[0]}</th></tr></thead><tbody>${list.map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="n">${money(d.price,d.currency)}</td>${chgCell(d)}<td class="l">${zchip(d)}</td><td class="n">${extra[1](d)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">${empty}</p>`;
   $("app").innerHTML=`
-  <div class="hero"><h1>Översikt</h1><span class="sub">${rows.length} aktier · nyckeltal per ${esc(U.asOf||"–")} · kurser ${esc(rel(U.quotesAt||U.updatedAt))}</span></div>
-  ${focusCard()}
-  ${themesCard()}
-  ${startHoldings()}
+  ${todayCard()}
   ${hasMa?"":`<div class="card" style="margin-bottom:16px"><div class="bd">200W-data saknas än. Den kommer när uppdateringen har körts första gången under Actions i GitHub.</div></div>`}
   <div class="grid g2">
     <section class="card"><div class="hd"><h2>Mina aktier${ib("mine")}</h2><a href="#/mina" class="small">Alla detaljer →</a></div>
       <div class="bd flush">${wl.length?`<div class="tw"><table><thead><tr><th class="l">Aktie</th><th>Kurs</th><th>Idag</th><th class="l">Värdering${ib("valVerdict")}</th><th class="l">Sentiment${ib("sentiment")}</th><th>Quant${ib("quant")}</th><th></th></tr></thead><tbody>${wl.slice(0,12).map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="n">${money(d.price,d.currency)}</td>${chgCell(d)}<td class="l">${vChip(valView(d))}</td><td class="l">${sChip(sentView(d))}</td><td class="n">${d.quant??"–"}</td><td>${starBtn(d.ticker)}</td></tr>`).join("")}</tbody></table></div>${wl.length>12?`<p class="small muted" style="padding:8px 16px">+ ${wl.length-12} till under <a href="#/mina">Mina aktier</a></p>`:""}`:`<p class="empty">Inga aktier än. Lägg till under <a href="#/mina">Mina aktier</a> eller tryck ☆ på en aktie.</p>`}</div></section>
+    <div class="grid" style="align-content:start">
     <section class="card"><div class="hd"><h2>Swing-läge${ib("swing")}</h2><span class="sub">Low Risk, High Reward och under Cheap</span></div>
       <div class="bd flush">${sigTable(swing,hasMa?"Inga just nu. Kvalitetsbolagen är dyra mot sitt 200W-snitt. Se Bevakning nedan.":"Väntar på 200W-data.",["ROE",d=>f(d.roe,0,"%")])}</div></section>
     <section class="card"><div class="hd"><h2>Tillväxt på rea${ib("rea")}</h2><span class="sub">Full Throttle+ och under Fair Value</span></div>
       <div class="bd flush">${sigTable(rea,hasMa?"Inga just nu.":"Väntar på 200W-data.",["Oms 1 år",d=>f(d.revGrowth1y,0,"%")])}</div></section>
+    </div>
+  </div>
+  <div style="margin-top:16px">${focusCard()}</div>
+  <details class="xsec" id="xThemes"><summary>Teman just nu <span class="sub">${(()=>{const T=themesCache().filter(t=>nn(t.mom));return T.length?`hetast ${esc(T[0].name)}, kallast ${esc(T[T.length-1].name)}`:""})()}</span></summary><div style="margin-top:12px">${themesCard()}</div></details>
+  <details class="xsec" id="xMore"><summary>Utforska mer <span class="sub">bra bolag till fel pris, radar, nära Low Risk High Reward, händelser</span></summary>
+  <div class="grid g2" style="margin-top:12px">
     <section class="card"><div class="hd"><h2>Bevakning: bra bolag, fel pris${ib("watchBuy")}</h2><span class="sub">Fall som krävs till köpzon</span></div>
       <div class="bd flush">${watchList.length?`<div class="tw"><table><thead><tr><th class="l">Aktie</th><th class="l">Strategi</th><th class="l">200W</th><th>Köpzon under</th><th>Kvar</th></tr></thead><tbody>${watchList.map(({d,k,drop})=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="l small">${STRATS[k].short}</td><td class="l">${zchip(d)}</td><td class="n">${money(level(d,k==="lrhr"?lim.zones.swing:lim.zones.rea),d.currency)}</td><td class="n down">−${f(drop,0," %")}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">${hasMa?"Inga bolag i bevakning.":"Väntar på 200W-data."}</p>`}</div></section>
-  </div>
-  <div class="grid g-main" style="margin-top:16px">
-    <section class="card"><div class="hd"><h2>Radar: kvalitet mot pris${ib("radar")}</h2>
-      <div class="seg" id="radarSeg"><button data-r="lrhr" aria-pressed="${ui.radar==="lrhr"}">Low Risk, High Reward</button><button data-r="ftp" aria-pressed="${ui.radar==="ftp"}">Full Throttle+</button></div></div>
-      <div class="bd"><svg class="radar" id="radar" viewBox="0 0 760 400" role="img" aria-label="Aktierna efter avstånd till 200W och poäng"></svg>
-      <div class="lg"><span><i style="background:var(--ink)"></i>Klarar strategin</span><span><i style="border:1.5px solid var(--ink)"></i>Missar ett krav</span><span><i style="background:var(--faint)"></i>Övriga</span><span>Höger = dyrare mot 200W · Upp = högre poäng</span></div></div></section>
     <div class="grid" style="align-content:start">
       <section class="card"><div class="hd"><h2>Nära Low Risk, High Reward${ib("nearLrhr")}</h2></div>
         <div class="bd flush">${near.length?`<div class="tw"><table><tbody>${near.map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="l">${zchip(d,false)}</td><td class="l small muted">Missar ${esc(shortName("lrhr",d.res.lrhr.miss[0]))}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">Inga just nu.</p>`}</div></section>
       <section class="card"><div class="hd"><h2>Händelser${ib("events")}</h2></div>
         <div class="bd">${ev.length?`<ul class="ev">${ev.map(e=>`<li data-t="${esc(e.ticker)}" style="cursor:pointer"><span class="n faint" style="font-size:12px">${esc((e.date||"").slice(5))}</span><span class="tk">${esc(e.ticker)}</span><span>${e.type==="zone"?`<span class="z z-${esc(e.from)}">${esc(ZNAME[e.from]||"")}</span> → <span class="z z-${esc(e.to)}">${esc(ZNAME[e.to]||"")}</span>`:e.type==="in"?`<span class="ok">Ny signal: ${e.signal==="swing"?"Swing-läge":"Tillväxt på rea"}</span>`:`<span class="muted">Signal borta: ${e.signal==="swing"?"Swing-läge":"Tillväxt på rea"}</span>`}</span></li>`).join("")}</ul>`:`<p class="muted small">Zonbyten och nya signaler loggas från andra körningen och framåt.</p>`}</div></section>
     </div>
-  </div>`;
+  </div>
+  <div style="margin-top:16px">
+    <section class="card"><div class="hd"><h2>Radar: kvalitet mot pris${ib("radar")}</h2>
+      <div class="seg" id="radarSeg"><button data-r="lrhr" aria-pressed="${ui.radar==="lrhr"}">Low Risk, High Reward</button><button data-r="ftp" aria-pressed="${ui.radar==="ftp"}">Full Throttle+</button></div></div>
+      <div class="bd"><svg class="radar" id="radar" viewBox="0 0 760 400" role="img" aria-label="Aktierna efter avstånd till 200W och poäng"></svg>
+      <div class="lg"><span><i style="background:var(--ink)"></i>Klarar strategin</span><span><i style="border:1.5px solid var(--ink)"></i>Missar ett krav</span><span><i style="background:var(--faint)"></i>Övriga</span><span>Höger = dyrare mot 200W · Upp = högre poäng</span></div></div></section>
+  </div>
+  </details>
+  <p class="small muted" style="margin-top:14px">${rows.length} aktier · nyckeltal per ${esc(U.asOf||"–")} · kurser ${esc(rel(U.quotesAt||U.updatedAt))}</p>`;
   bindRows($("app"));bindStars($("app"));bindThemes();
   document.querySelectorAll("#radarSeg button").forEach(b=>b.addEventListener("click",()=>{ui.radar=b.dataset.r;saveUi();document.querySelectorAll("#radarSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));renderRadar()}));
-  renderRadar();
+  ["xMore","xThemes"].forEach(id=>{const el=$(id);if(ui["open_"+id])el.open=true;el.addEventListener("toggle",()=>{ui["open_"+id]=el.open;saveUi();if(id==="xMore"&&el.open)renderRadar()})});
+  if($("xMore").open)renderRadar();
 }
 function xs(d){const v=clamp(d,-40,250);return v<=60?(v+40)/100*0.72:0.72+Math.log(1+(v-60)/40)/Math.log(1+190/40)*0.28}
 function renderRadar(){
@@ -715,7 +789,7 @@ function pageStock(t){
         <h1>${esc(d.longName||d.name)}</h1>
         <div class="meta">${esc(d.ticker)} · ${esc(d.exch||"")} · ${esc(d.sector||"")}${d.industry&&d.industry!=="ETF"?" · "+esc(d.industry):""}</div>
         <div class="price"><span class="p n">${px(d.price)}</span><span class="muted">${esc(d.currency||"")}</span><span class="ch n ${cls(d.chg)}">${pct(d.chg)}</span><span class="ch n ${cls(d.chg)}" style="font-weight:500">${nn(d.price)&&nn(d.prevClose)?(d.price-d.prevClose>0?"+":"−")+px(Math.abs(d.price-d.prevClose)):""}</span><span class="ts">Uppdaterad ${esc(rel(U.quotesAt||U.updatedAt))} · ca 15–30 min fördröjning</span></div>
-        <div class="chips">${d.type==="EQUITY"||!d.type?`${vChip(valView(d))}${ib("valVerdict")} ${sChip(sentView(d))}${ib("sentiment")} `:""}${zchip(d)}${ib("zones")} ${sigB(d)} ${stratPill("ftp")} ${stratPill("ft")} ${stratPill("lrhr")}${ib("strategies")} ${(()=>{const r=industryRank(d);return r?`<span class="pill" title="${esc(r.label)}">Plats ${r.rank} av ${r.n} i branschen</span>${ib("industryRank")}`:""})()} ${d.excluded&&d.type==="EQUITY"?`<span class="pill">Sektor utesluten i strategierna</span>`:""} ${days!=null&&days>=0?`<span class="pill" style="${days<=14?"color:var(--warn);background:var(--warn-soft);border-color:transparent":""}">Rapport ${esc(d.nextEarnings)}${days<=14?` · om ${days} d`:""}</span>`:""}</div>
+        <div class="chips">${d.type==="EQUITY"||!d.type?`${vChip(valView(d))}${ib("valVerdict")} ${sChip(sentView(d))}${ib("sentiment")} `:""}${zchip(d)}${ib("zones")} ${sigB(d)} ${d.excluded&&d.type==="EQUITY"?`<span class="pill">Sektor utesluten i strategierna</span>`:""} ${days!=null&&days>=0?`<span class="pill" style="${days<=14?"color:var(--warn);background:var(--warn-soft);border-color:transparent":""}">Rapport ${esc(d.nextEarnings)}${days<=14?` · om ${days} d`:""}</span>`:""}</div>
       </div>
       <div class="acts">
         <button class="btn${inMine(d.ticker)?" on":""}" id="wbtn">${inMine(d.ticker)?"★ I Mina aktier":"☆ Mina aktier"}</button>
@@ -724,7 +798,12 @@ function pageStock(t){
       </div>
     </div>
   </section>
-  <section class="card" style="margin-top:16px">
+  <div id="storyBox" style="margin-top:16px">${story(d,null)}</div>
+  <div class="sgrid" id="cardBox">${ivCard(d,null)}${epsCard(d,null)}${insCard(d,null)}${qualCard(d)}</div>
+  <h2 class="sect">Så har bolaget utvecklats</h2>
+  <div id="finBox">${finCards(d,null)}</div>
+  <h2 class="sect" id="chartSect">Kursgraf och 200W-zoner</h2>
+  <section class="card">
     <div class="ctool">
       <div class="seg" id="tfSeg"><button data-tf="D" aria-pressed="${ui.tf==="D"}">Dag</button><button data-tf="W" aria-pressed="${ui.tf==="W"}">Vecka</button></div>
       <div class="seg" id="rgSeg">${["6M","1Y","3Y","5Y","MAX"].map(r=>`<button data-r="${r}" aria-pressed="${ui.range===r}">${{"6M":"6 mån","1Y":"1 år","3Y":"3 år","5Y":"5 år","MAX":"Max"}[r]}</button>`).join("")}</div>
@@ -735,19 +814,14 @@ function pageStock(t){
     <div class="chartbox" id="chartbox"><div class="legend" id="legend"></div><div class="skel" id="chartMsg">Laddar diagram…</div></div>
     <div class="epsnote" id="epsNote"></div>
   </section>
-  <div class="grid g-main" style="margin-top:16px">
-    <section class="card">
-      <div class="tabs" role="tablist" id="stabs">
-        ${[["analys","Analys"],["peer","Bransch"],["strat","Strategier"],["an","Analytiker"],["key","Nyckeltal"],["about","Om bolaget"]].map(([k,l])=>`<button role="tab" data-s="${k}" aria-selected="${ui.stab===k}">${l}</button>`).join("")}
-      </div>
-      <div class="bd" id="stabBody"></div>
-    </section>
-    <div class="grid" style="align-content:start">
-      ${quantCard(d)}
-      <section class="card"><div class="hd"><h2>Köpnivåer mot 200W${ib("zones")}</h2><span class="sub">200W ${money(d.ma200w,d.currency)}</span></div><div class="bd">${ladder(d)}</div></section>
-      <section class="card"><div class="hd"><h2>Analytikerna${ib("analysts")}</h2>${d.nAnalysts?`<span class="sub">${d.nAnalysts} analytiker</span>`:""}</div><div class="bd" id="anSmall">${anSummary(d)}</div></section>
+  <h2 class="sect" id="deep">Fördjupning</h2>
+  <section class="card">
+    <div class="tabs" role="tablist" id="stabs">
+      ${STABS.map(([k,l])=>`<button role="tab" data-s="${k}" aria-selected="${ui.stab===k}">${l}</button>`).join("")}
     </div>
-  </div>`;
+    <div class="bd" id="stabBody"></div>
+  </section>`;
+  bindDrill(d);
   $("wbtn").addEventListener("click",()=>{const on=inMine(d.ticker);on?removeMine(d.ticker):addMine(d.ticker);$("wbtn").className="btn"+(on?"":" on");$("wbtn").textContent=on?"☆ Mina aktier":"★ I Mina aktier"});
   document.querySelectorAll("#stabs button").forEach(b=>b.addEventListener("click",()=>{ui.stab=b.dataset.s;saveUi();document.querySelectorAll("#stabs button").forEach(x=>x.setAttribute("aria-selected",x===b));renderStab(d)}));
   document.querySelectorAll("#tfSeg button").forEach(b=>b.addEventListener("click",()=>{ui.tf=b.dataset.tf;if(ui.tf==="D"&&(ui.range==="5Y"||ui.range==="MAX"))ui.range="3Y";saveUi();document.querySelectorAll("#tfSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));document.querySelectorAll("#rgSeg button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.r===ui.range));drawChart(d)}));
@@ -755,8 +829,16 @@ function pageStock(t){
   $("bandsChk").addEventListener("change",e=>{ui.bands=e.target.checked;saveUi();drawChart(d)});
   $("epsChk").addEventListener("change",e=>{ui.eps=e.target.checked;saveUi();drawChart(d)});
   renderStab(d);
-  getDetail(d.ticker).then(det=>{if(location.hash!==link(d.ticker)&&decodeURIComponent(location.hash)!==decodeURIComponent(link(d.ticker)))return;d._det=det;drawChart(d);renderStab(d)})
+  getDetail(d.ticker).then(det=>{if(location.hash!==link(d.ticker)&&decodeURIComponent(location.hash)!==decodeURIComponent(link(d.ticker)))return;d._det=det;
+      $("storyBox").innerHTML=story(d,det);$("cardBox").innerHTML=ivCard(d,det)+epsCard(d,det)+insCard(d,det)+qualCard(d);$("finBox").innerHTML=finCards(d,det);bindDrill(d);
+      drawChart(d);renderStab(d)})
     .catch(()=>{const m=$("chartMsg");if(m)m.textContent="Kunde inte ladda kursdata för den här aktien."});
+}
+const STABS=[["analys","Analys"],["key","Nyckeltal"],["peer","Bransch"],["an","Analytiker"],["quant","Quant"],["levels","Köpnivåer"],["strat","Strategier"],["about","Om bolaget"]];
+function bindDrill(d){
+  document.querySelectorAll("[data-drill]").forEach(b=>{if(b._b)return;b._b=1;b.addEventListener("click",()=>{const k=b.dataset.drill;
+    if(k==="chart"){if(ui.eps===false){ui.eps=true;saveUi();const c=$("epsChk");if(c)c.checked=true;drawChart(d)}$("chartSect").scrollIntoView({behavior:"smooth"});return}
+    ui.stab=k;saveUi();document.querySelectorAll("#stabs button").forEach(x=>x.setAttribute("aria-selected",x.dataset.s===k));renderStab(d);$("deep").scrollIntoView({behavior:"smooth"})})});
 }
 function ladder(d){
   if(!nn(d.ma200w))return `<p class="muted small">200W-snitt saknas (för kort historik eller ingen data än).</p>`;
@@ -913,6 +995,8 @@ function renderStab(d){
   const b=$("stabBody");if(!b)return;const det=d._det;
   if(ui.stab==="analys"){b.innerHTML=det?renderAnalysis(d,det):`<p class="muted">Laddar analys…</p>`;return}
   if(ui.stab==="peer"){b.innerHTML=renderPeers(d);bindRows(b);return}
+  if(ui.stab==="quant"){b.innerHTML=quantCard(d).replace(/^<section class="card">/,"<div>").replace(/<\/section>$/,"</div>").replace('<div class="hd">','<div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:8px">').replace('<div class="bd">',"<div>");return}
+  if(ui.stab==="levels"){b.innerHTML=`<div style="max-width:520px"><p class="small muted" style="margin-bottom:8px">200W-snitt ${money(d.ma200w,d.currency)}. Zonerna enligt din strategi:</p>${ladder(d)}</div>`;return}
   if(ui.stab==="strat"){
     const keys=[];Object.values(STRATS).forEach(s=>s.crit.forEach(c=>{if(!keys.includes(c.k))keys.push(c.k)}));
     const nm=k=>Object.values(STRATS).flatMap(s=>s.crit).find(c=>c.k===k).nm;
@@ -1435,18 +1519,19 @@ function focusCard(){
   const F=FOCUS,picks=(F.picks||[]).filter(x=>x.label!=="Undvik"),sw=F.swings||[];
   const pill=l=>`<span class="pill ${FL[l]||""}" style="${/Undvik|Stop|Varning/.test(l||"")?"color:var(--down);background:var(--down-soft);border-color:transparent":""}">${esc(l||"")}</span>`;
   const item=x=>{const d=bySym[x.ticker]||{ticker:x.ticker,name:""};
-    return `<li class="fi" data-go="${esc(x.ticker)}">
+    return `<li class="fi"><details><summary>
       <div class="fh"><span class="co"><span class="tk">${esc(x.ticker)}</span><span class="nm">${esc(d.name||"")}</span></span>${pill(x.label)}<span style="flex:1"></span>${d.price!=null?`<span class="n small">${money(d.price,d.currency)} <span class="${cls(d.chg)}">${pct(d.chg)}</span></span>`:""} ${d.z?zchip(d):""}</div>
-      ${x.title?`<b class="ft">${esc(x.title)}</b>`:""}
+      ${x.title?`<b class="ft">${esc(x.title)}</b>`:""}</summary>
       <p>${esc(x.why||"")}</p>
       ${x.levels?`<p class="small"><span class="muted">Nivåer:</span> ${esc(x.levels)}</p>`:""}
       ${x.risk?`<p class="small"><span class="muted">Risk:</span> ${esc(x.risk)}</p>`:""}
       ${(x.sources||[]).length?`<p class="small muted">Källor: ${x.sources.slice(0,4).map(s=>/^https?:/.test(s.u||"")?`<a href="${esc(s.u)}" target="_blank" rel="noopener">${esc((s.t||s.u).slice(0,50))}</a>`:"").join(" · ")}</p>`:""}
+      <p class="small"><a href="${link(x.ticker)}">Öppna ${esc(x.ticker)} →</a></p></details>
     </li>`};
-  return `<section class="card focus" style="margin-bottom:16px">
+  return `<section class="card focus">
     <div class="hd"><h2>Claudes fokus${ib("focus")}</h2><span class="sub">Analys ${esc(F.date||"")} ${esc(F.time||"")}</span></div>
     <div class="bd">
-      ${F.market?`<p class="fm">${esc(F.market)}</p>`:""}
+      <p class="small muted" style="margin-bottom:6px">Tryck på en aktie för att läsa motiveringen.</p>
       ${picks.length?`<ul class="flist">${picks.map(item).join("")}</ul>`:`<p class="muted">Inga aktier sticker ut idag.</p>`}
       ${sw.length?`<h3 style="font-size:14px;margin:16px 0 6px">Dina swingar</h3><ul class="flist">${sw.map(item).join("")}</ul>`:""}
       <p class="small muted" style="margin-top:12px">Skriven av Claude utifrån sidans data (Yahoo Finance) och nyheter från webben. Strategi: Lower Risk / Low Risk, High Reward + 200W. Inte ett köp- eller säljråd.</p>
@@ -1792,6 +1877,230 @@ function renderKeyTable(d,det){
     <div class="kv">${[lv("52 v högsta",d.hi52),lv("52 v lägsta",d.lo52),lv("200W-snitt",d.ma200w),lv("50 dagars snitt",d.sma50),lv("200 dagars snitt",d.sma200)].map(([l,v])=>`<div><span>${l}</span><span class="n">${v}</span></div>`).join("")}</div>
     ${det&&det.fin&&det.fin.rev&&det.fin.rev.length?finBars(det.fin,det.finCur||d.currency):""}`;
 }
+
+/* ============ AKTIESIDAN SOM BERÄTTELSE ============ */
+function bigParts(x){const s=big(x);const m=s.match(/^(−?-?[\d\s]+)(,\d+)?\s*(.*)$/);return m?[m[1],(m[2]||"")+(m[3]?" "+m[3]:"")]:[s,""]}
+function kpi(x,suffix){const [a,b]=bigParts(x);return `<div class="kpi"><b class="n">${a}</b><s class="n">${b}${suffix?" "+suffix:""}</s></div>`}
+const drill=(k,txt)=>`<button class="more" data-drill="${k}">${txt} →</button>`;
+function story(d,det){
+  det=det||{};
+  const v=valView(d),s=sentView(d),nm=d.name||d.ticker,g=d.revGrowth1y;
+  const gw=!nn(g)?"":g>=25?"snabbväxande ":g>=10?"växande ":g>=0?"långsamt växande ":"krympande ";
+  const pw=nn(d.netMargin)&&d.netMargin<0?"olönsamt bolag":nn(d.roic)&&d.roic>=15&&(d.grossMargin??0)>=40?"kvalitetsbolag":nn(d.netMargin)&&d.netMargin>=10?"lönsamt bolag":"bolag";
+  const vw=v.k==="pos"?"som ser billigt ut":v.k==="neg"?"som marknaden värderar högt":v.score!=null?"till ett rimligt pris":"";
+  let lead=`${nm} är ett ${gw}${pw}${vw?" "+vw:""}.`;
+  if(d.z==="vexp")lead+=` Kursen ligger ${f(d.dist200w,0)} % över 200-veckorssnittet, långt från köpzonen.`;
+  else if(["fire","vcheap","cheap"].includes(d.z))lead+=` Kursen ligger nära 200-veckorssnittet, i din köpzon.`;
+  // kapitel
+  const ch=[];
+  const pmM=peerMed(d,"netMargin").m,pmG=peerMed(d,"revGrowth1y").m;
+  if(nn(g)||nn(d.netMargin)){let t="";
+    if(nn(g))t+=`Omsättningen ${g>=0?"växte":"minskade"} ${f(Math.abs(g),0)} % senaste året${nn(d.revCagr)?` och ${f(d.revCagr,0)} % per år över tid`:""}${nn(pmG)?` (branschen ${f(pmG,0)} %)`:""}. `;
+    if(nn(d.netMargin))t+=d.netMargin>=0?`Av varje intjänad krona blir ${f(d.netMargin,0)} öre vinst${nn(pmM)?`, mot ${f(pmM,0)} öre i branschen`:""}.`:`Bolaget går med förlust (nettomarginal ${f(d.netMargin,0)} %).`;
+    ch.push(["Affären",t,"key","Nyckeltal"])}
+  {let t="";const pmP=peerMed(d,"fwdPe").m,iv=ivOf(d,det);
+    if(nn(d.fwdPe)&&d.fwdPe>0)t+=`Du betalar ${f(d.fwdPe,0)} gånger nästa års vinst${nn(pmP)?`, ${d.fwdPe<pmP?"lägre":"högre"} än branschens ${f(pmP,0)}`:""}. `;
+    if(iv)t+=`${iv.src==="dcf"?"Kassaflödesvärderingen":"Analytikernas riktkurs"} landar på ${money(iv.v,d.currency)}, ${iv.v>=d.price?f((iv.v/d.price-1)*100,0)+" % över":f((1-iv.v/d.price)*100,0)+" % under"} kursen. `;
+    if(t)ch.push(["Priset",t,"analys","Värdering i detalj"])}
+  {let t=`Stämningen är ${s.label.toLowerCase()}. `;
+    const m12=nn(d.r252)?d.r252:null;if(nn(m12))t+=`Kursen har gått ${pct(m12*100,0)} på ett år. `;
+    if(nn(d.epsRev30)&&Math.abs(d.epsRev30)>=0.5)t+=`Analytikerna har ${d.epsRev30>0?"höjt":"sänkt"} vinstprognosen ${f(Math.abs(d.epsRev30),1)} % senaste månaden. `;
+    const ins=insSummary(det.ins,91);if(ins&&(ins.sold||ins.bought))t+=`Insiders har ${ins.bought?`köpt för ${big(ins.bought)}`:"inte köpt"} och ${ins.sold?`sålt för ${big(ins.sold)}`:"inte sålt"} ${esc(d.currency==="SEK"?"kr":"$")} senaste 3 månaderna.`;
+    ch.push(["Stämningen",t,"an","Analytikerna"])}
+  {const r=[];
+    if(nn(d.beta)&&d.beta>=1.5)r.push(`svänger mycket (beta ${f(d.beta,1)})`);
+    if(!d.negEquity&&nn(d.de)&&d.de>1.5)r.push(`hög skuld (${f(d.de,1)} × eget kapital)`);
+    if(nn(d.fcfMargin)&&d.fcfMargin<0)r.push("negativt kassaflöde");
+    if(nn(d.shortPct)&&d.shortPct>=8)r.push(`${f(d.shortPct,0)} % av aktierna är blankade`);
+    if(nn(d.shareChange)&&d.shareChange>3)r.push(`antalet aktier ökar ${f(d.shareChange,0)} % per år`);
+    const days=d.nextEarnings?Math.round((new Date(d.nextEarnings)-Date.now())/864e5):null;
+    if(days!=null&&days>=0&&days<=14)r.push(`rapport om ${days} dagar`);
+    if(d.z==="vexp")r.push("långt över 200W-snittet");
+    ch.push(["Riskerna",r.length?r.map((x,i)=>i?x:x[0].toUpperCase()+x.slice(1)).join(", ")+".":"Inga tydliga varningsflaggor i datan.","quant","Quant och risk"])}
+  // talar för / emot
+  const g2=d._pg||(d._pg=peerGroup(d)),peers=(d.industry||(d.sector&&d.sector!=="Övrigt"))?g2.peers:[];
+  const pro=[],con=[];
+  KEYM.slice(0,4).forEach(([,ms])=>ms.forEach(m=>{if(!m[3])return;const j=kJudge(d,m,peers);if(!j.verdict||j.verdict==="ok")return;
+    const txt=`${m[1]} ${j.txt}${nn(j.md)?` <span class="faint">(bransch ${kFmt(j.md,m[4])})</span>`:""}`;(j.verdict==="bra"?pro:con).push([j.pctl??.5,txt])}));
+  pro.sort((a,b)=>b[0]-a[0]);con.sort((a,b)=>a[0]-b[0]);
+  const ai=det.ai;
+  return `<section class="card story"><div class="bd">
+    <div class="small muted" style="margin-bottom:6px;font-weight:600;letter-spacing:.05em;text-transform:uppercase">Kort sagt</div>
+    <p class="lead">${esc(lead)}</p>
+    <div class="chap">${ch.map(([h,t,k,l])=>`<div><b>${h}</b><p>${t}</p>${drill(k,l)}</div>`).join("")}</div>
+    ${pro.length||con.length?`<div class="pc"><div><h4>Talar för</h4><ul class="pro">${pro.slice(0,4).map(x=>`<li>${x[1]}</li>`).join("")||'<li class="muted">Inget som sticker ut</li>'}</ul></div><div><h4>Talar emot</h4><ul class="con">${con.slice(0,4).map(x=>`<li>${x[1]}</li>`).join("")||'<li class="muted">Inget som sticker ut</li>'}</ul></div></div>`:""}
+    ${ai?`<p class="small" style="margin-top:12px"><b>Claudes analysbrev ${esc(ai.date||"")}:</b> ${esc(ai.rubrik||"")} ${drill("analys","Läs")}</p>`:""}
+  </div></section>`;
+}
+/* ---- inneboende värde ---- */
+function ivOf(d,det){
+  const dcf=((det||{}).val||{}).dcf;
+  if(dcf&&nn(dcf.base)&&dcf.base>0)return{v:dcf.base,src:"dcf",bear:dcf.bear,bull:dcf.bull};
+  if(nn(d.fairValue)&&d.fairValue>0)return{v:d.fairValue,src:"dcf"};
+  if(nn(d.targetMean)&&(d.nAnalysts||0)>=3)return{v:d.targetMean,src:"target",bear:d.targetLow,bull:d.targetHigh};
+  return null;
+}
+function ivCard(d,det){
+  const iv=ivOf(d,det);
+  let body;
+  if(!iv||!nn(d.price))body=`<p class="muted">${det?"För lite data för att räkna fram ett värde (t.ex. negativt kassaflöde och ingen analytikerbevakning).":"Laddar…"}</p>`;
+  else{
+    const under=iv.v>=d.price,gap=under?(1-d.price/iv.v)*100:(d.price/iv.v-1)*100,mx=Math.max(iv.v,d.price),w=x=>x/mx*100;
+    const ps=px(iv.v).split(",");
+    body=`<div class="kpi"><b class="n">${ps[0]}</b><s class="n">${ps[1]?","+ps[1]:""} ${curSym(d.currency)}</s></div><div class="klbl">${iv.src==="dcf"?"Inneboende värde (DCF)":"Analytikernas riktkurs"}${ib(iv.src==="dcf"?"dcf":"targetMean")}</div>
+      <div class="ivwrap">
+        <div class="ivtag ${under?"up":"down"}" style="right:0;width:${w(Math.abs(iv.v-d.price))}%">${under?"UNDERVÄRDERAD":"ÖVERVÄRDERAD"} ${f(gap,0)} %</div>
+        <div class="ivrow iv" style="width:${w(iv.v)}%"><span>Värde</span></div>
+        <div class="ivrow px ${under?"":"over"}" style="width:${w(d.price)}%"><span>Kurs ${px(d.price)}</span></div>
+      </div>
+      ${nn(iv.bear)&&nn(iv.bull)?`<p class="small muted" style="margin-top:10px">${iv.src==="dcf"?"Bear":"Lägst"} <span class="n">${px(iv.bear)}</span> · ${iv.src==="dcf"?"Bas":"Snitt"} <span class="n">${px(iv.v)}</span> · ${iv.src==="dcf"?"Bull":"Högst"} <span class="n">${px(iv.bull)}</span></p>`:""}
+      <p class="small muted" style="margin-top:6px">${iv.src==="dcf"?"Bygger på antaganden om tillväxt och avkastningskrav. Se intervallet, inte bara en siffra.":"DCF går inte att räkna (t.ex. negativt kassaflöde), så analytikernas riktkurs visas."}</p>`;
+  }
+  return `<section class="card scard"><div class="hd"><h2>Vad är aktien värd?</h2>${drill("analys","Värdering i detalj")}</div><div class="bd">${body}</div></section>`;
+}
+/* ---- vinst per aktie mot kurs ---- */
+function epsQuarters(det){
+  const m=new Map();
+  (det.epsq||[]).forEach(q=>{if(nn(q.a))m.set(q.d,{d:q.d,a:q.a,e:q.e})});
+  ((det.est||{}).hist||[]).forEach(h=>{if(!nn(h.act))return;const t=Date.parse(h.q);const near=[...m.keys()].some(k=>Math.abs(Date.parse(k)-t)<50*864e5);if(!near)m.set(h.q,{d:h.q,a:h.act,e:h.est})});
+  return [...m.values()].sort((a,b)=>a.d<b.d?-1:1);
+}
+function epsCard(d,det){
+  if(!det)return `<section class="card scard"><div class="hd"><h2>Vinst och kurs</h2></div><div class="bd"><p class="muted">Laddar…</p></div></section>`;
+  let q=epsQuarters(det).slice(-10),kind="kvartal";
+  if(q.length<3&&det.fin&&det.fin.eps){q=det.fin.y.map((y,i)=>({d:(det.fin.d&&det.fin.d[i])||y+"-12-31",a:det.fin.eps[i]})).filter(x=>nn(x.a));kind="år"}
+  if(q.length<2)return `<section class="card scard"><div class="hd"><h2>Vinst och kurs</h2></div><div class="bd"><p class="muted">Vinsthistorik saknas än. Den hämtas i nattkörningen.</p></div></section>`;
+  const day=s=>Math.floor(Date.parse(s)/864e5),D=det.d,t0=day(q[0].d)-(kind==="år"?200:60),t1=D.t[D.t.length-1];
+  const px_=D.t.map((t,i)=>[t,D.c[i]]).filter(p=>p[0]>=t0);
+  const W=360,H=190,L=6,R=6,T=26,B=24,pw=W-L-R,ph=H-T-B,X=t=>L+(t-t0)/(t1-t0||1)*pw;
+  const pmin=Math.min(...px_.map(p=>p[1])),pmax=Math.max(...px_.map(p=>p[1])),PY=v=>T+(1-(v-pmin)/(pmax-pmin||1))*ph;
+  const ev=q.map(x=>x.a),emax=Math.max(0,...ev),emin=Math.min(0,...ev),EY=v=>T+(1-(v-emin)/(emax-emin||1))*ph,z=EY(0);
+  const bw=Math.max(8,Math.min(28,pw/q.length*0.55));
+  let g=`<line x1="${L}" x2="${W-R}" y1="${z}" y2="${z}" stroke="var(--line-strong)"/>`;
+  q.forEach((x,i)=>{const cx=X(day(x.d)),y=EY(x.a),top=Math.min(y,z),h=Math.max(2,Math.abs(y-z)),last=i===q.length-1,beat=nn(x.e)?x.a>=x.e:null;
+    g+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${top.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${x.a<0?"var(--down)":"var(--accent)"}" opacity="${last?.95:.45}"><title>${esc(x.d)}: EPS ${f(x.a,2)}${nn(x.e)?` (väntat ${f(x.e,2)})`:""}</title></rect>`;
+    g+=`<text x="${cx.toFixed(1)}" y="${(x.a<0?top+h+11:top-4).toFixed(1)}" text-anchor="middle" class="${last?"lb":""}" style="${beat===false?"fill:var(--down)":""}">${f(x.a,2)}</text>`});
+  const path=px_.map((p,i)=>`${i?"L":"M"}${X(p[0]).toFixed(1)},${PY(p[1]).toFixed(1)}`).join("");
+  g+=`<path d="${path}L${X(t1).toFixed(1)},${T+ph}L${X(px_[0][0]).toFixed(1)},${T+ph}Z" fill="var(--z-vcheap)" opacity=".08"/><path d="${path}" fill="none" stroke="var(--z-vcheap)" stroke-width="1.6"/>`;
+  const yrs=[...new Set(px_.map(p=>new Date(p[0]*864e5).getUTCFullYear()))];
+  yrs.forEach(y=>{const t=day(y+"-01-01");if(t>t0+20&&t<t1)g+=`<text x="${X(t).toFixed(1)}" y="${H-6}" text-anchor="middle">${y}</text>`});
+  const lastQ=q[q.length-1],ttm=kind==="kvartal"&&q.length>=4?q.slice(-4).reduce((s,x)=>s+x.a,0):null;
+  const qi=Math.max(0,q.length-(kind==="kvartal"?5:2)),e0=q[qi].a,e1=lastQ.a,eg=e0>0&&e1>0?(e1/e0-1)*100:null;
+  const pAt=t=>{let c=null;for(const [tt,v] of px_){if(tt<=t)c=v;else break}return c??px_[0][1]};
+  const pr=(px_[px_.length-1][1]/pAt(day(q[qi].d))-1)*100;
+  const beats=q.filter(x=>nn(x.e)),nb=beats.filter(x=>x.a>=x.e).length;
+  return `<section class="card scard"><div class="hd"><h2>Vinst och kurs</h2>${drill("chart","Stora grafen")}</div><div class="bd">
+    <div class="duo"><div><span class="sub">Kurs</span><b class="n">${money(d.price,d.currency)}</b></div><div><span class="sub">EPS ${kind==="kvartal"?"senaste kvartal":"senaste år"}${ib("eps")}</span><b class="n ${e1<0?"down":""}">${f(e1,2)}</b>${nn(ttm)?`<span class="small muted">12 mån ${f(ttm,2)}</span>`:""}</div></div>
+    <svg class="epsv" viewBox="0 0 ${W} ${H}" role="img" aria-label="Vinst per aktie per ${kind} och kursen">${g}</svg>
+    <div class="lg"><span><i style="background:var(--accent);border-radius:2px"></i>EPS per ${kind}</span><span><i style="background:var(--z-vcheap);border-radius:0;height:2px;width:12px"></i>Kurs</span></div>
+    <p class="small" style="margin-top:8px;line-height:1.5">${nn(eg)?`Sedan ${esc(q[qi].d.slice(0,7))} har vinsten per ${kind} ${eg>=0?"ökat":"minskat"} ${f(Math.abs(eg),0)} % och kursen gått ${pct(pr,0)}. ${Math.abs(pr-eg)<15?"Kursen har följt vinsten.":pr<eg?"Kursen har inte hängt med vinsten.":"Kursen har sprungit ifrån vinsten."}`:e1<0?"Bolaget går med förlust per aktie.":""}${beats.length>=3?` Slog förväntan ${nb} av ${beats.length} gånger.`:""}</p>
+  </div></section>`;
+}
+/* ---- insiders ---- */
+function insSummary(ins,dmax,dmin=0){
+  if(!Array.isArray(ins))return null;const now=Date.now();let sold=0,bought=0;const ws=new Set(),wb=new Set();
+  ins.forEach(x=>{const a=(now-Date.parse(x.d))/864e5;if(a<dmin||a>dmax)return;if(x.k==="S"){sold+=x.v||0;ws.add(x.who)}else{bought+=x.v||0;wb.add(x.who)}});
+  return{sold,bought,ns:ws.size,nb:wb.size};
+}
+function insCard(d,det){
+  const hd=`<div class="hd"><h2>Vad gör insiders?${ib("insiders")}</h2></div>`;
+  if(d.ticker.endsWith(".ST"))return `<section class="card scard">${hd}<div class="bd"><p class="muted">Insynshandel för svenska bolag finns hos Finansinspektionen, inte hos Yahoo.</p><p style="margin-top:8px"><a href="https://marknadssok.fi.se/publiceringsklient/sv-SE/Search/Search?SearchFunctionType=Insyn&Utgivare=${encodeURIComponent((d.longName||d.name||"").replace(/\s*\(publ\)/i,""))}&button=search" target="_blank" rel="noopener">Öppna insynsregistret för ${esc(d.name)} ↗</a></p></div></section>`;
+  if(!det)return `<section class="card scard">${hd}<div class="bd"><p class="muted">Laddar…</p></div></section>`;
+  const ins=det.ins;
+  if(ins==null)return `<section class="card scard">${hd}<div class="bd"><p class="muted">Insiderdata hämtas i nattkörningen.</p></div></section>`;
+  const cur=d.currency==="SEK"?"kr":"$",B=[["0–3 mån",0,91],["3–6 mån",92,182],["6–12 mån",183,370]].map(([l,a,b])=>({l,...insSummary(ins,b,a)}));
+  const mx=Math.max(1,...B.map(b=>Math.max(b.sold,b.bought))),b0=B[0];
+  const last=ins[0],r3=nn(d.r63)?d.r63*100:null;
+  const txt=!ins.length?`Inga insiderköp eller -försäljningar senaste 12 månaderna.`:
+    `Senaste 3 månaderna har insiders <b>${b0.bought?`köpt för ${big(b0.bought)} ${cur}`:"inte köpt några aktier"}</b> och <b class="${b0.sold?"no":""}">${b0.sold?`sålt för ${big(b0.sold)} ${cur}`:"inte sålt"}</b>.${nn(r3)?` Kursen har gått ${pct(r3,0)} under samma tid.`:""}${last?` Senaste affären ${esc(last.d)}: ${esc(last.who)}${last.pos?` (${esc(last.pos)})`:""} ${last.k==="S"?"sålde":"köpte"}${nn(last.v)&&last.v>0?` för ${big(last.v)} ${cur}`:""}.`:""}`;
+  return `<section class="card scard">${hd}<div class="bd">
+    <p style="font-size:13.5px;line-height:1.55">${txt}</p>
+    ${ins.length?`<div class="insg"><span></span><b class="no">Sålt</b><b class="ok">Köpt</b>${B.map(b=>`<span class="small muted">${b.l}</span><div class="ib-s"><i style="width:${b.sold/mx*100}%"></i><em class="n">${b.sold?big(b.sold):"0"} · ${b.ns} st</em></div><div class="ib-b"><i style="width:${b.bought/mx*100}%"></i><em class="n">${b.bought?big(b.bought):"0"} · ${b.nb} st</em></div>`).join("")}</div>
+    <details class="small" style="margin-top:10px"><summary class="more" style="list-style:none">Visa affärerna →</summary><table class="crit" style="margin-top:6px"><tbody>${ins.slice(0,15).map(x=>`<tr><td class="n">${esc(x.d)}</td><td>${esc(x.who)}<span class="subv">${esc(x.pos||"")}</span></td><td class="${x.k==="S"?"no":"ok"}">${x.k==="S"?"Sålde":"Köpte"}</td><td class="r n">${nn(x.v)&&x.v>0?big(x.v)+" "+cur:"–"}</td></tr>`).join("")}</tbody></table></details>
+    <p class="small muted" style="margin-top:8px">Försäljningar är ofta planerade eller för skatt. Köp med egna pengar är en starkare signal.</p>`:""}
+  </div></section>`;
+}
+/* ---- kvalitet ---- */
+function qualCard(d){
+  if(d.type&&d.type!=="EQUITY")return"";
+  const ir=industryRank(d),fx=d.fx||{},fs=FACT.filter(([k])=>nn(fx[k])).sort((a,b)=>fx[b[0]]-fx[a[0]]);
+  return `<section class="card scard"><div class="hd"><h2>Hur bra är bolaget?</h2>${drill("quant","Quant-profil")}</div><div class="bd">
+    <div class="duo"><div><span class="sub">Quant-poäng${ib("quant")}</span><b class="n">${nn(d.quant)?d.quant:"–"}<small> / 100</small></b></div><div><span class="sub">Plats i branschen${ib("industryRank")}</span><b class="n">${ir?`${ir.rank}<small> av ${ir.n}</small>`:"–"}</b>${ir?`<span class="small muted" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ir.label)}</span>`:""}</div></div>
+    <div style="margin-top:12px">${fprof(fx)}</div>
+    ${fs.length>=2?`<p class="small" style="margin-top:10px">Starkast i <b>${fs[0][1]}</b>${fs.length>2?` och <b>${fs[1][1]}</b>`:""}, svagast i <b>${fs[fs.length-1][1]}</b>.</p>`:""}
+  </div></section>`;
+}
+/* ---- finansiell utveckling ---- */
+function finSeries(det,key){
+  let pts=[];const sec=det.sec&&det.sec.years;
+  if(sec&&sec.length>=3&&(key==="rev"||key==="ni"))pts=sec.map(r=>({y:String(r.end).slice(0,4),v:r[key]}));
+  else if(det.fin&&det.fin[key])pts=det.fin.y.map((y,i)=>({y,v:det.fin[key][i]}));
+  pts=pts.filter(p=>nn(p.v));
+  const e=(det.est||{})[key==="rev"?"rev":key==="eps"?"eps":"x"];
+  if(e&&pts.length){let ly=+pts[pts.length-1].y;["0y","+1y"].forEach(per=>{if(e[per]&&nn(e[per].avg)){ly++;pts.push({y:String(ly),v:e[per].avg,fc:true})}})}
+  return pts;
+}
+function finCard(title,pts,unit,eps){
+  const act=pts.filter(p=>!p.fc);if(act.length<2)return"";
+  const last=act[act.length-1],prev=act[act.length-2],yoy=prev.v>0&&last.v>0?(last.v/prev.v-1)*100:null;
+  const tot=n=>{const b=act[act.length-1-n];return b&&b.v>0&&last.v>0?(last.v/b.v-1)*100:null};
+  const W=300,H=118,T=16,B=18,ph=H-T-B,vals=pts.map(p=>p.v),mx=Math.max(0,...vals),mn=Math.min(0,...vals),Y=v=>T+(1-(v-mn)/(mx-mn||1))*ph,z=Y(0),n=pts.length,bw=W/n;
+  let g=`<defs><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="4" fill="var(--accent)" opacity=".35"/></pattern></defs><line x1="0" x2="${W}" y1="${z}" y2="${z}" stroke="var(--line-strong)"/>`;
+  pts.forEach((p,i)=>{const x=i*bw+bw*0.2,w=bw*0.6,y=Y(p.v),top=Math.min(y,z),h=Math.max(1.5,Math.abs(y-z)),isLast=p===last;
+    g+=`<rect x="${x.toFixed(1)}" y="${top.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${p.fc?"url(#hatch)":p.v<0?"var(--down)":"var(--accent)"}" ${p.fc?'stroke="var(--accent)" stroke-dasharray="2 2"':""} opacity="${p.fc||isLast?1:.5}"><title>${p.y}${p.fc?" prognos":""}: ${eps?f(p.v,2):big(p.v)}</title></rect>`;
+    if(n<=9||i%2===n%2)g+=`<text x="${(x+w/2).toFixed(1)}" y="${H-4}" text-anchor="middle" style="${p.fc?"font-style:italic":""}">${p.y.slice(2)}${p.fc?"P":""}</text>`});
+  const fc=pts.filter(p=>p.fc).pop(),fg=fc&&last.v>0&&fc.v>0?(fc.v/last.v-1)*100:null;
+  return `<section class="card"><div class="bd">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+      <div>${eps?`<div class="kpi"><b class="n">${f(last.v,2)}</b></div>`:kpi(last.v)}<div class="klbl">${title} ${esc(last.y)}</div></div>
+      ${nn(yoy)?`<span class="badge ${yoy>=0?"up":"down"}">${yoy>=0?"▲":"▼"} ${f(Math.abs(yoy),0)} %</span>`:last.v<0?`<span class="badge down">Förlust</span>`:""}
+    </div>
+    <svg class="finv" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)} per år">${g}</svg>
+    <div class="gchips">${[3,5].map(k=>{const v=tot(k);return `<span>${k} år <b class="n ${cls(v)}">${nn(v)?pct(v,0):"–"}</b></span>`}).join("")}${nn(fg)?`<span title="Analytikernas prognos">Prognos ${esc(fc.y)} <b class="n ${cls(fg)}">${pct(fg,0)}</b></span>`:""}</div>
+  </div></section>`;
+}
+function finCards(d,det){
+  if(!det)return `<p class="muted">Laddar…</p>`;
+  const cur=esc(det.finCur||d.currency||"");
+  const cards=[finCard("Omsättning",finSeries(det,"rev")),finCard("Rörelseresultat",finSeries(det,"op")),finCard("Nettoresultat",finSeries(det,"ni")),finCard("Vinst per aktie",finSeries(det,"eps"),"",1)].filter(Boolean);
+  return cards.length?`<div class="fgrid">${cards.join("")}</div><p class="small muted" style="margin-top:6px">Belopp i ${cur}, per räkenskapsår. Randiga staplar = analytikernas prognos. ${det.sec?"Historik från SEC (bolagets 10-K) och Yahoo Finance.":"Källa: Yahoo Finance."}</p>`:`<p class="muted">Finansiell historik saknas för ${esc(d.ticker)}.</p>`;
+}
+
+
+/* ---- dagens läge ---- */
+function todayCard(){
+  const h=new Date().getHours(),hi=h<10?"God morgon":h<17?"Hej":"God kväll";
+  const ch=rows.filter(d=>nn(d.chg)&&!d.stale),up=ch.filter(d=>d.chg>0).length,mc=med(ch.map(d=>d.chg));
+  const idx=[["SPY","S&P 500"],["QQQ","Nasdaq-100"],["^OMX","OMXS30"]].map(([t,n])=>bySym[t]&&nn(bySym[t].chg)?`${n} <b class="n ${cls(bySym[t].chg)}">${pct(bySym[t].chg,1)}</b>`:null).filter(Boolean);
+  const mood=!ch.length?"":up/ch.length>0.65?"En bred uppgångsdag":up/ch.length<0.35?"En bred nedgångsdag":"En blandad dag";
+  let mk=`${mood}${idx.length?": "+idx.join(", ")+".":"."} ${f(up/Math.max(1,ch.length)*100,0)} % av sidans ${ch.length} aktier steg, median ${pct(mc,1)}.`;
+  const T=themesCache(),hot=T.filter(t=>nn(t.r5)).sort((a,b)=>b.r5-a.r5);
+  if(hot.length>=4)mk+=` Veckans starkaste tema: <b>${esc(hot[0].name)}</b> (${pct(hot[0].r5*100,1)}), svagaste: <b>${esc(hot[hot.length-1].name)}</b> (${pct(hot[hot.length-1].r5*100,1)}).`;
+  // innehav
+  const P=allPos(),t=posTotals(P);let hold="";
+  if(P.length&&nn(t.val)){const c=P.map(p=>({p,c:posCalc(p)})).filter(x=>nn(x.c.d.chg)).sort((a,b)=>b.c.d.chg-a.c.d.chg);
+    hold=`Dina innehav är värda <b class="n">${kr(t.val)}</b>, <b class="n ${cls(t.tod)}">${krS(t.tod)}</b> idag och <b class="n ${cls(t.pl)}">${pct(t.plPct,1)}</b> totalt.${c.length>1?` Bäst idag <a href="${link(c[0].p.ticker)}">${esc(c[0].p.ticker)}</a> ${pct(c[0].c.d.chg,1)}, sämst <a href="${link(c[c.length-1].p.ticker)}">${esc(c[c.length-1].p.ticker)}</a> ${pct(c[c.length-1].c.d.chg,1)}.`:""}`}
+  else if(P.length)hold=`Du har ${P.length} innehav. Värdet räknas fram när valutakurserna laddats.`;
+  // att hålla koll på
+  const A=[],seen=new Set(),add=(k,t,ic,col,txt,right)=>{const key=t+k;if(seen.has(key))return;seen.add(key);A.push({t,ic,col,txt,right,k})};
+  P.forEach(p=>{const c=posCalc(p);c.flags.forEach(([f2,k])=>{if(k==="no"&&f2==="Under stop")add(1,p.ticker,"!","var(--down)",`<b>${esc(p.ticker)}</b> har gått under din stop ${px(p.stop)}`,pct(c.d.chg,1));if(k==="ok")add(2,p.ticker,"✓","var(--up)",`<b>${esc(p.ticker)}</b> har nått ditt mål ${px(p.target)}`,"")})});
+  const mine=new Set(mineList(true));
+  const asOf=U.asOf||"";(U.events||[]).filter(e=>e.date===asOf&&e.type==="in"&&bySym[e.ticker]).slice(0,4).forEach(e=>add(3,e.ticker,"★","var(--accent)",`Ny signal: <b>${esc(e.ticker)}</b> ${e.signal==="swing"?"i Swing-läge":"Tillväxt på rea"}`,zchip(bySym[e.ticker])));
+  [...mine].map(x=>bySym[x]).filter(d=>d&&d.nextEarnings).forEach(d=>{const dd=Math.round((new Date(d.nextEarnings)-Date.now())/864e5);if(dd>=0&&dd<=7)add(4,d.ticker,"R","var(--warn)",`<b>${esc(d.ticker)}</b> rapporterar ${dd===0?"idag":dd===1?"i morgon":`om ${dd} dagar`} (${esc(d.nextEarnings)})`,"")});
+  [...mine].map(x=>bySym[x]).filter(d=>d&&nn(d.chg)&&Math.abs(d.chg)>=4).sort((a,b)=>Math.abs(b.chg)-Math.abs(a.chg)).slice(0,4).forEach(d=>add(5,d.ticker,d.chg>0?"▲":"▼",d.chg>0?"var(--up)":"var(--down)",`<b>${esc(d.ticker)}</b> ${d.chg>0?"stiger":"faller"} kraftigt idag`,`<span class="n ${cls(d.chg)}">${pct(d.chg,1)}</span>`));
+  (U.events||[]).filter(e=>e.date===asOf&&e.type==="zone"&&mine.has(e.ticker)).slice(0,3).forEach(e=>add(6,e.ticker,"↕","var(--z-fair)",`<b>${esc(e.ticker)}</b> bytte zon: ${esc(ZNAME[e.from]||"")} → ${esc(ZNAME[e.to]||"")}`,""));
+  A.sort((a,b)=>a.k-b.k);
+  return `<section class="card today" style="margin-bottom:16px"><div class="bd">
+    <h1 style="font-size:21px;margin-bottom:6px">${hi}! Så här ser det ut ${new Date().toLocaleDateString("sv-SE",{weekday:"long",day:"numeric",month:"long"})}</h1>
+    <p style="font-size:14.5px;line-height:1.6">${mk}</p>
+    ${FOCUS&&FOCUS.market?`<p style="font-size:14px;line-height:1.6;margin-top:8px;color:var(--muted)"><b style="color:var(--ink)">Claude:</b> ${esc(FOCUS.market)}</p>`:""}
+    ${hold?`<p style="font-size:14.5px;line-height:1.6;margin-top:8px">${hold} <a href="#/innehav/port" class="small">Portfölj →</a></p>`:""}
+    <h3 style="font-size:13px;color:var(--muted);margin-top:14px">Att hålla koll på</h3>
+    ${A.length?`<ul class="alerts">${A.slice(0,8).map(a=>`<li data-go="${esc(a.t)}"><span class="ic" style="background:color-mix(in srgb,${a.col} 15%,var(--card));color:${a.col}">${a.ic}</span><span>${a.txt}</span><span>${a.right||""}</span></li>`).join("")}</ul>`:`<p class="small muted" style="margin-top:6px">Inget särskilt idag för dina aktier: inga nya signaler, inga rapporter inom en vecka och inga stora rörelser.</p>`}
+  </div></section>`;
+}
+let _themes=null,_themesFor=null;
+function themesCache(){if(_themesFor!==U){_themes=computeThemes();_themesFor=U}return _themes}
 
 /* ============ STRATEGIER ============ */
 function pageMethod(){

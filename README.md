@@ -40,6 +40,21 @@ Fliken **Mina aktier** är din bevakningslista med en rad per aktie:
 
 Lägg till aktier med sökrutan (flera går med komma: `NVDA, AAPL, VOLV-B`) eller ☆ på en aktiesida. De sparas i webbläsaren. Aktier i `config/mina.txt` syns på alla enheter och får data vid nästa nattkörning, även om de inte ingår i S&P 500, Nasdaq-100 eller Stockholmslistan.
 
+## Startsidan: Dagens läge
+
+Överst berättar sidan vad som hänt: marknaden idag (S&P 500, Nasdaq-100, hur många aktier som steg, starkaste och svagaste tema), Claudes marknadskommentar, hur dina innehav gått, och **Att hålla koll på**: stop som passerats, mål som nåtts, nya signaler, rapporter inom en vecka och stora rörelser i dina aktier. Claudes fokus visar bara rubrikerna, tryck för motiveringen. Teman och övriga listor (radar, bra bolag till fel pris, händelser) ligger i fällbara sektioner.
+
+## Aktiesidan som berättelse
+
+Varje aktie börjar med **Kort sagt**: en mening om vad det är för bolag och hur det är prissatt, fyra kapitel (Affären, Priset, Stämningen, Riskerna) och listor över vad som **talar för** och **talar emot**. Sedan fyra kort:
+
+- **Vad är aktien värd?** Inneboende värde (DCF, annars analytikernas riktkurs) mot kursen, med under- eller övervärdering i procent.
+- **Vinst och kurs:** EPS per kvartal som staplar med kursen ovanpå.
+- **Vad gör insiders?** Köp och försäljningar senaste 0–3, 3–6 och 6–12 månaderna, med senaste affären. Svenska bolag länkar till Finansinspektionens insynsregister.
+- **Hur bra är bolaget?** Quant-poäng, plats i branschen och faktorprofil.
+
+Under dem **Så har bolaget utvecklats**: omsättning, rörelseresultat, nettoresultat och vinst per aktie per år, med analytikernas prognos som randiga staplar och tillväxt över 3 och 5 år. Sist kursgrafen och **Fördjupning** med alla detaljer. Länkarna i korten (t.ex. "Värdering i detalj →") hoppar rätt in i fördjupningen.
+
 ## Nyckeltal och EPS på aktiesidan
 
 Fliken **Nyckeltal** visar varje nyckeltal bredvid **branschmedianen**, var bolaget hamnar i branschen och ett omdöme: **Bra** (bästa tredjedelen), **Okej** eller **Svag** (sämsta tredjedelen), vägt mot tumregler så att ett nyckeltal inte blir bra bara för att hela branschen är svag.
