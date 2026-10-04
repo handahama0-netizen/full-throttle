@@ -189,6 +189,11 @@ th.stick{z-index:3}
 .ev li:last-child{border-bottom:0}
 .star{background:none;border:0;cursor:pointer;color:var(--faint);font-size:16px;line-height:1;padding:2px 4px}
 .star.on{color:#e0a100}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1px solid var(--line-strong);background:var(--card);color:var(--muted);font:600 10px/1 Georgia,serif;font-style:italic;cursor:pointer;padding:0;margin-left:5px;vertical-align:1px;flex:none}
+.ib:hover,.ib:focus-visible{border-color:var(--accent);color:var(--accent)}
+#pop{position:fixed;z-index:50;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgb(0 0 0 / .18);padding:12px 14px;font-size:13px;line-height:1.5}
+#pop b{font-size:13.5px}
+#pop p{margin:4px 0 0;color:var(--muted)}
 #tip{position:fixed;z-index:40;pointer-events:none;background:var(--ink);color:var(--card);font-size:12px;padding:6px 9px;border-radius:6px;max-width:260px;line-height:1.35}
 
 /* screener */
@@ -208,6 +213,28 @@ th.stick{z-index:3}
 .prose ul{margin:0;padding-left:20px;display:grid;gap:4px}
 .foot{padding-block:24px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);margin-top:24px}
 .skel{color:var(--muted);padding:40px 0;text-align:center}
+/* innehav */
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.tiles>div{display:grid;gap:2px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;min-width:0}
+.tiles b{font-size:19px;font-weight:650}
+@media (max-width:640px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.hgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:20px}
+.hblk{display:grid;gap:10px;align-content:start}
+.hblk h3{font-size:14px}
+.bw{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.bw h3{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px}
+.pl{list-style:none;margin:0;padding:0}
+.pl li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}
+.pl li:last-child{border-bottom:0}
+.hform{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 12px}
+.fld{display:grid;gap:4px;font-size:12.5px;color:var(--muted)}
+.fld input{height:36px;border:1px solid var(--line-strong);border-radius:7px;background:var(--card);padding:0 10px;font-size:14px;color:var(--ink);font-family:var(--font);width:100%}
+.fld input:focus{border-color:var(--accent);outline:none}
+.fld .dd{top:62px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.05);background:var(--accent)}
+.btn.sm{padding:4px 9px;font-size:12px}
+.btn.danger{border-color:var(--down);color:var(--down)}
 /* analys */
 .verdict{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:650;padding:3px 9px;border-radius:5px}
 .v-over{background:var(--z-vcheap-bg);color:var(--z-vcheap)} .v-fund{background:var(--down-soft);color:var(--down)}
@@ -248,6 +275,7 @@ th.stick{z-index:3}
     </div>
     <nav class="main">
       <a href="#/" data-nav="start">Start</a>
+      <a href="#/innehav" data-nav="innehav">Mina innehav</a>
       <a href="#/screener" data-nav="screener">Screener</a>
       <a href="#/strategier" data-nav="strategier">Metod &amp; källor</a>
     </nav>
@@ -255,6 +283,7 @@ th.stick{z-index:3}
 </header>
 <main class="wrap" id="app"><div class="skel">Laddar…</div></main>
 <div id="tip" hidden></div>
+<div id="pop" role="dialog" hidden></div>
 
 <script src="lightweight-charts.js"></script>
 <script>
@@ -300,6 +329,90 @@ const STL={pass:"Klarar",near:"Nära",out:"Utanför",excl:"Utesluten sektor"};
 const ORD={pass:0,near:1,out:2,excl:3};
 const REC={strong_buy:"Starkt köp",buy:"Köp",hold:"Behåll",underperform:"Underprestera",sell:"Sälj",none:"–"};
 const UDA={up:"Uppgradering",down:"Nedgradering",main:"Bekräftar",reit:"Upprepar",init:"Ny bevakning"};
+/* ============ ordlista för info-knappar ============ */
+const GL={
+  price:["Kurs","Senaste betalkurs i aktiens handelsvaluta. Uppdateras ungefär var 30:e minut under börsdagen, med 15–30 minuters fördröjning."],
+  chg:["Idag","Kursförändring sedan gårdagens stängning, i procent."],
+  ma200w:["200-veckorssnitt (200W)","Genomsnittlig stängningskurs de senaste 200 veckorna, knappt fyra år. Visar aktiens långsiktiga trend. Kvalitetsbolag har historiskt sällan handlats långt under sitt 200W-snitt."],
+  zones:["200W-zoner","Hur långt över 200-veckorssnittet kursen ligger. Fire Sale = under snittet. Very Cheap = 0–10 % över. Cheap = 10–20 %. Fair Value = 20–30 %. Expensive = 30–40 %. Very Expensive = över 40 %. Samma logik som din indikator Universal Value Zones."],
+  dist200w:["Avstånd till 200W","Hur många procent kursen ligger över (+) eller under (−) 200-veckorssnittet."],
+  swing:["Swing-läge","Aktien klarar Low Risk, High Reward och ligger under Cheap-gränsen mot 200W. Ett kvalitetsbolag som handlas nära sitt långa snitt, där risken nedåt historiskt varit mindre."],
+  rea:["Tillväxt på rea","Aktien klarar Full Throttle+ och ligger under Fair Value mot 200W. Ett snabbväxande bolag som för en gångs skull inte är dyrt."],
+  strategies:["Strategierna","FT = Full Throttle (Hello Stocks original). FT+ = Full Throttle med lägre risk. LRHR = Low Risk, High Reward. ✓ klarar alla krav, ≈ missar ett krav, ✕ missar fler."],
+  status:["Status","Klarar = uppfyller alla krav i vald strategi. Nära = missar exakt ett krav. Utanför = missar fler. Utesluten sektor = finans, råvaror, energi, kraftbolag och fastigheter ingår inte."],
+  score:["Poäng","0–100. Tillväxtpoäng (Full Throttle): tillväxt 30, kvalitet 25, värdering 25, balansräkning 20. Kvalitetspoäng (Low Risk, High Reward): ROE 25, PEG 25, FCF-marginal 15, låg skuld 15, vinsttillväxt 10, omsättningstillväxt 10. Används för att rangordna, inte som köpsignal."],
+  miss:["Missar","Vilka krav i vald strategi aktien inte klarar."],
+  revCagr:["Omsättningstillväxt 5 år","Genomsnittlig årlig ökning av omsättningen mellan äldsta och senaste helåret som Yahoo har (oftast 3–4 år). Full Throttle kräver över 100 % totalt på 5 år, vilket är ungefär 15 % per år."],
+  revGrowth1y:["Omsättningstillväxt 1 år","Omsättningen de senaste 12 månaderna jämfört med 12 månader innan. Visar om tillväxten håller i sig just nu."],
+  earnGrowth1y:["Vinsttillväxt 1 år","Vinst per aktie de senaste 12 månaderna jämfört med 12 månader innan. Low Risk, High Reward kräver över 5 %."],
+  roe:["ROE, avkastning på eget kapital","Nettovinst delat med eget kapital. Hur mycket bolaget tjänar på aktieägarnas pengar. Över 15 % räknas som bra. Kan bli missvisande högt när eget kapital är litet på grund av återköp."],
+  roic:["ROIC, avkastning på investerat kapital","Rörelseresultat efter skatt delat med skuld plus eget kapital minus kassa. Det bästa måttet på om bolaget skapar värde. Högre än avkastningskravet (ofta 8–10 %) betyder att varje investerad krona är värd mer än en krona."],
+  grossMargin:["Bruttomarginal","Andel av omsättningen kvar efter direkta kostnader för varan eller tjänsten. Hög bruttomarginal tyder på prissättningsmakt. Mjukvara ofta 70–90 %, hårdvara 20–40 %."],
+  opMargin:["Rörelsemarginal","Rörelseresultat delat med omsättning. Vad som blir kvar efter alla rörelsekostnader."],
+  netMargin:["Nettomarginal","Nettovinst delat med omsättning, efter räntor och skatt."],
+  fcfMargin:["FCF-marginal","Fritt kassaflöde delat med omsättning. Hur mycket riktiga pengar bolaget genererar per såld krona, efter investeringar. Positivt betyder att tillväxten inte behöver finansieras med lån eller nyemissioner."],
+  de:["Skuld / eget kapital (D/E)","Räntebärande skuld delat med eget kapital. Under 1 betyder mer eget kapital än skuld. Höga värden ökar risken vid räntehöjningar eller svaga år. Negativt eget kapital (neg. EK) går inte att räkna."],
+  peg:["PEG","P/E-talet delat med förväntad årlig vinsttillväxt. Under 1 betyder att du betalar lite för tillväxten, över 2 dyrt. Mycket låga värden (under 0,2) kan bero på en tillfällig vinsttopp hos cykliska bolag."],
+  pe:["P/E","Börsvärde delat med vinsten de senaste 12 månaderna. Hur många års vinst du betalar för."],
+  fwdPe:["P/E framåt","Kursen delat med analytikernas förväntade vinst per aktie nästa 12 månader."],
+  ps:["P/S","Börsvärde delat med omsättning. Används för bolag utan vinst."],
+  pb:["P/B","Börsvärde delat med eget kapital (bokfört värde)."],
+  evEbitda:["EV/EBITDA","Företagsvärde (börsvärde plus nettoskuld) delat med rörelseresultat före avskrivningar. Jämförbart mellan bolag med olika skuldsättning."],
+  divYield:["Direktavkastning","Årlig utdelning delat med kursen, i procent."],
+  beta:["Beta","Hur mycket aktien brukar röra sig när marknaden rör sig 1 %. Beta 1,5 = 1,5 % i snitt. Används för att räkna ut avkastningskravet och marknadens del av kursrörelsen."],
+  hilo:["52 veckor","Högsta och lägsta kurs det senaste året."],
+  mcap:["Börsvärde","Antal aktier gånger kursen, omräknat till US-dollar. md = miljarder, bn = tusen miljarder."],
+  shareChange:["Utspädning","Hur mycket antalet aktier ökat senaste året. Positivt = nya aktier (nyemission, aktiebaserade löner) som späder ut ägandet. Negativt = återköp."],
+  targetMean:["Riktkurs","Analytikernas genomsnittliga bedömning av vad aktien är värd om ungefär 12 månader. Lägst och högst visar spridningen."],
+  upside:["Uppsida","Hur mycket riktkursen ligger över (+) eller under (−) dagens kurs."],
+  recMean:["Analytikernas betyg","Snitt av alla rekommendationer på en skala 1–5: 1 = starkt köp, 3 = behåll, 5 = sälj."],
+  analysts:["Analytikerna","Sammanställning av bankernas och analyshusens rekommendationer och riktkurser, via Yahoo Finance."],
+  nextEarnings:["Nästa rapport","Datum för nästa kvartalsrapport. Kursen kan röra sig kraftigt kring rapporten, så många undviker att öppna nya swingar veckan innan."],
+  attribution:["Varför aktien rört sig","Kursrörelsen delas upp i tre delar: marknaden (beta × index), sektorn (sektor-ETF minus index) och det bolagsspecifika (resten). Det bolagsspecifika är det som har med just bolaget att göra, till exempel rapporter och nyheter."],
+  mktPart:["Marknad","Den del av rörelsen som förklaras av hela börsen: aktiens beta gånger indexets utveckling (S&P 500 eller OMX Stockholm 30)."],
+  secPart:["Sektor","Hur mycket aktiens sektor (t.ex. tekniksektorn via ETF:en XLK) gått bättre eller sämre än index under perioden."],
+  idioPart:["Bolagsspecifikt","Det som återstår när marknad och sektor räknats bort. Här syns rapporter, nyheter och förändrade förväntningar på just bolaget."],
+  sigma:["Ovanlighet (σ)","Den bolagsspecifika rörelsen jämfört med aktiens normala svängningar. Över 1,5 σ är ovanligt stort, över 2 σ mycket ovanligt."],
+  epsRev:["Prognosändring","Hur analytikernas vinstprognos (vinst per aktie nästa år) ändrats under samma period. Om kursen faller kraftigt men prognosen står still är det ett tecken på överreaktion."],
+  verdicts:["Bedömning","Möjlig överreaktion: ovanligt bolagsspecifikt fall utan sänkta prognoser. Fundamentalt motiverat: prognoserna sänks samtidigt. Makro/sektor: rörelsen förklaras mest av marknad eller sektor och brukar gå över. Uppgång utan stöd: kursen har stigit utan att prognoserna höjts."],
+  signalbild:["Signalbild","Sammanvägning av värdering (DCF), kvalitet (ROIC mot avkastningskrav), prognostrend, 200W-zon och analytikernas uppsida. Inget köp- eller säljråd."],
+  valuation:["Värdering och intrinsic value","Olika sätt att räkna ut vad aktien är värd, jämfört med dagens kurs (streckad linje). Ligger kursen under de flesta intervallen är aktien billig enligt metoderna."],
+  dcf:["DCF","Diskonterat kassaflöde. Bolagets framtida fria kassaflöden (minus aktiebaserade löner) räknas om till vad de är värda idag med ett avkastningskrav. Bear = försiktigt antagande, bull = optimistiskt."],
+  reverseDcf:["Omvänd DCF","Räknar baklänges: vilken årlig tillväxt år 1–5 krävs för att dagens kurs ska vara rimlig? Är den högre än analytikernas prognos är förväntningarna högt ställda."],
+  graham:["Graham-formeln","Benjamin Grahams enkla formel: vinst per aktie × (8,5 + 2 × tillväxt) × 4,4 / obligationsränta. Ger en grov uppskattning för lönsamma bolag."],
+  wacc:["Avkastningskrav","Den årliga avkastning en investerare kräver: 10-årsränta + beta × 5 % riskpremie. Används som diskonteringsränta i DCF."],
+  estimates:["Prognoser och rapporter","Analytikernas vinstprognos och hur den ändrats, antal höjningar och sänkningar, och hur bolaget levererat mot förväntningarna de senaste kvartalen."],
+  surprise:["Rapportöverraskning","Hur mycket vinsten per aktie blev högre (+) eller lägre (−) än analytikerna väntat."],
+  radar:["Radar","Varje prick är en aktie. Vänster–höger: hur dyr den är mot 200W-snittet. Upp–ner: poäng i vald strategi. De bästa lägena finns uppe till vänster: hög kvalitet till lågt pris."],
+  watchBuy:["Bevakning: bra bolag, fel pris","Aktier som klarar en strategi men ligger över köpzonen. Kolumnen Kvar visar hur mycket kursen måste falla för att hamna i köpzonen."],
+  nearLrhr:["Nära Low Risk, High Reward","Billiga aktier mot 200W som bara missar ett krav i Low Risk, High Reward."],
+  events:["Händelser","Aktier som bytt 200W-zon eller fått eller tappat en signal sedan förra uppdateringen."],
+  watch:["Min bevakning","Aktier du markerat med ☆. Sparas i den här webbläsaren."],
+  invested:["Insats","Vad du betalade i kronor, inklusive växlingskursen när du köpte."],
+  value:["Värde nu","Antal × dagens kurs × dagens valutakurs till kronor."],
+  pl:["Resultat","Värde nu minus insats, i kronor och procent. Inkluderar valutaeffekten."],
+  todayPl:["Idag","Hur mycket värdet ändrats sedan gårdagens stängning."],
+  stopTarget:["Stop och mål","Dina egna nivåer. Stop = kurs där du tänkt sälja för att begränsa förlusten. Mål = kurs där du tänkt ta hem vinsten. Du får en markering när kursen passerat någon av dem."],
+  held:["Dagar","Antal dagar sedan köpet."],
+  fairValue:["Beräknat värde","DCF-värdet per aktie i basfallet, jämfört med dagens kurs."],
+};
+function ib(k){const g=GL[k];if(!g)return"";return `<button type="button" class="ib" data-i="${k}" aria-label="Vad är ${esc(g[0])}?">i</button>`}
+function showPop(btn){
+  const g=GL[btn.dataset.i];if(!g)return;const p=$("pop");
+  p.innerHTML=`<b>${esc(g[0])}</b><p>${esc(g[1])}</p>`;p.hidden=false;
+  const r=btn.getBoundingClientRect(),w=Math.min(320,innerWidth-24);p.style.width=w+"px";
+  let x=Math.min(Math.max(12,r.left-w/2+r.width/2),innerWidth-w-12),y=r.bottom+8;
+  if(y+p.offsetHeight>innerHeight-8)y=Math.max(8,r.top-p.offsetHeight-8);
+  p.style.left=x+"px";p.style.top=y+"px";p.dataset.for=btn.dataset.i;
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest(".ib");
+  if(b){e.preventDefault();e.stopPropagation();const p=$("pop");if(!p.hidden&&p.dataset.for===b.dataset.i){p.hidden=true;return}showPop(b);return}
+  if(!e.target.closest("#pop"))$("pop").hidden=true;
+},true);
+addEventListener("scroll",()=>{$("pop").hidden=true},{passive:true});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("pop").hidden=true});
+
 
 /* ============ state ============ */
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
@@ -318,7 +431,7 @@ function f(x,dp=1,suf=""){if(!nn(x))return"–";return x.toLocaleString("sv-SE",
 function px(x){if(!nn(x))return"–";if(x===0)return"0";const a=Math.abs(x);return f(x,a>=1000?0:a>=10?2:a>=1?2:4)}
 const curSym=c=>!c||c==="USD"?"$":c==="SEK"?"kr":c==="EUR"?"€":c;
 const money=(x,c)=>nn(x)?px(x)+" "+curSym(c):"–";
-const pct=(x,dp=2)=>!nn(x)?"–":(x>0?"+":x<0?"−":"")+f(Math.abs(x),dp," %");
+const pct=(x,dp=2)=>!nn(x)?"–":Math.abs(x)<0.5*10**-dp?f(0,dp," %"):(x>0?"+":"−")+f(Math.abs(x),dp," %");
 const cls=x=>!nn(x)||x===0?"":x>0?"up":"down";
 function big(x){if(!nn(x))return"–";const a=Math.abs(x);return a>=1e12?f(x/1e12,2)+" bn":a>=1e9?f(x/1e9,1)+" md":a>=1e6?f(x/1e6,0)+" mn":f(x,0)}
 const mcap=b=>!nn(b)?"–":b>=1000?f(b/1000,2)+" bn $":f(b,b>=100?0:1)+" md $";
@@ -420,6 +533,7 @@ function route(){
   if(!U){$("app").innerHTML=`<div class="skel">Laddar…</div>`;return}
   if(page==="aktie")return pageStock(decodeURIComponent(parts[1]||""));
   if(page==="screener")return pageScreener();
+  if(page==="innehav")return pageHoldings(parts[1]||"swing",parts[2]==="add"?decodeURIComponent(parts[3]||""):null);
   if(page==="strategier")return pageMethod();
   return pageStart();
 }
@@ -438,26 +552,27 @@ function pageStart(){
   const sigTable=(list,empty,extra)=>list.length?`<div class="tw"><table><thead><tr><th class="l">Aktie</th><th>Kurs</th><th>Idag</th><th class="l">200W</th><th>${extra[0]}</th></tr></thead><tbody>${list.map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="n">${money(d.price,d.currency)}</td>${chgCell(d)}<td class="l">${zchip(d)}</td><td class="n">${extra[1](d)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">${empty}</p>`;
   $("app").innerHTML=`
   <div class="hero"><h1>Översikt</h1><span class="sub">${rows.length} aktier · nyckeltal per ${esc(U.asOf||"–")} · kurser ${esc(rel(U.quotesAt||U.updatedAt))}</span></div>
+  ${startHoldings()}
   ${hasMa?"":`<div class="card" style="margin-bottom:16px"><div class="bd">200W-data saknas än. Den kommer när uppdateringen har körts första gången under Actions i GitHub.</div></div>`}
   <div class="grid g2">
-    <section class="card"><div class="hd"><h2>Min bevakning</h2><span class="sub">Lägg till med ☆ på en aktie</span></div>
+    <section class="card"><div class="hd"><h2>Min bevakning${ib("watch")}</h2><span class="sub">Lägg till med ☆ på en aktie</span></div>
       <div class="bd flush">${wl.length?`<div class="tw"><table><thead><tr><th class="l">Aktie</th><th>Kurs</th><th>Idag</th><th class="l">200W</th><th class="l">Signal</th><th></th></tr></thead><tbody>${wl.map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="n">${money(d.price,d.currency)}</td>${chgCell(d)}<td class="l">${zchip(d)}</td><td class="l">${sigB(d)||'<span class="faint">–</span>'}</td><td>${starBtn(d.ticker)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">Ingen bevakning än. Sök upp en aktie och tryck på ☆.</p>`}</div></section>
-    <section class="card"><div class="hd"><h2>Swing-läge</h2><span class="sub">Low Risk, High Reward och under Cheap</span></div>
+    <section class="card"><div class="hd"><h2>Swing-läge${ib("swing")}</h2><span class="sub">Low Risk, High Reward och under Cheap</span></div>
       <div class="bd flush">${sigTable(swing,hasMa?"Inga just nu. Kvalitetsbolagen är dyra mot sitt 200W-snitt. Se Bevakning nedan.":"Väntar på 200W-data.",["ROE",d=>f(d.roe,0,"%")])}</div></section>
-    <section class="card"><div class="hd"><h2>Tillväxt på rea</h2><span class="sub">Full Throttle+ och under Fair Value</span></div>
+    <section class="card"><div class="hd"><h2>Tillväxt på rea${ib("rea")}</h2><span class="sub">Full Throttle+ och under Fair Value</span></div>
       <div class="bd flush">${sigTable(rea,hasMa?"Inga just nu.":"Väntar på 200W-data.",["Oms 1 år",d=>f(d.revGrowth1y,0,"%")])}</div></section>
-    <section class="card"><div class="hd"><h2>Bevakning: bra bolag, fel pris</h2><span class="sub">Fall som krävs till köpzon</span></div>
+    <section class="card"><div class="hd"><h2>Bevakning: bra bolag, fel pris${ib("watchBuy")}</h2><span class="sub">Fall som krävs till köpzon</span></div>
       <div class="bd flush">${watchList.length?`<div class="tw"><table><thead><tr><th class="l">Aktie</th><th class="l">Strategi</th><th class="l">200W</th><th>Köpzon under</th><th>Kvar</th></tr></thead><tbody>${watchList.map(({d,k,drop})=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="l small">${STRATS[k].short}</td><td class="l">${zchip(d)}</td><td class="n">${money(level(d,k==="lrhr"?lim.zones.swing:lim.zones.rea),d.currency)}</td><td class="n down">−${f(drop,0," %")}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">${hasMa?"Inga bolag i bevakning.":"Väntar på 200W-data."}</p>`}</div></section>
   </div>
   <div class="grid g-main" style="margin-top:16px">
-    <section class="card"><div class="hd"><h2>Radar: kvalitet mot pris</h2>
+    <section class="card"><div class="hd"><h2>Radar: kvalitet mot pris${ib("radar")}</h2>
       <div class="seg" id="radarSeg"><button data-r="lrhr" aria-pressed="${ui.radar==="lrhr"}">Low Risk, High Reward</button><button data-r="ftp" aria-pressed="${ui.radar==="ftp"}">Full Throttle+</button></div></div>
       <div class="bd"><svg class="radar" id="radar" viewBox="0 0 760 400" role="img" aria-label="Aktierna efter avstånd till 200W och poäng"></svg>
       <div class="lg"><span><i style="background:var(--ink)"></i>Klarar strategin</span><span><i style="border:1.5px solid var(--ink)"></i>Missar ett krav</span><span><i style="background:var(--faint)"></i>Övriga</span><span>Höger = dyrare mot 200W · Upp = högre poäng</span></div></div></section>
     <div class="grid" style="align-content:start">
-      <section class="card"><div class="hd"><h2>Nära Low Risk, High Reward</h2></div>
+      <section class="card"><div class="hd"><h2>Nära Low Risk, High Reward${ib("nearLrhr")}</h2></div>
         <div class="bd flush">${near.length?`<div class="tw"><table><tbody>${near.map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="l">${zchip(d,false)}</td><td class="l small muted">Missar ${esc(shortName("lrhr",d.res.lrhr.miss[0]))}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">Inga just nu.</p>`}</div></section>
-      <section class="card"><div class="hd"><h2>Händelser</h2></div>
+      <section class="card"><div class="hd"><h2>Händelser${ib("events")}</h2></div>
         <div class="bd">${ev.length?`<ul class="ev">${ev.map(e=>`<li data-t="${esc(e.ticker)}" style="cursor:pointer"><span class="n faint" style="font-size:12px">${esc((e.date||"").slice(5))}</span><span class="tk">${esc(e.ticker)}</span><span>${e.type==="zone"?`<span class="z z-${esc(e.from)}">${esc(ZNAME[e.from]||"")}</span> → <span class="z z-${esc(e.to)}">${esc(ZNAME[e.to]||"")}</span>`:e.type==="in"?`<span class="ok">Ny signal: ${e.signal==="swing"?"Swing-läge":"Tillväxt på rea"}</span>`:`<span class="muted">Signal borta: ${e.signal==="swing"?"Swing-läge":"Tillväxt på rea"}</span>`}</span></li>`).join("")}</ul>`:`<p class="muted small">Zonbyten och nya signaler loggas från andra körningen och framåt.</p>`}</div></section>
     </div>
   </div>`;
@@ -516,10 +631,11 @@ function pageStock(t){
         <h1>${esc(d.longName||d.name)}</h1>
         <div class="meta">${esc(d.ticker)} · ${esc(d.exch||"")} · ${esc(d.sector||"")}${d.industry&&d.industry!=="ETF"?" · "+esc(d.industry):""}</div>
         <div class="price"><span class="p n">${px(d.price)}</span><span class="muted">${esc(d.currency||"")}</span><span class="ch n ${cls(d.chg)}">${pct(d.chg)}</span><span class="ch n ${cls(d.chg)}" style="font-weight:500">${nn(d.price)&&nn(d.prevClose)?(d.price-d.prevClose>0?"+":"−")+px(Math.abs(d.price-d.prevClose)):""}</span><span class="ts">Uppdaterad ${esc(rel(U.quotesAt||U.updatedAt))} · ca 15–30 min fördröjning</span></div>
-        <div class="chips">${zchip(d)} ${sigB(d)} ${stratPill("ftp")} ${stratPill("ft")} ${stratPill("lrhr")} ${d.excluded&&d.type==="EQUITY"?`<span class="pill">Sektor utesluten i strategierna</span>`:""} ${days!=null&&days>=0?`<span class="pill" style="${days<=14?"color:var(--warn);background:var(--warn-soft);border-color:transparent":""}">Rapport ${esc(d.nextEarnings)}${days<=14?` · om ${days} d`:""}</span>`:""}</div>
+        <div class="chips">${zchip(d)}${ib("zones")} ${sigB(d)} ${stratPill("ftp")} ${stratPill("ft")} ${stratPill("lrhr")}${ib("strategies")} ${d.excluded&&d.type==="EQUITY"?`<span class="pill">Sektor utesluten i strategierna</span>`:""} ${days!=null&&days>=0?`<span class="pill" style="${days<=14?"color:var(--warn);background:var(--warn-soft);border-color:transparent":""}">Rapport ${esc(d.nextEarnings)}${days<=14?` · om ${days} d`:""}</span>`:""}</div>
       </div>
       <div class="acts">
         <button class="btn${watch.includes(d.ticker)?" on":""}" id="wbtn">${watch.includes(d.ticker)?"★ Bevakad":"☆ Bevaka"}</button>
+        <a class="btn" href="#/innehav/swing/add/${encodeURIComponent(d.ticker)}">+ Swing</a>
         <a class="btn" href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(tvSym)}" target="_blank" rel="noopener">TradingView ↗</a>
       </div>
     </div>
@@ -541,8 +657,8 @@ function pageStock(t){
       <div class="bd" id="stabBody"></div>
     </section>
     <div class="grid" style="align-content:start">
-      <section class="card"><div class="hd"><h2>Köpnivåer mot 200W</h2><span class="sub">200W ${money(d.ma200w,d.currency)}</span></div><div class="bd">${ladder(d)}</div></section>
-      <section class="card"><div class="hd"><h2>Analytikerna</h2>${d.nAnalysts?`<span class="sub">${d.nAnalysts} analytiker</span>`:""}</div><div class="bd" id="anSmall">${anSummary(d)}</div></section>
+      <section class="card"><div class="hd"><h2>Köpnivåer mot 200W${ib("zones")}</h2><span class="sub">200W ${money(d.ma200w,d.currency)}</span></div><div class="bd">${ladder(d)}</div></section>
+      <section class="card"><div class="hd"><h2>Analytikerna${ib("analysts")}</h2>${d.nAnalysts?`<span class="sub">${d.nAnalysts} analytiker</span>`:""}</div><div class="bd" id="anSmall">${anSummary(d)}</div></section>
     </div>
   </div>`;
   $("wbtn").addEventListener("click",()=>{const on=watch.includes(d.ticker);watch=on?watch.filter(x=>x!==d.ticker):watch.concat(d.ticker);saveWatch();$("wbtn").className="btn"+(on?"":" on");$("wbtn").textContent=on?"☆ Bevaka":"★ Bevakad"});
@@ -565,8 +681,8 @@ function ladder(d){
 function anSummary(d){
   if(!d.nAnalysts&&!nn(d.targetMean))return `<p class="muted small">Ingen analytikerbevakning.</p>`;
   const up=nn(d.targetMean)&&nn(d.price)?(d.targetMean/d.price-1)*100:null;
-  return `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><b style="font-size:18px">${esc(REC[d.recKey]||d.recKey||"–")}</b><span class="small muted">snitt ${f(d.recMean,1)} av 5 (1 = starkt köp)</span></div>
-    <div class="kv" style="margin-top:6px"><div><span>Riktkurs snitt</span><span class="n">${money(d.targetMean,d.currency)}</span></div><div><span>Uppsida</span><span class="n ${cls(up)}">${pct(up,1)}</span></div></div>
+  return `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><b style="font-size:18px">${esc(REC[d.recKey]||d.recKey||"–")}</b><span class="small muted">snitt ${f(d.recMean,1)} av 5 (1 = starkt köp)${ib("recMean")}</span></div>
+    <div class="kv" style="margin-top:6px"><div><span>Riktkurs snitt${ib("targetMean")}</span><span class="n">${money(d.targetMean,d.currency)}</span></div><div><span>Uppsida${ib("upside")}</span><span class="n ${cls(up)}">${pct(up,1)}</span></div></div>
     ${targetBar(d)}`;
 }
 function targetBar(d){
@@ -660,7 +776,7 @@ function renderAnalysis(d,det){
     ${(ai.kallor||[]).length?`<p class="small muted" style="margin-top:8px">Källor: ${ai.kallor.slice(0,8).map(k=>/^https?:/.test(k.url)?`<a href="${esc(k.url)}" target="_blank" rel="noopener">${esc((k.titel||k.url).slice(0,60))}</a>`:"").join(" · ")}</p>`:""}
   </div>`:"";
   // attribution
-  const attHtml=att?`<div class="tw"><table class="crit attr"><thead><tr><th>Period</th><th class="r">Aktien</th><th class="r">Marknad</th><th class="r">Sektor</th><th class="r">Bolagsspec.</th><th>Fördelning</th><th class="r">Ovanlighet</th><th class="r">Prognos EPS</th><th>Bedömning</th></tr></thead><tbody>
+  const attHtml=att?`<div class="tw"><table class="crit attr"><thead><tr><th>Period</th><th class="r">Aktien</th><th class="r">Marknad${ib("mktPart")}</th><th class="r">Sektor${ib("secPart")}</th><th class="r">Bolagsspec.${ib("idioPart")}</th><th>Fördelning</th><th class="r">Ovanlighet${ib("sigma")}</th><th class="r">Prognos EPS${ib("epsRev")}</th><th>Bedömning${ib("verdicts")}</th></tr></thead><tbody>
     ${att.w.map(w=>{const rv=epsRev(det,w.h),vd=verdict(w,rv,att.vol);return `<tr><td>${WN[w.h]}</td><td class="r n ${cls(w.r)}">${pct(w.r*100,1)}</td><td class="r n">${pct(w.mkt*100,1)}</td><td class="r n">${att.sec?pct(w.sec*100,1):"–"}</td><td class="r n">${pct(w.idio*100,1)}</td><td>${contribBar(w)}</td><td class="r n">${f(w.z,1)} σ</td><td class="r n ${cls(rv)}">${pct(rv,1)}</td><td><span class="verdict ${VCL[vd[0]]}" title="${esc(vd[1])}">${vd[0]}</span></td></tr>`}).join("")}
     </tbody></table></div>
     <div class="lg"><span><i style="background:var(--z-fair);border-radius:2px"></i>Marknad = beta ${f(att.beta,2)} × ${esc(att.mkt)}</span>${att.sec?`<span><i style="background:var(--z-exp);border-radius:2px"></i>Sektor = ${esc(att.sec)} minus index</span>`:""}<span><i style="background:var(--accent);border-radius:2px"></i>Bolagsspecifikt = resten</span><span>σ = hur ovanlig den bolagsspecifika rörelsen är mot aktiens normala svängningar</span></div>`:`<p class="muted small">För kort kurshistorik.</p>`;
@@ -668,17 +784,17 @@ function renderAnalysis(d,det){
   const from63=att&&att.w.find(w=>w.h===63)?att.w.find(w=>w.h===63).from:null;
   const hist=(est.hist||[]);
   const newsHtml=news.length?`<ul class="news">${news.map(n=>`<li><a href="${esc(n.u)}" target="_blank" rel="noopener">${esc(n.t)}</a><div class="m">${esc(n.p||"")} · ${esc(n.d||"")}${n.s?` · ${esc(n.s.slice(0,180))}`:""}</div></li>`).join("")}</ul>`:`<p class="muted small">Inga nyheter hittades.</p>`;
-  const surpHtml=hist.length?`<div class="tw"><table class="crit"><thead><tr><th>Kvartal</th><th class="r">Förväntat EPS</th><th class="r">Utfall</th><th class="r">Överraskning</th></tr></thead><tbody>${hist.slice().reverse().map(e=>`<tr><td class="n">${esc(e.q)}</td><td class="r n">${f(e.est,2)}</td><td class="r n">${f(e.act,2)}</td><td class="r n ${cls(e.surp)}">${nn(e.surp)?pct(e.surp*100,1):"–"}</td></tr>`).join("")}</tbody></table></div>`:"";
+  const surpHtml=hist.length?`<div class="tw"><table class="crit"><thead><tr><th>Kvartal</th><th class="r">Förväntat EPS</th><th class="r">Utfall</th><th class="r">Överraskning${ib("surprise")}</th></tr></thead><tbody>${hist.slice().reverse().map(e=>`<tr><td class="n">${esc(e.q)}</td><td class="r n">${f(e.est,2)}</td><td class="r n">${f(e.act,2)}</td><td class="r n ${cls(e.surp)}">${nn(e.surp)?pct(e.surp*100,1):"–"}</td></tr>`).join("")}</tbody></table></div>`:"";
   const tr=est.trend;
   const trendHtml=tr?`<div class="kv"><div><span>EPS ${tr.period==="+1y"?"nästa år":"i år"} nu</span><span class="n">${f(tr.cur,2)}</span></div><div><span>för 7 dagar sedan</span><span class="n">${f(tr.d7,2)}</span></div><div><span>för 30 dagar sedan</span><span class="n">${f(tr.d30,2)}</span></div><div><span>för 90 dagar sedan</span><span class="n">${f(tr.d90,2)}</span></div>${nn(rv.up30)?`<div><span>Höjningar 30 d</span><span class="n ok">${rv.up30}</span></div><div><span>Sänkningar 30 d</span><span class="n no">${rv.down30||0}</span></div>`:""}${(est.rev||{})["+1y"]&&nn(est.rev["+1y"].growth)?`<div><span>Väntad oms.-tillväxt nästa år</span><span class="n">${pct(est.rev["+1y"].growth*100,1)}</span></div>`:""}${(est.eps||{})["+1y"]&&nn(est.eps["+1y"].growth)?`<div><span>Väntad vinsttillväxt nästa år</span><span class="n">${pct(est.eps["+1y"].growth*100,1)}</span></div>`:""}</div>`:`<p class="muted small">Inga prognoser.</p>`;
   const valHtml=`${footballField(d,det)}
-    <div class="small muted" style="margin-top:10px;line-height:1.6">${nn(base)?`<b style="color:var(--ink)">DCF:</b> ägarkassaflöde ${big(val.ownerFcf)} ${esc(val.finCur||"")} (fritt kassaflöde ${big(val.fcf)} minus aktiebaserade löner ${big(val.sbc||0)}), tillväxt ${f(g1*100,1," %")} år 1–5 som trappas ner till ${f(val.gt*100,1," %")}, avkastningskrav ${f(r*100,1," %")} (ränta ${f(val.rf*100,1," %")} + beta ${f(val.beta,2)} × 5 %). Bear: halva tillväxten och +1 procentenhet krav. Bull: 1,4 × tillväxten och −1 procentenhet. `:"DCF saknas (negativt eller okänt kassaflöde). "}${nn(val.graham)?`<b style="color:var(--ink)">Graham:</b> EPS framåt × (8,5 + 2 × ${f(val.grahamG,0)}) × 4,4 / ${f(val.aaa,1)}. `:""}${nn(ig)?`<b style="color:var(--ink)">Omvänd DCF:</b> kursen förutsätter ${f(ig*100,1," %")} årlig tillväxt år 1–5.`:""}</div>`;
+    <div class="small muted" style="margin-top:10px;line-height:1.6">${nn(base)?`<b style="color:var(--ink)">DCF${ib("dcf")}:</b> ägarkassaflöde ${big(val.ownerFcf)} ${esc(val.finCur||"")} (fritt kassaflöde ${big(val.fcf)} minus aktiebaserade löner ${big(val.sbc||0)}), tillväxt ${f(g1*100,1," %")} år 1–5 som trappas ner till ${f(val.gt*100,1," %")}, avkastningskrav ${f(r*100,1," %")} (ränta ${f(val.rf*100,1," %")} + beta ${f(val.beta,2)} × 5 %). Bear: halva tillväxten och +1 procentenhet krav. Bull: 1,4 × tillväxten och −1 procentenhet. `:"DCF saknas (negativt eller okänt kassaflöde). "}${nn(val.graham)?`<b style="color:var(--ink)">Graham${ib("graham")}:</b> EPS framåt × (8,5 + 2 × ${f(val.grahamG,0)}) × 4,4 / ${f(val.aaa,1)}. `:""}${nn(ig)?`<b style="color:var(--ink)">Omvänd DCF${ib("reverseDcf")}:</b> kursen förutsätter ${f(ig*100,1," %")} årlig tillväxt år 1–5.`:""}</div>`;
   return `${aiHtml?aiHtml+'<div style="height:16px"></div>':""}
-    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px"><h3 style="font-size:15px">Sammanfattning</h3><span class="verdict ${tone[1]}">Signalbild: ${tone[0]}</span></div>
-    <ul class="sum">${sumItems.map(([k,v])=>`<li><span>${k}</span><span>${v}</span></li>`).join("")}</ul>
-    <div class="asec"><h3>Varför har aktien rört sig?</h3>${attHtml}</div>
-    <div class="asec"><h3>Värdering och intrinsic value</h3>${valHtml}</div>
-    <div class="asec"><h3>Prognoser och rapporter</h3>${trendHtml}${surpHtml?`<div style="height:10px"></div>${surpHtml}`:""}</div>
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px"><h3 style="font-size:15px">Sammanfattning</h3><span class="verdict ${tone[1]}">Signalbild: ${tone[0]}</span>${ib("signalbild")}</div>
+    <ul class="sum">${sumItems.map(([k,v])=>`<li><span>${k}${ib({"Kursrörelse":"attribution","Värdering":"dcf","Kvalitet":"roic","Prognoser":"epsRev","Analytiker":"recMean","200W":"zones"}[k])}</span><span>${v}</span></li>`).join("")}</ul>
+    <div class="asec"><h3>Varför har aktien rört sig?${ib("attribution")}</h3>${attHtml}</div>
+    <div class="asec"><h3>Värdering och intrinsic value${ib("valuation")}</h3>${valHtml}</div>
+    <div class="asec"><h3>Prognoser och rapporter${ib("estimates")}</h3>${trendHtml}${surpHtml?`<div style="height:10px"></div>${surpHtml}`:""}</div>
     <div class="asec"><h3>Nyheter</h3>${newsHtml}</div>
     <div class="asec"><h3>Källor</h3><div class="src">
       <b>Kurser och index</b>: Yahoo Finance (<a href="https://finance.yahoo.com/quote/${encodeURIComponent(d.ticker)}" target="_blank" rel="noopener">${esc(d.ticker)}</a>, ${esc(att?att.mkt:"index")}${att&&att.sec?", "+esc(att.sec):""}), hämtat ${esc(rel(U.quotesAt||U.updatedAt))}.<br>
@@ -694,13 +810,14 @@ function renderStab(d){
   if(ui.stab==="strat"){
     const keys=[];Object.values(STRATS).forEach(s=>s.crit.forEach(c=>{if(!keys.includes(c.k))keys.push(c.k)}));
     const nm=k=>Object.values(STRATS).flatMap(s=>s.crit).find(c=>c.k===k).nm;
+    const CK={cagr:"revCagr",g1:"revGrowth1y",eg1:"earnGrowth1y",roe:"roe",deMax:"de",pegMax:"peg",fcf:"fcfMargin",roic:"roic",gm:"grossMargin",dil:"shareChange",mcap:"mcap"};
     const cell=(s,k)=>{const c=STRATS[s].crit.find(c=>c.k===k);if(!c)return `<td class="r faint">–</td>`;if(d.excluded)return `<td class="r faint">–</td>`;const ok=test(c,d,lim[s][k]);return `<td class="r ${ok?"ok":"no"}">${ok?"✓":"✕"} <span class="faint n" style="font-size:11.5px">${c.op} ${f(+lim[s][k],k==="pegMax"||k==="deMax"?1:0)}</span></td>`};
     const card=k=>{const r=d.res[k];return `<div class="sc"><span class="small muted">${esc(STRATS[k].name)}</span><b class="${r.status==="pass"?"ok":r.status==="near"?"":""}" style="${r.status==="near"?"color:var(--warn)":r.status==="pass"?"":"color:var(--muted)"}">${STL[r.status]}${r.status==="near"?": missar "+esc(shortName(k,r.miss[0])):""}</b><span class="small muted">Poäng ${scoreOf(d,k)??"–"} av 100</span></div>`};
     b.innerHTML=`<div class="scards">${card("ftp")}${card("ft")}${card("lrhr")}</div>
       ${d.excluded?`<p class="small muted" style="margin-bottom:10px">${d.type!=="EQUITY"?"ETF:er och fonder bedöms inte i strategierna.":`Sektorn ${esc(d.sector)} är utesluten i alla tre strategierna (finans, råvaror, energi, kraftbolag och fastigheter). 200W-zonerna gäller ändå.`}</p>`:""}
       <div class="tw"><table class="crit"><thead><tr><th>Krav</th><th class="r">Värde</th><th class="r">FT+</th><th class="r">FT</th><th class="r">LRHR</th></tr></thead><tbody>
-      ${keys.map(k=>`<tr><td>${esc(nm(k))}</td><td class="r n">${critVal(k,d)}</td>${cell("ftp",k)}${cell("ft",k)}${cell("lrhr",k)}</tr>`).join("")}
-      <tr><td>200W-zon</td><td class="r">${zchip(d)}</td><td class="r small" colspan="3">${d.sig.length?sigB(d):`<span class="faint">Signal kräver strategi + ${d.res.lrhr.status==="pass"?"under Cheap":"köpzon"}</span>`}</td></tr>
+      ${keys.map(k=>`<tr><td>${esc(nm(k))}${ib(CK[k])}</td><td class="r n">${critVal(k,d)}</td>${cell("ftp",k)}${cell("ft",k)}${cell("lrhr",k)}</tr>`).join("")}
+      <tr><td>200W-zon${ib("zones")}</td><td class="r">${zchip(d)}</td><td class="r small" colspan="3">${d.sig.length?sigB(d):`<span class="faint">Signal kräver strategi + ${d.res.lrhr.status==="pass"?"under Cheap":"köpzon"}</span>`}</td></tr>
       </tbody></table></div>
       ${d.flag?`<p class="small" style="color:var(--warn);margin-top:8px">PEG under 0,2 är ovanligt lågt. Kontrollera om vinsten är på en cyklisk topp.</p>`:""}
       <p class="small muted" style="margin-top:10px">Gränserna ändras under <a href="#/screener">Screener</a>.</p>`;
@@ -716,7 +833,8 @@ function renderStab(d){
       ${ud.length?`<div class="tw"><table class="crit"><thead><tr><th>Datum</th><th>Bank</th><th>Åtgärd</th><th>Betyg</th><th class="r">Riktkurs</th></tr></thead><tbody>${ud.map(u=>`<tr><td class="n">${esc(u.date)}</td><td>${esc(u.firm)}</td><td class="${u.action==="up"?"ok":u.action==="down"?"no":""}">${esc(UDA[u.action]||u.action||"")}</td><td>${u.from&&u.from!==u.to?esc(u.from)+" → ":""}${esc(u.to||"")}</td><td class="r n">${nn(u.pt)&&u.pt>0?(nn(u.ptPrev)&&u.ptPrev>0&&u.ptPrev!==u.pt?`<span class="faint">${px(u.ptPrev)} →</span> `:"")+px(u.pt):"–"}</td></tr>`).join("")}</tbody></table></div>`:`<p class="muted small">Inga registrerade ändringar.</p>`}
       <p class="small muted" style="margin-top:10px">Källa: Yahoo Finance. Nästa rapport: ${esc(d.nextEarnings||"okänt")}.</p>`;
   }else if(ui.stab==="key"){
-    const kv=(a)=>`<div class="kv">${a.map(([l,v])=>`<div><span>${l}</span><span class="n">${v}</span></div>`).join("")}</div>`;
+    const KL={"Börsvärde":"mcap","P/E":"pe","P/E framåt":"fwdPe","PEG":"peg","P/S":"ps","P/B":"pb","EV/EBITDA":"evEbitda","Direktavkastning":"divYield","ROE":"roe","ROIC":"roic","Bruttomarginal":"grossMargin","Rörelsemarginal":"opMargin","Nettomarginal":"netMargin","FCF-marginal":"fcfMargin","Oms. 5 år/år":"revCagr","Oms. 1 år":"revGrowth1y","Vinst/aktie 1 år":"earnGrowth1y","Skuld / EK":"de","Utspädning/år":"shareChange","Beta":"beta","52 v högsta":"hilo","52 v lägsta":"hilo","200W-snitt":"ma200w"};
+    const kv=(a)=>`<div class="kv">${a.map(([l,v])=>`<div><span>${l}${ib(KL[l])}</span><span class="n">${v}</span></div>`).join("")}</div>`;
     b.innerHTML=`<h3 style="font-size:13px;margin-bottom:4px" class="muted">Värdering</h3>${kv([["Börsvärde",mcap(d.mcapB)],["P/E",f(d.pe,1)],["P/E framåt",f(d.fwdPe,1)],["PEG",f(d.peg,2)],["P/S",f(d.ps,1)],["P/B",f(d.pb,1)],["EV/EBITDA",f(d.evEbitda,1)],["Direktavkastning",nn(d.divYield)?f(d.divYield,2," %"):"–"]])}
       <h3 style="font-size:13px;margin:14px 0 4px" class="muted">Lönsamhet och tillväxt</h3>${kv([["ROE",f(d.roe,1," %")],["ROIC",f(d.roic,1," %")],["Bruttomarginal",f(d.grossMargin,1," %")],["Rörelsemarginal",f(d.opMargin,1," %")],["Nettomarginal",f(d.netMargin,1," %")],["FCF-marginal",f(d.fcfMargin,1," %")],["Oms. 5 år/år",f(d.revCagr,1," %")],["Oms. 1 år",f(d.revGrowth1y,1," %")],["Vinst/aktie 1 år",f(d.earnGrowth1y,1," %")]])}
       <h3 style="font-size:13px;margin:14px 0 4px" class="muted">Risk och kurs</h3>${kv([["Skuld / EK",d.negEquity?"neg. EK":f(d.de,2)],["Utspädning/år",nn(d.shareChange)?pct(d.shareChange,1):"–"],["Beta",f(d.beta,2)],["52 v högsta",px(d.hi52)],["52 v lägsta",px(d.lo52)],["200W-snitt",px(d.ma200w)]])}
@@ -888,7 +1006,7 @@ function pageScreener(){
 }
 function scrCrit(){
   const s=ui.strat,zf=[["b1","Very Cheap <"],["b2","Cheap <"],["b3","Fair <"],["b4","Expensive <"],["swing","Swing <"],["rea","Rea <"]];
-  $("cgrid").innerHTML=STRATS[s].crit.map(c=>`<label class="cf${lim[s][c.k]!==DEF[s][c.k]?" changed":""}">${esc(c.nm)} <span class="k">${c.op}</span><input id="c-${s}-${c.k}" data-g="${s}" data-k="${c.k}" inputmode="decimal" value="${String(+(+lim[s][c.k]).toFixed(2)).replace(".",",")}"><span class="sub">${esc(c.u)}</span><span class="k" data-n="${c.k}"></span></label>`).join("")
+  $("cgrid").innerHTML=STRATS[s].crit.map(c=>`<label class="cf${lim[s][c.k]!==DEF[s][c.k]?" changed":""}">${esc(c.nm)}${ib(c.f==="mcapB"?"mcap":c.f)} <span class="k">${c.op}</span><input id="c-${s}-${c.k}" data-g="${s}" data-k="${c.k}" inputmode="decimal" value="${String(+(+lim[s][c.k]).toFixed(2)).replace(".",",")}"><span class="sub">${esc(c.u)}</span><span class="k" data-n="${c.k}"></span></label>`).join("")
     +`<span style="flex-basis:100%;height:0"></span><span class="sub" style="align-self:center">200W-zoner, % över snittet:</span>`
     +zf.map(([k,nm])=>`<label class="cf${lim.zones[k]!==DEF.zones[k]?" changed":""}">${nm}<input id="c-z-${k}" data-g="zones" data-k="${k}" inputmode="decimal" value="${String(lim.zones[k]).replace(".",",")}"><span class="sub">%</span></label>`).join("");
   $("cgrid").querySelectorAll("input").forEach(inp=>inp.addEventListener("input",()=>{const v=parseFloat(inp.value.replace(",","."));if(isNaN(v))return;lim[inp.dataset.g][inp.dataset.k]=v;saveLim();inp.parentElement.classList.toggle("changed",v!==DEF[inp.dataset.g][inp.dataset.k]);rows.forEach(classify);scrCounts();scrFilter();scrTable()}));
@@ -910,8 +1028,9 @@ function scrFilter(){
   $("zf").innerHTML=ZONES.map(([z,nm])=>`<button data-z="${z}" aria-pressed="${ui.zones.includes(z)}"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--z-${z});margin-right:5px"></span>${nm}<span class="c">${zc[z]||0}</span></button>`).join("");
   $("zf").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{const z=b.dataset.z;ui.zones=ui.zones.includes(z)?ui.zones.filter(x=>x!==z):ui.zones.concat(z);saveUi();scrFilter();scrTable()}));
 }
+const SCK={ticker:"",chg:"chg",status:"status",dist200w:"zones",score:"score",miss:"miss",mcapB:"mcap"};
 function scrHead(){
-  $("th").innerHTML=scrCols().map(c=>`<th class="${c.cls||""}" data-k="${c.k}" style="cursor:pointer" aria-sort="${ui.sort===c.k?(ui.dir<0?"descending":"ascending"):"none"}">${esc(c.l)}${ui.sort===c.k?` <span style="color:var(--accent)">${ui.dir<0?"↓":"↑"}</span>`:""}</th>`).join("");
+  $("th").innerHTML=scrCols().map(c=>`<th class="${c.cls||""}" data-k="${c.k}" style="cursor:pointer" aria-sort="${ui.sort===c.k?(ui.dir<0?"descending":"ascending"):"none"}">${esc(c.l)}${ib(SCK[c.k]||c.k)}${ui.sort===c.k?` <span style="color:var(--accent)">${ui.dir<0?"↓":"↑"}</span>`:""}</th>`).join("");
   $("th").querySelectorAll("th").forEach(th=>th.addEventListener("click",()=>{const k=th.dataset.k;if(ui.sort===k)ui.dir*=-1;else{ui.sort=k;ui.dir=ASC.has(k)?1:-1}saveUi();scrHead();scrTable()}));
 }
 function scrVisible(){
@@ -942,6 +1061,127 @@ function csv(){
   const s=ui.strat,cl=["ticker","name","sector","price","currency","chg","ma200w","dist200w","revCagr","revGrowth1y","earnGrowth1y","roe","peg","de","fcfMargin","roic","grossMargin","shareChange","fwdPe","mcapB","targetMean","recKey"];
   const lines=[cl.concat(["zon","status","signaler","missar"]).join(";")].concat(scrVisible().map(d=>cl.map(c=>d[c]).concat([d.z?ZNAME[d.z]:"",STL[d.res[s].status],d.sig.join(" "),d.res[s].miss.map(m=>shortName(s,m)).join(", ")]).map(v=>{if(typeof v==="number")v=String(v).replace(".",",");return `"${String(v??"").replace(/"/g,'""')}"`}).join(";")));
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["﻿"+lines.join("\n")],{type:"text/csv;charset=utf-8"}));a.download=`screener-${s}-${U.asOf||"data"}.csv`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+
+/* ============ MINA INNEHAV (Swing + Portfölj) ============ */
+let pos=store.get("ft4-pos",[]);
+const savePos=()=>store.set("ft4-pos",pos);
+const LISTS={swing:"Swingar",port:"Portfölj"};
+const fxOf=c=>c==="SEK"?1:(U&&U.fx&&U.fx[c])||null;
+const kr=(x,dp=0)=>nn(x)?f(x,dp)+" kr":"–";
+const krS=x=>!nn(x)?"–":Math.abs(x)<0.5?"0 kr":(x>0?"+":"−")+f(Math.abs(x),0)+" kr";
+function posCalc(p){
+  const d=bySym[p.ticker]||{},fx=fxOf(d.currency||p.cur),price=d.price;
+  const value=nn(price)&&fx?p.qty*price*fx:null;
+  const invested=nn(p.sek)?p.sek:(fx?p.qty*p.price*fx:null);
+  const pl=nn(value)&&nn(invested)?value-invested:null;
+  const plPct=nn(pl)&&invested?pl/invested*100:null;
+  const today=nn(price)&&nn(d.prevClose)&&fx?p.qty*(price-d.prevClose)*fx:null;
+  const days=p.date?Math.max(0,Math.round((Date.now()-new Date(p.date))/864e5)):null;
+  const flags=[];
+  if(nn(p.stop)&&nn(price)&&price<=p.stop)flags.push(["Under stop","no"]);
+  if(nn(p.target)&&nn(price)&&price>=p.target)flags.push(["Mål nått","ok"]);
+  if(d.z==="vexp")flags.push(["Very Expensive","no"]);
+  if(d.nextEarnings){const dd=Math.round((new Date(d.nextEarnings)-Date.now())/864e5);if(dd>=0&&dd<=7)flags.push([`Rapport om ${dd} d`,"warn"])}
+  return{d,fx,price,value,invested,pl,plPct,today,days,flags};
+}
+function posTotals(list){
+  let inv=0,val=0,tod=0,n=0;
+  for(const p of list){const c=posCalc(p);if(nn(c.value)&&nn(c.invested)){inv+=c.invested;val+=c.value;tod+=c.today||0;n++}}
+  return{inv,val,pl:val-inv,plPct:inv?(val-inv)/inv*100:null,tod,n};
+}
+function tiles(t){
+  return `<div class="tiles">
+    <div><span class="sub">Insatt${ib("invested")}</span><b class="n">${kr(t.inv)}</b></div>
+    <div><span class="sub">Värde nu${ib("value")}</span><b class="n">${kr(t.val)}</b></div>
+    <div><span class="sub">Resultat${ib("pl")}</span><b class="n ${cls(t.pl)}">${krS(t.pl)}</b><span class="n small ${cls(t.plPct)}">${pct(t.plPct,1)}</span></div>
+    <div><span class="sub">Idag${ib("todayPl")}</span><b class="n ${cls(t.tod)}">${krS(t.tod)}</b></div>
+  </div>`;
+}
+function bestWorst(list){
+  const c=list.map(p=>({p,c:posCalc(p)})).filter(x=>nn(x.c.plPct)).sort((a,b)=>b.c.plPct-a.c.plPct);
+  if(!c.length)return"";
+  const row=x=>`<li data-go="${esc(x.p.ticker)}" style="cursor:pointer"><span>${co(x.c.d.ticker?x.c.d:{ticker:x.p.ticker,name:""})}</span><span class="n ${cls(x.c.plPct)}" style="text-align:right">${pct(x.c.plPct,1)}<br><span class="small">${krS(x.c.pl)}</span></span></li>`;
+  const best=c.slice(0,3),worst=c.slice(-3).reverse().filter(x=>!best.includes(x));
+  return `<div class="bw"><div><h3>Bäst</h3><ul class="pl">${best.map(row).join("")}</ul></div>${worst.length?`<div><h3>Sämst</h3><ul class="pl">${worst.map(row).join("")}</ul></div>`:""}</div>`;
+}
+function startHoldings(){
+  const sw=pos.filter(p=>p.list==="swing"),pf=pos.filter(p=>p.list==="port");
+  if(!pos.length)return `<section class="card" style="margin-bottom:16px"><div class="hd"><h2>Mina swingar</h2><a class="btn" href="#/innehav">+ Lägg till</a></div><div class="bd"><p class="muted">Lägg in dina swingar och ditt långsiktiga innehav så ser du resultatet här, med bäst och sämst.</p></div></section>`;
+  const blk=(name,list,key)=>list.length?`<div class="hblk"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><h3>${name} <span class="sub">${list.length} st</span></h3><a href="#/innehav/${key}" class="small">Visa alla →</a></div>${tiles(posTotals(list))}${bestWorst(list)}</div>`:"";
+  return `<section class="card" style="margin-bottom:16px"><div class="hd"><h2>Mina innehav</h2><span class="sub">Kurser ${esc(rel(U.quotesAt||U.updatedAt))}</span></div><div class="bd"><div class="hgrid">${blk("Swingar",sw,"swing")}${blk("Portfölj",pf,"port")}</div></div></section>`;
+}
+let hForm=null; // {id?,list,ticker,price,qty,sek,date,stop,target,note}
+function pageHoldings(listKey,addTicker){
+  const L=listKey==="port"?"port":"swing";
+  document.title=`${LISTS[L]} · Full Throttle`;
+  if(addTicker&&bySym[addTicker]&&(!hForm||hForm.ticker!==addTicker)){const d=bySym[addTicker];hForm={list:L,ticker:addTicker,price:d.price,qty:null,sek:null,date:new Date().toISOString().slice(0,10)}}
+  const list=pos.filter(p=>p.list===L);
+  const t=posTotals(list);
+  const rowsH=list.map(p=>{const c=posCalc(p),d=c.d;return `<tr class="go" data-t="${esc(p.ticker)}">
+      <td class="l stick">${co(d.ticker?d:{ticker:p.ticker,name:"saknas i listan"})}</td>
+      <td class="n">${f(p.qty,p.qty%1?2:0)}</td><td class="n">${px(p.price)}</td><td class="n">${px(c.price)}</td>${chgCell(d)}
+      <td class="n">${kr(c.invested)}</td><td class="n">${kr(c.value)}</td><td class="n ${cls(c.pl)}">${krS(c.pl)}</td><td class="n ${cls(c.plPct)}">${pct(c.plPct,1)}</td>
+      <td class="l">${zchip(d)}</td><td class="l">${sigB(d)||'<span class="faint">–</span>'}</td>
+      <td class="n">${c.days??"–"}</td><td class="n small">${nn(p.stop)?px(p.stop):"–"} / ${nn(p.target)?px(p.target):"–"}</td>
+      <td class="l">${c.flags.map(([t,k])=>`<span class="pill ${k==="ok"?"pass":k==="warn"?"near":""}" style="${k==="no"?"color:var(--down);background:var(--down-soft);border-color:transparent":""}">${esc(t)}</span>`).join(" ")}</td>
+      <td class="l" style="white-space:nowrap"><button class="btn sm" data-edit="${p.id}" title="Ändra">Ändra</button> <button class="btn sm" data-del="${p.id}" title="Ta bort">Ta bort</button></td></tr>`}).join("");
+  const F=hForm&&hForm.list===L?hForm:{list:L,ticker:"",price:null,qty:null,sek:null,date:new Date().toISOString().slice(0,10)};
+  $("app").innerHTML=`
+  <div class="hero"><h1>Mina innehav</h1><div class="seg" id="hseg"><button data-l="swing" aria-pressed="${L==="swing"}">Swingar</button><button data-l="port" aria-pressed="${L==="port"}">Portfölj</button></div></div>
+  <section class="card"><div class="bd">${tiles(t)}</div></section>
+  <section class="card" style="margin-top:16px"><div class="hd"><h2>${F.id?"Ändra":"Lägg till"} ${L==="swing"?"swing":"innehav"}</h2><span class="sub">Ange antal eller belopp i kronor, det andra räknas ut</span></div>
+    <div class="bd"><form id="hform" class="hform" autocomplete="off">
+      <label class="fld" style="position:relative"><span>Aktie</span><input id="h-tk" value="${esc(F.ticker||"")}" placeholder="Sök, t.ex. SOFI" required><div class="dd" id="h-dd" hidden></div></label>
+      <label class="fld"><span>Köpkurs <span class="faint" id="h-cur">${esc((bySym[F.ticker]||{}).currency||"")}</span></span><input id="h-price" inputmode="decimal" value="${nn(F.price)?String(F.price).replace(".",","):""}" required></label>
+      <label class="fld"><span>Antal</span><input id="h-qty" inputmode="decimal" value="${nn(F.qty)?String(F.qty).replace(".",","):""}"></label>
+      <label class="fld"><span>Belopp i kr${ib("invested")}</span><input id="h-sek" inputmode="decimal" value="${nn(F.sek)?String(Math.round(F.sek)):""}"></label>
+      <label class="fld"><span>Datum</span><input id="h-date" type="date" value="${esc(F.date||"")}"></label>
+      <label class="fld"><span>Stop${ib("stopTarget")}</span><input id="h-stop" inputmode="decimal" value="${nn(F.stop)?String(F.stop).replace(".",","):""}" placeholder="valfritt"></label>
+      <label class="fld"><span>Mål</span><input id="h-target" inputmode="decimal" value="${nn(F.target)?String(F.target).replace(".",","):""}" placeholder="valfritt"></label>
+      <div class="fld" style="align-self:end;display:flex;gap:8px"><button class="btn primary" type="submit">${F.id?"Spara":"Lägg till"}</button>${F.id||F.ticker?`<button class="btn" type="button" id="h-cancel">Avbryt</button>`:""}</div>
+      <p class="small" id="h-msg" style="grid-column:1/-1;min-height:1em;margin:0"></p>
+    </form></div></section>
+  <section class="card" style="margin-top:16px"><div class="hd"><h2>${LISTS[L]} <span class="sub">${list.length} st</span></h2><div style="display:flex;gap:8px"><button class="btn sm" id="h-export">Flytta till annan enhet</button></div></div>
+    <div class="bd flush">${list.length?`<div class="tw"><table><thead><tr><th class="l stick">Aktie</th><th>Antal</th><th>Köpkurs</th><th>Kurs${ib("price")}</th><th>Idag</th><th>Insats${ib("invested")}</th><th>Värde${ib("value")}</th><th>Resultat${ib("pl")}</th><th>%</th><th class="l">200W${ib("zones")}</th><th class="l">Signal</th><th>Dagar${ib("held")}</th><th>Stop / mål${ib("stopTarget")}</th><th class="l">Varningar</th><th></th></tr></thead><tbody>${rowsH}</tbody></table></div>`:`<p class="empty">Inga ${L==="swing"?"swingar":"innehav"} än. Lägg till med formuläret ovan, eller via knappen + Swing på en aktie.</p>`}</div>
+    <div class="bd" id="h-io" hidden></div></section>
+  <p class="small muted" style="margin-top:10px">Dina innehav sparas bara i den här webbläsaren. Använd Flytta till annan enhet för att föra över dem till mobilen eller en annan dator. Belopp i kronor räknas med dagens valutakurs från Yahoo Finance.</p>`;
+  document.querySelectorAll("#hseg button").forEach(b=>b.addEventListener("click",()=>{hForm=null;location.hash="#/innehav/"+b.dataset.l}));
+  // formulär
+  const tk=$("h-tk"),dd2=$("h-dd"),pr=$("h-price"),qt=$("h-qty"),sk=$("h-sek"),msg=$("h-msg");
+  const val=el=>{const v=parseFloat(String(el.value).replace(/\s/g,"").replace(",","."));return isNaN(v)?null:v};
+  const cur=()=>{const d=bySym[tk.value.trim().toUpperCase()];return d?d.currency:null};
+  const recalc=src=>{const p=val(pr),fx=fxOf(cur());if(!p||!fx)return;if(src==="qty"&&val(qt)!=null)sk.value=Math.round(val(qt)*p*fx);if(src==="sek"&&val(sk)!=null)qt.value=String(+(val(sk)/(p*fx)).toFixed(4)).replace(".",",")};
+  qt.addEventListener("input",()=>recalc("qty"));sk.addEventListener("input",()=>recalc("sek"));pr.addEventListener("input",()=>{if(val(qt)!=null)recalc("qty")});
+  tk.addEventListener("input",()=>{const items=searchRows(tk.value).slice(0,6);dd2.hidden=!items.length;dd2.innerHTML=items.map(d=>`<a href="#" data-pick="${esc(d.ticker)}"><span class="tk">${esc(d.ticker)}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.name)}</span><span class="n">${money(d.price,d.currency)}</span><span></span></a>`).join("")});
+  dd2.addEventListener("click",e=>{const a=e.target.closest("[data-pick]");if(!a)return;e.preventDefault();const d=bySym[a.dataset.pick];tk.value=d.ticker;dd2.hidden=true;$("h-cur").textContent=d.currency||"";if(!val(pr))pr.value=String(d.price).replace(".",",");recalc(val(qt)!=null?"qty":"sek")});
+  tk.addEventListener("blur",()=>setTimeout(()=>dd2.hidden=true,200));
+  if($("h-cancel"))$("h-cancel").addEventListener("click",()=>{hForm=null;location.hash="#/innehav/"+L;route()});
+  $("hform").addEventListener("submit",e=>{
+    e.preventDefault();
+    const t=tk.value.trim().toUpperCase(),d=bySym[t];
+    if(!d){msg.innerHTML=`<span class="no">Hittar inte ${esc(t)}. Välj en aktie i listan.</span>`;return}
+    const p=val(pr),fx=fxOf(d.currency);let q=val(qt),s=val(sk);
+    if(!p||p<=0){msg.innerHTML=`<span class="no">Ange köpkursen.</span>`;return}
+    if(q==null&&s!=null&&fx)q=s/(p*fx);
+    if(s==null&&q!=null&&fx)s=q*p*fx;
+    if(!q||q<=0){msg.innerHTML=`<span class="no">Ange antal eller belopp i kronor.</span>`;return}
+    const rec={id:F.id||Date.now().toString(36),list:L,ticker:t,cur:d.currency,price:p,qty:+q.toFixed(6),sek:s!=null?Math.round(s):null,date:$("h-date").value||null,stop:val($("h-stop")),target:val($("h-target"))};
+    if(F.id)pos=pos.map(x=>x.id===F.id?rec:x);else pos.push(rec);
+    savePos();hForm=null;
+    if(location.hash!=="#/innehav/"+L)location.hash="#/innehav/"+L;else route();
+  });
+  // tabell
+  bindRows($("app").querySelector("tbody")||document.createElement("div"));
+  $("app").querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();const p=pos.find(x=>x.id===b.dataset.edit);hForm={...p};route();scrollTo({top:0,behavior:"smooth"})}));
+  $("app").querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();if(b.dataset.armed){pos=pos.filter(x=>x.id!==b.dataset.del);savePos();route()}else{b.dataset.armed="1";b.textContent="Bekräfta";b.classList.add("danger");setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent="Ta bort";b.classList.remove("danger")}},4000)}}));
+  $("h-export").addEventListener("click",()=>{const io=$("h-io");io.hidden=!io.hidden;if(io.hidden)return;
+    io.innerHTML=`<p class="small" style="margin-bottom:6px">Kopiera texten och klistra in den på den andra enheten (Mina innehav → Flytta till annan enhet → Importera).</p>
+      <textarea id="h-json" rows="4" style="width:100%;font-family:var(--mono);font-size:12px;border:1px solid var(--line-strong);border-radius:6px;padding:8px;background:var(--sunk)">${esc(JSON.stringify(pos))}</textarea>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn sm" id="h-copy">Kopiera</button><button class="btn sm" id="h-import">Importera texten ovan</button><span class="small" id="h-iomsg"></span></div>`;
+    $("h-copy").addEventListener("click",()=>{const ta=$("h-json");navigator.clipboard.writeText(ta.value).then(()=>{$("h-iomsg").textContent="Kopierat."}).catch(()=>{ta.select();$("h-iomsg").textContent="Markerat, tryck Ctrl+C."})});
+    $("h-import").addEventListener("click",()=>{try{const a=JSON.parse($("h-json").value);if(!Array.isArray(a))throw 0;const ids=new Set(pos.map(p=>p.id));a.forEach(p=>{if(p&&p.ticker&&p.qty&&!ids.has(p.id))pos.push(p)});savePos();route()}catch(e){$("h-iomsg").innerHTML='<span class="no">Texten gick inte att läsa.</span>'}});
+  });
 }
 
 /* ============ STRATEGIER ============ */
@@ -1010,7 +1250,7 @@ async function load(){
     U=j;rows=(j.rows||[]).map(x=>({...x}));bySym={};rows.forEach(d=>{bySym[d.ticker]=d;classify(d)});
     // behåll laddad detaljdata på öppen aktie
     const h=location.hash;if(h.startsWith("#/aktie/")){const t=decodeURIComponent(h.slice(8));if(detailCache[t]&&bySym[t])bySym[t]._det=detailCache[t]}
-    if(!same&&document.activeElement!==$("q"))route();
+    if(!same&&document.activeElement!==$("q")&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#hform")))route();
   }catch(e){
     $("app").innerHTML=`<div class="card"><div class="bd"><h1 style="font-size:18px">Ingen data än</h1><p class="muted" style="margin-top:6px">${location.protocol==="file:"?"Öppna sidan via webbadressen, inte som fil.":"Datan skapas när uppdateringen har körts första gången (GitHub → Actions → Bygg och uppdatera → Run workflow)."}</p></div></div>`;
   }

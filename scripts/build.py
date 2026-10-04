@@ -31,7 +31,8 @@ MA_WEEKS = 200
 DAILY_DAYS = 800       # ~3 år handelsdagar sparas per aktie
 WEEKLY_WEEKS = 530     # ~10 år veckor sparas per aktie
 MAX_EVENTS = 150
-WORKERS = 3
+WORKERS = 2
+EXTRA_ROTATION = 3   # tunga analysanrop (prognoser, nyheter, kassaflöde) görs för en tredjedel av aktierna per natt
 
 SECTOR_SV = {
     "Technology": "Teknik", "Communication Services": "Kommunikation", "Consumer Cyclical": "Sällanköp",
@@ -305,16 +306,52 @@ def usd_rate(cur):
     return _fx[cur]
 
 
-def retry(fn, tries=3, base=4):
+import threading  # noqa: E402
+
+_gate = threading.Lock()
+_state = {"next": 0.0, "cool": 0.0, "limited": 0}
+MIN_GAP = 0.35  # sekunder mellan anrop till Yahoo (alla trådar tillsammans)
+
+
+def _wait_turn():
+    with _gate:
+        now = time.time()
+        t = max(now, _state["next"], _state["cool"])
+        _state["next"] = t + MIN_GAP
+    if t > now:
+        time.sleep(t - now)
+
+
+def _is_limit(e):
+    m = f"{type(e).__name__} {e}"
+    return "RateLimit" in m or "Too Many" in m or "429" in m
+
+
+def retry(fn, tries=4, base=4):
+    """Anropa Yahoo med jämn takt. Vid strypning (429) pausar alla trådar en stund och försöker igen."""
     for i in range(tries):
+        _wait_turn()
         try:
             return fn()
         except Exception as e:  # noqa: BLE001
-            msg = str(e)
             if i == tries - 1:
                 raise
-            time.sleep(base * (3 ** i) if "Too Many" in msg or "429" in msg else base)
+            if _is_limit(e):
+                with _gate:
+                    _state["limited"] += 1
+                    _state["cool"] = max(_state["cool"], time.time() + 30 * (i + 1))
+            else:
+                time.sleep(base)
     return None
+
+
+def call(fn, default=None):
+    """Som retry men returnerar default istället för att krascha."""
+    try:
+        v = retry(fn)
+        return default if v is None else v
+    except Exception:  # noqa: BLE001
+        return default
 
 
 def safe(fn, default=None):
@@ -324,26 +361,27 @@ def safe(fn, default=None):
         return default
 
 
-def fundamentals(tk: str):
+def fundamentals(tk: str, extras: bool = True):
     import yfinance as yf
     t = yf.Ticker(tk)
     info = retry(lambda: t.info) or {}
     if not info or (info.get("quoteType") is None and info.get("shortName") is None):
         raise ValueError("ingen info")
     qtype = info.get("quoteType", "EQUITY")
-    inc_a = safe(lambda: t.income_stmt) if qtype == "EQUITY" else None
-    inc_q = safe(lambda: t.quarterly_income_stmt) if qtype == "EQUITY" else None
-    bal = safe(lambda: t.balance_sheet) if qtype == "EQUITY" else None
-    recs = safe(lambda: t.recommendations) if qtype == "EQUITY" else None
-    ud = safe(lambda: t.upgrades_downgrades) if qtype == "EQUITY" else None
     eq = qtype == "EQUITY"
-    cf = safe(lambda: t.cashflow) if eq else None
-    eps_trend = safe(lambda: t.eps_trend) if eq else None
-    eps_rev = safe(lambda: t.eps_revisions) if eq else None
-    rev_est = safe(lambda: t.revenue_estimate) if eq else None
-    eps_est = safe(lambda: t.earnings_estimate) if eq else None
-    earn_hist = safe(lambda: t.earnings_history) if eq else None
-    news = safe(lambda: t.news) or []
+    inc_a = call(lambda: t.income_stmt) if eq else None
+    inc_q = call(lambda: t.quarterly_income_stmt) if eq else None
+    bal = call(lambda: t.balance_sheet) if eq else None
+    recs = call(lambda: t.recommendations) if eq else None
+    ud = call(lambda: t.upgrades_downgrades) if eq else None
+    ex = eq and extras
+    cf = call(lambda: t.cashflow) if ex else None
+    eps_trend = call(lambda: t.eps_trend) if ex else None
+    eps_rev = call(lambda: t.eps_revisions) if ex else None
+    rev_est = call(lambda: t.revenue_estimate) if ex else None
+    eps_est = call(lambda: t.earnings_estimate) if ex else None
+    earn_hist = call(lambda: t.earnings_history) if ex else None
+    news = (call(lambda: t.news) or []) if ex else []
 
     rev_a = row(inc_a, "Total Revenue", "Operating Revenue")
     rev_q = row(inc_q, "Total Revenue", "Operating Revenue")
@@ -414,16 +452,16 @@ def fundamentals(tk: str):
             detail["ud"].append({"date": str(idx)[:10], "firm": r.get("Firm"), "to": r.get("ToGrade"),
                                  "from": r.get("FromGrade"), "action": r.get("Action"),
                                  "pt": num(r.get("currentPriceTarget")), "ptPrev": num(r.get("priorPriceTarget"))})
-    est = safe(lambda: A.estimates(eps_trend, eps_rev, rev_est, eps_est, earn_hist), {}) if eq else {}
+    est = safe(lambda: A.estimates(eps_trend, eps_rev, rev_est, eps_est, earn_hist), {}) if ex else None
     detail["est"] = est
-    detail["news"] = parse_news(news)
+    detail["news"] = parse_news(news) if ex else None
     raw = {"fcf": first(row(cf, "Free Cash Flow")), "sbc": first(row(cf, "Stock Based Compensation")),
            "cash": num(info.get("totalCash")) if num(info.get("totalCash")) is not None else cash,
            "debt": num(info.get("totalDebt")) if num(info.get("totalDebt")) is not None else debt,
            "mcap": mcap, "beta": num(info.get("beta")), "finCur": fin_cur, "cur": cur,
            "epsFwd": num(info.get("forwardEps")),
-           "revG": ((est.get("rev") or {}).get("+1y") or {}).get("growth"),
-           "epsG": ((est.get("eps") or {}).get("+1y") or {}).get("growth")}
+           "revG": (((est or {}).get("rev") or {}).get("+1y") or {}).get("growth"),
+           "epsG": (((est or {}).get("eps") or {}).get("+1y") or {}).get("growth"), "extras": ex}
     return rec, detail, raw
 
 
@@ -500,7 +538,12 @@ def analyse(t, df, rec, det, raw, bench, rf_usd):
     trend = (det.get("est") or {}).get("trend")
     rv = A.revision_pct(trend, 21)
     rec["epsRev30"] = round(rv * 100, 2) if rv is not None else None
-    if raw:
+    if raw and not raw.get("extras") and det.get("val"):
+        base = (det["val"].get("dcf") or {}).get("base")
+        rec["fairValue"] = base
+        rec["fairUpside"] = round((base / rec["price"] - 1) * 100, 1) if base and rec.get("price") else None
+        rec["impliedG"] = det["val"].get("impliedG")
+    elif raw:
         fx_t, fx_f = usd_rate(raw.get("cur")), usd_rate(raw.get("finCur"))
         fx = fx_f / fx_t if fx_t and fx_f else None
         rf = rf_usd if (raw.get("finCur") or "USD") == "USD" else 0.025
@@ -532,9 +575,23 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
     tnx = bench.get("^TNX")
     rf_usd = float(tnx.iloc[-1]) / 100 if tnx is not None and len(tnx) else 0.043
 
+    # Tunga analysanrop: dina listor och aktier med signal varje natt, övriga roterar var tredje natt
+    import zlib
+    cfg = SRC / "config"
+    prio = set(read_list(cfg / "egna.txt")) | set(read_list(cfg / "ai.txt")) | {r["ticker"] for r in prev_u.get("rows", []) if r.get("signals")}
+    doy = datetime.now(ZoneInfo("Europe/Stockholm")).timetuple().tm_yday
+    extra_set, missing = set(), 0
+    for t in tickers:
+        has_prev = (prev / "data" / "t" / fname(t)).exists() and bool(load_json(prev / "data" / "t" / fname(t), {}).get("est"))
+        if t in prio or zlib.crc32(t.encode()) % EXTRA_ROTATION == doy % EXTRA_ROTATION:
+            extra_set.add(t)
+        elif not has_prev and missing < 150:
+            extra_set.add(t)
+            missing += 1
+    log(f"Analysdata hämtas för {len(extra_set)} aktier i natt")
     funds = {}
     with ThreadPoolExecutor(WORKERS) as ex:
-        futs = {ex.submit(fundamentals, t): t for t in tickers if t in prices}
+        futs = {ex.submit(fundamentals, t, t in extra_set): t for t in tickers if t in prices}
         for i, f in enumerate(as_completed(futs), 1):
             t = futs[f]
             try:
@@ -579,6 +636,13 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
         if rec.get("hi52") is None:
             last = df.tail(252)
             rec["hi52"], rec["lo52"] = sig(last["High"].max()), sig(last["Low"].min())
+        if det is not None and (det.get("est") is None or det.get("news") is None or (raw and not raw.get("extras"))):
+            old_det = load_json(prev / "data" / "t" / fname(t), {})
+            for k in ("est", "news"):
+                if det.get(k) is None and old_det.get(k) is not None:
+                    det[k] = old_det[k]
+            if raw and not raw.get("extras") and old_det.get("val"):
+                det["val"] = old_det["val"]
         if det is not None and rec.get("type", "EQUITY") == "EQUITY":
             analyse(t, df, rec, det, raw, bench, rf_usd)
         rec["signals"] = signals(rec)
@@ -601,10 +665,11 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
     write_json(out / "data" / "universe.json", {
         "asOf": today, "updatedAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "quotesAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "source": "Yahoo Finance", "rows": rows,
+        "source": "Yahoo Finance", "rows": rows, "fx": fx_sek({r.get("currency") for r in rows}),
         "events": (events + prev_u.get("events", []))[:MAX_EVENTS]})
     write_alerts(alerts, today)
-    log(f"Klart: {len(rows)} aktier, {len(events)} händelser, {len(alerts)} nya signaler")
+    log(f"Klart: {len(rows)} aktier, {len(funds)} med färska nyckeltal, {len(events)} händelser, "
+        f"{len(alerts)} nya signaler, strypt {_state['limited']} gånger")
     return 0
 
 
@@ -639,11 +704,23 @@ def run_quotes(prev: Path, out: Path):
         alerts += [(r, e["signal"]) for e in ev if e["type"] == "in"]
         n += 1
     u["quotesAt"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    u["fx"] = fx_sek({r.get("currency") for r in rows}) or u.get("fx")
     u["events"] = (events + u.get("events", []))[:MAX_EVENTS]
     write_json(out / "data" / "universe.json", u)
     write_alerts(alerts, today)
     log(f"Kurser uppdaterade för {n} aktier")
     return 0
+
+
+def fx_sek(currencies):
+    """Valutakurser till SEK för portföljen (1 enhet = x kronor)."""
+    sek = usd_rate("SEK")
+    out = {"SEK": 1.0}
+    for c in sorted(x for x in currencies if x):
+        r = usd_rate(c)
+        if r and sek:
+            out[c] = round(r / sek, 6)
+    return out
 
 
 def write_alerts(alerts, today):

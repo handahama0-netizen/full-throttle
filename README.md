@@ -22,6 +22,16 @@ Allt är gratis och kräver ingen API-nyckel.
 2. **Actions → Bygg och uppdatera → Run workflow** (läge `full`). Första körningen tar 30–60 minuter.
 3. **Settings → Pages:** *Deploy from a branch* → branch **gh-pages**, mapp **/ (root)** → Save.
 
+## Mina innehav
+
+Fliken **Mina innehav** har två listor: **Swingar** och **Portfölj**. Lägg till en aktie med köpkurs och antingen antal eller belopp i kronor, plus valfri stop och mål. Sidan visar värde, resultat i kronor och procent (inklusive valutaeffekt), dagens förändring, 200W-zon, signal och varningar (stop passerad, mål nått, Very Expensive, rapport inom en vecka). Översikten visar summan och dina bästa och sämsta innehav.
+
+Innehaven sparas i webbläsaren. Använd **Flytta till annan enhet** för att föra över dem till mobilen.
+
+## Info-knappar
+
+Alla nyckeltal, kolumner och analyser har en liten **i**-knapp som förklarar vad måttet betyder och hur det ska läsas.
+
 ## Analys per aktie
 
 Fliken **Analys** på varje aktie visar:
