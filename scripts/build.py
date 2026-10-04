@@ -408,6 +408,7 @@ def fundamentals(tk: str, extras: bool = True):
     rev_est = call(lambda: t.revenue_estimate) if ex else None
     eps_est = call(lambda: t.earnings_estimate) if ex else None
     earn_hist = call(lambda: t.earnings_history) if ex else None
+    earn_dates = call(lambda: t.get_earnings_dates(limit=48)) if ex else None
     news = (call(lambda: t.news) or []) if ex else []
     if eq and not news:  # Yahoos nyhets-API ger ofta tomt till GitHubs servrar, ta RSS istället
         news = rss_news(tk, info.get("shortName") or info.get("longName") or tk)
@@ -472,7 +473,8 @@ def fundamentals(tk: str, extras: bool = True):
     }
     if inc_a is not None and not inc_a.empty:
         years_lbl = [str(c)[:4] for c in inc_a.columns][:5]
-        detail["fin"] = {"y": years_lbl[::-1], "rev": [sig(v, 4) for v in (rev_a or [])[:5]][::-1],
+        dates_lbl = [str(c)[:10] for c in inc_a.columns][:5]
+        detail["fin"] = {"y": years_lbl[::-1], "d": dates_lbl[::-1], "rev": [sig(v, 4) for v in (rev_a or [])[:5]][::-1],
                          "ni": [sig(v, 4) for v in (ni_a or [])[:5]][::-1],
                          "eps": [sig(v, 4) for v in (row(inc_a, "Diluted EPS", "Basic EPS") or [])[:5]][::-1]}
     if recs is not None and not getattr(recs, "empty", True):
@@ -486,6 +488,7 @@ def fundamentals(tk: str, extras: bool = True):
                                  "pt": num(r.get("currentPriceTarget")), "ptPrev": num(r.get("priorPriceTarget"))})
     est = safe(lambda: A.estimates(eps_trend, eps_rev, rev_est, eps_est, earn_hist), {}) if ex else None
     detail["est"] = est
+    detail["epsq"] = safe(lambda: eps_quarters(earn_dates)) or None
     detail["news"] = parse_news(news) or None
     _state["news" if detail["news"] else "nonews"] += 1
     raw = {"fcf": first(row(cf, "Free Cash Flow")), "sbc": first(row(cf, "Stock Based Compensation")),
@@ -496,6 +499,26 @@ def fundamentals(tk: str, extras: bool = True):
            "revG": (((est or {}).get("rev") or {}).get("+1y") or {}).get("growth"),
            "epsG": (((est or {}).get("eps") or {}).get("+1y") or {}).get("growth"), "extras": ex}
     return rec, detail, raw
+
+
+def eps_quarters(df):
+    """Rapporterad och förväntad EPS per kvartal från Yahoos rapportkalender, äldst först."""
+    if df is None or getattr(df, "empty", True):
+        return []
+    out = {}
+    for idx, r in df.iterrows():
+        a = num(r.get("Reported EPS"))
+        if a is None:
+            continue  # kommande rapport
+        out[str(idx)[:10]] = {"d": str(idx)[:10], "a": round(a, 4), "e": rnd(r.get("EPS Estimate"), 4)}
+    return [out[k] for k in sorted(out)]
+
+
+def merge_eps(old, new):
+    """Behåll äldre kvartal från förra körningen, nya värden vinner."""
+    m = {q["d"]: q for q in (old or []) if isinstance(q, dict) and q.get("d")}
+    m.update({q["d"]: q for q in (new or [])})
+    return [m[k] for k in sorted(m)][-60:] or None
 
 
 _rss_gate = threading.Lock()
@@ -748,7 +771,7 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
             if old:
                 rec = {k: v for k, v in old.items() if k not in ("price", "prevClose", "chg", "ma200w", "dist200w", "zone", "signals", "stale")}
                 old_det = load_json(prev / "data" / "t" / fname(t), {})
-                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att")}
+                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att", "epsq")}
             else:
                 rec = {"ticker": t, "name": t, "type": "EQUITY", "currency": "SEK" if t.endswith(".ST") else "USD",
                        "sector": "Övrigt", "excluded": True}
@@ -774,6 +797,8 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
                     det[k] = old_det[k]
             if raw and not raw.get("extras") and old_det.get("val"):
                 det["val"] = old_det["val"]
+        if det is not None:  # EPS-historiken byggs på över tid
+            det["epsq"] = merge_eps(load_json(prev / "data" / "t" / fname(t), {}).get("epsq"), det.get("epsq"))
         s = secd.get(t.upper())
         if s and det is not None:
             apply_sec(rec, det, raw, s)

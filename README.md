@@ -40,6 +40,12 @@ Fliken **Mina aktier** är din bevakningslista med en rad per aktie:
 
 Lägg till aktier med sökrutan (flera går med komma: `NVDA, AAPL, VOLV-B`) eller ☆ på en aktiesida. De sparas i webbläsaren. Aktier i `config/mina.txt` syns på alla enheter och får data vid nästa nattkörning, även om de inte ingår i S&P 500, Nasdaq-100 eller Stockholmslistan.
 
+## Nyckeltal och EPS på aktiesidan
+
+Fliken **Nyckeltal** visar varje nyckeltal bredvid **branschmedianen**, var bolaget hamnar i branschen och ett omdöme: **Bra** (bästa tredjedelen), **Okej** eller **Svag** (sämsta tredjedelen), vägt mot tumregler så att ett nyckeltal inte blir bra bara för att hela branschen är svag.
+
+Grafen har en **EPS**-ruta: vinst per aktie, rullande 12 månader, som en linje på vänster skala. Prickarna visar varje rapport, grön om bolaget slog förväntningarna och röd om det missade, med överraskningen i procent. Under grafen står hur vinst och kurs har rört sig senaste året, om P/E har gått upp eller ner, och hur tätt kursen har följt vinsten. Kvartalshistoriken (upp till tio år) hämtas i nattkörningen. Tills den finns visas årlig EPS.
+
 ## Quant-profil och risk
 
 Varje aktiesida har en **Quant-profil** med faktorpercentiler, värdering och sentiment. Under **Portfölj** och **Live swing** visar **Risk och exponering** vägd beta, volatilitet, effektivt antal aktier, största position, fördelning per tema och valuta och portföljens faktorlutning, med varningar vid hög koncentration. Screenern har en kolumn **Quant** att sortera på.
