@@ -1176,7 +1176,21 @@ let FOCUS=null;   // Claudes dagliga analys (site/focus.json)
 const allPos=()=>repoPos.concat(pos);
 const savePos=()=>store.set("ft4-pos",pos);
 const LISTS={swing:"Swingar",port:"Portfölj"};
-const fxOf=c=>c==="SEK"?1:(U&&U.fx&&U.fx[c])||null;
+const fxOf=c=>c==="SEK"?1:(U&&U.fx&&U.fx[c])||(FXB[c])||null;
+// Reserv om datan saknar valutakurser: ECB-kurser via frankfurter.app (gratis, ingen nyckel), sparas ett dygn
+let FXB=store.get("ft5-fx",{});
+async function ensureFx(){
+  const need=[...new Set(rows.map(d=>d.currency).concat(allPos().map(p=>p.cur)).filter(c=>c&&c!=="SEK"))];
+  const missing=need.filter(c=>!(U.fx&&U.fx[c]));
+  if(!missing.length)return false;
+  if(FXB._t&&Date.now()-FXB._t<864e5&&missing.every(c=>FXB[c]))return false;
+  try{
+    const r=await fetch("https://api.frankfurter.app/latest?from=SEK&to="+encodeURIComponent(missing.join(",")));
+    if(!r.ok)return false;const j=await r.json(),out={_t:Date.now()};
+    for(const c in j.rates||{})if(j.rates[c]>0)out[c]=+(1/j.rates[c]).toFixed(6);
+    FXB=out;store.set("ft5-fx",out);return true;
+  }catch(e){return false}
+}
 const kr=(x,dp=0)=>nn(x)?f(x,dp)+" kr":"–";
 const krS=x=>!nn(x)?"–":Math.abs(x)<0.5?"0 kr":(x>0?"+":"−")+f(Math.abs(x),0)+" kr";
 function posCalc(p){
@@ -1197,6 +1211,7 @@ function posCalc(p){
 function posTotals(list){
   let inv=0,val=0,tod=0,n=0;
   for(const p of list){const c=posCalc(p);if(nn(c.value)&&nn(c.invested)){inv+=c.invested;val+=c.value;tod+=c.today||0;n++}}
+  if(!n&&list.length)return{inv:null,val:null,pl:null,plPct:null,tod:null,n};  // inget kunde värderas (t.ex. valutakurs saknas): visa – i stället för 0 kr
   return{inv,val,pl:val-inv,plPct:inv?(val-inv)/inv*100:null,tod,n};
 }
 function tiles(t){
@@ -1261,11 +1276,12 @@ function pageHoldings(listKey,addTicker){
   const tk=$("h-tk"),dd2=$("h-dd"),pr=$("h-price"),qt=$("h-qty"),sk=$("h-sek"),msg=$("h-msg");
   const val=el=>{const v=parseFloat(String(el.value).replace(/\s/g,"").replace(",","."));return isNaN(v)?null:v};
   const cur=()=>{const d=bySym[tk.value.trim().toUpperCase()];return d?d.currency:null};
-  const recalc=src=>{const p=val(pr),fx=fxOf(cur());if(!p||!fx)return;if(src==="qty"&&val(qt)!=null)sk.value=Math.round(val(qt)*p*fx);if(src==="sek"&&val(sk)!=null)qt.value=String(+(val(sk)/(p*fx)).toFixed(4)).replace(".",",")};
+  const recalc=src=>{const p=val(pr),c=cur(),fx=fxOf(c);if(!p)return;if(!fx){if(c)msg.innerHTML=`<span style="color:var(--warn)">Valutakursen för ${esc(c)} saknas just nu. Fyll i både antal och belopp.</span>`;return}if(msg.textContent.startsWith("Valutakursen"))msg.innerHTML="";if(src==="qty"&&val(qt)!=null)sk.value=Math.round(val(qt)*p*fx);if(src==="sek"&&val(sk)!=null)qt.value=String(+(val(sk)/(p*fx)).toFixed(4)).replace(".",",")};
   qt.addEventListener("input",()=>recalc("qty"));sk.addEventListener("input",()=>recalc("sek"));pr.addEventListener("input",()=>{if(val(qt)!=null)recalc("qty")});
   tk.addEventListener("input",()=>{const items=searchRows(tk.value).slice(0,6);dd2.hidden=!items.length;dd2.innerHTML=items.map(d=>`<a href="#" data-pick="${esc(d.ticker)}"><span class="tk">${esc(d.ticker)}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.name)}</span><span class="n">${money(d.price,d.currency)}</span><span></span></a>`).join("")});
   dd2.addEventListener("click",e=>{const a=e.target.closest("[data-pick]");if(!a)return;e.preventDefault();const d=bySym[a.dataset.pick];tk.value=d.ticker;dd2.hidden=true;$("h-cur").textContent=d.currency||"";if(!val(pr))pr.value=String(d.price).replace(".",",");recalc(val(qt)!=null?"qty":"sek")});
   tk.addEventListener("blur",()=>setTimeout(()=>dd2.hidden=true,200));
+  tk.addEventListener("change",()=>{const d=bySym[tk.value.trim().toUpperCase()];if(!d)return;tk.value=d.ticker;$("h-cur").textContent=d.currency||"";if(!val(pr)&&nn(d.price))pr.value=String(d.price).replace(".",",");recalc(val(qt)!=null?"qty":"sek")});
   if($("h-cancel"))$("h-cancel").addEventListener("click",()=>{hForm=null;location.hash="#/innehav/"+L;route()});
   $("hform").addEventListener("submit",e=>{
     e.preventDefault();
@@ -1866,6 +1882,7 @@ async function load(){
     const h=location.hash;if(h.startsWith("#/aktie/")){const t=decodeURIComponent(h.slice(8));if(detailCache[t]&&bySym[t])bySym[t]._det=detailCache[t]}
     const ae=document.activeElement;
     if(!(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)))route();
+    ensureFx().then(ch=>{if(ch&&/^#\/(innehav|$)|^#?$/.test(location.hash||"#/")){const a=document.activeElement;if(!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)))route()}});
   }catch(e){
     $("app").innerHTML=`<div class="card"><div class="bd"><h1 style="font-size:18px">Ingen data än</h1><p class="muted" style="margin-top:6px">${location.protocol==="file:"?"Öppna sidan via webbadressen, inte som fil.":"Datan skapas när uppdateringen har körts första gången (GitHub → Actions → Bygg och uppdatera → Run workflow)."}</p></div></div>`;
   }

@@ -909,6 +909,10 @@ def main():
     has_prev = (prev / "data" / "universe.json").exists()
     if a.mode in ("site", "ai") and has_prev:
         shutil.copytree(prev / "data", out / "data")
+        u = load_json(out / "data" / "universe.json", {})
+        if u.get("rows") and not (u.get("fx") or {}).get("USD"):  # äldre data utan valutakurser: portföljen behöver dem
+            u["fx"] = fx_sek({r.get("currency") for r in u["rows"]}) or u.get("fx")
+            write_json(out / "data" / "universe.json", u)
         code = 0
         if a.mode == "ai":
             import ai_notes
