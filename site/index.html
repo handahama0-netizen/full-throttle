@@ -609,6 +609,7 @@ const GL={
   upside:["Uppsida","Hur mycket riktkursen ligger över (+) eller under (−) dagens kurs."],
   recMean:["Analytikernas betyg","Snitt av alla rekommendationer på en skala 1–5: 1 = starkt köp, 3 = behåll, 5 = sälj."],
   analysts:["Analytikerna","Sammanställning av bankernas och analyshusens rekommendationer och riktkurser, via Yahoo Finance."],
+  earnBeat:["Slog eller missade","Vid varje kvartalsrapport jämförs bolagets vinst per aktie med vad analytikerna väntade sig i snitt. Slog = högre än väntat. Kursreaktionen visar hur marknaden tog emot rapporten. Ett bolag som slår gång på gång men där kursen ändå faller har ofta väldigt höga förväntningar inbakade."],
   nextEarnings:["Nästa rapport","Datum för nästa kvartalsrapport. Kursen kan röra sig kraftigt kring rapporten, så många undviker att öppna nya swingar veckan innan."],
   attribution:["Varför aktien rört sig","Kursrörelsen delas upp i tre delar: marknaden (beta × index), sektorn (sektor-ETF minus index) och det bolagsspecifika (resten). Det bolagsspecifika är det som har med just bolaget att göra, till exempel rapporter och nyheter."],
   mktPart:["Marknad","Den del av rörelsen som förklaras av hela börsen: aktiens beta gånger indexets utveckling (S&P 500 eller OMX Stockholm 30)."],
@@ -957,7 +958,7 @@ function pageStock(t){
   renderStab(d);
   getDetail(d.ticker).then(det=>{if(location.hash!==link(d.ticker)&&decodeURIComponent(location.hash)!==decodeURIComponent(link(d.ticker)))return;d._det=det;
       $("chapA").innerHTML=chaptersA(d,det);$("valBox").innerHTML=valBlock(d,det);$("priceAns").innerHTML=priceAns(d,det);$("chapB").innerHTML=chaptersB(d,det);
-      bindDrill(d);bindChap(d);bindRows($("chapA"));bindRows($("chapB"));bindOwn();bindDash(d);mountSubnav();
+      bindDrill(d);bindChap(d);bindRows($("chapA"));bindRows($("chapB"));bindOwn();bindDash(d);bindEarn(d);mountSubnav();
       drawChart(d);renderStab(d)})
     .catch(()=>{const m=$("chartMsg");if(m)m.textContent="Kunde inte ladda kursdata för den här aktien."});
 }
@@ -1284,6 +1285,7 @@ function drawChart(d){
   const barMap=new Map(bars.map(b=>[T(b),b]));
   // EPS: rullande 12 månader på vänster skala + rapportprickar
   const E=ui.eps!==false?epsOverlay(d,det,cs,bars,daily):null;
+  if(!E)earnMarkers(det,cs,bars);
   lg.style.left=E?"66px":"10px";if(!E&&ui.eps===false&&$("epsNote"))$("epsNote").innerHTML="";
   const setLeg2=(bar,maV,t)=>{setLeg(bar,maV);if(E&&E.at(t)!=null)lg.insertAdjacentHTML("beforeend",`<span style="flex-basis:100%"></span><span class="muted">EPS 12 mån <span class="n" style="color:${E.col}">${f(E.at(t),2)}</span></span>`)};
   const lastBarT=T(bars[bars.length-1]);
@@ -1934,6 +1936,13 @@ function epsPoints(det){
   if(fin&&fin.eps){const pts=fin.y.map((y,i)=>{const v=fin.eps[i];if(!nn(v))return null;const iso=fin.d&&fin.d[i]?fin.d[i]:`${y}-06-30`;return{t:Math.min(day(iso),today),v}}).filter(Boolean);if(pts.length>=2)return{kind:"year",pts,q}}
   return{kind:null,pts:[],q};
 }
+// rapportmarkörer som i TradingView: E under staplarna, grön = slog förväntan, röd = missade
+function earnMarkers(det,cs,bars){
+  const snap=t=>{const b=bars.find(x=>x.t>=t);return b?b.t:null},up=css("--up"),dn=css("--down"),mu=css("--muted");
+  const mk=[];earnRows(det).forEach(x=>{const t=snap(x.t);if(t==null)return;
+    mk.push({time:t*86400,position:"belowBar",shape:"circle",color:x.beat>0?up:x.beat<0?dn:mu,size:0.9,text:"E"+(nn(x.sp)?(x.sp>=0?" +":" −")+f(Math.abs(x.sp),0)+"%":"")})});
+  mk.sort((a,b)=>a.time-b.time);const seen=new Set();cs.setMarkers(mk.filter(m=>!seen.has(m.time)&&seen.add(m.time)));
+}
 function epsOverlay(d,det,cs,bars,daily){
   const note=$("epsNote"),P=epsPoints(det);
   if(!P.pts.length){if(note)note.innerHTML=`<span class="muted">EPS-historik saknas för ${esc(d.ticker)} än. Den hämtas i nattkörningen och byggs på över tid.</span>`;return null}
@@ -1947,10 +1956,7 @@ function epsOverlay(d,det,cs,bars,daily){
   es.setData(data);
   const tr=(det.est||{}).trend;
   if(tr&&nn(tr.cur)&&P.kind==="ttm")es.createPriceLine({price:tr.cur,color:col,lineStyle:2,lineWidth:1,axisLabelVisible:true,title:tr.period==="+1y"?"Prognos nästa år":"Prognos i år"});
-  // rapportprickar: grön = slog förväntan, röd = missade
-  const mk=[];P.q.forEach(x=>{const t=snap(Math.floor(Date.parse(x.d)/864e5));if(t==null)return;const s=nn(x.e)&&x.e!==0?(x.a-x.e)/Math.abs(x.e)*100:null;
-    mk.push({time:t*86400,position:"belowBar",shape:"circle",color:s==null?col:s>=0?up:dn,size:0.8,text:s==null?"":(s>=0?"+":"−")+f(Math.abs(s),0)+"%"})});
-  mk.sort((a,b)=>a.time-b.time);if(mk.length)cs.setMarkers(mk);
+  earnMarkers(det,cs,bars);
   const at=t=>{let v=null;for(const p of data){if(p.time<=t)v=p.value;else break}return v};
   if(note)note.innerHTML=epsNote(d,P,daily);
   return{at,col};
@@ -2909,6 +2915,76 @@ function bindDash(d){
       tip.innerHTML=`<b>${esc(x.l)}${x.fc?" (prognos)":""}</b> · ${esc(x.d)}<br>${F(x.v)}${nn(yy)?` · ${pct(yy,0)} mot året innan`:""}${nn(x.e)?`<br>Väntat ${f(x.e,2)} · ${x.v>=x.e?"slog":"missade"}`:""}`;tip.hidden=false;tip.style.left=Math.min(e.clientX+12,innerWidth-270)+"px";tip.style.top=(e.clientY+12)+"px"};
     el.addEventListener("mousemove",show);el.addEventListener("click",show);el.addEventListener("mouseleave",()=>tip.hidden=true)});
 }
+/* ---- rapporter: slog de förväntningarna? ---- */
+function earnRows(det){
+  const q=epsQuarters(det).filter(x=>nn(x.a)),day=s=>Math.floor(Date.parse(s)/864e5);
+  const D=det.d||{},W=det.w||{};
+  const react=(t,days)=>{ // kurs dagen före rapporten mot stängning `days` handelsdagar efter (fångar både före och efter börsen)
+    if(D.t&&D.t.length&&t>=D.t[0]+2){let i0=-1;for(let i=0;i<D.t.length;i++){if(D.t[i]<t)i0=i;else break}
+      let i1=D.t.findIndex(x=>x>t);if(i0<0||i1<0)return null;i1=i1+days-1;if(i1>=D.t.length)return null;return D.c[i1]/D.c[i0]-1}
+    if(W.t&&W.t.length&&days<=5){let i0=-1;for(let i=0;i<W.t.length;i++){if(W.t[i]<t-3)i0=i;else break}const i1=i0+1;if(i0<0||i1>=W.t.length)return null;return W.c[i1]/W.c[i0]-1}
+    if(W.t&&W.t.length){let i0=-1;for(let i=0;i<W.t.length;i++){if(W.t[i]<t-3)i0=i;else break}const i1=i0+Math.round(days/5);if(i0<0||i1>=W.t.length)return null;return W.c[i1]/W.c[i0]-1}
+    return null};
+  return q.map(x=>{const t=day(x.d),ok=nn(x.e)&&Math.abs(x.e)>=0.05,sp=ok?(x.a-x.e)/Math.abs(x.e)*100:null;
+    return{d:x.d,t,a:x.a,e:x.e,sp,beat:ok?(x.a>x.e+1e-9?1:Math.abs(x.a-x.e)<1e-9?0:-1):null,r1:react(t,1),r5:react(t,5),r20:react(t,20)}});
+}
+function earnStats(E){const w=E.filter(x=>x.beat!=null),b=w.filter(x=>x.beat>0),m=w.filter(x=>x.beat<0),avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
+  return{n:w.length,nb:b.length,nm:m.length,sp:med(w.map(x=>x.sp).filter(nn)),rb:avg(b.map(x=>x.r1).filter(nn)),rm:avg(m.map(x=>x.r1).filter(nn)),streak:(()=>{let k=0;for(let i=w.length-1;i>=0&&w[i].beat>0;i--)k++;return k})()}}
+function earnAns(d,det){if(!det)return"";const E=earnRows(det),L=E[E.length-1];if(!L||L.beat==null)return"";
+  return ` Senaste rapporten (${esc(L.d)}) ${L.beat>0?"slog":L.beat<0?"missade":"mötte"} förväntan${nn(L.sp)?` med ${pct(L.sp,0)}`:""}${nn(L.r1)?`, kursen ${pct(L.r1*100,1)} dagen efter`:""}.`}
+const MON=["jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec"];
+const BEATC=b=>b>0?"var(--up)":b<0?"var(--down)":"var(--muted)";
+function earnCard(d,det){
+  if(!det)return `<p class="muted">Laddar…</p>`;
+  const all=earnRows(det);
+  if(!all.length)return `<h3 class="sub3" style="margin-top:0">Rapporterna: slog de förväntningarna?</h3><p class="muted">Rapporthistorik saknas för ${esc(d.ticker)} än.</p>`;
+  const R=ui.erR??12,E=R?all.slice(-R):all,S=earnStats(all),S8=earnStats(all.slice(-8)),L=all[all.length-1];
+  const days=d.nextEarnings?Math.round((new Date(d.nextEarnings)-Date.now())/864e5):null;
+  // graf som TradingView: ihålig ring = förväntat, fylld prick = utfall (grön slog, röd missade), staplar under = kursreaktion
+  const W=innerWidth>900?1150:innerWidth<640?440:760,H=innerWidth<640?300:280,Lm=innerWidth<640?42:52,Rm=10,T=14,ph=150,rT=T+ph+34,rh=56,n=E.length,bw=(W-Lm-Rm)/Math.max(n,1);
+  const vals=E.flatMap(x=>[x.a,x.e]).filter(nn),mx=Math.max(...vals),mn=Math.min(...vals),pad=(mx-mn)*0.12||Math.abs(mx)*0.2||1,top=mx+pad,bot=mn-pad,Y=v=>T+(1-(v-bot)/(top-bot))*ph;
+  const rs=E.map(x=>x.r1).filter(nn),rmax=Math.max(0.02,...rs.map(Math.abs)),RY=v=>rT+rh/2-(v/rmax)*(rh/2);
+  const X=i=>Lm+i*bw+bw/2,dec=Math.abs(mx)<1?3:2;
+  let g="";for(let i=0;i<=3;i++){const v=bot+(top-bot)*i/3;g+=`<line x1="${Lm}" x2="${W-Rm}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="var(--line)"/><text x="${Lm-6}" y="${(Y(v)+3.5).toFixed(1)}" text-anchor="end">${f(v,dec)}</text>`}
+  g+=`<line x1="${Lm}" x2="${W-Rm}" y1="${RY(0).toFixed(1)}" y2="${RY(0).toFixed(1)}" stroke="var(--line-strong)"/><text x="${Lm-6}" y="${(rT+4).toFixed(1)}" text-anchor="end">${pct(rmax*100,0)}</text><text x="${Lm-6}" y="${(rT+rh).toFixed(1)}" text-anchor="end">${pct(-rmax*100,0)}</text>`;
+  g+=`<text x="${Lm}" y="${rT-8}" class="lb" style="font-size:11px">Kursreaktion dagen efter rapporten</text>`;
+  const pa=E.map((x,i)=>`${i?"L":"M"}${X(i).toFixed(1)},${Y(x.a).toFixed(1)}`).join("");
+  g+=`<path d="${pa}" fill="none" stroke="var(--line-strong)" stroke-width="1.2" opacity=".7"/>`;
+  const step=Math.ceil(n/(innerWidth<640?6:16)),r=Math.max(3.5,Math.min(7,bw*0.22));
+  E.forEach((x,i)=>{const cx=X(i);
+    if(nn(x.e))g+=`<circle cx="${cx.toFixed(1)}" cy="${Y(x.e).toFixed(1)}" r="${r}" fill="none" stroke="var(--muted)" stroke-width="1.6"/>`;
+    g+=`<circle cx="${cx.toFixed(1)}" cy="${Y(x.a).toFixed(1)}" r="${r}" fill="${BEATC(x.beat)}"/>`;
+    if(nn(x.sp)&&bw>=34)g+=`<text x="${cx.toFixed(1)}" y="${(Math.min(Y(x.a),nn(x.e)?Y(x.e):Y(x.a))-r-4).toFixed(1)}" text-anchor="middle" style="fill:${BEATC(x.beat)};font-size:10.5px">${x.sp>=0?"+":"−"}${f(Math.abs(x.sp),0)}%</text>`;
+    if(nn(x.r1)){const y0=RY(0),y1=RY(x.r1);g+=`<rect x="${(cx-bw*0.3).toFixed(1)}" y="${Math.min(y0,y1).toFixed(1)}" width="${(bw*0.6).toFixed(1)}" height="${Math.max(1.5,Math.abs(y1-y0)).toFixed(1)}" rx="2" fill="${x.r1>=0?"var(--up)":"var(--down)"}" opacity=".8"/>`}
+    if(i%step===0||i===n-1)g+=`<text x="${cx.toFixed(1)}" y="${H-4}" text-anchor="middle">${n>20?esc(x.d.slice(0,4)):`${MON[+x.d.slice(5,7)-1]} ${esc(x.d.slice(2,4))}`}</text>`;
+    g+=`<rect class="hv" data-i="${i}" x="${(Lm+i*bw).toFixed(1)}" y="${T}" width="${bw.toFixed(1)}" height="${H-T-14}" fill="transparent"/>`});
+  window._earnE=E;
+  const segs=`<div class="seg" id="erR">${[[8,"8 kvartal"],[12,"3 år"],[20,"5 år"],[0,"Allt"]].map(([k,l])=>`<button data-v="${k}" aria-pressed="${R===k}">${l}</button>`).join("")}</div>`;
+  const tbl=all.slice().reverse().slice(0,R||all.length).map(x=>`<tr><td class="n">${esc(x.d)}</td><td class="r n">${nn(x.e)?f(x.e,dec):"–"}</td><td class="r n">${f(x.a,dec)}</td><td class="r n" style="color:${BEATC(x.beat)}">${nn(x.sp)?pct(x.sp,1):"–"}</td><td>${x.beat==null?"–":`<span class="pill" style="border-color:transparent;color:#fff;background:${BEATC(x.beat)}">${x.beat>0?"Slog":x.beat<0?"Missade":"I linje"}</span>`}</td><td class="r n ${cls(x.r1)}">${nn(x.r1)?pct(x.r1*100,1):"–"}</td><td class="r n ${cls(x.r5)}">${nn(x.r5)?pct(x.r5*100,1):"–"}</td><td class="r n ${cls(x.r20)}">${nn(x.r20)?pct(x.r20*100,1):"–"}</td></tr>`).join("");
+  const story=S.n?`${esc(d.ticker)} har slagit vinstförväntningarna i <b>${S.nb} av ${S.n}</b> rapporter (${f(S.nb/S.n*100,0)} %)${S8.n?`, ${S8.nb} av ${S8.n} de senaste två åren`:""}. Medianöverraskningen är ${pct(S.sp,1)}. ${nn(S.rb)?`När bolaget slog gick kursen i snitt ${pct(S.rb*100,1)} dagen efter`:""}${nn(S.rm)?`, när det missade ${pct(S.rm*100,1)}`:""}.${S.streak>=3?` Har slagit ${S.streak} rapporter i rad.`:""}${nn(S.rb)&&S.rb<0?" Kursen har ofta fallit trots att bolaget slog, alltså höga förväntningar.":""}`:"";
+  return `<h3 class="sub3" style="margin-top:0">Rapporterna: slog de förväntningarna?${ib("earnBeat")}</h3>
+    <div class="dstats">
+      <div><span class="sub">Senaste rapport</span><b class="n" style="color:${BEATC(L.beat)}">${L.beat==null?"–":L.beat>0?"Slog":L.beat<0?"Missade":"I linje"}</b><span class="small muted">${esc(L.d)}${nn(L.sp)?` · ${pct(L.sp,1)}`:""}</span></div>
+      <div><span class="sub">Kursen dagen efter</span><b class="n ${cls(L.r1)}">${nn(L.r1)?pct(L.r1*100,1):"–"}</b><span class="small muted">${nn(L.r5)?`1 vecka ${pct(L.r5*100,1)}`:""}</span></div>
+      <div><span class="sub">Slog förväntan</span><b class="n">${S.n?`${S.nb} av ${S.n}`:"–"}</b><span class="small muted">${S8.n?`senaste 8: ${S8.nb} av ${S8.n}`:""}</span></div>
+      <div><span class="sub">Nästa rapport</span><b class="n">${d.nextEarnings?esc(d.nextEarnings):"–"}</b><span class="small muted">${days!=null&&days>=0?`om ${days} dagar`:""}</span></div>
+    </div>
+    <div class="dtools" style="margin-top:8px">${segs}</div>
+    <svg class="dash" id="earnSvg" viewBox="0 0 ${W} ${H}">${g}</svg>
+    <div class="lg" style="margin-top:4px"><span><i style="background:transparent;border:1.6px solid var(--muted);border-radius:50%"></i>Förväntad EPS</span><span><i style="background:var(--up);border-radius:50%"></i>Slog</span><span><i style="background:var(--down);border-radius:50%"></i>Missade</span><span><i style="background:var(--up);border-radius:2px"></i>Kursreaktion</span></div>
+    <p class="small" style="margin-top:8px;line-height:1.55">${story}</p>
+    <details class="xs" style="margin-top:8px"><summary>Alla rapporter i tabell</summary><div class="tw"><table class="crit"><thead><tr><th>Rapport</th><th class="r">Väntat</th><th class="r">Utfall</th><th class="r">Överraskning</th><th>Resultat</th><th class="r">1 dag</th><th class="r">1 vecka</th><th class="r">1 mån</th></tr></thead><tbody>${tbl}</tbody></table></div></details>
+    <p class="small muted" style="margin-top:6px">Vinst per aktie (justerad, som analytikerna räknar) mot analytikernas snitt före rapporten. Kursreaktion = stängning dagen före rapporten mot dagen efter. Äldre än ca 3 år mäts på veckokurser.</p>`;
+}
+function bindEarn(d){
+  const box=$("earnBox");if(!box||!d._det)return;
+  box.querySelectorAll("#erR button").forEach(b=>b.addEventListener("click",()=>{ui.erR=+b.dataset.v;saveUi();box.innerHTML=earnCard(d,d._det);bindEarn(d)}));
+  const tip=$("tip"),E=window._earnE||[],dec=Math.abs(Math.max(...E.map(x=>x.a)))<1?3:2;
+  box.querySelectorAll("#earnSvg .hv").forEach(el=>{const x=E[+el.dataset.i];if(!x)return;
+    const show=e=>{tip.innerHTML=`<b>Rapport ${esc(x.d)}</b><br>Väntat ${nn(x.e)?f(x.e,dec):"–"} · Utfall <b style="color:${BEATC(x.beat)}">${f(x.a,dec)}</b>${nn(x.sp)?` (${pct(x.sp,1)})`:""}<br>${x.beat==null?"":x.beat>0?"Slog förväntan":x.beat<0?"Missade förväntan":"I linje"}${nn(x.r1)?`<br>Kursen: ${pct(x.r1*100,1)} dagen efter${nn(x.r5)?`, ${pct(x.r5*100,1)} efter en vecka`:""}${nn(x.r20)?`, ${pct(x.r20*100,1)} efter en månad`:""}`:""}`;
+      tip.hidden=false;tip.style.left=Math.min(e.clientX+14,innerWidth-260)+"px";tip.style.top=(e.clientY+14)+"px"};
+    el.addEventListener("mousemove",show);el.addEventListener("click",show);el.addEventListener("mouseleave",()=>tip.hidden=true)});
+}
 /* ---- avsnitten ---- */
 function qSec(id,n,q,a,body,next){return `<section class="qa" id="${id}"><div class="qhd"><span class="qn">${n}</span><div><h2>${q}</h2><p class="ans">${a}</p></div></div>${body?`<div class="qbody">${body}</div>`:""}${next?`<button class="nextq" data-to2="${next[0]}">Nästa: ${next[1]} ↓</button>`:""}</section>`}
 function chaptersA(d,det){
@@ -2920,8 +2996,9 @@ function chaptersA(d,det){
   parts.push(qSec("q-strat",eq?2:1,"Passar den min strategi?",`<span class="yn ${v.k}">${yes(v.k)}</span> ${esc(v.t)}`,
     stratCard(d).replace('style="margin-top:16px"',"").replace(/<p class="sv">[\s\S]*?<\/p>/,"")+`<div id="q-hist" style="margin-top:16px"><h3 class="sub3" style="margin-bottom:4px">Fungerar 💎 Diamant på ${esc(d.ticker)}? Backtest från 2015</h3><p class="ans" style="margin-bottom:10px">${H.a}</p>${H.b}</div>`,
     eq?["q-biz","Hur går affären?"]:["q-price","Vad kostar den?"]));
-  if(eq)parts.push(qSec("q-biz",3,"Hur går affären?",(()=>{const g1=d.revGrowth1y,e1=d.earnGrowth1y;return `${nn(g1)?`Omsättningen ${g1>=0?"växte":"minskade"} ${f(Math.abs(g1),0)} % senaste året`:"Omsättning okänd"}${nn(e1)?`, vinsten per aktie ${e1>=0?"växte":"minskade"} ${f(Math.abs(e1),0)} %`:""}. ${ir?`Nr ${ir.rank} av ${ir.n} i ${esc(ir.label)}.`:""}`})(),
+  if(eq)parts.push(qSec("q-biz",3,"Hur går affären?",(()=>{const g1=d.revGrowth1y,e1=d.earnGrowth1y;return `${nn(g1)?`Omsättningen ${g1>=0?"växte":"minskade"} ${f(Math.abs(g1),0)} % senaste året`:"Omsättning okänd"}${nn(e1)?`, vinsten per aktie ${e1>=0?"växte":"minskade"} ${f(Math.abs(e1),0)} %`:""}. ${ir?`Nr ${ir.rank} av ${ir.n} i ${esc(ir.label)}.`:""}${earnAns(d,det)}`})(),
     `<section class="card"><div class="bd" id="dashBox">${finDash(d,det)}</div></section>
+     <section class="card" id="q-earn" style="margin-top:14px"><div class="bd" id="earnBox">${earnCard(d,det)}</div></section>
      <div class="sgrid">${qualCard(d)}${giantsCard(d).replace('style="margin-top:16px"',"")}</div>`,["q-price","Vad kostar den?"]));
   return parts.join("");
 }
