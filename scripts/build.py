@@ -410,6 +410,7 @@ def fundamentals(tk: str, extras: bool = True):
     earn_hist = call(lambda: t.earnings_history) if ex else None
     earn_dates = call(lambda: t.get_earnings_dates(limit=48)) if ex else None
     ins_tx = call(lambda: t.insider_transactions) if ex and not tk.endswith(".ST") else None
+    inst_h = call(lambda: t.institutional_holders) if ex else None
     news = (call(lambda: t.news) or []) if ex else []
     if eq and not news:  # Yahoos nyhets-API ger ofta tomt till GitHubs servrar, ta RSS istället
         news = rss_news(tk, info.get("shortName") or info.get("longName") or tk)
@@ -466,6 +467,7 @@ def fundamentals(tk: str, extras: bool = True):
         "shortPct": rnd(num(info.get("shortPercentOfFloat")) * 100) if num(info.get("shortPercentOfFloat")) is not None else None,
         "shortDays": rnd(info.get("shortRatio"), 1),
         "instPct": rnd(num(info.get("heldPercentInstitutions")) * 100, 1) if num(info.get("heldPercentInstitutions")) is not None else None,
+        "insPct": rnd(num(info.get("heldPercentInsiders")) * 100, 1) if num(info.get("heldPercentInsiders")) is not None else None,
     }
     detail = {
         "about": (info.get("longBusinessSummary") or "")[:1400], "web": info.get("website"),
@@ -492,6 +494,7 @@ def fundamentals(tk: str, extras: bool = True):
     detail["est"] = est
     detail["epsq"] = safe(lambda: eps_quarters(earn_dates)) or None
     detail["ins"] = safe(lambda: insiders(ins_tx)) if ins_tx is not None else None
+    detail["holders"] = safe(lambda: holders(inst_h)) if inst_h is not None else None
     detail["news"] = parse_news(news) or None
     _state["news" if detail["news"] else "nonews"] += 1
     raw = {"fcf": first(row(cf, "Free Cash Flow")), "sbc": first(row(cf, "Stock Based Compensation")),
@@ -539,6 +542,32 @@ def insiders(df):
                     "who": str(r.get("Insider") or "")[:40].title(), "pos": str(r.get("Position") or "")[:40]})
     out.sort(key=lambda x: x["d"], reverse=True)
     return out[:60]
+
+
+def holders(df):
+    """De största institutionella ägarna med förändring senaste rapporterade kvartalet (13F)."""
+    if df is None or getattr(df, "empty", True):
+        return None
+    out = []
+    for _, r in df.head(10).iterrows():
+        pct, chg = num(r.get("pctHeld")), num(r.get("pctChange"))
+        out.append({"n": str(r.get("Holder") or "")[:50], "d": str(r.get("Date Reported") or "")[:10],
+                    "p": round(pct * 100, 2) if pct is not None else None,
+                    "c": round(chg * 100, 1) if chg is not None else None, "v": rnd(r.get("Value"), 0)})
+    return out or None
+
+
+def merge_own(old, rec, today):
+    """Ägarhistorik: en punkt per dag med institutionernas och insiders andel, byggs på över tid."""
+    h = [x for x in (old or []) if isinstance(x, dict) and x.get("d")]
+    if rec.get("instPct") is None and rec.get("insPct") is None:
+        return h or None
+    pt = {"d": today, "i": rec.get("instPct"), "n": rec.get("insPct")}
+    if h and h[-1]["d"] == today:
+        h[-1] = pt
+    elif not h or h[-1].get("i") != pt["i"] or h[-1].get("n") != pt["n"] or len(h) < 2:
+        h.append(pt)
+    return h[-400:]
 
 
 def merge_eps(old, new):
@@ -815,7 +844,7 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
             if old:
                 rec = {k: v for k, v in old.items() if k not in ("price", "prevClose", "chg", "ma200w", "dist200w", "zone", "signals", "stale")}
                 old_det = load_json(prev / "data" / "t" / fname(t), {})
-                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att", "epsq", "sec", "ins")}
+                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att", "epsq", "sec", "ins", "holders", "own")}
             else:
                 rec = {"ticker": t, "name": t, "type": "EQUITY", "currency": "SEK" if t.endswith(".ST") else "USD",
                        "sector": "Övrigt", "excluded": True}
@@ -842,7 +871,11 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
             if raw and not raw.get("extras") and old_det.get("val"):
                 det["val"] = old_det["val"]
         if det is not None:  # EPS-historiken byggs på över tid
-            det["epsq"] = merge_eps(load_json(prev / "data" / "t" / fname(t), {}).get("epsq"), det.get("epsq"))
+            _old = load_json(prev / "data" / "t" / fname(t), {})
+            det["epsq"] = merge_eps(_old.get("epsq"), det.get("epsq"))
+            det["own"] = merge_own(_old.get("own"), rec, today)
+            if det.get("holders") is None and _old.get("holders"):
+                det["holders"] = _old["holders"]
         s = secd.get(t.upper())
         if s and det is not None:
             apply_sec(rec, det, raw, s)

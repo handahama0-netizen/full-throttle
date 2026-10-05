@@ -458,6 +458,10 @@ table.corr th{background:none;color:var(--muted)}
 .sfres{border-top:1px solid var(--line);padding-top:10px}
 .sfcnt{font-size:15px}
 .snf{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--sunk)}
+.hk{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px;max-width:640px}
+@media (max-width:560px){.hk{grid-template-columns:1fr 1fr}}
+.hk>div{background:var(--sunk);border-radius:8px;padding:8px 10px;display:grid;gap:1px}
+.hk b{font-size:18px;font-weight:750} .hk small{font-size:11px;color:var(--muted)}
 .epsnote{padding:10px 14px;border-top:1px solid var(--line);font-size:13px;line-height:1.55}
 .epsnote:empty{display:none}
 </style>
@@ -613,6 +617,9 @@ const GL={
   peerPe:["Värde enligt branschens P/E","Vad aktien skulle vara värd om den värderades som branschens medianbolag: bolagets väntade vinst per aktie × branschens median-P/E framåt. Ett enkelt jämförelsevärde, inte en riktkurs."],
   rule40:["Rule of 40","Tumregel för mjukvara och tillväxtbolag: omsättningstillväxt + FCF-marginal bör vara minst 40 %. Visar balansen mellan att växa och att tjäna pengar."],
   fcfYield:["FCF-avkastning","Fritt kassaflöde delat med börsvärdet, i procent. Hur mycket kontanter bolaget genererar per investerad krona. Högre = billigare."],
+  instPct:["Institutionellt ägande","Andel av aktierna som ägs av fonder, pensionsbolag, banker och andra institutioner. Högt ägande (60–80 % i stora amerikanska bolag) betyder att professionella förvaltare tror på bolaget och ger stabila ägare, men också att kursen kan röra sig mycket när de säljer samtidigt."],
+  insPct:["Insiders ägande","Andel av aktierna som ägs av ledning, styrelse och storägare med insyn. Högt eget ägande betyder att de som driver bolaget har samma intresse som du. I megabolag är det ofta under 1 %, i grundarledda bolag 10 % eller mer."],
+  holders:["Vem äger aktien?","Institutionernas och insiders andel, hur institutionernas andel ändrats över tid, och de tio största institutionella ägarna med hur mycket de ökat eller minskat senaste kvartalet."],
   peerMean:["Branschsnitt","Vanligt medelvärde av bolagen i branschen. Kan dras iväg av enstaka extremvärden, till exempel ett bolag med P/E 200. Ligger snittet långt från medianen finns det sådana avvikare, och då är medianen mer rättvisande."],
   peerMedian:["Branschmedian","Mittenvärdet bland bolagen i branschen. Hälften ligger över och hälften under. Påverkas mindre av extremvärden än ett vanligt snitt."],
   themes:["Teman","Aktierna grupperas i teman utifrån bransch, t.ex. Halvledare eller Försvar & flyg. Tabellen visar medianen för temats aktier. Klicka på ett tema för att se de största vinnarna och förlorarna."],
@@ -898,6 +905,7 @@ function pageStock(t){
         <h1>${esc(d.longName||d.name)}</h1>
         <div class="meta">${esc(d.ticker)} · ${esc(d.exch||"")} · ${esc(d.sector||"")}${d.industry&&d.industry!=="ETF"?" · "+esc(d.industry):""}</div>
         <div class="price"><span class="p n">${px(d.price)}</span><span class="muted">${esc(d.currency||"")}</span><span class="ch n ${cls(d.chg)}">${pct(d.chg)}</span><span class="ch n ${cls(d.chg)}" style="font-weight:500">${nn(d.price)&&nn(d.prevClose)?(d.price-d.prevClose>0?"+":"−")+px(Math.abs(d.price-d.prevClose)):""}</span><span class="ts">Uppdaterad ${esc(rel(U.quotesAt||U.updatedAt))} · ca 15–30 min fördröjning</span></div>
+        ${headKpis(d)}
         <div class="chips">${LEAD[d.ticker]===1?`<span class="pill pass">Branschledare</span>`:""}${d.type==="EQUITY"||!d.type?`${vChip(valView(d))}${ib("valVerdict")} ${sChip(sentView(d))}${ib("sentiment")} `:""}${zchip(d)}${ib("zones")} ${sigB(d)} ${d.excluded&&d.type==="EQUITY"?`<span class="pill">Sektor utesluten i strategierna</span>`:""} ${days!=null&&days>=0?`<span class="pill" style="${days<=14?"color:var(--warn);background:var(--warn-soft);border-color:transparent":""}">Rapport ${esc(d.nextEarnings)}${days<=14?` · om ${days} d`:""}</span>`:""}</div>
       </div>
       <div class="acts">
@@ -907,7 +915,7 @@ function pageStock(t){
       </div>
     </div>
   </section>
-  ${subnav((!d.type||d.type==="EQUITY"?[["q-strat","1 Strategi"],["q-hist","2 Historik"],["q-val","3 Pris"],["q-eps","4 Vinst"],["q-ind","5 Bransch"],["q-mood","6 Stämning"],["q-risk","7 Risk"]]:[["q-strat","1 Strategi"],["q-hist","2 Historik"]]).concat([["chartSect","Graf"],["deep","Fördjupning"]]))}
+  ${subnav((!d.type||d.type==="EQUITY"?[["q-strat","1 Strategi"],["q-hist","2 Historik"],["q-val","3 Pris"],["q-eps","4 Vinst"],["q-ind","5 Bransch"],["q-mood","6 Ägare"],["q-risk","7 Risk"]]:[["q-strat","1 Strategi"],["q-hist","2 Historik"]]).concat([["chartSect","Graf"],["deep","Fördjupning"]]))}
   <div id="storyBox" style="margin-top:12px">${!d.type||d.type==="EQUITY"?story(d,null):""}</div>
   <div id="chapBox">${chapters(d,null)}</div>
   <h2 class="sect" id="chartSect">Kursgraf och 200W-zoner</h2>
@@ -1962,7 +1970,7 @@ const KEYM=[
   ["Värdering",[["mcapB","Börsvärde","mcap",0,"mcap"],["pe","P/E","pe",-1,"x",[15,35],1],["fwdPe","P/E framåt","fwdPe",-1,"x",[15,30],1],["peg","PEG","peg",-1,"x2",[1,2],1],["ps","P/S","ps",-1,"x",[2,10],1],["pb","P/B","pb",-1,"x",[2,8],1],["evEbitda","EV/EBITDA","evEbitda",-1,"x",[10,20],1],["_fcfYield","FCF-avkastning","fcfYield",1,"%",[5,2]],["divYield","Direktavkastning","divYield",0,"%"]]],
   ["Lönsamhet",[["roe","ROE","roe",1,"%",[20,8]],["roic","ROIC","roic",1,"%",[15,5]],["grossMargin","Bruttomarginal","grossMargin",1,"%",[50,25]],["opMargin","Rörelsemarginal","opMargin",1,"%",[20,5]],["netMargin","Nettomarginal","netMargin",1,"%",[15,3]],["fcfMargin","FCF-marginal","fcfMargin",1,"%",[15,3]]]],
   ["Tillväxt",[["revCagr","Omsättning per år (3–5 år)","revCagr",1,"%",[15,3]],["revGrowth1y","Omsättning 1 år","revGrowth1y",1,"%",[15,3]],["earnGrowth1y","Vinst per aktie 1 år","earnGrowth1y",1,"%",[15,0]],["_rule40","Rule of 40","rule40",1,"%",[40,20]]]],
-  ["Risk",[["de","Skuld / eget kapital","de",-1,"x2",[0.5,1.5]],["shareChange","Utspädning per år","shareChange",-1,"%",[0,3]],["beta","Beta","beta",-1,"x2",[1,1.5]],["vol","Volatilitet","vol",-1,"%",[25,45]],["mdd1y","Största fall 1 år","",1,"%",[-20,-40]],["shortPct","Blankning","shortPct",-1,"%",[3,10]],["instPct","Ägs av institutioner","",0,"%"]]],
+  ["Risk",[["de","Skuld / eget kapital","de",-1,"x2",[0.5,1.5]],["shareChange","Utspädning per år","shareChange",-1,"%",[0,3]],["beta","Beta","beta",-1,"x2",[1,1.5]],["vol","Volatilitet","vol",-1,"%",[25,45]],["mdd1y","Största fall 1 år","",1,"%",[-20,-40]],["shortPct","Blankning","shortPct",-1,"%",[3,10]],["instPct","Ägs av institutioner","instPct",0,"%"],["insPct","Ägs av insiders","insPct",0,"%"]]],
   ["Kursutveckling",[["r21","1 månad","",1,"r"],["r63","3 månader","",1,"r"],["r126","6 månader","",1,"r"],["r252","12 månader","",1,"r"],["r12_1","Momentum 12–1 mån","",1,"r"]]]
 ];
 const kGet=(d,k)=>k[0]==="_"?DERIV[k](d):d[k];
@@ -2271,7 +2279,7 @@ function stratNowCard(){
     if(d.price<=P.stop)act.push([d,`Under stop ${money(P.stop,d.currency)} (−20 % från ditt köp)`,"no"]);
     else if(d.price>=P.exp)act.push([d,"Nått Expensive: sälj enligt originalet","warn"]);
     else if(d.price>=P.fair)act.push([d,"Nått Fair Value: sälj enligt förbättrade regeln","warn"]);});
-  const row=(d,right)=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="l">${sigB(d)}</td><td class="l">${zchip(d)}</td><td class="n small">${right}</td></tr>`;
+  const row=(d,right)=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}<span class="subv" title="Institutioner äger / insiders äger">Inst ${nn(d.instPct)?f(d.instPct,0," %"):"–"} · Insiders ${nn(d.insPct)?f(d.insPct,1," %"):"–"}</span></td><td class="l">${sigB(d)}</td><td class="l">${zchip(d)}</td><td class="n small">${right}</td></tr>`;
   const sec2=(t,sub,body)=>`<div class="snow"><h3>${t} <span class="sub">${sub}</span></h3>${body}</div>`;
   return `<section class="card" id="s-strat"><div class="hd"><h2>Din strategi just nu${ib("strategies")}</h2><a href="#/strategier" class="small">Backtest →</a></div>
     <div class="snf"><span class="sub">Börsvärde</span><div class="seg" id="snSize">${[[0,"Alla"],[10,"≥ 10 md $"],[50,"≥ 50 md $"],[200,"Mega ≥ 200"]].map(([v,l])=>`<button data-v="${v}" aria-pressed="${sz===v}">${l}</button>`).join("")}</div>
@@ -2600,7 +2608,7 @@ function chapters(d,det){
     ["q-val","Är den billig eller dyr?",iv&&nn(d.price)?(iv.v>=d.price?`Billig: ${f((1-d.price/iv.v)*100,0)} % under ${iv.src==="dcf"?"beräknat värde":"analytikernas riktkurs"} (${money(iv.v,d.currency)}).`:`Dyr: ${f((d.price/iv.v-1)*100,0)} % över ${iv.src==="dcf"?"beräknat värde":"analytikernas riktkurs"} (${money(iv.v,d.currency)}).`)+` Sammanvägt: ${vChip(valView(d))}`:`Sammanvägt: ${vChip(valView(d))}`,`<div class="sgrid" style="margin-top:0">${ivCard(d,det)}<section class="card"><div class="hd"><h2>Vad drar åt vilket håll?${ib("valVerdict")}</h2></div><div class="bd">${partsH(valView(d).parts)}</div></section></div>`],
     ["q-eps","Växer vinsten, och följer kursen med?",(()=>{if(!det)return"Laddar…";const q=epsQuarters(det);const g1=d.earnGrowth1y,r12=d.r252;return nn(g1)?`Vinsten per aktie ${g1>=0?"växte":"minskade"} ${f(Math.abs(g1),0)} % senaste året${nn(r12)?`, kursen gick ${pct(r12*100,0)}`:""}. ${nn(r12)?(Math.abs(r12*100-g1)<15?"Kursen har följt vinsten.":r12*100<g1?"Kursen har inte hängt med, aktien har blivit billigare.":"Kursen har sprungit ifrån vinsten."):""}`:q.length?"Se vinsten per kvartal nedan.":"Vinsthistorik saknas."})(),`<div class="sgrid" style="margin-top:0">${epsCard(d,det)}${qualCard(d)}</div><h3 class="sub3">Så har bolaget utvecklats</h3>${finCards(d,det)}`],
     ["q-ind","Vem dominerar branschen?",ir?`${esc(d.name)} är nr ${ir.rank} av ${ir.n} i ${esc(ir.label)} (sammanvägt).${LEAD[d.ticker]===1?" Störst i branschen efter omsättning.":""}`:"Ingen jämförbar bransch.",giantsCard(d).replace('style="margin-top:16px"',"")],
-    ["q-mood","Vad tycker marknaden och insiders?",`${sChip(s)} ${(()=>{const i=det&&insSummary(det.ins,91);return i&&(i.sold||i.bought)?`Insiders senaste 3 mån: ${i.bought?`köpt ${big(i.bought)}`:"inga köp"}, ${i.sold?`sålt ${big(i.sold)}`:"inga försäljningar"}.`:""})()}`,`<div class="sgrid" style="margin-top:0">${insCard(d,det)}<section class="card"><div class="hd"><h2>Analytiker och sentiment</h2>${drill("an","Alla analytiker")}</div><div class="bd">${anSummary(d)}<div style="margin-top:12px">${partsH(s.parts)}</div></div></section></div>`],
+    ["q-mood","Vem äger den, och vad tycker marknaden?",`${nn(d.instPct)?`Institutioner äger ${f(d.instPct,0)} %${nn(d.insPct)?`, insiders ${f(d.insPct,1)} %`:""}. `:""}${sChip(s)} ${(()=>{const i=det&&insSummary(det.ins,91);return i&&(i.sold||i.bought)?`Insiders senaste 3 mån: ${i.bought?`köpt ${big(i.bought)}`:"inga köp"}, ${i.sold?`sålt ${big(i.sold)}`:"inga försäljningar"}.`:""})()}`,`${ownCard(d,det)}<div class="sgrid">${insCard(d,det)}<section class="card"><div class="hd"><h2>Analytiker och sentiment</h2>${drill("an","Alla analytiker")}</div><div class="bd">${anSummary(d)}<div style="margin-top:12px">${partsH(s.parts)}</div></div></section></div>`],
     ["q-risk","Vad kan gå fel?",R.length?`${R.length} ${R.length===1?"varningsflagga":"varningsflaggor"}: ${R.join(", ")}.`:"Inga tydliga varningsflaggor i datan.",`<section class="card"><div class="bd">${R.length?`<ul class="why">${R.map(x=>`<li>${x[0].toUpperCase()+x.slice(1)}</li>`).join("")}</ul>`:`<p class="muted">Ingen hög skuld, hög beta, blankning eller utspädning som sticker ut.</p>`}<p class="small muted" style="margin-top:8px">Med hävstång: en aktie med beta ${f(d.beta,1)} och ${nn(d.mdd1y)?`största fall ${pct(d.mdd1y,0)} senaste året`:"okänt största fall"} kan ge ungefär dubbla fallet på din insats. ${drill("quant","Quant och risk")}</p></div></section>`]
   ];
   const items=eq?Q:Q.filter(q=>["q-strat","q-hist"].includes(q[0]));
@@ -2609,6 +2617,43 @@ function chapters(d,det){
 }
 function bindChap(d){document.querySelectorAll("[data-to2]").forEach(b=>{if(b._b)return;b._b=1;b.addEventListener("click",()=>goTo(b.dataset.to2))});
   document.querySelectorAll('[data-drill="strategier"]').forEach(b=>{if(b._s)return;b._s=1;b.addEventListener("click",e=>{e.stopImmediatePropagation();location.hash="#/strategier"},true)})}
+
+/* ---- ägande ---- */
+function headKpis(d){
+  if(d.type&&d.type!=="EQUITY")return"";
+  const K=[["P/E framåt","fwdPe",x=>x>0?f(x,1):"neg.","fwdPe",-1],["PEG","peg",x=>x>0?f(x,2):"neg.","peg",-1],["Institutioner äger","instPct",x=>f(x,0," %"),"instPct",0],["Insiders äger","insPct",x=>f(x,1," %"),"insPct",0]];
+  return `<div class="hk">${K.map(([l,k,fm,g,dir])=>{const v=d[k],pm=peerMed(d,k),m=pm.m;const c=dir&&nn(v)&&v>0&&nn(m)?(v<m*0.9?"ok":v>m*1.1?"no":""):"";
+    return `<div><span class="sub">${l}${ib(g)}</span><b class="n ${c}">${nn(v)?fm(v):"–"}</b><small>${nn(m)?`bransch ${fm(m)}`:"&nbsp;"}</small></div>`}).join("")}</div>`;
+}
+function ownLine(h){
+  const P=h.filter(x=>nn(x.i));if(P.length<2)return"";
+  const W=320,H=90,L=4,R=4,T=10,B=18,t0=Date.parse(P[0].d),t1=Date.parse(P[P.length-1].d)||t0+1,vs=P.map(x=>x.i),lo=Math.min(...vs)-1,hi=Math.max(...vs)+1;
+  const X=d=>L+(Date.parse(d)-t0)/(t1-t0||1)*(W-L-R),Y=v=>T+(1-(v-lo)/(hi-lo))*(H-T-B);
+  const path=P.map((x,i)=>`${i?"L":"M"}${X(x.d).toFixed(1)},${Y(x.i).toFixed(1)}`).join("");
+  return `<svg class="finv" viewBox="0 0 ${W} ${H}"><path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="${L}" y="${H-4}">${esc(P[0].d)}</text><text x="${W-R}" y="${H-4}" text-anchor="end">${esc(P[P.length-1].d)}</text><text x="${W-R}" y="${Y(vs[vs.length-1])-6}" text-anchor="end" class="lb">${f(vs[vs.length-1],1)} %</text></svg>`;
+}
+function ownCard(d,det){
+  const h=(det&&det.own)||[],H=(det&&det.holders)||[],first=h.find(x=>nn(x.i)),last=[...h].reverse().find(x=>nn(x.i));
+  const ch=first&&last&&first!==last?last.i-first.i:null,up=H.filter(x=>nn(x.c)&&x.c>0).length,dn=H.filter(x=>nn(x.c)&&x.c<0).length;
+  const pmI=peerMed(d,"instPct").m,pmN=peerMed(d,"insPct").m;
+  const txt=[nn(d.instPct)?`Institutioner (fonder, pensionsbolag, banker) äger <b>${f(d.instPct,0)} %</b>${nn(pmI)?` mot branschens ${f(pmI,0)} %`:""}.`:"",
+    nn(d.insPct)?`Ledning och styrelse äger <b>${f(d.insPct,1)} %</b>${d.insPct>=10?": de har mycket egna pengar i bolaget.":d.insPct<1?": litet eget ägande, vanligt i stora bolag.":"."}`:"",
+    H.length?`Av de ${H.length} största institutionerna ${up?`<b class="ok">ökade ${up}</b>`:"ökade ingen"} och ${dn?`<b class="no">minskade ${dn}</b>`:"ingen minskade"} senaste rapporterade kvartalet.`:""].filter(Boolean).join(" ");
+  return `<section class="card" id="ownCard"><div class="hd"><h2>Vem äger aktien?${ib("holders")}</h2></div><div class="bd">
+    <div class="duo" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr))">
+      <div><span class="sub">Institutioner äger${ib("instPct")}</span><b class="n">${nn(d.instPct)?f(d.instPct,0," %"):"–"}</b><span class="small muted">${nn(pmI)?`bransch ${f(pmI,0," %")}`:""}</span></div>
+      <div><span class="sub">Insiders äger${ib("insPct")}</span><b class="n">${nn(d.insPct)?f(d.insPct,1," %"):"–"}</b><span class="small muted">${nn(pmN)?`bransch ${f(pmN,1," %")}`:""}</span></div>
+      <div><span class="sub">Blankat${ib("shortPct")}</span><b class="n">${nn(d.shortPct)?f(d.shortPct,1," %"):"–"}</b><span class="small muted">av fria aktier</span></div>
+    </div>
+    ${txt?`<p style="font-size:13.5px;line-height:1.55;margin-top:10px">${txt}</p>`:""}
+    <details class="small" style="margin-top:10px"${H.length?"":" open"}><summary class="more" style="list-style:none">Historik och största ägare →</summary>
+      <h4 class="qh">Institutionellt ägande över tid</h4>
+      ${h.filter(x=>nn(x.i)).length>=2?`${ownLine(h)}<p class="small muted">${nn(ch)?`${ch>=0?"Upp":"Ned"} ${f(Math.abs(ch),1)} procentenheter sedan ${esc(first.d)}.`:""}</p>`:`<p class="small muted">Historiken byggs upp från och med nu: en punkt per natt när andelen ändras. Yahoo har ingen färdig historik.</p>`}
+      <h4 class="qh">De största institutionella ägarna</h4>
+      ${H.length?`<div class="tw"><table class="crit"><thead><tr><th>Ägare</th><th class="r">Andel</th><th class="r">Förändring kvartal</th><th>Rapporterat</th></tr></thead><tbody>${H.map(x=>`<tr><td>${esc(x.n)}</td><td class="r n">${nn(x.p)?f(x.p,2," %"):"–"}</td><td class="r n ${cls(x.c)}">${nn(x.c)?pct(x.c,1):"–"}</td><td class="n small">${esc(x.d)}</td></tr>`).join("")}</tbody></table></div><p class="small muted" style="margin-top:4px">Från amerikanska 13F-anmälningar via Yahoo Finance, rapporteras med upp till 45 dagars fördröjning efter kvartalet.</p>`:`<p class="small muted">${d.ticker.endsWith(".ST")?"Yahoo har inga ägarlistor för svenska bolag. Se Holdings eller bolagets årsredovisning.":"Hämtas i nattkörningen."}</p>`}
+    </details>
+  </div></section>`;
+}
 
 /* ============ STRATEGIER ============ */
 function pageMethod(){
