@@ -108,6 +108,12 @@ RULES = {
              "entry": lambda s: s["dist"] < 20, "exit": lambda s, t: s["dist"] >= 40 or t["ret"] <= -0.20},
     "fairstop": {"name": "Under Cheap, sälj vid Fair Value (30 %) eller −20 % stop",
                  "entry": lambda s: s["dist"] < 20, "exit": lambda s, t: s["dist"] >= 30 or t["ret"] <= -0.20},
+    "fire": {"name": "Bara Fire Sale: köp under 200W, sälj vid Expensive (40 %)",
+             "entry": lambda s: s["dist"] < 0, "exit": lambda s, t: s["dist"] >= 40},
+    "firefair": {"name": "Bara Fire Sale: köp under 200W, sälj vid Fair Value (30 %)",
+                 "entry": lambda s: s["dist"] < 0, "exit": lambda s, t: s["dist"] >= 30},
+    "firestop": {"name": "Bara Fire Sale, sälj vid Expensive eller −20 % stop",
+                 "entry": lambda s: s["dist"] < 0, "exit": lambda s, t: s["dist"] >= 40 or t["ret"] <= -0.20},
 }
 
 
@@ -151,6 +157,58 @@ def _close(pos, i, price, pts, done):
     weeks = i - pos["i"]
     return {"in": pts[pos["i"]][0], "out": pts[i][0], "w": weeks, "r": price / pos["p"] - 1,
             "dd": pos["low"] / pos["p"] - 1, "lr": pos["lev"] - 1, "ldd": pos["levlow"] - 1, "done": done}
+
+
+def portfolio(members, rule, data, spy):
+    """Portfölj: lika vikt i alla aktier som just nu har en öppen affär, annars kontanter (0 %).
+
+    Ger avkastning per år, max drawdown och Sharpe för hela strategin över tid, inte bara per affär."""
+    days = [d for d, _ in spy]
+    if len(days) <= MA:
+        return None
+    idx = {d: i for i, d in enumerate(days)}
+    n = len(days)
+    rets = [[] for _ in range(n)]
+    for r in members:
+        pts = series(load(data / "t" / fname(r["ticker"])))
+        if len(pts) < MA + 10:
+            continue
+        for t in simulate(pts, rule):
+            # veckoavkastning för varje vecka affären var öppen
+            seg = [(d, c) for d, c in pts if t["in"] <= d <= t["out"]]
+            for (d0, c0), (d1, c1) in zip(seg, seg[1:]):
+                i = idx.get(d1)
+                if i is None:
+                    i = min(range(n), key=lambda k: abs(days[k] - d1)) if abs(d1 - days[-1]) < 400 else None
+                if i is not None and c0:
+                    rets[i].append(c1 / c0 - 1)
+    start = MA + 1
+    eq, eq2, peak, peak2, dd, dd2, wk, inv = 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, [], 0
+    for i in range(start, n):
+        r = sum(rets[i]) / len(rets[i]) if rets[i] else 0.0
+        inv += 1 if rets[i] else 0
+        wk.append(r)
+        eq *= 1 + r
+        eq2 *= max(0.0, 1 + LEV * r - ((LEV - 1) * FIN_COST / 52 if rets[i] else 0))
+        peak, peak2 = max(peak, eq), max(peak2, eq2)
+        dd, dd2 = min(dd, eq / peak - 1), min(dd2, eq2 / peak2 - 1)
+    yrs = (n - start) / 52
+    m = sum(wk) / len(wk)
+    sd = (sum((x - m) ** 2 for x in wk) / len(wk)) ** 0.5
+    sw = [spy[i][1] / spy[i - 1][1] - 1 for i in range(start, n)]
+    sm = sum(sw) / len(sw)
+    ssd = (sum((x - sm) ** 2 for x in sw) / len(sw)) ** 0.5
+    speak, sdd, se = 1.0, 0.0, 1.0
+    for x in sw:
+        se *= 1 + x
+        speak = max(speak, se)
+        sdd = min(sdd, se / speak - 1)
+    return {"cagr": round((eq ** (1 / yrs) - 1) * 100, 1), "maxdd": round(dd * 100, 1),
+            "sharpe": round((m * 52 - 0.03) / (sd * 52 ** 0.5), 2) if sd else None,
+            "cagr2": round((eq2 ** (1 / yrs) - 1) * 100, 1) if eq2 > 0 else -100.0, "maxdd2": round(dd2 * 100, 1),
+            "invested": round(inv / (n - start) * 100, 0), "years": round(yrs, 1),
+            "spy": {"cagr": round((se ** (1 / yrs) - 1) * 100, 1), "maxdd": round(sdd * 100, 1),
+                    "sharpe": round((sm * 52 - 0.03) / (ssd * 52 ** 0.5), 2)}}
 
 
 def stats(trades, bench_cagr):
@@ -213,6 +271,10 @@ def run(data: Path):
                 out["trades"][gk] = [{"t": t["t"], "in": t["in"], "out": t["out"], "r": round(t["r"] * 100, 1),
                                       "dd": round(t["dd"] * 100, 1), "lr": round(t["lr"] * 100, 1), "done": t["done"]}
                                      for t in allt[:40]]
+    out["port"] = {}
+    for gk in ("lrhr", "gold", "mega"):
+        for rk in ("orig", "fire", "firefair", "fairstop"):
+            out["port"][f"{gk}|{rk}"] = portfolio(groups[gk][1], rk, data, spy)
     # bästa regeln per urval (median årstakt, kräver minst 10 affärer)
     out["best"] = {}
     for gk in groups:
@@ -236,6 +298,8 @@ def main():
                   f"wiped={v['lev']['wiped']} beatSPY={v['beatSpy']}% wk={v['weeks']}")
     print("SPY CAGR", res["spyCagr"], "från", res["from"], {k: v["n"] for k, v in res["groups"].items()})
     print("Guld:", res["groups"]["gold"]["tickers"])
+    for k, v in res["port"].items():
+        print("PORT", k, v)
 
 
 if __name__ == "__main__":
