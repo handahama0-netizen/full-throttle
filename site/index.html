@@ -489,6 +489,8 @@ details.xs>summary .muted{font-weight:400}
 details.xs>.card{margin-top:10px;border:0}
 ul.tips{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 ul.tips li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;font-size:13.5px;line-height:1.55;padding:10px 12px;border-radius:8px;background:var(--sunk)}
+.prof .pw{font-size:15px;line-height:1.55;max-width:80ch}
+.prof .pc{margin-top:10px}
 .epsnote{padding:10px 14px;border-top:1px solid var(--line);font-size:13px;line-height:1.55}
 .epsnote:empty{display:none}
 </style>
@@ -921,7 +923,7 @@ function pageStock(t){
       </div>
     </div>
   </section>
-  ${subnav((!d.type||d.type==="EQUITY"?[["q-thesis","Tesen"],["q-strat","Strategi"],["q-biz","Affären"],["q-price","Priset"],["q-own","Ägarna"],["q-risk","Risker"]]:[["q-strat","Strategi"],["q-price","Priset"],["q-own","Ägarna"],["q-risk","Risker"]]).concat([["deep","Mer"]]))}
+  ${subnav((!d.type||d.type==="EQUITY"?[["q-thesis","Bolaget"],["q-strat","Strategi"],["q-biz","Affären"],["q-price","Priset"],["q-own","Ägarna"],["q-risk","Risker"]]:[["q-strat","Strategi"],["q-price","Priset"],["q-own","Ägarna"],["q-risk","Risker"]]).concat([["deep","Mer"]]))}
   <div id="chapA">${chaptersA(d,null)}</div>
   <section class="qa" id="q-price"><div class="qhd"><span class="qn">${!d.type||d.type==="EQUITY"?4:2}</span><div><h2>Vad kostar den?</h2><p class="ans" id="priceAns">${priceAns(d,null)}</p></div></div>
   <div class="qbody"><div id="valBox">${valBlock(d,null)}</div>
@@ -2313,12 +2315,12 @@ function giantsCard(d){
   const g=d._pg||(d._pg=peerGroup(d));if(!g.peers||g.peers.length<3||(!d.industry&&(!d.sector||d.sector==="Övrigt")))return"";
   const L=g.peers.map(p=>({p,rev:revEst(p)})).filter(x=>x.rev).sort((a,b)=>b.rev-a.rev);if(L.length<3)return"";
   const tot=L.reduce((s,x)=>s+x.rev,0),me=L.findIndex(x=>x.p===d),top=L.slice(0,5);if(me>=5)top.push(L[me]);
-  const lead=L[0],two=L[1],ld=lead.p,mGM=peerMed(d,"grossMargin").m,mOM=peerMed(d,"opMargin").m,mG=peerMed(d,"revGrowth1y").m,mR=peerMed(d,"roic").m;
+  const lead=L[0],two=L[1],ld=lead.p,mGM=peerMed(d,"grossMargin").m,mOM=peerMed(d,"opMargin").m,mG=peerMed(d,"revGrowth1y").m,mR=peerMed(d,"roic").m,aB=k=>{const a=peerMed(d,k).a;return nn(a)?` (snitt ${f(a,0)} %)`:""};
   const why=[`${f(lead.rev/tot*100,0)} % av branschens omsättning bland sidans ${L.length} bolag, ${f(lead.rev/two.rev,1)} gånger tvåan ${esc(two.p.ticker)}.`];
-  if(nn(ld.grossMargin)&&nn(mGM))why.push(ld.grossMargin>mGM+5?`Bruttomarginal ${f(ld.grossMargin,0)} % mot branschens ${f(mGM,0)} %: kan ta betalt, ett tecken på starkt varumärke eller teknikförsprång.`:`Bruttomarginal ${f(ld.grossMargin,0)} % (branschen ${f(mGM,0)} %): storleken bygger mer på volym än på prissättning.`);
-  if(nn(ld.opMargin)&&nn(mOM)&&ld.opMargin>mOM+5)why.push(`Rörelsemarginal ${f(ld.opMargin,0)} % mot ${f(mOM,0)} %: skalfördelar, kostnaderna växer långsammare än intäkterna.`);
-  if(nn(ld.roic)&&nn(mR))why.push(ld.roic>mR+5?`ROIC ${f(ld.roic,0)} % mot ${f(mR,0)} %: tjänar mer på varje investerad krona, en vallgrav konkurrenterna har svårt att kopiera.`:`ROIC ${f(ld.roic,0)} % (branschen ${f(mR,0)} %).`);
-  if(nn(ld.revGrowth1y)&&nn(mG))why.push(ld.revGrowth1y>mG?`Växer ${f(ld.revGrowth1y,0)} % mot branschens ${f(mG,0)} %: ledaren tar marknadsandelar.`:`Växer ${f(ld.revGrowth1y,0)} % mot branschens ${f(mG,0)} %: utmanarna växer snabbare.`);
+  if(nn(ld.grossMargin)&&nn(mGM))why.push(ld.grossMargin>mGM+5?`Bruttomarginal ${f(ld.grossMargin,0)} % mot branschens median ${f(mGM,0)} %${aB("grossMargin")}: kan ta betalt, ett tecken på starkt varumärke eller teknikförsprång.`:`Bruttomarginal ${f(ld.grossMargin,0)} % (branschens median ${f(mGM,0)} %${aB("grossMargin")}): storleken bygger mer på volym än på prissättning.`);
+  if(nn(ld.opMargin)&&nn(mOM)&&ld.opMargin>mOM+5)why.push(`Rörelsemarginal ${f(ld.opMargin,0)} % mot branschens median ${f(mOM,0)} %${aB("opMargin")}: skalfördelar, kostnaderna växer långsammare än intäkterna.`);
+  if(nn(ld.roic)&&nn(mR))why.push(ld.roic>mR+5?`ROIC ${f(ld.roic,0)} % mot branschens median ${f(mR,0)} %${aB("roic")}: tjänar mer på varje investerad krona, en vallgrav konkurrenterna har svårt att kopiera.`:`ROIC ${f(ld.roic,0)} % (branschens median ${f(mR,0)} %${aB("roic")}).`);
+  if(nn(ld.revGrowth1y)&&nn(mG))why.push(ld.revGrowth1y>mG?`Växer ${f(ld.revGrowth1y,0)} % mot branschens median ${f(mG,0)} %${aB("revGrowth1y")}: ledaren tar marknadsandelar.`:`Växer ${f(ld.revGrowth1y,0)} % mot branschens median ${f(mG,0)} %${aB("revGrowth1y")}: utmanarna växer snabbare.`);
   const meTxt=me===0?`<b>${esc(d.name)} är störst i ${esc(g.label)}.</b>`:me>=0?`<b>${esc(d.name)} är nr ${me+1} av ${L.length}</b> i ${esc(g.label)} efter omsättning, ${f(L[me].rev/tot*100,0)} % av branschen.`:"";
   return `<section class="card" style="margin-top:16px"><div class="hd"><h2>Vem dominerar branschen?${ib("dominance")}</h2>${drill("peer","Hela branschen")}</div><div class="bd">
     <p style="font-size:13.5px;line-height:1.55">${meTxt}</p>
@@ -2706,7 +2708,7 @@ function headKpis(d){
   const K=[["P/E framåt","fwdPe",x=>x>0?f(x,1):"neg.","fwdPe",-1],["PEG","peg",x=>x>0?f(x,2):"neg.","peg",-1],["Institutioner äger","instPct",x=>f(x,0," %"),"instPct",0],["Insiders äger","insPct",x=>f(x,1," %"),"insPct",0]];
   return `<div class="hk">${K.map(([l,k,fm,g,dir])=>{const v=d[k],pm=peerMed(d,k),m=pm.m;const c=dir&&nn(v)&&v>0&&nn(m)?(v<m*0.9?"ok":v>m*1.1?"no":""):"";
     const fl=k==="instPct"&&d.instFlow?`<span class="${d.instFlow==="bull"?"ok":d.instFlow==="bear"?"no":"muted"}" title="Institutionernas nettoflöde senaste kvartalet">${IV[d.instFlow][2]}</span> `:"";
-    return `<div><span class="sub">${l}${ib(g)}</span><b class="n ${c}">${fl}${nn(v)?fm(v):"–"}</b><small>${nn(m)?`bransch ${fm(m)}`:"&nbsp;"}</small></div>`}).join("")}</div>`;
+    return `<div><span class="sub">${l}${ib(g)}</span><b class="n ${c}">${fl}${nn(v)?fm(v):"–"}</b><small>${nn(m)?`median ${fm(m)} · snitt ${nn(pm.a)?fm(pm.a):"–"}`:"&nbsp;"}</small></div>`}).join("")}</div>`;
 }
 function ownLine(h){
   const P=h.filter(x=>nn(x.i));if(P.length<2)return"";
@@ -2730,10 +2732,10 @@ function ownCard(d,det){
   const pmI=peerMed(d,"instPct").m,pmN=peerMed(d,"insPct").m,pctI=nn(d.instPct)?d.instPct:I&&I.pct;
   const g=(a,i)=>a&&nn(a[i])?a[i]:null;
   const buyers=I?(g(I.inc,0)||0)+(g(I.new,0)||0):null,sellers=I?(g(I.dec,0)||0)+(g(I.out,0)||0):null;
-  const txt=[nn(pctI)?`Institutioner äger <b>${f(pctI,0)} %</b>${nn(pmI)?` (branschen ${f(pmI,0)} %)`:""}${I&&nn(I.n)?` fördelat på ${f(I.n,0)} institutioner`:""}.`:"",
+  const txt=[nn(pctI)?`Institutioner äger <b>${f(pctI,0)} %</b>${nn(pmI)?` (branschen: ${bm(d,"instPct",x=>f(x,0," %"))})`:""}${I&&nn(I.n)?` fördelat på ${f(I.n,0)} institutioner`:""}.`:"",
     I&&nn(buyers)?`Senaste kvartalet ${I.q?`(${esc(I.q)}) `:""}ökade eller öppnade <b class="ok">${f(buyers,0)}</b> institutioner, medan <b class="no">${f(sellers,0)}</b> minskade eller sålde allt.${nn(I.netp)?` Netto ${I.netp>=0?"köptes":"såldes"} <b>${f(Math.abs(I.netp),1)} %</b> av institutionernas aktier.`:""}`:"",
     T?`Trenden: institutionernas andel har gått <b class="${T.d>=0?"ok":"no"}">${T.d>=0?"upp":"ned"} ${f(Math.abs(T.d),1)} procentenheter</b> sedan ${esc(T.from)}.`:"",
-    nn(d.insPct)?`Ledning och styrelse äger <b>${f(d.insPct,1)} %</b>${nn(pmN)?` (branschen ${f(pmN,1)} %)`:""}.`:""].filter(Boolean).join(" ");
+    nn(d.insPct)?`Ledning och styrelse äger <b>${f(d.insPct,1)} %</b>${nn(pmN)?` (branschen: ${bm(d,"insPct",x=>f(x,1," %"))})`:""}.`:""].filter(Boolean).join(" ");
   const mx=I?Math.max(1,g(I.inc,1)||0,g(I.dec,1)||0,g(I.new,1)||0,g(I.out,1)||0):1;
   const fbar=(l,a,side)=>`<span class="small muted">${l}</span><div class="${side==="b"?"ib-b":"ib-s"}"><i style="width:${(g(a,1)||0)/mx*100}%"></i><em class="n">${nn(g(a,0))?f(g(a,0),0)+" st":"–"} · ${nn(g(a,1))?big(g(a,1)):"–"} aktier</em></div>`;
   const hist=(det&&det.instHist)||[];
@@ -2741,10 +2743,10 @@ function ownCard(d,det){
   const tk=ui.ownTab&&tabs.find(x=>x[0]===ui.ownTab)?ui.ownTab:(tabs[0]||[])[0];
   return `<section class="card" id="ownCard"><div class="hd"><h2>Vem äger aktien?${ib("holders")}</h2>${V?`<span class="vd ${V[1]}">${V[2]} ${V[0]}</span>`:""}</div><div class="bd">
     <div class="duo" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr))">
-      <div><span class="sub">Institutioner äger${ib("instPct")}</span><b class="n">${nn(pctI)?f(pctI,0," %"):"–"}</b><span class="small muted">${T?`<span class="${T.d>=0?"ok":"no"}">${T.d>=0?"▲":"▼"} ${f(Math.abs(T.d),1)} p.e.</span> sedan ${esc(T.from)}`:nn(pmI)?`bransch ${f(pmI,0," %")}`:""}</span></div>
+      <div><span class="sub">Institutioner äger${ib("instPct")}</span><b class="n">${nn(pctI)?f(pctI,0," %"):"–"}</b><span class="small muted">${T?`<span class="${T.d>=0?"ok":"no"}">${T.d>=0?"▲":"▼"} ${f(Math.abs(T.d),1)} p.e.</span> sedan ${esc(T.from)}<br>`:""}${bm(d,"instPct",x=>f(x,0," %"))}</span></div>
       <div><span class="sub">Nettoflöde kvartal${ib("instFlow")}</span><b class="n ${cls(I&&I.netp)}">${I&&nn(I.netp)?pct(I.netp,1):"–"}</b><span class="small muted">${I&&nn(I.breadth)?`${f(I.breadth,2)} köpare per säljare`:"av institutionernas aktier"}</span></div>
-      <div><span class="sub">Insiders äger${ib("insPct")}</span><b class="n">${nn(d.insPct)?f(d.insPct,1," %"):"–"}</b><span class="small muted">${nn(pmN)?`bransch ${f(pmN,1," %")}`:""}</span></div>
-      <div><span class="sub">Blankat${ib("shortPct")}</span><b class="n">${nn(d.shortPct)?f(d.shortPct,1," %"):"–"}</b><span class="small muted">av fria aktier</span></div>
+      <div><span class="sub">Insiders äger${ib("insPct")}</span><b class="n">${nn(d.insPct)?f(d.insPct,1," %"):"–"}</b><span class="small muted">${bm(d,"insPct",x=>f(x,1," %"))}</span></div>
+      <div><span class="sub">Blankat${ib("shortPct")}</span><b class="n">${nn(d.shortPct)?f(d.shortPct,1," %"):"–"}</b><span class="small muted">${bm(d,"shortPct",x=>f(x,1," %"))||"av fria aktier"}</span></div>
     </div>
     ${txt?`<p style="font-size:13.5px;line-height:1.6;margin-top:10px">${txt}</p>`:""}
     ${I?`<div class="insg" style="grid-template-columns:110px 1fr">${fbar("Ökade",I.inc,"b")}${fbar("Nya",I.new,"b")}${fbar("Minskade",I.dec,"s")}${fbar("Sålde allt",I.out,"s")}</div>`:""}
@@ -2783,7 +2785,7 @@ function casesCard(d,det){
   else if(nn(d.targetMean)&&nn(d.targetLow)&&nn(d.targetHigh)){T={bear:d.targetLow,base:d.targetMean,bull:d.targetHigh};src="Analytikernas riktkurser (lägst, snitt, högst)"}
   const g=d._pg||(d._pg=peerGroup(d)),peers=(d.industry||(d.sector&&d.sector!=="Övrigt"))?g.peers:[];
   const pro=[],con=[];
-  KEYM.slice(0,4).forEach(([,ms])=>ms.forEach(m=>{if(!m[3])return;const j=kJudge(d,m,peers);if(!j.verdict||j.verdict==="ok")return;(j.verdict==="bra"?pro:con).push([j.pctl??.5,`${m[1]} ${j.txt}${nn(j.md)?` mot branschens ${kFmt(j.md,m[4])}`:""}`])}));
+  KEYM.slice(0,4).forEach(([,ms])=>ms.forEach(m=>{if(!m[3])return;const j=kJudge(d,m,peers);if(!j.verdict||j.verdict==="ok")return;(j.verdict==="bra"?pro:con).push([j.pctl??.5,`${m[1]} ${j.txt}${nn(j.md)?` mot branschens median ${kFmt(j.md,m[4])} och snitt ${nn(j.mn)?kFmt(j.mn,m[4]):"–"}`:""}`])}));
   pro.sort((a,b)=>b[0]-a[0]);con.sort((a,b)=>a[0]-b[0]);
   const bull=pro.slice(0,3).map(x=>x[1]),bear=con.slice(0,3).map(x=>x[1]);
   if(nn(d.epsRev30)&&d.epsRev30>1)bull.push(`Analytikerna höjer vinstprognosen (${pct(d.epsRev30,1)} på en månad)`);
@@ -2798,7 +2800,7 @@ function casesCard(d,det){
   const e1=(est.eps||{})["+1y"],r1=(est.rev||{})["+1y"];
   if(e1&&nn(e1.growth))base.push(`Analytikerna väntar sig ${pct(e1.growth*100,0)} vinsttillväxt nästa år${r1&&nn(r1.growth)?` och ${pct(r1.growth*100,0)} i omsättning`:""}`);
   if(nn(val.impliedG)&&nn(val.g1))base.push(`Kursen förutsätter ${f(val.impliedG*100,0)} % kassaflödestillväxt per år, prognosen är ${f(val.g1*100,0)} %${val.impliedG>val.g1+0.05?": högt ställda förväntningar":val.impliedG<val.g1-0.05?": lågt ställda förväntningar":""}`);
-  if(nn(d.fwdPe)&&d.fwdPe>0){const pm=peerMed(d,"fwdPe").m;base.push(`P/E framåt ${f(d.fwdPe,0)}${nn(pm)?` mot branschens ${f(pm,0)}`:""}`)}
+  if(nn(d.fwdPe)&&d.fwdPe>0){const pq=peerMed(d,"fwdPe");base.push(`P/E framåt ${f(d.fwdPe,0)}${nn(pq.m)?` mot branschens median ${f(pq.m,0)} och snitt ${nn(pq.a)?f(pq.a,0):"–"}`:""}`)}
   if(d.nAnalysts)base.push(`${REC[d.recKey]||"–"} från ${d.nAnalysts} analytiker`);
   const up=v=>nn(v)&&nn(d.price)?(v/d.price-1)*100:null;
   const ev=T?T.bear*0.25+T.base*0.5+T.bull*0.25:null;
@@ -2890,7 +2892,8 @@ function chaptersA(d,det){
   const eq=!d.type||d.type==="EQUITY",v=stratVerdict(d),H=histChapter(d,det),ir=eq?industryRank(d):null;
   const yes=k=>k==="gold"||k==="pos"?"✓":k==="wait"||k==="near"?"≈":"✕";
   const parts=[];
-  if(eq)parts.push(qSec("q-thesis",1,"Vad är tesen?",`Tre utfall: vad som måste gå rätt, vad som är inprisat och vad som kan gå fel.`,casesCard(d,det),["q-strat","Passar den min strategi?"]));
+  if(eq)parts.push(qSec("q-thesis",1,"Vad är bolaget, och vad är tesen?",`Vad bolaget gör, vad som gör det starkt eller svagt, och tre utfall: bull, bas och bear.`,profileCard(d,det)+`<div style="height:14px"></div>`+casesCard(d,det),["q-strat","Passar den min strategi?"]));
+  if(!eq)parts.push(`<div style="margin-top:16px">${profileCard(d,det)}</div>`);
   parts.push(qSec("q-strat",eq?2:1,"Passar den min strategi?",`<span class="yn ${v.k}">${yes(v.k)}</span> ${esc(v.t)}`,
     stratCard(d).replace('style="margin-top:16px"',"").replace(/<p class="sv">[\s\S]*?<\/p>/,"")+`<details class="xs"><summary>Hur har strategin fungerat på ${esc(d.ticker)}? <span class="muted">${H.a}</span></summary>${H.b}</details>`,
     eq?["q-biz","Hur går affären?"]:["q-price","Vad kostar den?"]));
@@ -2908,6 +2911,31 @@ function chaptersB(d,det){
       `${ownCard(d,det)}<div class="sgrid">${insCard(d,det)}<section class="card"><div class="hd"><h2>Analytiker och sentiment</h2>${drill("an","Alla analytiker")}</div><div class="bd">${anSummary(d)}<div style="margin-top:12px">${partsH(s.parts)}</div></div></section></div>`,["q-risk","Vad kan gå fel?"])
     +qSec("q-risk",n0+1,"Vad kan gå fel?",R.length?`${R.length} ${R.length===1?"varningsflagga":"varningsflaggor"}: ${R.join(", ")}.`:"Inga tydliga varningsflaggor i datan.",
       `<section class="card"><div class="bd">${R.length?`<ul class="why">${R.map(x=>`<li>${x[0].toUpperCase()+x.slice(1)}</li>`).join("")}</ul>`:`<p class="muted">Ingen hög skuld, hög beta, blankning eller utspädning som sticker ut.</p>`}<p class="small muted" style="margin-top:8px">Med hävstång: en aktie med beta ${f(d.beta,1)} och ${nn(d.mdd1y)?`största fall ${pct(d.mdd1y,0)} senaste året`:"okänt största fall"} kan ge ungefär dubbla fallet på din insats.</p></div></section>`,["deep","Mer detaljer"]);
+}
+
+
+/* ---- bolagsprofil ---- */
+let BOLAG={};
+const bm=(d,k,fm)=>{const p=peerMed(d,k);return nn(p.m)?`median ${fm(p.m)} · snitt ${nn(p.a)?fm(p.a):"–"}`:""};
+function profileCard(d,det){
+  const P=(BOLAG.p||{})[d.ticker];
+  const g=d._pg||(d._pg=peerGroup(d)),peers=(d.industry||(d.sector&&d.sector!=="Övrigt"))?g.peers:[];
+  const pro=[],con=[];
+  if(!d.type||d.type==="EQUITY")KEYM.slice(0,4).forEach(([,ms])=>ms.forEach(m=>{if(!m[3])return;const j=kJudge(d,m,peers);if(!j.verdict||j.verdict==="ok")return;(j.verdict==="bra"?pro:con).push([j.pctl??.5,`${m[1]} ${j.txt} <span class="faint">(bransch: median ${nn(j.md)?kFmt(j.md,m[4]):"–"}, snitt ${nn(j.mn)?kFmt(j.mn,m[4]):"–"})</span>`])}));
+  pro.sort((a,b)=>b[0]-a[0]);con.sort((a,b)=>a[0]-b[0]);
+  if(LEAD[d.ticker]===1)pro.unshift([1,"Störst i branschen efter omsättning"]);
+  const about=det&&det.about?det.about.split(/(?<=\.)\s+/).slice(0,2).join(" "):"";
+  const what=P&&P.w?esc(P.w):about?`<span lang="en">${esc(about)}</span> <span class="faint small">(bolagets egen beskrivning, engelska)</span>`:det?"Beskrivning saknas.":"Laddar…";
+  const list=(arr,cls2)=>`<ul class="${cls2}">${arr.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+  return `<section class="card prof"><div class="bd">
+    <div class="small muted" style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px">Vad gör bolaget?</div>
+    <p class="pw">${what}</p>
+    <div class="pc">
+      <div><h4>Konkurrensfördelar</h4>${P&&P.m?list(P.m.map(esc),"pro"):""}${pro.length&&!(P&&P.m)?`<div class="small muted" style="margin:6px 0 2px">Siffrorna säger:</div>${list(pro.slice(0,3).map(x=>x[1]),"pro")}`:(P&&P.m?"":`<p class="small muted">Inget som sticker ut mot branschen.</p>`)}</div>
+      <div><h4>Svagheter</h4>${P&&P.s?list(P.s.map(esc),"con"):""}${con.length&&!(P&&P.s)?`<div class="small muted" style="margin:6px 0 2px">Siffrorna säger:</div>${list(con.slice(0,3).map(x=>x[1]),"con")}`:(P&&P.s?"":`<p class="small muted">Inget som sticker ut mot branschen.</p>`)}</div>
+    </div>
+    <p class="small muted" style="margin-top:8px">${P?`Profil skriven av Claude ${esc(BOLAG.date||"")}. Nyckeltalen mot branschen finns i bull och bear nedan.`:`Styrkor och svagheter enligt siffrorna, jämfört med ${peers.length} bolag i ${esc(g.label)}.`}</p>
+  </div></section>`;
 }
 
 /* ============ STRATEGIER ============ */
@@ -2999,7 +3027,8 @@ async function load(){
     U=j;rows=(j.rows||[]).map(x=>({...x}));bySym={};rows.forEach(d=>{bySym[d.ticker]=d});computeLeaders();rows.forEach(classify);
     _pm.clear();computeQuant();
     const side=async n=>{try{const r=await fetch(n+"?t="+Date.now(),{cache:"no-store"});return r.ok?await r.json():null}catch(e){return null}};
-    const [fo,rp,mi,ins]=await Promise.all([side("focus.json"),side("positions.json"),side("mina.json"),side("insikt.json")]);
+    const [fo,rp,mi,ins,bo]=await Promise.all([side("focus.json"),side("positions.json"),side("mina.json"),side("insikt.json"),side("bolag.json")]);
+    BOLAG=bo&&bo.p?bo:{};
     INSIKT=ins&&ins.visser?ins:null;
     REPO_MINE=(mi&&Array.isArray(mi.tickers)?mi.tickers:[]).map(t=>String(t).trim().toUpperCase()).filter(Boolean);
     FOCUS=fo&&fo.picks?fo:null;
