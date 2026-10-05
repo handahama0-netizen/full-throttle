@@ -40,6 +40,10 @@ Fliken **Mina aktier** är din bevakningslista med en rad per aktie:
 
 Lägg till aktier med sökrutan (flera går med komma: `NVDA, AAPL, VOLV-B`) eller ☆ på en aktiesida. De sparas i webbläsaren. Aktier i `config/mina.txt` syns på alla enheter och får data vid nästa nattkörning, även om de inte ingår i S&P 500, Nasdaq-100 eller Stockholmslistan.
 
+## Aktiesidan
+
+Varje aktie berättas i sex steg: **Tesen** (bull, bas och bear med kursmål och argument), **Passar den min strategi?** (med backtest på aktien), **Hur går affären?** (interaktiv dashboard: EPS, omsättning, rörelseresultat, nettoresultat, fritt kassaflöde, marginal och P/E-historik per kvartal, rullande 12 månader eller år, 3, 5, 10 år eller max), **Vad kostar den?** (värde och kursgraf med 200W), **Vem äger den?** och **Vad kan gå fel?**. Resten finns under Mer detaljer. Kvartals- och årssiffrorna sparas och byggs på varje natt.
+
 ## Branscher och Jordi Visser
 
 Fliken **Branscher** visar vilka branscher som är hetast, vilka som kan vara nästa och vilka som svalnar. Varje bransch har nyckeltal, vilka bolag som dominerar (andel av omsättningen) och vilka stora bolag som ligger i din köpzon. Överst finns Claudes branschanalys och en sammanfattning av **Jordi Vissers** senaste budskap, med en tabell där hans teser möter din strategi med live-data. Texten ligger i `site/insikt.json` och uppdateras varje vecka av en schemalagd Claude-session.

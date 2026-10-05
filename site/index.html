@@ -462,6 +462,31 @@ table.corr th{background:none;color:var(--muted)}
 @media (max-width:560px){.hk{grid-template-columns:1fr 1fr}}
 .hk>div{background:var(--sunk);border-radius:8px;padding:8px 10px;display:grid;gap:1px}
 .hk b{font-size:18px;font-weight:750} .hk small{font-size:11px;color:var(--muted)}
+.lead2{font-size:17px;font-weight:650;line-height:1.45;max-width:75ch}
+.cases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+@media (max-width:860px){.cases{grid-template-columns:1fr}}
+.case{border-radius:10px;padding:12px 14px;border:1px solid var(--line);border-top-width:4px}
+.case.bull{border-top-color:var(--up)} .case.base{border-top-color:var(--z-fair)} .case.bear{border-top-color:var(--down)}
+.case .ch2{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.case .ch2 b{font-size:15px} .case .ch2 .n{font-size:14px;font-weight:650}
+.case ul{margin:8px 0 0;padding-left:16px;font-size:13px;line-height:1.5;display:grid;gap:4px}
+.dashc .dtools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.dstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:6px 0 4px}
+@media (max-width:560px){.dstats{grid-template-columns:1fr 1fr}}
+.dstats>div{background:var(--sunk);border-radius:8px;padding:8px 10px;display:grid}
+.dstats b{font-size:18px;font-weight:750}
+svg.dash{width:100%;height:auto;display:block;margin-top:8px}
+svg.dash text{font-family:var(--font);font-size:10.5px;fill:var(--muted)}
+svg.dash text.lb{font-weight:650}
+svg.dash .hv{cursor:pointer}
+svg.dash rect.hv:hover{opacity:1!important}
+.seg button:disabled{opacity:.35;cursor:default}
+details.xs{margin-top:12px;border:1px solid var(--line);border-radius:10px;background:var(--card);padding:10px 14px}
+details.xs>summary{cursor:pointer;font-weight:650;font-size:13.5px;list-style:none;line-height:1.5}
+details.xs>summary::-webkit-details-marker{display:none}
+details.xs>summary::before{content:"▸ ";color:var(--muted)} details.xs[open]>summary::before{content:"▾ "}
+details.xs>summary .muted{font-weight:400}
+details.xs>.card{margin-top:10px;border:0}
 .epsnote{padding:10px 14px;border-top:1px solid var(--line);font-size:13px;line-height:1.55}
 .epsnote:empty{display:none}
 </style>
@@ -479,8 +504,7 @@ table.corr th{background:none;color:var(--muted)}
       <a href="#/" data-nav="start">Start</a>
       <a href="#/mina" data-nav="mina">Mina aktier</a>
       <a href="#/branscher" data-nav="branscher">Branscher</a>
-      <a href="#/innehav/swing" data-nav="swing">Live swing</a>
-      <a href="#/innehav/port" data-nav="port">Portfölj</a>
+      <a href="#/innehav/port" data-nav="port">Innehav</a>
       <a href="#/screener" data-nav="screener">Screener</a>
       <a href="#/strategier" data-nav="strategier">Strategi &amp; backtest</a>
     </nav>
@@ -795,7 +819,7 @@ document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement.t
 function route(){
   const h=location.hash||"#/";const parts=h.slice(2).split("/");
   const page=parts[0]||"start";
-  const navKey=page==="innehav"?((parts[1]||"swing")==="swing"?"swing":"port"):page==="aktie"?"":page;
+  const navKey=page==="innehav"?"port":page==="aktie"?"":page;
   document.querySelectorAll("nav.main a").forEach(a=>a.setAttribute("aria-current",a.dataset.nav===navKey?"page":"false"));
   if(chart&&page!=="aktie"){chart.remove();chart=null;chartSym=null}
   if(!U){$("app").innerHTML=`<div class="skel">Laddar…</div>`;return}
@@ -823,37 +847,15 @@ function pageStart(){
   const ev=(U.events||[]).filter(e=>bySym[e.ticker]).slice(0,25);
   const sigTable=(list,empty,extra)=>list.length?`<div class="tw"><table><thead><tr><th class="l">Aktie</th><th>Kurs</th><th>Idag</th><th class="l">200W</th><th>${extra[0]}</th></tr></thead><tbody>${list.map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="n">${money(d.price,d.currency)}</td>${chgCell(d)}<td class="l">${zchip(d)}</td><td class="n">${extra[1](d)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">${empty}</p>`;
   $("app").innerHTML=`
-  ${subnav([["s-today","Idag"],["s-strat","Din strategi"]].concat(FOCUS?[["s-focus","Claudes fokus"]]:[]).concat([["xThemes","Teman"],["xMore","Utforska mer"]]))}
+  ${subnav([["s-today","Idag"]].concat(FOCUS?[["s-focus","Claudes fokus"]]:[]).concat([["xThemes","Teman"]]))}
   <div style="height:12px"></div>
   ${todayCard()}
   ${hasMa?"":`<div class="card" style="margin-bottom:16px"><div class="bd">200W-data saknas än. Den kommer när uppdateringen har körts första gången under Actions i GitHub.</div></div>`}
-  <div id="s-stratBox">${stratNowCard()}</div>
   <div style="margin-top:16px" id="s-focus">${focusCard()}</div>
   <details class="xsec" id="xThemes"><summary>Teman just nu <span class="sub">${(()=>{const T=themesCache().filter(t=>nn(t.mom));return T.length?`hetast ${esc(T[0].name)}, kallast ${esc(T[T.length-1].name)}`:""})()}</span></summary><div style="margin-top:12px">${themesCard()}</div></details>
-  <details class="xsec" id="xMore"><summary>Utforska mer <span class="sub">bra bolag till fel pris, radar, nära Low Risk High Reward, händelser</span></summary>
-  <div class="grid g2" style="margin-top:12px">
-    <section class="card"><div class="hd"><h2>Bevakning: bra bolag, fel pris${ib("watchBuy")}</h2><span class="sub">Fall som krävs till köpzon</span></div>
-      <div class="bd flush">${watchList.length?`<div class="tw"><table><thead><tr><th class="l">Aktie</th><th class="l">Strategi</th><th class="l">200W</th><th>Köpzon under</th><th>Kvar</th></tr></thead><tbody>${watchList.map(({d,k,drop})=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="l small">${STRATS[k].short}</td><td class="l">${zchip(d)}</td><td class="n">${money(level(d,k==="lrhr"?lim.zones.swing:lim.zones.rea),d.currency)}</td><td class="n down">−${f(drop,0," %")}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">${hasMa?"Inga bolag i bevakning.":"Väntar på 200W-data."}</p>`}</div></section>
-    <div class="grid" style="align-content:start">
-      <section class="card"><div class="hd"><h2>Nära Low Risk, High Reward${ib("nearLrhr")}</h2></div>
-        <div class="bd flush">${near.length?`<div class="tw"><table><tbody>${near.map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="l">${zchip(d,false)}</td><td class="l small muted">Missar ${esc(shortName("lrhr",d.res.lrhr.miss[0]))}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">Inga just nu.</p>`}</div></section>
-      <section class="card"><div class="hd"><h2>Händelser${ib("events")}</h2></div>
-        <div class="bd">${ev.length?`<ul class="ev">${ev.map(e=>`<li data-t="${esc(e.ticker)}" style="cursor:pointer"><span class="n faint" style="font-size:12px">${esc((e.date||"").slice(5))}</span><span class="tk">${esc(e.ticker)}</span><span>${e.type==="zone"?`<span class="z z-${esc(e.from)}">${esc(ZNAME[e.from]||"")}</span> → <span class="z z-${esc(e.to)}">${esc(ZNAME[e.to]||"")}</span>`:e.type==="in"?`<span class="ok">Ny signal: ${e.signal==="swing"?"Swing-läge":"Tillväxt på rea"}</span>`:`<span class="muted">Signal borta: ${e.signal==="swing"?"Swing-läge":"Tillväxt på rea"}</span>`}</span></li>`).join("")}</ul>`:`<p class="muted small">Zonbyten och nya signaler loggas från andra körningen och framåt.</p>`}</div></section>
-    </div>
-  </div>
-  <div style="margin-top:16px">
-    <section class="card"><div class="hd"><h2>Radar: kvalitet mot pris${ib("radar")}</h2>
-      <div class="seg" id="radarSeg"><button data-r="lrhr" aria-pressed="${ui.radar==="lrhr"}">Low Risk, High Reward</button><button data-r="ftp" aria-pressed="${ui.radar==="ftp"}">Full Throttle+</button></div></div>
-      <div class="bd"><svg class="radar" id="radar" viewBox="0 0 760 400" role="img" aria-label="Aktierna efter avstånd till 200W och poäng"></svg>
-      <div class="lg"><span><i style="background:var(--ink)"></i>Klarar strategin</span><span><i style="border:1.5px solid var(--ink)"></i>Missar ett krav</span><span><i style="background:var(--faint)"></i>Övriga</span><span>Höger = dyrare mot 200W · Upp = högre poäng</span></div></div></section>
-  </div>
-  </details>
   <p class="small muted" style="margin-top:14px">${rows.length} aktier · nyckeltal per ${esc(U.asOf||"–")} · kurser ${esc(rel(U.quotesAt||U.updatedAt))}</p>`;
   bindRows($("app"));bindStars($("app"));bindThemes();
-  document.querySelectorAll("#radarSeg button").forEach(b=>b.addEventListener("click",()=>{ui.radar=b.dataset.r;saveUi();document.querySelectorAll("#radarSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));renderRadar()}));
-  bindStratNow();
-  ["xMore","xThemes"].forEach(id=>{const el=$(id);if(ui["open_"+id])el.open=true;el.addEventListener("toggle",()=>{ui["open_"+id]=el.open;saveUi();if(id==="xMore"&&el.open)renderRadar()})});
-  if($("xMore").open)renderRadar();
+  ["xThemes"].forEach(id=>{const el=$(id);if(!el)return;if(ui["open_"+id])el.open=true;el.addEventListener("toggle",()=>{ui["open_"+id]=el.open;saveUi()})});
 }
 function xs(d){const v=clamp(d,-40,250);return v<=60?(v+40)/100*0.72:0.72+Math.log(1+(v-60)/40)/Math.log(1+190/40)*0.28}
 function renderRadar(){
@@ -916,11 +918,11 @@ function pageStock(t){
       </div>
     </div>
   </section>
-  ${subnav((!d.type||d.type==="EQUITY"?[["q-strat","1 Strategi"],["q-hist","2 Historik"],["q-val","3 Pris"],["q-eps","4 Vinst"],["q-ind","5 Bransch"],["q-mood","6 Ägare"],["q-risk","7 Risk"]]:[["q-strat","1 Strategi"],["q-hist","2 Historik"]]).concat([["chartSect","Graf"],["deep","Fördjupning"]]))}
-  <div id="storyBox" style="margin-top:12px">${!d.type||d.type==="EQUITY"?story(d,null):""}</div>
-  <div id="chapBox">${chapters(d,null)}</div>
-  <h2 class="sect" id="chartSect">Kursgraf och 200W-zoner</h2>
-  <section class="card">
+  ${subnav((!d.type||d.type==="EQUITY"?[["q-thesis","Tesen"],["q-strat","Strategi"],["q-biz","Affären"],["q-price","Priset"],["q-own","Ägarna"],["q-risk","Risker"]]:[["q-strat","Strategi"],["q-price","Priset"],["q-own","Ägarna"],["q-risk","Risker"]]).concat([["deep","Mer"]]))}
+  <div id="chapA">${chaptersA(d,null)}</div>
+  <section class="qa" id="q-price"><div class="qhd"><span class="qn">${!d.type||d.type==="EQUITY"?4:2}</span><div><h2>Vad kostar den?</h2><p class="ans" id="priceAns">${priceAns(d,null)}</p></div></div>
+  <div class="qbody"><div id="valBox">${valBlock(d,null)}</div>
+  <section class="card" id="chartSect" style="margin-top:16px">
     <div class="ctool">
       <div class="seg" id="tfSeg"><button data-tf="D" aria-pressed="${ui.tf==="D"}">Dag</button><button data-tf="W" aria-pressed="${ui.tf==="W"}">Vecka</button></div>
       <div class="seg" id="rgSeg">${["6M","1Y","3Y","5Y","MAX"].map(r=>`<button data-r="${r}" aria-pressed="${ui.range===r}">${{"6M":"6 mån","1Y":"1 år","3Y":"3 år","5Y":"5 år","MAX":"Max"}[r]}</button>`).join("")}</div>
@@ -930,8 +932,9 @@ function pageStock(t){
     </div>
     <div class="chartbox" id="chartbox"><div class="legend" id="legend"></div><div class="skel" id="chartMsg">Laddar diagram…</div></div>
     <div class="epsnote" id="epsNote"></div>
-  </section>
-  <h2 class="sect" id="deep">Fördjupning</h2>
+  </section></div><button class="nextq" data-to2="q-own">Nästa: Vem äger den? ↓</button></section>
+  <div id="chapB">${chaptersB(d,null)}</div>
+  <h2 class="sect" id="deep">Mer detaljer</h2>
   <section class="card">
     <div class="tabs" role="tablist" id="stabs">
       ${STABS.map(([k,l])=>`<button role="tab" data-s="${k}" aria-selected="${ui.stab===k}">${l}</button>`).join("")}
@@ -947,15 +950,16 @@ function pageStock(t){
   $("epsChk").addEventListener("change",e=>{ui.eps=e.target.checked;saveUi();drawChart(d)});
   renderStab(d);
   getDetail(d.ticker).then(det=>{if(location.hash!==link(d.ticker)&&decodeURIComponent(location.hash)!==decodeURIComponent(link(d.ticker)))return;d._det=det;
-      if(!d.type||d.type==="EQUITY")$("storyBox").innerHTML=story(d,det);$("chapBox").innerHTML=chapters(d,det);bindDrill(d);bindChap(d);bindRows($("chapBox"));bindOwn();mountSubnav();
+      $("chapA").innerHTML=chaptersA(d,det);$("valBox").innerHTML=valBlock(d,det);$("priceAns").innerHTML=priceAns(d,det);$("chapB").innerHTML=chaptersB(d,det);
+      bindDrill(d);bindChap(d);bindRows($("chapA"));bindRows($("chapB"));bindOwn();bindDash(d);mountSubnav();
       drawChart(d);renderStab(d)})
     .catch(()=>{const m=$("chartMsg");if(m)m.textContent="Kunde inte ladda kursdata för den här aktien."});
 }
-const STABS=[["analys","Analys"],["key","Nyckeltal"],["peer","Bransch"],["an","Analytiker"],["quant","Quant"],["levels","Köpnivåer"],["strat","Strategier"],["about","Om bolaget"]];
+const STABS=[["analys","Analys och nyheter"],["key","Nyckeltal"],["peer","Bransch"],["an","Analytiker"],["strat","Strategikrav"],["about","Om bolaget"]];
 function bindDrill(d){
   document.querySelectorAll("[data-drill]").forEach(b=>{if(b._b)return;b._b=1;b.addEventListener("click",()=>{const k=b.dataset.drill;
     if(k==="chart"){if(ui.eps===false){ui.eps=true;saveUi();const c=$("epsChk");if(c)c.checked=true;drawChart(d)}goTo("chartSect");return}
-    if(k==="strategier")return;ui.stab=k;saveUi();document.querySelectorAll("#stabs button").forEach(x=>x.setAttribute("aria-selected",x.dataset.s===k));renderStab(d);goTo("deep")})});
+    if(k==="strategier")return;if(k==="quant"){goTo("q-biz");return}ui.stab=k;saveUi();document.querySelectorAll("#stabs button").forEach(x=>x.setAttribute("aria-selected",x.dataset.s===k));renderStab(d);goTo("deep")})});
 }
 function ladder(d){
   if(!nn(d.ma200w))return `<p class="muted small">200W-snitt saknas (för kort historik eller ingen data än).</p>`;
@@ -1109,6 +1113,7 @@ function renderAnalysis(d,det){
     </div></div>`;
 }
 function renderStab(d){
+  if(!STABS.some(x=>x[0]===ui.stab))ui.stab="analys";
   const b=$("stabBody");if(!b)return;const det=d._det;
   if(ui.stab==="analys"){b.innerHTML=det?renderAnalysis(d,det):`<p class="muted">Laddar analys…</p>`;return}
   if(ui.stab==="peer"){b.innerHTML=renderPeers(d);bindRows(b);return}
@@ -2682,6 +2687,152 @@ function ownCard(d,det){
 function bindOwn(){const c=$("ownCard");if(!c)return;
   const det=c.querySelector("#ownDet");if(det)det.addEventListener("toggle",()=>{ui.ownOpen=det.open;saveUi()});
   c.querySelectorAll("#ownTabs button").forEach(b=>b.addEventListener("click",()=>{ui.ownTab=b.dataset.k;saveUi();const d=bySym[decodeURIComponent(location.hash.split("/")[2]||"")];if(d&&d._det){c.outerHTML=ownCard(d,d._det);bindOwn()}}))}
+
+/* ============ AKTIESIDAN: BERÄTTELSEN ============ */
+function leadOf(d){
+  const v=valView(d),nm=d.name||d.ticker,g=d.revGrowth1y;
+  const gw=!nn(g)?"":g>=25?"snabbväxande ":g>=10?"växande ":g>=0?"långsamt växande ":"krympande ";
+  const pw=nn(d.netMargin)&&d.netMargin<0?"olönsamt bolag":nn(d.roic)&&d.roic>=15&&(d.grossMargin??0)>=40?"kvalitetsbolag":nn(d.netMargin)&&d.netMargin>=10?"lönsamt bolag":"bolag";
+  const vw=v.k==="pos"?"som ser billigt ut":v.k==="neg"?"som marknaden värderar högt":v.score!=null?"till ett rimligt pris":"";
+  let t=`${nm} är ett ${gw}${pw}${vw?" "+vw:""}.`;
+  if(d.z==="vexp")t+=` Kursen ligger ${f(d.dist200w,0)} % över 200-veckorssnittet, långt från köpzonen.`;
+  else if(["fire","vcheap","cheap"].includes(d.z))t+=` Kursen ligger nära 200-veckorssnittet, i din köpzon.`;
+  return t;
+}
+/* ---- bull, bas och bear ---- */
+function casesCard(d,det){
+  const val=(det&&det.val)||{},dcf=val.dcf,est=(det&&det.est)||{},I=det&&det.inst;
+  let T=null,src="";
+  if(dcf&&nn(dcf.base)&&dcf.base>0&&nn(dcf.bear)&&nn(dcf.bull)){T={bear:dcf.bear,base:dcf.base,bull:dcf.bull};src="Kassaflödesvärdering (DCF)"}
+  else if(nn(d.targetMean)&&nn(d.targetLow)&&nn(d.targetHigh)){T={bear:d.targetLow,base:d.targetMean,bull:d.targetHigh};src="Analytikernas riktkurser (lägst, snitt, högst)"}
+  const g=d._pg||(d._pg=peerGroup(d)),peers=(d.industry||(d.sector&&d.sector!=="Övrigt"))?g.peers:[];
+  const pro=[],con=[];
+  KEYM.slice(0,4).forEach(([,ms])=>ms.forEach(m=>{if(!m[3])return;const j=kJudge(d,m,peers);if(!j.verdict||j.verdict==="ok")return;(j.verdict==="bra"?pro:con).push([j.pctl??.5,`${m[1]} ${j.txt}${nn(j.md)?` mot branschens ${kFmt(j.md,m[4])}`:""}`])}));
+  pro.sort((a,b)=>b[0]-a[0]);con.sort((a,b)=>a[0]-b[0]);
+  const bull=pro.slice(0,3).map(x=>x[1]),bear=con.slice(0,3).map(x=>x[1]);
+  if(nn(d.epsRev30)&&d.epsRev30>1)bull.push(`Analytikerna höjer vinstprognosen (${pct(d.epsRev30,1)} på en månad)`);
+  if(nn(d.epsRev30)&&d.epsRev30<-1)bear.push(`Analytikerna sänker vinstprognosen (${pct(d.epsRev30,1)} på en månad)`);
+  if(I&&I.verdict==="bull")bull.push(`Institutionerna köper: ${nn(I.breadth)?f(I.breadth,2)+" köpare per säljare":"fler köpare än säljare"}`);
+  if(I&&I.verdict==="bear")bear.push(`Institutionerna säljer: ${nn(I.breadth)?f(I.breadth,2)+" köpare per säljare":"fler säljare än köpare"}`);
+  if(["fire","vcheap","cheap"].includes(d.z))bull.push(`Kursen är nära 200W-snittet (${pct(d.dist200w,0)}), historiskt ett bra läge`);
+  if(d.z==="vexp")bear.push(`Kursen är ${f(d.dist200w,0)} % över 200W, mycket förväntningar inprisade`);
+  if(LEAD[d.ticker]===1)bull.push("Störst i sin bransch: skala och prissättningsmakt");
+  risksOf(d).filter(r=>!/200W/.test(r)).slice(0,2).forEach(r=>bear.push(r[0].toUpperCase()+r.slice(1)));
+  const base=[];
+  const e1=(est.eps||{})["+1y"],r1=(est.rev||{})["+1y"];
+  if(e1&&nn(e1.growth))base.push(`Analytikerna väntar sig ${pct(e1.growth*100,0)} vinsttillväxt nästa år${r1&&nn(r1.growth)?` och ${pct(r1.growth*100,0)} i omsättning`:""}`);
+  if(nn(val.impliedG)&&nn(val.g1))base.push(`Kursen förutsätter ${f(val.impliedG*100,0)} % kassaflödestillväxt per år, prognosen är ${f(val.g1*100,0)} %${val.impliedG>val.g1+0.05?": högt ställda förväntningar":val.impliedG<val.g1-0.05?": lågt ställda förväntningar":""}`);
+  if(nn(d.fwdPe)&&d.fwdPe>0){const pm=peerMed(d,"fwdPe").m;base.push(`P/E framåt ${f(d.fwdPe,0)}${nn(pm)?` mot branschens ${f(pm,0)}`:""}`)}
+  if(d.nAnalysts)base.push(`${REC[d.recKey]||"–"} från ${d.nAnalysts} analytiker`);
+  const up=v=>nn(v)&&nn(d.price)?(v/d.price-1)*100:null;
+  const ev=T?T.bear*0.25+T.base*0.5+T.bull*0.25:null;
+  const col=(k,nm,tv,pts,cls2)=>`<div class="case ${cls2}"><div class="ch2"><b>${nm}</b>${nn(tv)?`<span class="n">${money(tv,d.currency)} <span class="${cls(up(tv))}">${pct(up(tv),0)}</span></span>`:""}</div><ul>${pts.length?pts.slice(0,4).map(x=>`<li>${x}</li>`).join(""):`<li class="muted">För lite data.</li>`}</ul></div>`;
+  return `<section class="card"><div class="bd">
+    <p class="lead2">${esc(leadOf(d))}</p>
+    <div class="cases">${col("bull","Bull case",T&&T.bull,bull,"bull")}${col("base","Bas case",T&&T.base,base,"base")}${col("bear","Bear case",T&&T.bear,bear,"bear")}</div>
+    ${T?`<p class="small" style="margin-top:10px">Vägt 25 / 50 / 25 blir det förväntade värdet <b class="n">${money(ev,d.currency)}</b>, <b class="n ${cls(up(ev))}">${pct(up(ev),0)}</b> mot kursen. <span class="muted">Kursmål: ${src}.</span></p>`:`<p class="small muted" style="margin-top:10px">Kursmål saknas (inget DCF-värde eller analytikerbevakning).</p>`}
+  </div></section>`;
+}
+/* ---- interaktiv finansiell dashboard ---- */
+const FDM=[["eps","Vinst per aktie"],["rev","Omsättning"],["op","Rörelseresultat"],["ni","Nettoresultat"],["fcf","Fritt kassaflöde"],["margin","Marginal"],["pe","P/E-historik"]];
+function finSeriesX(d,det,m,per){
+  const day=s=>Math.floor(Date.parse(s)/864e5);
+  const qEps=epsQuarters(det).map(x=>({d:x.d,v:x.a,e:x.e}));
+  const fq=(det.fq||[]).filter(x=>x.d);
+  const A={};
+  (det.sec&&det.sec.years||[]).forEach(r=>{const y=String(r.end).slice(0,4);A[y]={...(A[y]||{}),d:r.end,rev:r.rev,ni:r.ni,fcf:r.fcf}});
+  if(det.fin)det.fin.y.forEach((y,i)=>{A[y]={...(A[y]||{}),d:(det.fin.d&&det.fin.d[i])||y+"-12-31"};["rev","ni","op","eps"].forEach(k=>{const v=(det.fin[k]||[])[i];if(nn(v))A[y][k]=v})});
+  (det.fa||[]).forEach(r=>{const y=r.d.slice(0,4);A[y]={...(A[y]||{}),d:r.d};["rev","op","ni","eps","fcf"].forEach(k=>{if(nn(r[k]))A[y][k]=r[k]})});
+  // år utan EPS: summera kvartalen per kalenderår
+  const cal={};qEps.forEach(x=>{const y=x.d.slice(0,4);(cal[y]=cal[y]||[]).push(x.v)});
+  Object.entries(cal).forEach(([y,v])=>{if(v.length===4&&!(A[y]&&nn(A[y].eps)))A[y]={...(A[y]||{}),d:A[y]&&A[y].d||y+"-12-31",eps:v.reduce((a,b)=>a+b,0),approx:1}});
+  const annual=k=>Object.keys(A).sort().map(y=>({d:A[y].d,l:y,v:A[y][k],approx:k==="eps"&&A[y].approx})).filter(x=>nn(x.v));
+  const quarter=k=>k==="eps"?qEps.map(x=>({d:x.d,l:qlab(x.d),v:x.v,e:x.e})):fq.filter(x=>nn(x[k])).map(x=>({d:x.d,l:qlab(x.d),v:x[k]}));
+  const ttm=s=>{const o=[];for(let i=3;i<s.length;i++){if(day(s[i].d)-day(s[i-3].d)>400)continue;o.push({d:s[i].d,l:qlab(s[i].d),v:s[i].v+s[i-1].v+s[i-2].v+s[i-3].v})}return o};
+  if(m==="pe"){const t=ttm(quarter("eps")),D=det.d;if(!D)return[];const pAt=dd=>{let c=null;for(let i=0;i<D.t.length&&D.t[i]<=day(dd);i++)c=D.c[i];return c};
+    const o=t.filter(x=>x.v>0).map(x=>({d:x.d,l:qlab(x.d),v:pAt(x.d)/x.v})).filter(x=>nn(x.v)&&x.v>0&&x.v<400);
+    const lt=t[t.length-1];if(lt&&lt.v>0&&nn(d.price))o.push({d:new Date().toISOString().slice(0,10),l:"Nu",v:d.price/lt.v,now:1});return o}
+  if(m==="margin"){const src=per==="y"?Object.keys(A).sort().map(y=>({d:A[y].d,l:y,r:A[y].rev,o:A[y].op})):fq.map(x=>({d:x.d,l:qlab(x.d),r:x.rev,o:x.op}));return src.filter(x=>nn(x.r)&&x.r>0&&nn(x.o)).map(x=>({d:x.d,l:x.l,v:x.o/x.r*100}))}
+  let s=per==="y"?annual(m):per==="ttm"?ttm(quarter(m)):quarter(m);
+  if(per==="y"&&(m==="rev"||m==="eps")){const e=(det.est||{})[m];if(e&&s.length){let ly=+s[s.length-1].l;["0y","+1y"].forEach(k=>{if(e[k]&&nn(e[k].avg)){ly++;s.push({d:ly+"-12-31",l:String(ly),v:e[k].avg,fc:1})}})}}
+  return s;
+}
+function qlab(dd){const m=+dd.slice(5,7);return `${dd.slice(2,4)}Q${Math.ceil(m/3)}`}
+function finDash(d,det){
+  if(!det)return `<p class="muted">Laddar…</p>`;
+  const m=ui.fdM||"eps",per=m==="pe"?"q":(ui.fdP||"q"),R=ui.fdR??10,eps=m==="eps",isPct=m==="margin";
+  let s=finSeriesX(d,det,m,per);
+  if(R&&s.length){const cut=Date.now()-R*365.25*864e5;s=s.filter(x=>x.fc||Date.parse(x.d)>=cut)}
+  const act=s.filter(x=>!x.fc),last=act[act.length-1],back=per==="y"?1:per==="ttm"?4:4,prev=act[act.length-1-back];
+  const yoy=last&&prev&&prev.v>0&&last.v>0?(last.v/prev.v-1)*100:null;
+  const first=act.find(x=>x.v>0),yrs=first&&last?(Date.parse(last.d)-Date.parse(first.d))/365.25/864e5:0,cagr=first&&last&&last.v>0&&yrs>=1?((last.v/first.v)**(1/yrs)-1)*100:null;
+  const fmt=v=>!nn(v)?"–":isPct?f(v,1," %"):m==="pe"?f(v,1):eps?f(v,2):big(v);
+  let chart;
+  if(s.length<2)chart=`<p class="muted" style="padding:30px 0;text-align:center">${s.length?"Bara en period hittills.":"Data saknas för det här valet."} ${per!=="y"&&m!=="eps"?"Kvartalsdata för omsättning och resultat har Yahoo bara för ca 5 kvartal. Historiken byggs på varje natt. Välj År för längre tid.":"Prova ett annat val."}</p>`;
+  else{
+    const W=innerWidth>900?1150:innerWidth<640?440:760,H=innerWidth>900?260:innerWidth<640?280:240,L=innerWidth<640?44:54,Rr=8,T=12,B=26,pw=W-L-Rr,ph=H-T-B,vals=s.map(x=>x.v),mx=Math.max(0,...vals),mn=Math.min(0,...vals),pad=(mx-mn)*0.06||1;
+    const top=mx+pad,bot=mn<0?mn-pad:0,Y=v=>T+(1-(v-bot)/(top-bot))*ph,n=s.length,bw=pw/n,z=Y(0);
+    let g="";for(let i=0;i<=4;i++){const v=bot+(top-bot)*i/4;g+=`<line x1="${L}" x2="${W-Rr}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(v)+3.5}" text-anchor="end">${fmt(v)}</text>`}
+    const step=Math.ceil(n/(innerWidth<640?5:14));
+    if(m==="pe"){const md=med(act.map(x=>x.v));const path=s.map((x,i)=>`${i?"L":"M"}${(L+i*bw+bw/2).toFixed(1)},${Y(x.v).toFixed(1)}`).join("");
+      if(nn(md))g+=`<line x1="${L}" x2="${W-Rr}" y1="${Y(md)}" y2="${Y(md)}" stroke="var(--z-fair)" stroke-dasharray="5 4"/><text x="${W-Rr}" y="${Y(md)-5}" text-anchor="end" class="lb" style="fill:var(--z-fair)">median ${f(md,1)}</text>`;
+      g+=`<path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2"/>`;
+      s.forEach((x,i)=>{g+=`<circle cx="${(L+i*bw+bw/2).toFixed(1)}" cy="${Y(x.v).toFixed(1)}" r="${x.now?5:3}" fill="${x.now?"var(--ink)":"var(--accent)"}" data-i="${i}" class="hv"/><rect x="${(L+i*bw).toFixed(1)}" y="${T}" width="${bw.toFixed(1)}" height="${ph}" fill="transparent" data-i="${i}" class="hv"/>`})}
+    else s.forEach((x,i)=>{const y=Y(x.v),tp=Math.min(y,z),h=Math.max(1.5,Math.abs(y-z)),isL=x===last;
+      g+=`<rect class="hv" data-i="${i}" x="${(L+i*bw+bw*0.15).toFixed(1)}" y="${tp.toFixed(1)}" width="${(bw*0.7).toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${x.fc?"url(#hatch2)":x.v<0?"var(--down)":"var(--accent)"}" ${x.fc?'stroke="var(--accent)" stroke-dasharray="2 2"':""} opacity="${x.fc||isL?1:.55}"/>`});
+    s.forEach((x,i)=>{if(i%step===0||i===n-1)g+=`<text x="${(L+i*bw+bw/2).toFixed(1)}" y="${H-8}" text-anchor="middle" style="${x.fc?"font-style:italic":""}">${esc(x.l)}${x.fc?"P":""}</text>`});
+    chart=`<svg class="dash" id="dashSvg" viewBox="0 0 ${W} ${H}"><defs><pattern id="hatch2" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="5" fill="var(--accent)" opacity=".4"/></pattern></defs>${g}</svg>`;
+  }
+  const nm=(FDM.find(x=>x[0]===m)||[])[1];
+  const story=last?(m==="pe"?`P/E är ${f(last.v,1)} nu mot medianen ${f(med(act.map(x=>x.v)),1)} under perioden: ${last.v<med(act.map(x=>x.v))*0.9?"aktien är billigare än den brukar vara":last.v>med(act.map(x=>x.v))*1.1?"aktien är dyrare än den brukar vara":"i linje med historiken"}.`
+    :`${nm} ${per==="q"?"senaste kvartalet":per==="ttm"?"senaste 12 månaderna":esc(last.l)} var ${fmt(last.v)}${nn(yoy)?`, ${yoy>=0?"upp":"ned"} ${f(Math.abs(yoy),0)} % mot året innan`:""}${nn(cagr)&&!isPct?`. Över perioden har den vuxit ${f(cagr,0)} % per år`:""}.`):"";
+  const segs=(id,opts,cur,dis)=>`<div class="seg" id="${id}">${opts.map(([k,l])=>`<button data-v="${k}" aria-pressed="${String(cur)===String(k)}" ${dis&&dis(k)?"disabled":""}>${l}</button>`).join("")}</div>`;
+  window._dashS=s;window._dashF=fmt;
+  return `<div class="dashc">
+    <div class="dtools">${segs("fdM",FDM,m)}</div>
+    <div class="dtools">${segs("fdP",[["q","Kvartal"],["ttm","12 mån rullande"],["y","År"]],per,k=>m==="pe"&&k!=="q")}${segs("fdR",[[3,"3 år"],[5,"5 år"],[10,"10 år"],[0,"Max"]],R)}</div>
+    <div class="dstats"><div><span class="sub">Senaste</span><b class="n">${last?fmt(last.v):"–"}</b></div><div><span class="sub">Mot året innan</span><b class="n ${cls(yoy)}">${nn(yoy)?pct(yoy,0):"–"}</b></div><div><span class="sub">Tillväxt per år</span><b class="n ${cls(cagr)}">${nn(cagr)&&!isPct&&m!=="pe"?pct(cagr,0):"–"}</b></div><div><span class="sub">Perioder</span><b class="n">${act.length}</b></div></div>
+    ${chart}
+    <p class="small" style="margin-top:6px">${story}${s.some(x=>x.approx)?" <span class=\"muted\">Vissa års-EPS är summan av kvartalen per kalenderår.</span>":""}${s.some(x=>x.fc)?" <span class=\"muted\">Randiga staplar = analytikernas prognos.</span>":""}</p>
+  </div>`;
+}
+function bindDash(d){
+  const box=$("dashBox");if(!box||!d._det)return;
+  const re=()=>{box.innerHTML=finDash(d,d._det);bindDash(d)};
+  box.querySelectorAll("#fdM button").forEach(b=>b.addEventListener("click",()=>{ui.fdM=b.dataset.v;saveUi();re()}));
+  box.querySelectorAll("#fdP button").forEach(b=>b.addEventListener("click",()=>{ui.fdP=b.dataset.v;saveUi();re()}));
+  box.querySelectorAll("#fdR button").forEach(b=>b.addEventListener("click",()=>{ui.fdR=+b.dataset.v;saveUi();re()}));
+  const tip=$("tip"),S=window._dashS,F=window._dashF;
+  box.querySelectorAll(".hv").forEach(el=>{const x=S[+el.dataset.i];if(!x)return;
+    const show=e=>{const i=+el.dataset.i,pv=S[i-((ui.fdP||"q")==="y"?1:4)];const yy=pv&&pv.v>0&&x.v>0&&(ui.fdM||"eps")!=="margin"&&(ui.fdM||"eps")!=="pe"?(x.v/pv.v-1)*100:null;
+      tip.innerHTML=`<b>${esc(x.l)}${x.fc?" (prognos)":""}</b> · ${esc(x.d)}<br>${F(x.v)}${nn(yy)?` · ${pct(yy,0)} mot året innan`:""}${nn(x.e)?`<br>Väntat ${f(x.e,2)} · ${x.v>=x.e?"slog":"missade"}`:""}`;tip.hidden=false;tip.style.left=Math.min(e.clientX+12,innerWidth-270)+"px";tip.style.top=(e.clientY+12)+"px"};
+    el.addEventListener("mousemove",show);el.addEventListener("click",show);el.addEventListener("mouseleave",()=>tip.hidden=true)});
+}
+/* ---- avsnitten ---- */
+function qSec(id,n,q,a,body,next){return `<section class="qa" id="${id}"><div class="qhd"><span class="qn">${n}</span><div><h2>${q}</h2><p class="ans">${a}</p></div></div>${body?`<div class="qbody">${body}</div>`:""}${next?`<button class="nextq" data-to2="${next[0]}">Nästa: ${next[1]} ↓</button>`:""}</section>`}
+function chaptersA(d,det){
+  const eq=!d.type||d.type==="EQUITY",v=stratVerdict(d),H=histChapter(d,det),ir=eq?industryRank(d):null;
+  const yes=k=>k==="gold"||k==="pos"?"✓":k==="wait"||k==="near"?"≈":"✕";
+  const parts=[];
+  if(eq)parts.push(qSec("q-thesis",1,"Vad är tesen?",`Tre utfall: vad som måste gå rätt, vad som är inprisat och vad som kan gå fel.`,casesCard(d,det),["q-strat","Passar den min strategi?"]));
+  parts.push(qSec("q-strat",eq?2:1,"Passar den min strategi?",`<span class="yn ${v.k}">${yes(v.k)}</span> ${esc(v.t)}`,
+    stratCard(d).replace('style="margin-top:16px"',"").replace(/<p class="sv">[\s\S]*?<\/p>/,"")+`<details class="xs"><summary>Hur har strategin fungerat på ${esc(d.ticker)}? <span class="muted">${H.a}</span></summary>${H.b}</details>`,
+    eq?["q-biz","Hur går affären?"]:["q-price","Vad kostar den?"]));
+  if(eq)parts.push(qSec("q-biz",3,"Hur går affären?",(()=>{const g1=d.revGrowth1y,e1=d.earnGrowth1y;return `${nn(g1)?`Omsättningen ${g1>=0?"växte":"minskade"} ${f(Math.abs(g1),0)} % senaste året`:"Omsättning okänd"}${nn(e1)?`, vinsten per aktie ${e1>=0?"växte":"minskade"} ${f(Math.abs(e1),0)} %`:""}. ${ir?`Nr ${ir.rank} av ${ir.n} i ${esc(ir.label)}.`:""}`})(),
+    `<section class="card"><div class="bd" id="dashBox">${finDash(d,det)}</div></section>
+     <div class="sgrid">${qualCard(d)}${giantsCard(d).replace('style="margin-top:16px"',"")}</div>`,["q-price","Vad kostar den?"]));
+  return parts.join("");
+}
+function priceAns(d,det){const iv=ivOf(d,det);return (iv&&nn(d.price)?(iv.v>=d.price?`Billig: ${f((1-d.price/iv.v)*100,0)} % under ${iv.src==="dcf"?"beräknat värde":"analytikernas riktkurs"} (${money(iv.v,d.currency)}).`:`Dyr: ${f((d.price/iv.v-1)*100,0)} % över ${iv.src==="dcf"?"beräknat värde":"analytikernas riktkurs"} (${money(iv.v,d.currency)}).`)+" ":"")+`Sammanvägt: ${vChip(valView(d))} ${zchip(d)}`}
+function valBlock(d,det){return `<div class="sgrid" style="margin-top:0">${ivCard(d,det)}<section class="card"><div class="hd"><h2>Vad drar åt vilket håll?${ib("valVerdict")}</h2></div><div class="bd">${partsH(valView(d).parts)}</div></section></div>`}
+function chaptersB(d,det){
+  const eq=!d.type||d.type==="EQUITY",s=sentView(d),R=risksOf(d),n0=eq?5:3;
+  const I=det&&det.inst,vk=I?I.verdict:det&&yahooFlow(det.holders||[]);
+  return qSec("q-own",n0,"Vem äger den, och vad tycker marknaden?",`${nn(d.instPct)?`Institutioner äger ${f(d.instPct,0)} %${nn(d.insPct)?`, insiders ${f(d.insPct,1)} %`:""}. `:""}${vk?`<span class="vd ${IV[vk][1]}">${IV[vk][2]} Institutioner: ${vk==="bull"?"köper":vk==="bear"?"säljer":"neutrala"}</span> `:""}${sChip(s)}`,
+      `${ownCard(d,det)}<div class="sgrid">${insCard(d,det)}<section class="card"><div class="hd"><h2>Analytiker och sentiment</h2>${drill("an","Alla analytiker")}</div><div class="bd">${anSummary(d)}<div style="margin-top:12px">${partsH(s.parts)}</div></div></section></div>`,["q-risk","Vad kan gå fel?"])
+    +qSec("q-risk",n0+1,"Vad kan gå fel?",R.length?`${R.length} ${R.length===1?"varningsflagga":"varningsflaggor"}: ${R.join(", ")}.`:"Inga tydliga varningsflaggor i datan.",
+      `<section class="card"><div class="bd">${R.length?`<ul class="why">${R.map(x=>`<li>${x[0].toUpperCase()+x.slice(1)}</li>`).join("")}</ul>`:`<p class="muted">Ingen hög skuld, hög beta, blankning eller utspädning som sticker ut.</p>`}<p class="small muted" style="margin-top:8px">Med hävstång: en aktie med beta ${f(d.beta,1)} och ${nn(d.mdd1y)?`största fall ${pct(d.mdd1y,0)} senaste året`:"okänt största fall"} kan ge ungefär dubbla fallet på din insats.</p></div></section>`,["deep","Mer detaljer"]);
+}
 
 /* ============ STRATEGIER ============ */
 function pageMethod(){

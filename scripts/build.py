@@ -481,6 +481,8 @@ def fundamentals(tk: str, extras: bool = True):
                          "ni": [sig(v, 4) for v in (ni_a or [])[:5]][::-1],
                          "op": [sig(v, 4) for v in (row(inc_a, "Operating Income", "EBIT") or [])[:5]][::-1],
                          "eps": [sig(v, 4) for v in (row(inc_a, "Diluted EPS", "Basic EPS") or [])[:5]][::-1]}
+    detail["fq"] = safe(lambda: fin_rows(inc_q, None)) or None   # kvartal
+    detail["fa"] = safe(lambda: fin_rows(inc_a, cf)) or None     # år
     if recs is not None and not getattr(recs, "empty", True):
         for _, r in recs.head(4).iterrows():
             detail["recs"].append({k: (int(r[k]) if k != "period" else str(r[k])) for k in
@@ -568,6 +570,37 @@ def merge_own(old, rec, today):
     elif not h or h[-1].get("i") != pt["i"] or h[-1].get("n") != pt["n"] or len(h) < 2:
         h.append(pt)
     return h[-400:]
+
+
+def fin_rows(inc, cf):
+    """Resultaträkning per period som lista [{d, rev, op, ni, eps, fcf}], äldst först."""
+    if inc is None or getattr(inc, "empty", True):
+        return []
+    out = {}
+    for c in inc.columns:
+        col = inc[c]
+
+        def g(*names):
+            for n in names:
+                if n in inc.index:
+                    return num(col.get(n))
+            return None
+        d = str(c)[:10]
+        r = {"d": d, "rev": sig(g("Total Revenue", "Operating Revenue"), 5), "op": sig(g("Operating Income", "EBIT"), 5),
+             "ni": sig(g("Net Income", "Net Income Common Stockholders"), 5), "eps": rnd(g("Diluted EPS", "Basic EPS"), 4)}
+        if cf is not None and not getattr(cf, "empty", True) and c in cf.columns and "Free Cash Flow" in cf.index:
+            r["fcf"] = sig(num(cf[c].get("Free Cash Flow")), 5)
+        if any(r.get(k) is not None for k in ("rev", "ni", "eps")):
+            out[d] = r
+    return [out[k] for k in sorted(out)]
+
+
+def merge_rows(old, new, keep=80):
+    """Bygg på historik per period: gamla perioder behålls, nya värden vinner."""
+    m = {q["d"]: q for q in (old or []) if isinstance(q, dict) and q.get("d")}
+    for q in new or []:
+        m[q["d"]] = {**m.get(q["d"], {}), **{k: v for k, v in q.items() if v is not None}}
+    return [m[k] for k in sorted(m)][-keep:] or None
 
 
 def merge_eps(old, new):
@@ -856,7 +889,7 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
             if old:
                 rec = {k: v for k, v in old.items() if k not in ("price", "prevClose", "chg", "ma200w", "dist200w", "zone", "signals", "stale")}
                 old_det = load_json(prev / "data" / "t" / fname(t), {})
-                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att", "epsq", "sec", "ins", "holders", "own", "inst", "instHist")}
+                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att", "epsq", "sec", "ins", "holders", "own", "inst", "instHist", "fq", "fa")}
             else:
                 rec = {"ticker": t, "name": t, "type": "EQUITY", "currency": "SEK" if t.endswith(".ST") else "USD",
                        "sector": "Övrigt", "excluded": True}
@@ -885,6 +918,8 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
         if det is not None:  # EPS-historiken byggs på över tid
             _old = load_json(prev / "data" / "t" / fname(t), {})
             det["epsq"] = merge_eps(_old.get("epsq"), det.get("epsq"))
+            det["fq"] = merge_rows(_old.get("fq"), det.get("fq"))
+            det["fa"] = merge_rows(_old.get("fa"), det.get("fa"), 30)
             det["own"] = merge_own(_old.get("own"), rec, today)
             if det.get("holders") is None and _old.get("holders"):
                 det["holders"] = _old["holders"]
