@@ -487,6 +487,8 @@ details.xs>summary::-webkit-details-marker{display:none}
 details.xs>summary::before{content:"▸ ";color:var(--muted)} details.xs[open]>summary::before{content:"▾ "}
 details.xs>summary .muted{font-weight:400}
 details.xs>.card{margin-top:10px;border:0}
+ul.tips{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+ul.tips li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;font-size:13.5px;line-height:1.55;padding:10px 12px;border-radius:8px;background:var(--sunk)}
 .epsnote{padding:10px 14px;border-top:1px solid var(--line);font-size:13px;line-height:1.55}
 .epsnote:empty{display:none}
 </style>
@@ -657,6 +659,7 @@ const GL={
   btLev:["Med 2x hävstång","Dubbla veckorörelser minus 5 % ränta per år på den lånade delen. Visar det värsta fallet under en affär. Ett fall på −50 % eller mer kan ge margin call."],
   mdd:["Max drawdown","Största fallet från en topp till en senare botten för portföljen med dagens vikter. Med 2x hävstång blir fallet ungefär dubbelt så stort."],
   top3:["Topp 3-koncentration","Hur stor del av värdet som ligger i de tre största innehaven. Över 60 % betyder att några få aktier avgör hela resultatet."],
+  riskShare:["Andel av risken","Hur stor del av portföljens svängningar som kommer från aktien, med hänsyn till hur den rör sig ihop med de andra. Är andelen av risken mycket större än andelen av värdet tar aktien mer risk än den borde."],
   sharpe:["Sharpekvot","Avkastning över riskfri ränta delat med volatiliteten. Hur mycket betalt du får per enhet risk. Över 1 är bra, över 2 mycket bra."],
   sortino:["Sortinokvot","Som Sharpe men räknar bara svängningar nedåt som risk. Uppgångar straffas inte."],
   corr:["Korrelation","Hur lika innehaven rör sig, från −1 (helt olika) till +1 (exakt lika). Med hög korrelation faller allt samtidigt, och spridningen skyddar inte."],
@@ -2440,6 +2443,74 @@ function radar(axes){
   g+=`<polygon points="${poly}" fill="${avg>=3.5?"var(--up)":avg>=2.5?"var(--z-fair)":"var(--down)"}" fill-opacity=".3" stroke="${avg>=3.5?"var(--up)":avg>=2.5?"var(--z-fair)":"var(--down)"}" stroke-width="2"/>`;
   return `<svg class="radar2" viewBox="-20 -10 ${W+40} ${W+20}">${g}</svg>`;
 }
+/* ---- förbättra portföljen: Sharpe, optimering, tips ---- */
+function pStats(R){ // R: matris [innehav][dagar] dagliga avkastningar
+  const n=R.length,m=R[0].length,mu=R.map(r=>r.reduce((a,b)=>a+b,0)/m),C=[];
+  for(let i=0;i<n;i++){C.push([]);for(let j=0;j<n;j++){let s=0;for(let k=0;k<m;k++)s+=(R[i][k]-mu[i])*(R[j][k]-mu[j]);C[i].push(s/(m-1)*252)}}
+  return{mu:mu.map(x=>x*252),C};
+}
+function shrink(mu){const a=mu.reduce((x,y)=>x+y,0)/mu.length;return mu.map(x=>0.5*x+0.5*a)}
+const pRet=(w,mu)=>w.reduce((s,x,i)=>s+x*mu[i],0);
+function pVar(w,C){let v=0;for(let i=0;i<w.length;i++)for(let j=0;j<w.length;j++)v+=w[i]*w[j]*C[i][j];return v}
+function pSharpe(w,mu,C,rf){const v=pVar(w,C);return v>0?(pRet(w,mu)-rf)/Math.sqrt(v):null}
+function optW(mu,C,rf,cap,mode){
+  const n=mu.length;if(n<2)return[1];
+  const proj=w=>{let x=w.map(v=>Math.max(0,v));for(let k=0;k<60;k++){const s=x.reduce((a,b)=>a+b,0)||1;x=x.map(v=>Math.min(cap,v/s));if(Math.abs(x.reduce((a,b)=>a+b,0)-1)<1e-7)break}return x};
+  const F=w=>mode==="minvar"?-pVar(w,C):pSharpe(w,mu,C,rf);
+  let w=proj(Array(n).fill(1/n)),best=F(w);
+  for(let it=0;it<500;it++){const lr=0.05*Math.pow(0.992,it),g=w.map((_,i)=>{const e=w.slice();e[i]+=1e-4;return(F(e)-best)/1e-4}),nr=Math.sqrt(g.reduce((a,b)=>a+b*b,0))||1;
+    const nw=proj(w.map((x,i)=>x+lr*g[i]/nr)),nf=F(nw);if(nf>=best){w=nw;best=nf}}
+  return w;
+}
+async function improveData(okT,rets,W,keptDays,rf){
+  const R=okT.map(t=>rets[t].slice(-252));if(okT.length<2||R[0].length<60)return null;
+  const {mu,C}=pStats(R),muS=shrink(mu),w0=okT.map(t=>W[t]),cap=Math.max(0.25,1.2/okT.length);
+  const wS=optW(muS,C,rf,cap,"sharpe"),wV=optW(muS,C,rf,cap,"minvar");
+  const vP=pVar(w0,C),Cw=C.map(r=>r.reduce((s,x,j)=>s+x*w0[j],0)),risk=w0.map((x,i)=>x*Cw[i]/vP);
+  const per=okT.map((t,i)=>({t,w:w0[i],ws:wS[i],wv:wV[i],ret:mu[i],vol:Math.sqrt(C[i][i]),sh:Math.sqrt(C[i][i])>0?(mu[i]-rf)/Math.sqrt(C[i][i]):null,risk:risk[i]}));
+  // kandidater: Guld/LRHR som inte ägs, högst quant först
+  const held=new Set(okT),cands=rows.filter(d=>!held.has(d.ticker)&&!d.excluded&&(!d.type||d.type==="EQUITY")&&d.res&&(d.res.gold.status==="pass"||(d.res.lrhr.status==="pass"&&(d.beta??1)<=1.3))&&(!nn(d.vol)||d.vol<=35)&&(!nn(d.dist200w)||d.dist200w<lim.zones.b4))
+    .sort((a,b)=>(b.res.gold.status==="pass")-(a.res.gold.status==="pass")||(b.quant??0)-(a.quant??0)).slice(0,16);
+  const kd=keptDays.slice(-253),port=R[0].map((_,k)=>okT.reduce((s,t,i)=>s+w0[i]*R[i][k],0));
+  const out=[];
+  await Promise.all(cands.map(async d=>{try{const det=await getDetail(d.ticker);const D=det.d;if(!D)return;const mp=new Map();D.t.forEach((x,i)=>mp.set(x,D.c[i]));
+    let lastv=null;const pr=kd.map(x=>{const v=mp.get(x)??lastv;if(v)lastv=v;return v});if(pr.filter(Boolean).length<kd.length*0.9)return;
+    const r=[];for(let k=1;k<pr.length;k++)r.push(pr[k]&&pr[k-1]?pr[k]/pr[k-1]-1:0);const rr=r.slice(-R[0].length);if(rr.length!==R[0].length)return;
+    const S2=pStats(R.concat([rr])),mu2=shrink(S2.mu),w2=w0.map(x=>x*0.9).concat([0.1]);
+    const base=pSharpe(w0.concat([0]),mu2,S2.C,rf),neu=pSharpe(w2,mu2,S2.C,rf);
+    const mp2=port.reduce((a,b)=>a+b,0)/port.length,mr=rr.reduce((a,b)=>a+b,0)/rr.length;let c=0,vp=0,vr=0;for(let k=0;k<rr.length;k++){c+=(port[k]-mp2)*(rr[k]-mr);vp+=(port[k]-mp2)**2;vr+=(rr[k]-mr)**2}
+    out.push({d,dS:neu-base,corr:vp&&vr?c/Math.sqrt(vp*vr):null,vol:Math.sqrt(S2.C[R.length][R.length])})}catch(e){}}));
+  out.sort((a,b)=>b.dS-a.dS);
+  return{per,muS,C,w0,wS,wV,sh0:pSharpe(w0,muS,C,rf),shS:pSharpe(wS,muS,C,rf),shV:pSharpe(wV,muS,C,rf),vol0:Math.sqrt(vP),volS:Math.sqrt(pVar(wS,C)),volV:Math.sqrt(pVar(wV,C)),ret0:pRet(w0,muS),retS:pRet(wS,muS),retV:pRet(wV,muS),cands:out.filter(x=>x.dS>0.005).slice(0,6)};
+}
+function improveHtml(X,ctx){
+  if(!X)return `<p class="muted small">Minst två innehav med ett års gemensam kurshistorik behövs.</p>`;
+  const {per,M,CT,beta,top3,rf}=ctx,tips=[];
+  if(X.shS-X.sh0>0.1)tips.push(["⚖️",`Bara genom att ändra vikterna kan Sharpe gå från <b>${f(X.sh0,2)}</b> till <b>${f(X.shS,2)}</b>, utan att byta aktier. Se kolumnen Max Sharpe nedan.`]);
+  per.filter(p=>p.risk>0.2&&p.risk>p.w*1.4).forEach(p=>tips.push(["🎯",`<b>${esc(p.t)}</b> står för <b>${f(p.risk*100,0)} %</b> av risken men bara ${f(p.w*100,0)} % av värdet. Minska vikten, eller ersätt med ett stabilare bolag.`]));
+  for(let i=0;i<CT.length;i++)for(let j=i+1;j<CT.length;j++)if(nn(M[i][j])&&M[i][j]>0.8){const a=per.find(p=>p.t===CT[i]),b=per.find(p=>p.t===CT[j]);if(a&&b){const keep=(a.sh??-9)>=(b.sh??-9)?a:b,drop=keep===a?b:a;tips.push(["🔗",`<b>${esc(CT[i])}</b> och <b>${esc(CT[j])}</b> rör sig nästan likadant (${f(M[i][j],2)}). Två innehav men nästan samma risk. ${esc(keep.t)} har bäst Sharpe (${f(keep.sh,2)}), överväg att flytta pengar från ${esc(drop.t)}.`])}}
+  per.filter(p=>nn(p.sh)&&p.sh<0).forEach(p=>tips.push(["🔍",`<b>${esc(p.t)}</b> har gett sämre än räntan senaste året med ${f(p.vol*100,0)} % svängningar (Sharpe ${f(p.sh,2)}). Har tesen ändrats?`]));
+  if(top3>0.6&&per.length>3)tips.push(["🧺",`De tre största innehaven är ${f(top3*100,0)} % av värdet. En sämre rapport i ett av dem slår hårt mot hela portföljen.`]);
+  if(nn(beta)&&beta>1.2)tips.push(["📉",`Portföljens beta är ${f(beta,2)}. Med 2x hävstång rör sig din insats ungefär ${f(beta*2,1)} gånger så mycket som börsen. Stabila megabolag med låg beta (Guld) sänker det.`]);
+  if(X.cands.length)tips.push(["➕",`Att lägga till ${X.cands.slice(0,2).map(c=>`<b>${esc(c.d.ticker)}</b>`).join(" eller ")} med 10 % höjer Sharpe mest, eftersom de rör sig annorlunda än det du redan äger. Se listan nedan.`]);
+  const vol=X.vol0,ex=X.ret0-rf,kelly=vol>0?ex/(vol*vol):null;
+  if(nn(kelly))tips.push(["🪜",kelly<=0?`Med dagens portfölj väntas avkastningen inte slå räntan. Då bör hävstången vara 1x eller lägre.`:`Med förväntad avkastning ${f(X.ret0*100,0)} % och ${f(vol*100,0)} % svängningar blir halv Kelly ungefär <b>${f(Math.min(kelly/2,3),1)}x</b> hävstång. Det är ett tak, inte ett mål. Höj hellre Sharpe först och använd hävstång på en spridd portfölj än på enstaka volatila aktier.`]);
+  const tile=(l,a,b,c)=>`<div class="mt"><span class="sub">${l}</span><b class="n">${a}</b><span class="small muted">${b}</span>${c?`<span class="small">${c}</span>`:""}</div>`;
+  return `<div class="mtiles">
+      ${tile("Sharpe nu",f(X.sh0,2),`avkastning ${pct(X.ret0*100,0)} · risk ${f(X.vol0*100,0)} %`,"")}
+      ${tile("Max Sharpe",f(X.shS,2),`avkastning ${pct(X.retS*100,0)} · risk ${f(X.volS*100,0)} %`,`<span class="${cls(X.shS-X.sh0)}">${pct((X.shS-X.sh0)/Math.abs(X.sh0||1)*100,0)} Sharpe</span>`)}
+      ${tile("Lägsta risk",f(X.shV,2),`avkastning ${pct(X.retV*100,0)} · risk ${f(X.volV*100,0)} %`,`<span class="ok">${pct((X.volV-X.vol0)*100,0)} risk</span>`)}
+    </div>
+    <h3 class="qh">Tips för högre avkastning per risk</h3>
+    <ul class="tips">${tips.length?tips.map(([i,t])=>`<li><span>${i}</span><span>${t}</span></li>`).join(""):`<li><span>✅</span><span>Portföljen ser välbalanserad ut: ingen aktie dominerar risken och spridningen fungerar.</span></li>`}</ul>
+    <h3 class="qh">Per innehav: nuvarande vikt och förslag</h3>
+    <div class="tw"><table class="crit"><thead><tr><th>Aktie</th><th class="r">Vikt nu</th><th class="r">Max Sharpe</th><th class="r">Lägsta risk</th><th class="r">Avkastning 1 år</th><th class="r">Svängningar</th><th class="r">Sharpe${ib("sharpe")}</th><th class="r">Andel av risken${ib("riskShare")}</th></tr></thead><tbody>
+      ${X.per.slice().sort((a,b)=>b.w-a.w).map(p=>{const dw=p.ws-p.w;return `<tr class="go" data-t="${esc(p.t)}"><td class="tk">${esc(p.t)}</td><td class="r n">${f(p.w*100,0)} %</td><td class="r n ${Math.abs(dw)>0.03?(dw>0?"ok":"no"):""}">${f(p.ws*100,0)} %${Math.abs(dw)>0.03?(dw>0?" ▲":" ▼"):""}</td><td class="r n">${f(p.wv*100,0)} %</td><td class="r n ${cls(p.ret)}">${pct(p.ret*100,0)}</td><td class="r n">${f(p.vol*100,0)} %</td><td class="r n ${p.sh>=1?"ok":p.sh<0?"no":""}">${f(p.sh,2)}</td><td class="r n ${p.risk>p.w*1.4?"no":""}">${f(p.risk*100,0)} %</td></tr>`}).join("")}
+    </tbody></table></div>
+    ${X.cands.length?`<h3 class="qh">Bolag som höjer Sharpe om du lägger till dem (10 %)</h3><p class="small muted" style="margin-bottom:6px">Bara stabila bolag: Guld, eller Low Risk High Reward med beta högst 1,3, svängningar under 35 % och inte Very Expensive mot 200W. Låg korrelation med din portfölj är det som gör skillnaden.</p>
+      <div class="tw"><table class="crit"><thead><tr><th>Aktie</th><th>Strategi</th><th class="r">Sharpe-förändring</th><th class="r">Korrelation med portföljen</th><th class="r">Svängningar</th><th>200W</th></tr></thead><tbody>${X.cands.map(c=>`<tr class="go" data-t="${esc(c.d.ticker)}"><td>${co(c.d)}</td><td>${SORDER.filter(k=>c.d.res[k]&&c.d.res[k].status==="pass").slice(0,2).map(k=>`<span class="spill pass" style="font-size:11px;padding:1px 6px">${STRATS[k].short}</span>`).join(" ")}</td><td class="r n ok">+${f(c.dS,2)}</td><td class="r n">${f(c.corr,2)}</td><td class="r n">${f(c.vol*100,0)} %</td><td>${zchip(c.d)}</td></tr>`).join("")}</tbody></table></div>`:""}
+    <p class="small muted" style="margin-top:8px">Bygger på senaste årets dagliga kurser. Förväntad avkastning är historisk avkastning krympt 50 % mot snittet, eftersom ren historik överskattar vinnarna. Högst ${f(Math.max(25,120/X.per.length),0)} % per aktie. Historiken upprepar sig inte, så se förslagen som en riktning, inte exakta vikter. Inte investeringsrådgivning.</p>`;
+}
 async function pageAnalysis(){
   document.title="Portföljanalys · Full Throttle";
   const L=ui.paList||"all";
@@ -2460,10 +2531,11 @@ async function pageAnalysis(){
   const P=Object.fromEntries(T.concat(["SPY"]).map(t=>[t,px(t)]).filter(x=>x[1]));
   const okT=T.filter(t=>P[t]);
   const days=[...new Set(okT.flatMap(t=>P[t].t))].sort((a,b)=>a-b).filter(d=>okT.every(t=>P[t].t[0]<=d));
-  const last={},rets={},port=[],spy=[];okT.forEach(t=>{rets[t]=[]});
+  const last={},rets={},port=[],spy=[],keptDays=[];okT.forEach(t=>{rets[t]=[]});
   let lastS=null;
   days.forEach((d,k)=>{let r=0,ok=true;const rr={};okT.forEach(t=>{const v=P[t].m.get(d)??last[t];if(last[t]&&v){rr[t]=v/last[t]-1}else ok=false;if(v)last[t]=v});
     const sv=P.SPY?(P.SPY.m.get(d)??lastS):null;
+    if(ok)keptDays.push(d);
     if(k>0&&ok){okT.forEach(t=>{rets[t].push(rr[t]);r+=W[t]*rr[t]});port.push(r);spy.push(lastS&&sv?sv/lastS-1:0)}
     if(sv)lastS=sv});
   const n=port.length,y1=port.slice(-252),s1=spy.slice(-252);
@@ -2482,6 +2554,9 @@ async function pageAnalysis(){
   const CT=okT.slice(0,12),corr=(a,b)=>{const x=rets[a].slice(-252),y=rets[b].slice(-252);const c=cov(x,y),va=cov(x,x),vb=cov(y,y);return va>0&&vb>0?c/Math.sqrt(va*vb):null};
   let avgC=0,nc=0;const M=CT.map(a=>CT.map(b=>{if(a===b)return 1;const c=corr(a,b);if(nn(c)&&a<b){avgC+=c;nc++}return c}));avgC=nc?avgC/nc:null;
   const ccol=c=>!nn(c)?"var(--sunk)":c>=0?`color-mix(in srgb,var(--down) ${Math.round(c*80)}%,var(--card))`:`color-mix(in srgb,var(--up) ${Math.round(-c*80)}%,var(--card))`;
+  const okW=okT.reduce((s,t)=>s+W[t],0),W2=Object.fromEntries(okT.map(t=>[t,W[t]/(okW||1)]));
+  const X=await improveData(okT,rets,W2,keptDays,rf).catch(()=>null);
+  if(!location.hash.startsWith("#/innehav/analys"))return;
   const corrH=CT.length>=2?`<div class="tw"><table class="corr"><thead><tr><th></th>${CT.map(t=>`<th>${esc(t.replace(/\.ST$/,""))}</th>`).join("")}</tr></thead><tbody>${CT.map((a,i)=>`<tr><th>${esc(a.replace(/\.ST$/,""))}</th>${CT.map((b,j)=>`<td style="background:${i===j?"var(--sunk)":ccol(M[i][j])}" title="${esc(a)}–${esc(b)}">${i===j?"":f(M[i][j],2)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
     <p class="small" style="margin-top:8px">Snittkorrelation <b class="n">${f(avgC,2)}</b>: ${avgC>0.6?"innehaven rör sig i stort sett tillsammans, spridningen skyddar lite.":avgC>0.35?"måttlig spridning.":"bra spridning, innehaven rör sig olika."} Rött = rör sig tillsammans, grönt = rör sig olika.</p>`:`<p class="muted small">Minst två innehav med kurshistorik behövs.</p>`;
   // prickdiagram
@@ -2518,6 +2593,7 @@ async function pageAnalysis(){
       <ul class="pl">${axList.map(x=>`<li data-go="${esc(x.d.ticker)}" style="cursor:pointer"><span>${co(x.d)}</span><span class="n ${x.v>=4?"ok":x.v<2?"no":""}" style="text-align:right">${f(x.v,1)}<br><span class="small muted">${f(W[x.d.ticker]*100,0)} % av värdet</span></span></li>`).join("")}</ul>
       <p class="small muted" style="margin-top:6px">Högst upp lyfter betyget, längst ner håller det tillbaka. Percentil mot alla ~600 aktier på sidan.</p></div>
   </div></section>
+  <section class="card" style="margin-top:16px" id="improve"><div class="hd"><h2>Så kan portföljen bli bättre${ib("sharpe")}</h2><span class="sub">Mer avkastning per risk</span></div><div class="bd">${improveHtml(X,{M,CT,beta,top3,rf,per:X&&X.per})}</div></section>
   <section class="card" style="margin-top:16px"><div class="hd"><h2>Korrelation${ib("corr")}</h2><span class="sub">Fungerar spridningen, eller rör sig innehaven tillsammans?</span></div><div class="bd">${corrH}</div></section>
   <h2 class="sect">Värdering</h2>
   <div class="seg" id="valSeg" style="margin-bottom:10px">${Object.entries(VM).map(([k,v])=>`<button data-k="${k}" aria-pressed="${vk===k}">${v[0].split(" ")[0]==="Pris"?"Värde":v[0]}</button>`).join("")}</div>
