@@ -29,7 +29,8 @@ import analysis as A  # noqa: E402
 SRC = Path(__file__).resolve().parent.parent
 MA_WEEKS = 200
 DAILY_DAYS = 800       # ~3 år handelsdagar sparas per aktie
-WEEKLY_WEEKS = 530     # ~10 år veckor sparas per aktie
+WEEKLY_WEEKS = 860     # ~16,5 år veckor sparas per aktie (backtest från 2015 behöver 200 veckor före)
+PRICE_START = "2010-06-01"
 MAX_EVENTS = 150
 WORKERS = 2
 EXTRA_ROTATION = 3   # tunga analysanrop (prognoser, nyheter, kassaflöde) görs för en tredjedel av aktierna per natt
@@ -239,14 +240,14 @@ def universe(prev_universe):
 
 # ---------------- kurser ----------------
 
-def download_prices(tickers, period="10y", interval="1d"):
+def download_prices(tickers, period="10y", interval="1d", start=None):
     import yfinance as yf
     res = {}
     for i in range(0, len(tickers), 80):
         chunk = tickers[i:i + 80]
         for attempt in range(3):
             try:
-                df = yf.download(chunk, period=period, interval=interval, group_by="ticker", auto_adjust=True,
+                df = yf.download(chunk, period=None if start else period, start=start, interval=interval, group_by="ticker", auto_adjust=True,
                                  threads=True, progress=False, multi_level_index=True)
                 break
             except Exception as e:  # noqa: BLE001
@@ -818,9 +819,9 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
         tickers = tickers[:limit]
     log(f"Universum: {len(tickers)} symboler")
 
-    prices = download_prices(tickers)
+    prices = download_prices(tickers, start=PRICE_START)
     log(f"Kurser: {len(prices)} st")
-    bench = {k: v["Close"] for k, v in download_prices(A.BENCHMARKS).items()}
+    bench = {k: v["Close"] for k, v in download_prices(A.BENCHMARKS, start=PRICE_START).items()}
     tnx = bench.get("^TNX")
     rf_usd = float(tnx.iloc[-1]) / 100 if tnx is not None and len(tnx) else 0.043
     try:  # officiella siffror från amerikanska årsredovisningar (gratis)

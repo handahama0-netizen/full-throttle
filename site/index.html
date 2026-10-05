@@ -111,7 +111,7 @@ main{padding-block:18px 48px}
 .pill.pass{background:var(--up-soft);color:var(--up);border-color:transparent}
 .pill.near{background:var(--warn-soft);color:var(--warn);border-color:transparent}
 .sig{font-size:10.5px;font-weight:750;padding:2px 6px;border-radius:4px;letter-spacing:.04em;white-space:nowrap}
-.sig.guld{background:#b8860b;color:#fff} .sig.swing{background:var(--z-cheap);color:var(--card)} .sig.rea{background:var(--z-vcheap);color:var(--card)}
+.sig.guld{background:#b8860b;color:#fff} .sig.diamant{background:linear-gradient(135deg,#2b6cb0,#7f5af0);color:#fff} .sig.swing{background:var(--z-cheap);color:var(--card)} .sig.rea{background:var(--z-vcheap);color:var(--card)}
 
 /* tables */
 .tw{overflow-x:auto}
@@ -767,6 +767,7 @@ function classify(d){
     if(d.res.lrhr.status==="pass"&&d.dist200w<lim.zones.swing)d.sig.push("swing");
     if(d.res.ftp.status==="pass"&&d.dist200w<lim.zones.rea)d.sig.push("rea");
     if(d.res.gold.status==="pass"&&d.dist200w<lim.zones.swing)d.sig.unshift("guld");
+    if(d.res.lrhr.status==="pass"&&d.dist200w<0)d.sig.unshift("diamant");
   }
   d.flag=nn(d.peg)&&d.peg>0&&d.peg<0.2;
 }
@@ -778,7 +779,7 @@ function dropTo(d,p){const t=level(d,p);return nn(t)&&nn(d.price)&&d.price>t?(1-
 
 /* ============ små komponenter ============ */
 function zchip(d,dist=true){if(!d.z)return `<span class="z z-none">200W saknas</span>`;return `<span class="z z-${d.z}">${ZNAME[d.z]}${dist?` <span class="n" style="font-size:11.5px">${pct(d.dist200w,1)}</span>`:""}</span>`}
-const SIGN={guld:"GULD",swing:"SWING",rea:"REA"};
+const SIGN={diamant:"💎 DIAMANT",guld:"GULD",swing:"SWING",rea:"REA"};
 const sigB=d=>(d.sig||[]).map(s=>`<span class="sig ${s}">${SIGN[s]||s}</span>`).join(" ");
 const co=d=>`<span class="co"><span class="tk">${esc(d.ticker)}</span><span class="nm">${esc(d.name)}</span></span>`;
 const chgCell=d=>`<td class="n ${cls(d.chg)}">${pct(d.chg)}</td>`;
@@ -1345,18 +1346,19 @@ function scrCounts(){
   $("reset").hidden=!ch;$("critSum").textContent=`${STRATS[s].name}: ${STRATS[s].crit.length} krav`+(ch?" · ändrade":"");
 }
 function scrBase(){return rows.filter(d=>ui.showExcl||!d.excluded)}
-function sfOk(d,k){const st=d.res[k]&&d.res[k].status;return st==="pass"||(ui.sfNear&&st==="near")}
-function sfSel(){return SORDER.filter(k=>(ui.sf||{})[k])}
+const SFKf=()=>["diamant",...SORDER],sfName=k=>k==="diamant"?"💎 Diamant":STRATS[k].name;
+function sfOk(d,k){if(k==="diamant")return d.sig.includes("diamant")||(ui.sfNear&&d.res.lrhr.status!=="excl"&&d.res.lrhr.status!=="out"&&nn(d.dist200w)&&d.dist200w<10);const st=d.res[k]&&d.res[k].status;return st==="pass"||(ui.sfNear&&st==="near")}
+function sfSel(){return SFKf().filter(k=>(ui.sf||{})[k])}
 function scrFilter(){
   const base=scrBase(),sel=sfSel();ui.sf=ui.sf||{};
-  $("sfStrat").innerHTML=SORDER.map(k=>{const n=base.filter(d=>sfOk(d,k)).length;return `<label class="sfk${ui.sf[k]?" on":""}"><input type="checkbox" data-k="${k}" ${ui.sf[k]?"checked":""}> ${esc(STRATS[k].name)} <span class="c">${n}</span></label>`}).join("");
+  $("sfStrat").innerHTML=SFKf().map(k=>{const n=base.filter(d=>sfOk(d,k)).length;return `<label class="sfk${ui.sf[k]?" on":""}" title="${k==="diamant"?"Low Risk, High Reward och under 200W (Fire Sale)":""}"><input type="checkbox" data-k="${k}" ${ui.sf[k]?"checked":""}> ${esc(sfName(k))} <span class="c">${n}</span></label>`}).join("");
   $("sfStrat").querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{ui.sf[i.dataset.k]=i.checked;
-    if(i.checked&&!ui.sf[ui.strat]){ui.strat=i.dataset.k;if(!["ticker","chg","status","dist200w","score","quant","miss"].includes(ui.sort))ui.sort="score";saveUi();pageScreener();return}
+    if(i.checked&&!ui.sf[ui.strat]){ui.strat=i.dataset.k==="diamant"?"lrhr":i.dataset.k;if(!["ticker","chg","status","dist200w","score","quant","miss"].includes(ui.sort))ui.sort="score";saveUi();pageScreener();return}
     saveUi();scrFilter();scrTable()}));
   const zc={};base.forEach(d=>{if(d.z)zc[d.z]=(zc[d.z]||0)+1});
   $("zf").innerHTML=ZONES.map(([z,nm])=>`<label class="sfk z-${z}${ui.zones.includes(z)?" on":""}"><input type="checkbox" data-z="${z}" ${ui.zones.includes(z)?"checked":""}> ${nm} <span class="c">${zc[z]||0}</span></label>`).join("");
   $("zf").querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{const z=i.dataset.z;ui.zones=i.checked?ui.zones.concat(z):ui.zones.filter(x=>x!==z);saveUi();scrFilter();scrTable()}));
-  const parts=[];if(sel.length)parts.push((sel.length>1?(ui.sfMode==="or"?"någon av ":"alla av "):"")+sel.map(k=>STRATS[k].name).join(ui.sfMode==="or"?" / ":" + ")+(ui.sfNear?" (eller nära)":""));
+  const parts=[];if(sel.length)parts.push((sel.length>1?(ui.sfMode==="or"?"någon av ":"alla av "):"")+sel.map(sfName).join(ui.sfMode==="or"?" / ":" + ")+(ui.sfNear?" (eller nära)":""));
   if(ui.zones.length)parts.push(ui.zones.map(z=>ZNAME[z]).join(" / "));if(ui.sfSig)parts.push("i köpläge");if(ui.sfSize)parts.push(`≥ ${ui.sfSize} md $`);if(ui.sfQ)parts.push(`"${ui.sfQ}"`);
   $("sfSum").textContent=parts.length?"Filter: "+parts.join(" · "):"Inga filter: visar alla aktier. Bocka i en eller flera strategier ovan.";
 }
@@ -2258,6 +2260,7 @@ function plan(d,entryPrice){
 function stratVerdict(d){
   const R=d.res,pass=SORDER.filter(k=>R[k]&&R[k].status==="pass"),near=SORDER.filter(k=>R[k]&&R[k].status==="near");
   if(d.excluded)return{k:"mid",t:d.type&&d.type!=="EQUITY"?"ETF:er bedöms inte i strategierna.":`Sektorn ${d.sector} är utesluten i strategierna. 200W-zonerna gäller ändå.`};
+  if(d.sig.includes("diamant"))return{k:"gold",t:"💎 Diamantläge: klarar Low Risk, High Reward och ligger under 200W-snittet (Fire Sale). Den variant som gav bäst resultat i backtestet."};
   if(d.sig.includes("guld"))return{k:"gold",t:"Guldläge: ett stort, stabilt kvalitetsbolag i köpzonen mot 200W."};
   if(d.sig.length)return{k:"pos",t:`Köpläge: klarar ${pass.map(k=>STRATS[k].name).join(" och ")} och ligger i köpzonen.`};
   if(pass.length&&nn(d.dist200w)&&d.dist200w<lim.zones.swing)return{k:"pos",t:`Klarar ${pass.map(k=>STRATS[k].name).join(" och ")} och ligger i köpzonen mot 200W (${ZNAME[d.z]}).`};
@@ -2338,15 +2341,15 @@ async function getBT(){if(BT)return BT;try{const r=await fetch("data/backtest.js
 function btSection(){
   if(!BT)return `<p class="muted">Backtestet körs i nattkörningen och visas här efteråt.</p>`;
   const G=[["gold","Guld"],["lrhr","Low Risk, High Reward"],["mega","Megabolag ≥ 200 md $"],["all","Alla aktier"]],RR=[["orig","Original","Köp under Cheap, sälj vid Expensive"],["fairstop","Förbättrad","Köp under Cheap, sälj vid Fair Value eller −20 % stop"],["stop","Original + stop","Sälj vid Expensive eller −20 %"],["deep","Djupare köp","Köp under Very Cheap"],["fire","Bara Fire Sale","Köp under 200W, sälj vid Expensive"],["firefair","Fire Sale → Fair","Köp under 200W, sälj vid Fair Value"]];
-  const P=BT.port||{},PR=[["orig","Cheap","Köp under 20 % över 200W, sälj vid Expensive"],["fire","Fire Sale","Köp under 200W, sälj vid Expensive"],["firefair","Fire Sale → Fair","Köp under 200W, sälj vid Fair Value"],["fairstop","Förbättrad","Cheap, sälj vid Fair Value eller −20 %"]];
+  const P=BT.port||{},PR=[["orig","Cheap","Köp under 20 % över 200W, sälj vid Expensive"],["fire","💎 Fire Sale","Köp under 200W, sälj vid Expensive (med LRHR = Diamant)"],["firefair","Fire Sale → Fair","Köp under 200W, sälj vid Fair Value"],["fairstop","Förbättrad","Cheap, sälj vid Fair Value eller −20 %"]];
   const sp=(P["lrhr|orig"]||{}).spy;
   const ptbl=gk=>`<div class="tw"><table class="crit bt"><thead><tr><th>Köpzon</th><th class="r">Avkastning/år</th><th class="r">Max nedgång</th><th class="r">Sharpe</th><th class="r">2x per år</th><th class="r">2x max nedgång</th></tr></thead><tbody>
     ${PR.map(([rk,nm,desc])=>{const v=P[gk+"|"+rk];if(!v)return"";return `<tr><td><b>${nm}</b><span class="subv">${desc}</span></td><td class="r n ${sp&&v.cagr>sp.cagr?"ok":""}">${pct(v.cagr,1)}</td><td class="r n down">${pct(v.maxdd,0)}</td><td class="r n ${sp&&v.sharpe>sp.sharpe?"ok":""}">${f(v.sharpe,2)}</td><td class="r n">${pct(v.cagr2,1)}</td><td class="r n down">${pct(v.maxdd2,0)}</td></tr>`}).join("")}
     ${sp?`<tr style="background:var(--bg-soft,transparent)"><td><b>S&amp;P 500 (SPY)</b><span class="subv">Köp och behåll</span></td><td class="r n">${pct(sp.cagr,1)}</td><td class="r n down">${pct(sp.maxdd,0)}</td><td class="r n">${f(sp.sharpe,2)}</td><td class="r n">–</td><td class="r n">–</td></tr>`:""}</tbody></table></div>`;
   const pl=P["lrhr|orig"],pf=P["lrhr|fire"];
-  const port=pl?`<h3 style="font-size:15px;margin-top:18px">Som portfölj över tid: Cheap eller Fire Sale?</h3>
+  const port=pl?`<h3 style="font-size:15px;margin-top:18px">Som portfölj över tid: Cheap eller Fire Sale? 💎 Diamant = LRHR + Fire Sale</h3>
     <p class="small muted">Lika vikt i alla aktier i urvalet som har en öppen affär, ombalanseras varje vecka. Det här är vad du faktiskt hade fått, inte snittet per affär. ${nn(pl.years)?`${f(pl.years,1)} år.`:""}</p>
-    ${pf&&sp?`<div class="note" style="margin:10px 0"><h4>Low Risk, High Reward</h4><p>Köp i <b>Cheap</b> gav ${pct(pl.cagr,1)} per år (Sharpe ${f(pl.sharpe,2)}, max nedgång ${pct(pl.maxdd,0)}). Att vänta på <b>Fire Sale</b> gav ${pct(pf.cagr,1)} per år (Sharpe ${f(pf.sharpe,2)}, max nedgång ${pct(pf.maxdd,0)}). S&amp;P 500 gav ${pct(sp.cagr,1)} (Sharpe ${f(sp.sharpe,2)}). ${pf.cagr>pl.cagr?"Fire Sale vann: tillväxtbolagen i LRHR studsar hårdare när de väl är under 200W, men nedgångarna på vägen är lika djupa. ":"Cheap vann. "}${Math.max(pl.sharpe,pf.sharpe)<sp.sharpe?"Ingen av dem slog SPY riskjusterat (Sharpe), eftersom urvalet är litet och svänger mer. ":"Bästa varianten slog SPY även riskjusterat. "}${P["mega|orig"]&&P["mega|orig"].sharpe>Math.max(pl.sharpe,pf.sharpe)?`Megabolag med Cheap gav högre Sharpe (${f(P["mega|orig"].sharpe,2)}), vilket stödjer att du håller dig till stora stabila bolag när du använder hävstång.`:""}</p></div>`:""}
+    ${pf&&sp?`<div class="note" style="margin:10px 0"><h4>Low Risk, High Reward</h4><p>Köp i <b>Cheap</b> gav ${pct(pl.cagr,1)} per år (Sharpe ${f(pl.sharpe,2)}, max nedgång ${pct(pl.maxdd,0)}). Att vänta på <b>Fire Sale</b> (💎 Diamant) gav ${pct(pf.cagr,1)} per år (Sharpe ${f(pf.sharpe,2)}, max nedgång ${pct(pf.maxdd,0)}). S&amp;P 500 gav ${pct(sp.cagr,1)} (Sharpe ${f(sp.sharpe,2)}). ${pf.cagr>pl.cagr?"Fire Sale vann: tillväxtbolagen i LRHR studsar hårdare när de väl är under 200W, men nedgångarna på vägen är lika djupa. ":"Cheap vann. "}${Math.max(pl.sharpe,pf.sharpe)<sp.sharpe?"Ingen av dem slog SPY riskjusterat (Sharpe), eftersom urvalet är litet och svänger mer. ":"Bästa varianten slog SPY även riskjusterat. "}${P["mega|orig"]&&P["mega|orig"].sharpe>Math.max(pl.sharpe,pf.sharpe)?`Megabolag med Cheap gav högre Sharpe (${f(P["mega|orig"].sharpe,2)}), vilket stödjer att du håller dig till stora stabila bolag när du använder hävstång.`:""}</p></div>`:""}
     ${[["lrhr","Low Risk, High Reward"],["gold","Guld"],["mega","Megabolag"]].map(([gk,nm])=>P[gk+"|orig"]?`<h4 class="qh" style="margin-top:12px">${nm}</h4>${ptbl(gk)}`:"").join("")}`:"";
   const tbl=gk=>`<div class="tw"><table class="crit bt"><thead><tr><th>Regel</th><th class="r">Affärer</th><th class="r">Vinnande</th><th class="r">Median per affär</th><th class="r">Median årstakt${ib("btAnn")}</th><th class="r">Snittfall under affär</th><th class="r">Värsta fall</th><th class="r">Värsta fall 2x${ib("btLev")}</th></tr></thead><tbody>
     ${RR.map(([rk,nm,desc])=>{const v=BT.res[gk+"|"+rk];if(!v)return"";return `<tr style="${rk==="fairstop"?"background:var(--accent-soft)":""}"><td><b>${nm}</b><span class="subv">${desc}</span></td><td class="r n">${v.n}</td><td class="r n">${f(v.win,0)} %</td><td class="r n ${cls(v.med)}">${pct(v.med,0)}</td><td class="r n ${v.ann>BT.spyCagr?"ok":""}">${pct(v.ann,0)}</td><td class="r n">${pct(v.dd,0)}</td><td class="r n down">${pct(v.ddWorst,0)}</td><td class="r n down">${pct(v.lev.ddWorst,0)}</td></tr>`}).join("")}</tbody></table></div>`;
@@ -2650,36 +2653,44 @@ function mountSubnav(){
 const subnav=items=>`<nav class="snav" aria-label="Avsnitt på sidan">${items.map(([id,l])=>`<button type="button" data-to="${id}">${l}</button>`).join("")}</nav>`;
 
 /* ============ AKTIESIDAN SOM FRÅGOR OCH SVAR ============ */
+const BT_START=16436; // 2015-01-01 som dagnummer: backtesten på aktiesidan börjar här
 function btStock(det){
   const W=det&&det.w;if(!W||!W.c||W.c.length<215)return null;
   const c=W.c,t=W.t,n=c.length,pre=[0];c.forEach(x=>pre.push(pre[pre.length-1]+x));
-  const run=rule=>{const out=[];let pos=null;
-    for(let i=200;i<n;i++){const ma=(pre[i+1]-pre[i-199])/200,dist=(c[i]/ma-1)*100;
-      if(!pos){if(dist<lim.zones.swing)pos={i,p:c[i],low:c[i],lev:1,ll:1};continue}
-      const r=c[i]/c[i-1]-1;pos.low=Math.min(pos.low,c[i]);pos.lev*=Math.max(0,1+2*r-0.05/52);pos.ll=Math.min(pos.ll,pos.lev);
-      const ret=c[i]/pos.p-1,ex=rule==="orig"?dist>=lim.zones.b4:(dist>=lim.zones.b3||ret<=-0.2);
+  let s0=200;while(s0<n-1&&t[s0]<BT_START)s0++;
+  const yrs=(n-1-s0)/52,cg=x=>yrs>0.5?(Math.pow(Math.max(x,1e-9),1/yrs)-1)*100:null;
+  const run=rule=>{const out=[];let pos=null,eq=1,pk=1,mdd=0,eq2=1,pk2=1,mdd2=0,inw=0;
+    for(let i=s0;i<n;i++){const ma=(pre[i+1]-pre[i-199])/200,dist=(c[i]/ma-1)*100;
+      if(pos&&i>s0){const r=c[i]/c[i-1]-1;eq*=1+r;eq2*=Math.max(0,1+2*r-0.05/52);inw++;pos.low=Math.min(pos.low,c[i]);pos.lev*=Math.max(0,1+2*r-0.05/52)}
+      pk=Math.max(pk,eq);mdd=Math.min(mdd,eq/pk-1);pk2=Math.max(pk2,eq2);mdd2=Math.min(mdd2,eq2/pk2-1);
+      if(!pos){const ent=rule==="dia"?dist<0:dist<lim.zones.swing;if(ent)pos={i,p:c[i],low:c[i],lev:1};continue}
+      const ret=c[i]/pos.p-1,ex=rule==="fs"?(dist>=lim.zones.b3||ret<=-0.2):dist>=lim.zones.b4;
       if(ex){out.push({in:t[pos.i],out:t[i],r:ret,dd:pos.low/pos.p-1,lr:pos.lev-1,done:true});pos=null}}
     if(pos)out.push({in:t[pos.i],out:t[n-1],r:c[n-1]/pos.p-1,dd:pos.low/pos.p-1,lr:pos.lev-1,done:false});
+    out.eq={tot:(eq-1)*100,cagr:cg(eq),mdd:mdd*100,cagr2:cg(eq2),mdd2:mdd2*100,inv:(n-1-s0)?inw/(n-1-s0)*100:0};
     return out};
-  return{orig:run("orig"),fs:run("fs"),from:t[200],bh:c[n-1]/c[200]-1};
+  let pk=c[s0],bmdd=0;for(let i=s0;i<n;i++){pk=Math.max(pk,c[i]);bmdd=Math.min(bmdd,c[i]/pk-1)}
+  return{orig:run("orig"),dia:run("dia"),fs:run("fs"),from:t[s0],bh:c[n-1]/c[s0]-1,bhc:cg(c[n-1]/c[s0]),bhdd:bmdd*100,yrs};
 }
-function btSum(tr){if(!tr.length)return null;const win=tr.filter(x=>x.r>0).length;return{n:tr.length,win,avg:tr.reduce((s,x)=>s+x.r,0)/tr.length*100,worst:Math.min(...tr.map(x=>x.dd))*100,lworst:Math.min(...tr.map(x=>x.lr<x.dd*2?x.lr:x.dd*2))*100,tot:(tr.reduce((s,x)=>s*(1+x.r),1)-1)*100}}
+function btSum(tr){if(!tr.length)return null;const win=tr.filter(x=>x.r>0).length;return{n:tr.length,win,avg:tr.reduce((s,x)=>s+x.r,0)/tr.length*100,worst:Math.min(...tr.map(x=>x.dd))*100,lworst:Math.min(...tr.map(x=>x.lr<x.dd*2?x.lr:x.dd*2))*100,tot:(tr.reduce((s,x)=>s*(1+x.r),1)-1)*100,...tr.eq}}
 function histChapter(d,det){
   if(!det)return{a:"Laddar kurshistoriken…",b:""};
   const B=btStock(det);if(!B)return{a:"För kort kurshistorik: 200W-snittet behöver minst fyra år.",b:""};
-  const O=btSum(B.orig),F=btSum(B.fs),yr=dayToISO(B.from).slice(0,4);
-  const a=!O?`Nej, inga affärer: ${esc(d.ticker)} har inte varit i köpzonen sedan ${yr}. Köp och behåll gav ${pct(B.bh*100,0)}.`:
-    `${O.win===O.n?"Ja":"Delvis"}: ${O.n} ${O.n===1?"affär":"affärer"} sedan ${yr}, ${O.win} vinnande, totalt ${pct(O.tot,0)}. Köp och behåll gav ${pct(B.bh*100,0)}.`;
+  const D=btSum(B.dia),O=btSum(B.orig),F=btSum(B.fs),yr=dayToISO(B.from).slice(0,4),lr=d.res&&d.res.lrhr&&d.res.lrhr.status==="pass";
+  const works=X=>X&&X.win/X.n>=0.6&&(X.tot>0)&&(X.mdd>B.bhdd+5||nn(X.cagr)&&nn(B.bhc)&&X.cagr>=B.bhc-2);
+  const verdict=X=>!X?"inga affärer":!works(X)?(X.tot>0?"fungerade delvis":"fungerade inte"):nn(X.cagr)&&nn(B.bhc)&&X.cagr<B.bhc-2?"fungerade, lägre risk men mindre avkastning än köp och behåll":"fungerade";
+  const a=`<b>💎 Diamant ${verdict(D)}</b>${D?`: ${D.n} ${D.n===1?"affär":"affärer"} sedan ${yr}, ${D.win} vinnande, ${nn(D.cagr)?pct(D.cagr,1)+" per år":pct(D.tot,0)} (max nedgång ${pct(D.mdd,0)})`:`: ${esc(d.ticker)} har inte varit under 200W sedan ${yr}`}. Köp i Cheap: ${O?`${nn(O.cagr)?pct(O.cagr,1)+" per år":pct(O.tot,0)}, ${O.win} av ${O.n} vinnande`:"inga affärer"}. Köp och behåll: ${nn(B.bhc)?pct(B.bhc,1)+" per år":pct(B.bh*100,0)} (max nedgång ${pct(B.bhdd,0)}).${lr?"":` <span class="small muted">Obs: aktien klarar inte Low Risk, High Reward idag, så Diamant-signalen gäller inte just nu.</span>`}`;
   const tbl=(tr,nm,desc)=>`<div><h4 class="qh" style="margin-top:0">${nm}</h4><p class="small muted" style="margin-bottom:6px">${desc}</p>${tr.length?`<div class="tw"><table class="crit"><thead><tr><th>Köp</th><th>Sälj</th><th class="r">Resultat</th><th class="r">Värsta fall</th><th class="r">Med 2x</th></tr></thead><tbody>${tr.slice().reverse().map(x=>`<tr><td class="n">${dayToISO(x.in)}</td><td class="n">${x.done?dayToISO(x.out):"<i>öppen</i>"}</td><td class="r n ${cls(x.r)}">${pct(x.r*100,0)}</td><td class="r n down">${pct(x.dd*100,0)}</td><td class="r n ${cls(x.lr)}">${pct(x.lr*100,0)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="small muted">Inga affärer.</p>`}</div>`;
+  const row=(nm,desc,X,hl)=>`<tr style="${hl?"background:var(--accent-soft)":""}"><td><b>${nm}</b><span class="subv">${desc}</span></td><td class="r n">${X?X.n:"0"}</td><td class="r n">${X?`${X.win} av ${X.n}`:"–"}</td><td class="r n ${cls(X&&X.cagr)}">${X&&nn(X.cagr)?pct(X.cagr,1):"–"}</td><td class="r n down">${X?pct(X.mdd,0):"–"}</td><td class="r n">${X?f(X.inv,0," %"):"–"}</td><td class="r n ${cls(X&&X.cagr2)}">${X&&nn(X.cagr2)?pct(X.cagr2,1):"–"}</td><td class="r n down">${X?pct(X.mdd2,0):"–"}</td><td class="r n">${verdict(X)}</td></tr>`;
   const b=`<section class="card"><div class="bd">
-    <div class="duo" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
-      <div><span class="sub">Original, totalt</span><b class="n ${cls(O&&O.tot)}">${O?pct(O.tot,0):"–"}</b><span class="small muted">${O?`${O.win} av ${O.n} vinnande`:"inga affärer"}</span></div>
-      <div><span class="sub">Förbättrad, totalt</span><b class="n ${cls(F&&F.tot)}">${F?pct(F.tot,0):"–"}</b><span class="small muted">${F?`${F.win} av ${F.n} vinnande`:"inga affärer"}</span></div>
-      <div><span class="sub">Köp och behåll</span><b class="n ${cls(B.bh)}">${pct(B.bh*100,0)}</b><span class="small muted">sedan ${dayToISO(B.from)}</span></div>
-      <div><span class="sub">Värsta fall i en affär</span><b class="n down">${O?pct(O.worst,0):"–"}</b><span class="small muted">originalregeln</span></div>
-    </div>
-    <div class="grid g2" style="margin-top:14px">${tbl(B.orig,"Original","Köp under Cheap, sälj vid Expensive.")}${tbl(B.fs,"Förbättrad","Köp under Cheap, sälj vid Fair Value eller −20 % stop.")}</div>
-    <p class="small muted" style="margin-top:8px">Veckokurser, bara 200W-reglerna på den här aktien (inga nyckeltalsfilter). Strategin sitter ofta i kontanter, så den kan slå köp och behåll i risk men inte alltid i avkastning. ${drill("strategier","Backtest för alla aktier")}</p>
+    <div class="tw"><table class="crit bt"><thead><tr><th>Strategi</th><th class="r">Affärer</th><th class="r">Vinnande</th><th class="r">Per år</th><th class="r">Max nedgång</th><th class="r">Tid i aktien</th><th class="r">2x per år</th><th class="r">2x max nedgång</th><th class="r">Fungerar?</th></tr></thead><tbody>
+      ${row("💎 Diamant","Köp under 200W (Fire Sale), sälj vid Expensive",D,1)}
+      ${row("Cheap","Köp under Cheap (20 % över 200W), sälj vid Expensive",O)}
+      ${row("Förbättrad","Cheap, sälj vid Fair Value eller −20 % stop",F)}
+      <tr><td><b>Köp och behåll</b><span class="subv">Från ${dayToISO(B.from)}</span></td><td class="r n">–</td><td class="r n">–</td><td class="r n ${cls(B.bhc)}">${nn(B.bhc)?pct(B.bhc,1):"–"}</td><td class="r n down">${pct(B.bhdd,0)}</td><td class="r n">100 %</td><td class="r n">–</td><td class="r n">–</td><td></td></tr>
+    </tbody></table></div>
+    <div class="grid g2" style="margin-top:14px">${tbl(B.dia,"💎 Diamant-affärer","Köp när kursen går under 200W, sälj vid Expensive (40 % över).")}${tbl(B.orig,"Cheap-affärer","Köp under Cheap, sälj vid Expensive.")}</div>
+    <p class="small muted" style="margin-top:8px">Veckokurser från ${dayToISO(B.from)} (${f(B.yrs,1)} år). Diamant = Low Risk, High Reward + köp under 200W. Här testas bara 200W-reglerna på den här aktien, eftersom nyckeltalen inte finns bakåt i tiden. Utanför affärerna ligger pengarna i kontanter utan ränta. "Fungerar" = minst 60 % vinnande affärer, plus totalt och antingen nästan lika hög avkastning som köp och behåll eller klart mindre nedgång. ${drill("strategier","Backtest för alla aktier")}</p>
   </div></section>`;
   return{a,b};
 }
@@ -2700,7 +2711,7 @@ function chapters(d,det){
   const g=d._pg||(d._pg=peerGroup(d));
   const Q=[
     ["q-strat","Uppfyller den min strategi?",`<span class="yn ${v.k}">${yes(v.k)}</span> ${esc(v.t)}`,stratCard(d).replace('style="margin-top:16px"',"").replace(/<p class="sv">[\s\S]*?<\/p>/,"")],
-    ["q-hist","Hur har strategin fungerat på den här aktien?",H.a,H.b],
+    ["q-hist","Fungerar min strategi (💎 Diamant) på den här aktien?",H.a,H.b],
     ["q-val","Är den billig eller dyr?",iv&&nn(d.price)?(iv.v>=d.price?`Billig: ${f((1-d.price/iv.v)*100,0)} % under ${iv.src==="dcf"?"beräknat värde":"analytikernas riktkurs"} (${money(iv.v,d.currency)}).`:`Dyr: ${f((d.price/iv.v-1)*100,0)} % över ${iv.src==="dcf"?"beräknat värde":"analytikernas riktkurs"} (${money(iv.v,d.currency)}).`)+` Sammanvägt: ${vChip(valView(d))}`:`Sammanvägt: ${vChip(valView(d))}`,`<div class="sgrid" style="margin-top:0">${ivCard(d,det)}<section class="card"><div class="hd"><h2>Vad drar åt vilket håll?${ib("valVerdict")}</h2></div><div class="bd">${partsH(valView(d).parts)}</div></section></div>`],
     ["q-eps","Växer vinsten, och följer kursen med?",(()=>{if(!det)return"Laddar…";const q=epsQuarters(det);const g1=d.earnGrowth1y,r12=d.r252;return nn(g1)?`Vinsten per aktie ${g1>=0?"växte":"minskade"} ${f(Math.abs(g1),0)} % senaste året${nn(r12)?`, kursen gick ${pct(r12*100,0)}`:""}. ${nn(r12)?(Math.abs(r12*100-g1)<15?"Kursen har följt vinsten.":r12*100<g1?"Kursen har inte hängt med, aktien har blivit billigare.":"Kursen har sprungit ifrån vinsten."):""}`:q.length?"Se vinsten per kvartal nedan.":"Vinsthistorik saknas."})(),`<div class="sgrid" style="margin-top:0">${epsCard(d,det)}${qualCard(d)}</div><h3 class="sub3">Så har bolaget utvecklats</h3>${finCards(d,det)}`],
     ["q-ind","Vem dominerar branschen?",ir?`${esc(d.name)} är nr ${ir.rank} av ${ir.n} i ${esc(ir.label)} (sammanvägt).${LEAD[d.ticker]===1?" Störst i branschen efter omsättning.":""}`:"Ingen jämförbar bransch.",giantsCard(d).replace('style="margin-top:16px"',"")],
@@ -2907,7 +2918,7 @@ function chaptersA(d,det){
   if(eq)parts.push(qSec("q-thesis",1,"Vad är bolaget, och vad är tesen?",`Vad bolaget gör, vad som gör det starkt eller svagt, och tre utfall: bull, bas och bear.`,profileCard(d,det)+`<div style="height:14px"></div>`+casesCard(d,det),["q-strat","Passar den min strategi?"]));
   if(!eq)parts.push(`<div style="margin-top:16px">${profileCard(d,det)}</div>`);
   parts.push(qSec("q-strat",eq?2:1,"Passar den min strategi?",`<span class="yn ${v.k}">${yes(v.k)}</span> ${esc(v.t)}`,
-    stratCard(d).replace('style="margin-top:16px"',"").replace(/<p class="sv">[\s\S]*?<\/p>/,"")+`<details class="xs"><summary>Hur har strategin fungerat på ${esc(d.ticker)}? <span class="muted">${H.a}</span></summary>${H.b}</details>`,
+    stratCard(d).replace('style="margin-top:16px"',"").replace(/<p class="sv">[\s\S]*?<\/p>/,"")+`<div id="q-hist" style="margin-top:16px"><h3 class="sub3" style="margin-bottom:4px">Fungerar 💎 Diamant på ${esc(d.ticker)}? Backtest från 2015</h3><p class="ans" style="margin-bottom:10px">${H.a}</p>${H.b}</div>`,
     eq?["q-biz","Hur går affären?"]:["q-price","Vad kostar den?"]));
   if(eq)parts.push(qSec("q-biz",3,"Hur går affären?",(()=>{const g1=d.revGrowth1y,e1=d.earnGrowth1y;return `${nn(g1)?`Omsättningen ${g1>=0?"växte":"minskade"} ${f(Math.abs(g1),0)} % senaste året`:"Omsättning okänd"}${nn(e1)?`, vinsten per aktie ${e1>=0?"växte":"minskade"} ${f(Math.abs(e1),0)} %`:""}. ${ir?`Nr ${ir.rank} av ${ir.n} i ${esc(ir.label)}.`:""}`})(),
     `<section class="card"><div class="bd" id="dashBox">${finDash(d,det)}</div></section>

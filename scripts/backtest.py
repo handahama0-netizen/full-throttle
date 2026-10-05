@@ -21,6 +21,7 @@ MA = 200
 FIN_COST = 0.05      # årlig ränta på lånade pengar vid hävstång
 LEV = 2.0
 MIN_TRADES = 5
+START = (date(2015, 1, 1) - date(1970, 1, 1)).days  # backtestet börjar 2015 (när 200W finns)
 
 GOLD_MCAP = 200.0    # mdr USD = megabolag
 GOLD_LEADER_MCAP = 50.0
@@ -108,7 +109,7 @@ RULES = {
              "entry": lambda s: s["dist"] < 20, "exit": lambda s, t: s["dist"] >= 40 or t["ret"] <= -0.20},
     "fairstop": {"name": "Under Cheap, sälj vid Fair Value (30 %) eller −20 % stop",
                  "entry": lambda s: s["dist"] < 20, "exit": lambda s, t: s["dist"] >= 30 or t["ret"] <= -0.20},
-    "fire": {"name": "Bara Fire Sale: köp under 200W, sälj vid Expensive (40 %)",
+    "fire": {"name": "Diamant (med LRHR): köp i Fire Sale under 200W, sälj vid Expensive (40 %)",
              "entry": lambda s: s["dist"] < 0, "exit": lambda s, t: s["dist"] >= 40},
     "firefair": {"name": "Bara Fire Sale: köp under 200W, sälj vid Fair Value (30 %)",
                  "entry": lambda s: s["dist"] < 0, "exit": lambda s, t: s["dist"] >= 30},
@@ -137,7 +138,7 @@ def simulate(pts, rule):
         ma = (pre[i + 1] - pre[i + 1 - MA]) / MA
         st = {"dist": (closes[i] / ma - 1) * 100, "c": closes[i], "pc": closes[i - 1], "ppc": closes[i - 2]}
         if pos is None:
-            if entry(st):
+            if pts[i][0] >= START and entry(st):
                 pos = {"i": i, "p": closes[i], "low": closes[i], "lev": 1.0, "levlow": 1.0}
         else:
             r = closes[i] / closes[i - 1] - 1
@@ -182,7 +183,7 @@ def portfolio(members, rule, data, spy):
                     i = min(range(n), key=lambda k: abs(days[k] - d1)) if abs(d1 - days[-1]) < 400 else None
                 if i is not None and c0:
                     rets[i].append(c1 / c0 - 1)
-    start = MA + 1
+    start = max(MA + 1, next((i for i, d in enumerate(days) if d >= START), MA + 1))
     eq, eq2, peak, peak2, dd, dd2, wk, inv = 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, [], 0
     for i in range(start, n):
         r = sum(rets[i]) / len(rets[i]) if rets[i] else 0.0
@@ -246,13 +247,14 @@ def run(data: Path):
         "gold": ("Guld: mega eller branschledare, beta ≤ 1,3, ROIC/ROE ≥ 15 %, FCF ≥ 10 %, växer", [r for r in rows if gold_quality(r, lead)]),
     }
     spy = series(load(data / "t" / "SPY.json"))
-    bench = None
+    bench, s0 = None, MA
     if len(spy) > MA:
-        a, b = spy[MA][1], spy[-1][1]
-        bench = (b / a) ** (52 / (len(spy) - 1 - MA)) - 1
+        s0 = max(MA, next((i for i, (d, _) in enumerate(spy) if d >= START), MA))
+        a, b = spy[s0][1], spy[-1][1]
+        bench = (b / a) ** (52 / (len(spy) - 1 - s0)) - 1
     cache = {}
     out = {"asOf": u.get("asOf"), "spyCagr": round(bench * 100, 1) if bench is not None else None,
-           "from": (date(1970, 1, 1) + timedelta(days=spy[MA][0])).isoformat() if len(spy) > MA else None,
+           "from": (date(1970, 1, 1) + timedelta(days=spy[s0][0])).isoformat() if len(spy) > MA else None,
            "rules": {k: v["name"] for k, v in RULES.items()},
            "groups": {k: {"name": v[0], "n": len(v[1]), "tickers": [r["ticker"] for r in v[1]][:80]} for k, v in groups.items()},
            "res": {}, "trades": {}}
