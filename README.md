@@ -56,7 +56,7 @@ Fliken **Branscher** visar vilka branscher som är hetast, vilka som kan vara n�
 
 **Guld** är den kombinerade strategin för swingar med hävstång: 200W-köpzonen (under Cheap) + ett stort, stabilt och dominerande kvalitetsbolag (börsvärde ≥ 200 md $ eller branschledare ≥ 50 md $, beta ≤ 1,3, ROIC/ROE ≥ 15 %, FCF-marginal ≥ 10 %, växande, skulden under kontroll). Originalstrategierna finns kvar bredvid.
 
-**💎 Diamant** = Low Risk, High Reward + kursen under 200W-snittet (Fire Sale), sälj vid Expensive. I portföljbacktestet gav den högre avkastning och Sharpe än att köpa LRHR redan i Cheap. Varje aktiesida visar ett eget backtest från 2015 (Diamant, Cheap, Förbättrad och köp och behåll), och Screenern har ett Diamant-filter. Kurser hämtas från 2010 så att 200W finns från 2015.
+**💎 Diamant** = Low Risk, High Reward + kursen under 200W-snittet (Fire Sale), sälj vid Expensive. I portföljbacktestet 2015–2026 gav den dock något lägre avkastning och Sharpe än att köpa LRHR redan i Cheap (17,0 % mot 19,7 % per år), medan Fire Sale fungerade bättre för Guld (20,4 % mot 18,0 %). Under 2020–2026 vann Fire Sale även för LRHR. Varje aktiesida visar ett eget backtest från 2015 (Diamant, Cheap, Förbättrad och köp och behåll), och Screenern har ett Diamant-filter. Kurser hämtas från 2010 så att 200W finns från 2015.
 
 `scripts/backtest.py` testar 200W-reglerna på all kurshistorik varje natt (originalet, sälj vid Fair Value, stop −20 %, djupare köp) för Guld, LRHR, megabolag och alla aktier, även med 2x hävstång. Resultatet visas under **Strategi & backtest**. Slutsatsen hittills: sälj redan vid Fair Value och ha en stop på −20 %. Det ger högre takt och ungefär halverar de värsta fallen. Urvalet bygger på dagens nyckeltal (facit i hand), vilket står på sidan.
 

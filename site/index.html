@@ -2266,7 +2266,7 @@ function plan(d,entryPrice){
 function stratVerdict(d){
   const R=d.res,pass=SORDER.filter(k=>R[k]&&R[k].status==="pass"),near=SORDER.filter(k=>R[k]&&R[k].status==="near");
   if(d.excluded)return{k:"mid",t:d.type&&d.type!=="EQUITY"?"ETF:er bedöms inte i strategierna.":`Sektorn ${d.sector} är utesluten i strategierna. 200W-zonerna gäller ändå.`};
-  if(d.sig.includes("diamant"))return{k:"gold",t:"💎 Diamantläge: klarar Low Risk, High Reward och ligger under 200W-snittet (Fire Sale). Den variant som gav bäst resultat i backtestet."};
+  if(d.sig.includes("diamant"))return{k:"gold",t:"💎 Diamantläge: klarar Low Risk, High Reward och ligger under 200W-snittet (Fire Sale). Se backtestet nedan för hur det har fungerat på just den här aktien."};
   if(d.sig.includes("guld"))return{k:"gold",t:"Guldläge: ett stort, stabilt kvalitetsbolag i köpzonen mot 200W."};
   if(d.sig.length)return{k:"pos",t:`Köpläge: klarar ${pass.map(k=>STRATS[k].name).join(" och ")} och ligger i köpzonen.`};
   if(pass.length&&nn(d.dist200w)&&d.dist200w<lim.zones.swing)return{k:"pos",t:`Klarar ${pass.map(k=>STRATS[k].name).join(" och ")} och ligger i köpzonen mot 200W (${ZNAME[d.z]}).`};
