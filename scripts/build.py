@@ -826,6 +826,18 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
             if i % 50 == 0:
                 log(f"  nyckeltal {i}/{len(futs)}")
 
+    # Institutionellt ägande (Nasdaq/13F): dina listor och signaler varje natt, övriga roterar med analysdatan
+    import inst as INST
+    instd = {}
+    for t in [t for t in tickers if t in prices and t in extra_set and "." not in t and not t.startswith("^")]:
+        r = INST.fetch(t, full=t in prio)
+        if r:
+            instd[t] = r
+        if INST.status()["blocked"]:
+            log("Nasdaq spärrar, hoppar över institutionellt ägande i natt")
+            break
+    log(f"Institutionellt ägande: {len(instd)} aktier ({INST.status()})")
+
     today = datetime.now(ZoneInfo("Europe/Stockholm")).date().isoformat()
     rows, events, alerts = [], [], []
     (out / "data" / "t").mkdir(parents=True, exist_ok=True)
@@ -844,7 +856,7 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
             if old:
                 rec = {k: v for k, v in old.items() if k not in ("price", "prevClose", "chg", "ma200w", "dist200w", "zone", "signals", "stale")}
                 old_det = load_json(prev / "data" / "t" / fname(t), {})
-                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att", "epsq", "sec", "ins", "holders", "own")}
+                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att", "epsq", "sec", "ins", "holders", "own", "inst", "instHist")}
             else:
                 rec = {"ticker": t, "name": t, "type": "EQUITY", "currency": "SEK" if t.endswith(".ST") else "USD",
                        "sector": "Övrigt", "excluded": True}
@@ -876,6 +888,11 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
             det["own"] = merge_own(_old.get("own"), rec, today)
             if det.get("holders") is None and _old.get("holders"):
                 det["holders"] = _old["holders"]
+            det["inst"] = instd.get(t) or _old.get("inst")
+            det["instHist"] = INST.merge_hist(_old.get("instHist"), instd.get(t))
+            if det.get("inst"):
+                rec["instFlow"] = det["inst"].get("verdict")
+                rec["instNetp"] = det["inst"].get("netp")
         s = secd.get(t.upper())
         if s and det is not None:
             apply_sec(rec, det, raw, s)
