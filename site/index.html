@@ -114,11 +114,6 @@ main{padding-block:18px 48px}
 .sig.guld{background:#b8860b;color:#fff} .sig.diamant{background:linear-gradient(135deg,#2b6cb0,#7f5af0);color:#fff} .sig.swing{background:var(--z-cheap);color:var(--card)} .sig.rea{background:var(--z-vcheap);color:var(--card)}
 
 /* nedtryckta */
-.dnpre{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;margin-top:14px}
-.dnpre button{display:grid;gap:2px;text-align:left;border:1px solid var(--line-strong);background:var(--card);border-radius:10px;padding:9px 12px;cursor:pointer;color:var(--ink);font:inherit}
-.dnpre button span{font-size:12px;color:var(--muted);line-height:1.35}
-.dnpre button:hover{border-color:var(--accent)}
-.dnpre button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
 .dnbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--sunk)}
 @media (min-width:701px){.dnbar{position:sticky;top:var(--hh,58px);z-index:5}}
 .dncount{font-size:15px}.dncount b{font-size:18px}
@@ -144,13 +139,13 @@ main{padding-block:18px 48px}
 .dnt tr.go:hover td.stk{background:var(--hover)}
 .t-good{color:var(--up);font-weight:650}.t-bad{color:var(--down);font-weight:650}
 .b52{display:inline-flex;align-items:center;gap:6px}
-.dncards{display:none}
-@media (max-width:700px){.dntw{display:none}.dncards{display:grid;gap:8px;padding:10px 12px 14px}
-  .dncard{display:grid;gap:6px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);text-decoration:none;background:var(--card)}
-  .dnc1{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.dnc1 b.n{font-size:17px}
-  .dnc3{display:grid;grid-template-columns:repeat(4,auto);gap:4px 10px;font-size:12.5px;color:var(--muted)}.dnc3 span>span{color:var(--ink)}
-  .dnc4{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-  .dnl{min-width:0;flex-basis:100%}.dnact{margin-left:0}.dnpre{grid-template-columns:1fr 1fr}.dnpre button span{display:none}}
+.dngrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.dnsel{display:grid;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
+.dnsel select{font:inherit;font-size:13.5px;font-weight:600;color:var(--ink);padding:7px 8px;border-radius:8px;border:1px solid var(--line-strong);background:var(--card);width:100%}
+.dnsel select.on{border-color:var(--accent);background:var(--accent-soft)}
+.dnt td,.dnt th{padding-left:10px;padding-right:10px}
+@media (max-width:900px){.dngrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:700px){.dnl{min-width:0;flex-basis:100%}.dnact{margin-left:0}.dnt .co .nm{display:none}.dnt td,.dnt th{padding-left:7px;padding-right:7px}}
 /* tables */
 .tw{overflow-x:auto}
 table{border-collapse:separate;border-spacing:0;width:100%;font-size:13px}
@@ -943,13 +938,6 @@ const qualOf=d=>d.fx&&nn(d.fx.Q)?d.fx.Q:d.qScore;
 const DNS=[["diamant","💎 Diamant"],["gold","Guld"],["lrhr","LRHR"],["ftp","FT+"],["ft","FT"]];
 const dnPass=(d,k)=>k==="diamant"?d.sig.includes("diamant"):d.res[k]&&d.res[k].status==="pass";
 const DN_DEF={ath:40,p52:100,prof:true,grow:true,val:"all",strat:[],sec:[],mc:0,de:0,inst:0,peg:0,pe:0,sort:"fromAth",dir:1,cols:"key",open:false};
-const DN_PRE=[
-  ["qual","⭐ Kvalitet på rea","Ner minst 40 %, lönsam, växer, inte övervärderad",{ath:40,prof:true,grow:true,val:"notover"}],
-  ["strat","💎 Klarar min strategi","Ner minst 30 % och klarar någon av dina strategier",{ath:30,prof:true,grow:false,strat:["diamant","gold","lrhr","ftp","ft"]}],
-  ["big","🏛 Stora och trygga","≥ 50 md $, låg skuld, institutioner äger ≥ 50 %",{ath:30,prof:true,grow:false,mc:50,de:1,inst:50}],
-  ["bottom","📉 Nära årsbotten","Ner minst 30 % och i nedre 25 % av 52-veckorsspannet",{ath:30,prof:true,grow:false,p52:25}],
-  ["cheap","💰 Billigast","PEG under 1 och P/E framåt under 15",{ath:30,prof:true,grow:true,peg:1,pe:15}],
-  ["all","Alla nedtryckta","Ner minst 30 %, inga andra krav",{ath:30,prof:false,grow:false}]];
 function dnUi(){if(!ui.dn||ui.dn._v!==2)ui.dn=Object.assign({},DN_DEF,ui.dn||{},{_v:2});return ui.dn}
 function dnTest(d,F,skip){
   const fa=fromAth(d),p=pos52(d);
@@ -969,7 +957,9 @@ function dnTest(d,F,skip){
 const tone=(v,good,bad,lower)=>!nn(v)?"":(lower?v<=good:v>=good)?"t-good":(lower?v>=bad:v<=bad)?"t-bad":"";
 const deTxt=d=>d.negEquity?"neg. EK":nn(d.de)?f(d.de,2):"–";
 const DNC={
-  co:["Bolag","l","ticker",d=>`${co(d)}<span class="subv">${esc(d.sector||"Övrigt")} · ${mcap(d.mcapB)}</span>`],
+  co:["Bolag","l","ticker",d=>co(d)],
+  sec:["Sektor","l","sector",d=>`<span class="small">${esc(d.sector||"Övrigt")}</span>`],
+  mc:["Börsvärde","","mcapB",d=>mcap(d.mcapB)],
   fromAth:["Från toppen","","fromAth",d=>`<b class="down">${pct(fromAth(d),0)}</b><span class="subv">topp ${d.athDate?esc(d.athDate.slice(0,7)):"–"}</span>`],
   p52:["52 veckor","l","p52",d=>bar52(d)],
   fwdPe:["P/E fr.","","fwdPe",d=>`<span class="${d.fwdPe>0?tone(d.fwdPe,15,30,1):"t-bad"}">${nn(d.fwdPe)?(d.fwdPe>0?f(d.fwdPe,1):"neg."):"–"}</span>`],
@@ -983,7 +973,7 @@ const DNC={
   fcf:["FCF-marg.","","fcfMargin",d=>`<span class="${tone(d.fcfMargin,15,0)}">${nn(d.fcfMargin)?f(d.fcfMargin,0," %"):"–"}</span>`],
   ins:["Insiders","","insPct",d=>nn(d.insPct)?f(d.insPct,1," %"):"–"],
   q:["Kvalitet","","q",d=>`<span class="${tone(qualOf(d),70,30)}">${nn(qualOf(d))?f(qualOf(d),0):"–"}</span>`]};
-const DN_COLS={key:["co","fromAth","p52","fwdPe","peg","de","inst","val","strat"],all:["co","fromAth","p52","z","fwdPe","peg","de","inst","ins","rev","fcf","q","val","strat"]};
+const DN_COLS=["co","sec","mc","fromAth","p52","z","fwdPe","peg","de","inst","ins","rev","fcf","q","val","strat"];
 const DN_SORT=[["fromAth","Fall från toppen"],["mcapB","Börsvärde"],["sector","Sektor"],["p52","Läge i 52 veckor"],["fwdPe","P/E framåt"],["peg","PEG"],["de","Skuldsättning"],["instPct","Institutionsägande"],["val","Värdering (billigast först)"],["q","Kvalitet"],["strat","Antal strategier"],["ticker","Ticker A–Ö"]];
 const DN_ASC=["fromAth","p52","fwdPe","peg","de","ticker","sector","dist200w"];
 function dnKey(d,k){return k==="fromAth"?fromAth(d):k==="p52"?pos52(d):k==="val"?valView(d).score:k==="q"?qualOf(d):k==="strat"?DNS.filter(([s])=>dnPass(d,s)).length:k==="ticker"||k==="sector"?String(d[k]||""):k==="fwdPe"||k==="peg"?(d[k]>0?d[k]:null):k==="de"?(d.negEquity?null:d.de):d[k]}
@@ -1005,85 +995,71 @@ function dnChips(F){const c=[],lab=(k,v)=>(DN_SEG[k].find(x=>String(x[0])===Stri
 function pageDown(){
   document.title="Nedtryckta kvalitetsbolag · Full Throttle";
   const F=dnUi(),hasAth=rows.some(d=>nn(d.ath));
-  const seg=(k,lbl,info)=>`<div class="dnf"><span class="dnl">${lbl}${info?ib(info):""}</span><div class="seg" data-k="${k}">${DN_SEG[k].map(([v,l])=>`<button data-v="${v}" aria-pressed="${String(F[k])===String(v)}">${l}</button>`).join("")}</div></div>`;
-  $("app").innerHTML=`<section class="card dnpage"><div class="bd">
+  const sel=(k,lbl,info)=>`<label class="dnsel"><span>${lbl}${info?ib(info):""}</span><select data-k="${k}">${DN_SEG[k].map(([v,l])=>`<option value="${v}" ${String(F[k])===String(v)?"selected":""}>${l}</option>`).join("")}</select></label>`;
+  $("app").innerHTML=`<section class="card dnpage"><div class="bd" style="padding-bottom:10px">
       <h1 style="font-size:20px">Nedtryckta kvalitetsbolag${ib("dnInfo")}</h1>
-      <p class="muted" style="margin-top:4px">Bra bolag som fallit kraftigt från toppen. Välj ett snabbval eller finjustera med filter. Tryck på ett bolag för att öppna aktien.</p>
+      <p class="muted" style="margin-top:4px">Bolag som fallit kraftigt från toppen. Filtrera själv nedan. Varje rad är en aktie med alla nyckeltal, tryck för att öppna den.</p>
       ${hasAth?"":`<p class="note small" style="margin-top:8px">All-time high hämtas i nattkörningen. Tills dess är listan tom.</p>`}
-      <div class="dnpre" id="dnPre" role="group" aria-label="Snabbval">${DN_PRE.map(([k,l,t])=>`<button data-p="${k}" title="${esc(t)}"><b>${l}</b><span>${esc(t)}</span></button>`).join("")}</div>
+    </div>
+    <div class="dnpanel" id="dnPanel">
+      <div class="dngrid">
+        ${sel("ath","Fall från toppen")}${sel("p52","Läge i 52 veckor","dn52")}${sel("mc","Börsvärde")}${sel("val","Värdering","valVerdict")}
+        ${sel("pe","P/E framåt")}${sel("peg","PEG")}${sel("de","Skuld / eget kapital")}${sel("inst","Institutioner äger")}
+      </div>
+      <div class="dnf"><span class="dnl">Fundamenta</span><div class="sfc"><label class="sfk"><input type="checkbox" id="dnProf"> Tjänar pengar (vinst och kassaflöde)</label><label class="sfk"><input type="checkbox" id="dnGrow"> Omsättningen växer</label></div></div>
+      <div class="dnf"><span class="dnl">Klarar strategi</span><div class="sfc" id="dnStrat"></div></div>
+      <div class="dnf"><span class="dnl">Sektor</span><div class="sfc" id="dnSec"></div></div>
     </div>
     <div class="dnbar">
       <div class="dncount" id="dnCount" aria-live="polite"></div>
-      <div class="dnact">
-        <button class="more" id="dnToggle" aria-expanded="${!!F.open}" aria-controls="dnPanel">${F.open?"Dölj filter ▲":"Alla filter ▼"}</button>
-        <label class="dnsort">Sortera <select id="dnSortSel">${DN_SORT.map(([k,l])=>`<option value="${k}" ${F.sort===k?"selected":""}>${l}</option>`).join("")}</select></label>
-        <div class="seg" id="dnCols"><button data-v="key" aria-pressed="${F.cols!=="all"}">Nyckeltal</button><button data-v="all" aria-pressed="${F.cols==="all"}">Alla kolumner</button></div>
-      </div>
       <div class="dnchips" id="dnChips"></div>
-    </div>
-    <div class="dnpanel" id="dnPanel" ${F.open?"":"hidden"}>
-      <div class="dngrp"><h4>Fallet</h4>${seg("ath","Fall från toppen")}${seg("p52","Läge i 52 veckor","dn52")}</div>
-      <div class="dngrp"><h4>Fundamenta och värdering</h4>
-        <div class="dnf"><span class="dnl">Krav</span><div class="sfc"><label class="sfk${F.prof?" on":""}"><input type="checkbox" id="dnProf" ${F.prof?"checked":""}> Tjänar pengar</label><label class="sfk${F.grow?" on":""}"><input type="checkbox" id="dnGrow" ${F.grow?"checked":""}> Omsättningen växer</label></div></div>
-        ${seg("val","Värdering","valVerdict")}${seg("pe","P/E framåt")}${seg("peg","PEG")}${seg("de","Skuld / eget kapital")}</div>
-      <div class="dngrp"><h4>Storlek och ägare</h4>${seg("mc","Börsvärde")}${seg("inst","Institutioner äger")}</div>
-      <div class="dngrp"><h4>Din strategi <span class="small muted" style="font-weight:400">(någon av de ikryssade)</span></h4><div class="sfc" id="dnStrat"></div></div>
-      <div class="dngrp"><h4>Sektor</h4><div class="sfc" id="dnSec"></div></div>
-      <div style="display:flex;gap:8px;justify-content:flex-end"><button class="more" id="dnReset">Återställ alla filter</button></div>
+      <div class="dnact">
+        <label class="dnsort">Sortera <select id="dnSortSel">${DN_SORT.map(([k,l])=>`<option value="${k}" ${F.sort===k?"selected":""}>${l}</option>`).join("")}</select></label>
+        <button class="more" id="dnReset">Återställ</button>
+      </div>
     </div>
     <div id="dnStory" class="bd" style="padding-top:12px;padding-bottom:4px"></div>
     <div class="tw dntw"><table class="dnt" id="dnT"><thead><tr id="dnH"></tr></thead><tbody id="dnB"></tbody></table></div>
-    <div id="dnCards" class="dncards"></div>
   </section>`;
   const sv=()=>{saveUi();dnRender()};
-  $("dnPanel").querySelectorAll(".seg[data-k]").forEach(g=>g.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{const k=g.dataset.k,v=b.dataset.v;F[k]=isNaN(+v)?v:+v;sv()})));
+  $("dnPanel").querySelectorAll("select[data-k]").forEach(x=>x.addEventListener("change",()=>{const v=x.value;F[x.dataset.k]=isNaN(+v)?v:+v;sv()}));
   $("dnProf").addEventListener("change",e=>{F.prof=e.target.checked;sv()});
   $("dnGrow").addEventListener("change",e=>{F.grow=e.target.checked;sv()});
-  $("dnToggle").addEventListener("click",()=>{F.open=!F.open;saveUi();$("dnPanel").hidden=!F.open;$("dnToggle").setAttribute("aria-expanded",F.open);$("dnToggle").textContent=F.open?"Dölj filter ▲":"Alla filter ▼"});
   $("dnSortSel").addEventListener("change",e=>{F.sort=e.target.value;F.dir=DN_ASC.includes(F.sort)?1:-1;sv()});
-  $("dnCols").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{F.cols=b.dataset.v;$("dnCols").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));sv()}));
-  $("dnPre").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{const p=DN_PRE.find(x=>x[0]===b.dataset.p);Object.assign(F,DN_DEF,{sort:F.sort,dir:F.dir,cols:F.cols,open:F.open,sec:[],strat:[]},p[3],{preset:p[0]});sv()}));
-  $("dnReset").addEventListener("click",()=>{Object.assign(F,DN_DEF,{cols:F.cols,open:F.open,preset:null});sv()});
+  $("dnReset").addEventListener("click",()=>{Object.assign(F,DN_DEF);sv()});
   dnRender();
 }
 function dnRender(){
   const F=dnUi(),pool=rows.filter(d=>(!d.type||d.type==="EQUITY")&&nn(fromAth(d)));
   const L=pool.filter(d=>dnTest(d,F));
   // markera snabbval som matchar och visa segment-läget
-  $("dnPre").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",F.preset===b.dataset.p));
-  $("dnPanel").querySelectorAll(".seg[data-k]").forEach(g=>g.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(F[g.dataset.k])===b.dataset.v)));
+  $("dnPanel").querySelectorAll("select[data-k]").forEach(x=>{x.value=String(F[x.dataset.k]);x.classList.toggle("on",String(F[x.dataset.k])!==String(DN_DEF[x.dataset.k]))});
   $("dnProf").checked=F.prof;$("dnProf").parentNode.classList.toggle("on",F.prof);$("dnGrow").checked=F.grow;$("dnGrow").parentNode.classList.toggle("on",F.grow);
   $("dnSortSel").value=F.sort;
   // strategi- och sektorrutor med antal som stämmer med övriga filter
   const bs=pool.filter(d=>dnTest(d,F,"strat"));
   $("dnStrat").innerHTML=DNS.map(([k,nm])=>`<label class="sfk${F.strat.includes(k)?" on":""}"><input type="checkbox" data-k="${k}" ${F.strat.includes(k)?"checked":""}> ${nm} <span class="c">${bs.filter(d=>dnPass(d,k)).length}</span></label>`).join("");
-  $("dnStrat").querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{F.strat=i.checked?F.strat.concat(i.dataset.k):F.strat.filter(x=>x!==i.dataset.k);F.preset=null;saveUi();dnRender()}));
+  $("dnStrat").querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{F.strat=i.checked?F.strat.concat(i.dataset.k):F.strat.filter(x=>x!==i.dataset.k);saveUi();dnRender()}));
   const bc=pool.filter(d=>dnTest(d,F,"sec")),sc={};bc.forEach(d=>{const k=d.sector||"Övrigt";sc[k]=(sc[k]||0)+1});
   const secs=[...new Set(rows.filter(d=>!d.type||d.type==="EQUITY").map(d=>d.sector||"Övrigt"))].sort((a,b)=>(sc[b]||0)-(sc[a]||0)||a.localeCompare(b,"sv"));
   $("dnSec").innerHTML=secs.map(k=>`<label class="sfk${F.sec.includes(k)?" on":""}${sc[k]?"":" dim"}"><input type="checkbox" data-s="${esc(k)}" ${F.sec.includes(k)?"checked":""}> ${esc(k)} <span class="c">${sc[k]||0}</span></label>`).join("");
   $("dnSec").querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{const k=i.dataset.s;F.sec=i.checked?F.sec.concat(k):F.sec.filter(x=>x!==k);saveUi();dnRender()}));
   // aktiva filter som chips som går att ta bort
   $("dnChips").innerHTML=dnChips(F).map(([k,l,fixed])=>`<span class="dnchip">${esc(l)}${fixed?"":`<button data-x="${esc(k)}" aria-label="Ta bort filtret ${esc(l)}">×</button>`}</span>`).join("");
-  $("dnChips").querySelectorAll("button[data-x]").forEach(b=>b.addEventListener("click",()=>{const k=b.dataset.x;F.preset=null;
+  $("dnChips").querySelectorAll("button[data-x]").forEach(b=>b.addEventListener("click",()=>{const k=b.dataset.x;
     if(k.startsWith("strat:"))F.strat=F.strat.filter(x=>x!==k.slice(6));else if(k.startsWith("sec:"))F.sec=F.sec.filter(x=>x!==k.slice(4));
     else if(k==="prof"||k==="grow")F[k]=false;else F[k]=DN_DEF[k];saveUi();dnRender()}));
   $("dnCount").innerHTML=`<b class="n">${L.length}</b> bolag`;
   // sortering
   const k=F.sort,dir=F.dir;
   L.sort((a,b)=>{const x=dnKey(a,k),y=dnKey(b,k);if(typeof x==="string")return x.localeCompare(y,"sv")*dir||(fromAth(a)-fromAth(b));if(!nn(x))return 1;if(!nn(y))return -1;return (x-y)*dir});
-  const cols=DN_COLS[F.cols==="all"?"all":"key"];
+  const cols=DN_COLS;
   $("dnH").innerHTML=cols.map(c=>{const [l,al,sk]=DNC[c];const on=sk===k;return `<th class="${al} ${c==="co"?"stk":""}" aria-sort="${on?(dir>0?"ascending":"descending"):"none"}"><button class="thb" data-s="${sk}">${l}<span class="arr">${on?(dir>0?"▲":"▼"):"↕"}</span></button></th>`}).join("");
   $("dnH").querySelectorAll("button.thb").forEach(b=>b.addEventListener("click",()=>{const c=b.dataset.s;if(F.sort===c)F.dir=-F.dir;else{F.sort=c;F.dir=DN_ASC.includes(c)?1:-1}saveUi();dnRender()}));
   const empty=`<div class="empty" style="padding:28px 16px;text-align:center"><b>Inga bolag klarar alla filter.</b><br><span class="muted">Ta bort ett filter ovan (×), sänk fallet från toppen eller välj snabbvalet "Alla nedtryckta".</span></div>`;
   $("dnB").innerHTML=L.length?L.map(d=>`<tr class="go" data-t="${esc(d.ticker)}" tabindex="0">${cols.map(c=>`<td class="${DNC[c][1]} ${c==="co"?"stk":""}">${DNC[c][3](d)}</td>`).join("")}</tr>`).join(""):`<tr><td colspan="${cols.length}">${empty}</td></tr>`;
   $("dnB").querySelectorAll("tr.go").forEach(tr=>tr.addEventListener("keydown",e=>{if(e.key==="Enter")location.hash=link(tr.dataset.t)}));
   bindRows($("dnB"));
-  // mobil: kort i stället för bred tabell
-  $("dnCards").innerHTML=L.length?L.slice(0,150).map(d=>{const v=valView(d);return `<a class="dncard" href="${link(d.ticker)}">
-      <div class="dnc1"><span><b class="tk">${esc(d.ticker)}</b> <span class="muted small">${esc(d.name)}</span></span><b class="down n">${pct(fromAth(d),0)}</b></div>
-      <div class="dnc2 small muted">${esc(d.sector||"Övrigt")} · ${mcap(d.mcapB)} · topp ${d.athDate?esc(d.athDate.slice(0,7)):"–"}</div>
-      <div class="dnc3"><span>P/E fr. ${DNC.fwdPe[3](d)}</span><span>PEG ${DNC.peg[3](d)}</span><span>Skuld ${DNC.de[3](d)}</span><span>Inst. <span class="${tone(d.instPct,60,20)}">${nn(d.instPct)?f(d.instPct,0," %"):"–"}</span></span></div>
-      <div class="dnc4">${bar52(d)} ${vChip(v)} ${DNC.strat[3](d)}</div></a>`}).join(""):empty;
   // sammanfattning
   const und=L.filter(d=>valView(d).k==="pos"),st=L.filter(d=>DNS.some(([s])=>dnPass(d,s)));
   const best=und.slice().sort((a,b)=>(DNS.filter(([s])=>dnPass(b,s)).length-DNS.filter(([s])=>dnPass(a,s)).length)||((qualOf(b)||0)-(qualOf(a)||0))).slice(0,6);
