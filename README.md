@@ -62,6 +62,10 @@ Fliken **Branscher** visar vilka branscher som är hetast, vilka som kan vara n�
 
 Varje aktie har kortet **Din strategi** med vilka strategier den klarar och en handelsplan (köpnivå, sälj enligt förbättrad regel och original, stop), och **Vem dominerar branschen?** med rank efter omsättning och varför ledaren är störst. Översikten har **Din strategi just nu**: innehav att agera på, köplägen och aktier som snart når köpzonen.
 
+## Nedtryckta kvalitetsbolag
+
+Fliken **Nedtryckta** (`#/fallna`) visar bolag som fallit kraftigt från sin högsta kurs (all-time high sedan 2010, `ath` i datan) men som tjänar pengar och växer. Filter: fall från toppen, läge i 52-veckorsspannet, lönsamhet, tillväxt, värdering, dina strategier (även 💎 Diamant), börsvärde och sektor. Kolumnerna sorteras med ett klick och varje rad leder till aktien.
+
 ## Startsidan: Dagens läge
 
 Överst berättar sidan vad som hänt: marknaden idag (S&P 500, Nasdaq-100, hur många aktier som steg, starkaste och svagaste tema), Claudes marknadskommentar, hur dina innehav gått, och **Att hålla koll på**: stop som passerats, mål som nåtts, nya signaler, rapporter inom en vecka och stora rörelser i dina aktier. Claudes fokus visar bara rubrikerna, tryck för motiveringen. Teman och övriga listor (radar, bra bolag till fel pris, händelser) ligger i fällbara sektioner.

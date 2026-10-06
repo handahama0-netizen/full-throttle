@@ -510,6 +510,7 @@ ul.tips li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;font-si
       <a href="#/branscher" data-nav="branscher">Branscher</a>
       <a href="#/innehav/port" data-nav="port">Innehav</a>
       <a href="#/screener" data-nav="screener">Screener</a>
+      <a href="#/fallna" data-nav="fallna">Nedtryckta</a>
       <a href="#/strategier" data-nav="strategier">Strategi &amp; backtest</a>
     </nav>
   </div>
@@ -609,6 +610,8 @@ const GL={
   upside:["Uppsida","Hur mycket riktkursen ligger över (+) eller under (−) dagens kurs."],
   recMean:["Analytikernas betyg","Snitt av alla rekommendationer på en skala 1–5: 1 = starkt köp, 3 = behåll, 5 = sälj."],
   analysts:["Analytikerna","Sammanställning av bankernas och analyshusens rekommendationer och riktkurser, via Yahoo Finance."],
+  dnInfo:["Nedtryckta kvalitetsbolag","Fall från toppen = hur långt kursen ligger under sin högsta kurs (all-time high, räknat på kurshistorik sedan 2010). Tjänar pengar = positiv nettomarginal och positivt fritt kassaflöde. Växer = omsättningen ökade senaste året. Ett stort fall i ett bolag som fortfarande är lönsamt och växer kan vara ett köpläge, men kolla alltid varför det föll: ibland vet marknaden något som siffrorna bakåt inte visar än."],
+  dn52:["Läge i 52 veckor","Var kursen ligger mellan årets lägsta (0 %) och högsta (100 %) kurs. Nära 0 % = aktien handlas nära årets botten."],
   earnBeat:["Slog eller missade","Vid varje kvartalsrapport jämförs bolagets vinst per aktie med vad analytikerna väntade sig i snitt. Slog = högre än väntat. Kursreaktionen visar hur marknaden tog emot rapporten. Ett bolag som slår gång på gång men där kursen ändå faller har ofta väldigt höga förväntningar inbakade."],
   nextEarnings:["Nästa rapport","Datum för nästa kvartalsrapport. Kursen kan röra sig kraftigt kring rapporten, så många undviker att öppna nya swingar veckan innan."],
   attribution:["Varför aktien rört sig","Kursrörelsen delas upp i tre delar: marknaden (beta × index), sektorn (sektor-ETF minus index) och det bolagsspecifika (resten). Det bolagsspecifika är det som har med just bolaget att göra, till exempel rapporter och nyheter."],
@@ -832,6 +835,7 @@ function route(){
   if(!U){$("app").innerHTML=`<div class="skel">Laddar…</div>`;return}
   if(page==="aktie")return pageStock(decodeURIComponent(parts[1]||""));
   if(page==="screener")return pageScreener();
+  if(page==="fallna")return pageDown();
   if(page==="mina")return pageMine();
   if(page==="branscher")return pageSectors();
   if(page==="innehav"&&parts[1]==="analys")return pageAnalysis();
@@ -892,6 +896,94 @@ function renderRadar(){
   });
 }
 let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if($("radar"))renderRadar()},150)});
+
+/* ============ NEDTRYCKTA KVALITETSBOLAG ============ */
+const fromAth=d=>nn(d.ath)&&nn(d.price)&&d.ath>0?(d.price/d.ath-1)*100:null;
+const isProf=d=>(nn(d.netMargin)?d.netMargin>0:nn(d.pe)&&d.pe>0)&&(!nn(d.fcfMargin)||d.fcfMargin>0);
+const isGrow=d=>nn(d.revGrowth1y)&&d.revGrowth1y>0;
+const qualOf=d=>d.fx&&nn(d.fx.Q)?d.fx.Q:d.qScore;
+const DNS=[["diamant","💎 Diamant"],["gold","Guld"],["lrhr","LRHR"],["ftp","FT+"],["ft","FT"]];
+const dnPass=(d,k)=>k==="diamant"?d.sig.includes("diamant"):d.res[k]&&d.res[k].status==="pass";
+function dnUi(){if(!ui.dn||!ui.dn._ok)ui.dn=Object.assign({ath:40,p52:100,prof:true,grow:true,val:"all",strat:[],sec:[],mc:0,sort:"fromAth",dir:1},ui.dn||{},{_ok:1});return ui.dn}
+function dnBase(F,skipSec){
+  return rows.filter(d=>(!d.type||d.type==="EQUITY")&&nn(fromAth(d))&&fromAth(d)<=-F.ath
+    &&(F.p52>=100||(nn(pos52(d))&&pos52(d)*100<=F.p52))
+    &&(!F.prof||isProf(d))&&(!F.grow||isGrow(d))
+    &&(F.val==="all"||(F.val==="under"?valView(d).k==="pos":valView(d).k!=="neg"))
+    &&(!F.strat.length||F.strat.some(k=>dnPass(d,k)))
+    &&(!F.mc||(d.mcapB||0)>=F.mc)
+    &&(skipSec||!F.sec.length||F.sec.includes(d.sector)));
+}
+const DNC=[["ticker","Bolag","l"],["sector","Sektor","l"],["mcapB","Börsvärde"],["fromAth","Från toppen"],["p52","52 veckor","l"],["dist200w","200W","l"],["val","Värdering","l"],["fwdPe","P/E fr."],["peg","PEG"],["revGrowth1y","Oms 1 år"],["fcfMargin","FCF-marg."],["q","Kvalitet"],["strat","Din strategi","l"]];
+function dnKey(d,k){return k==="fromAth"?fromAth(d):k==="p52"?pos52(d):k==="val"?valView(d).score:k==="q"?qualOf(d):k==="strat"?DNS.filter(([s])=>dnPass(d,s)).length:k==="ticker"||k==="sector"?String(d[k]||""):d[k]}
+function bar52(d){const p=pos52(d);if(!nn(p))return `<span class="faint">–</span>`;
+  return `<span title="Låg ${money(d.lo52,d.currency)} · hög ${money(d.hi52,d.currency)}" style="display:inline-flex;align-items:center;gap:6px"><svg width="64" height="12" viewBox="0 0 64 12" aria-hidden="true"><line x1="3" x2="61" y1="6" y2="6" stroke="var(--line-strong)" stroke-width="3" stroke-linecap="round"/><circle cx="${(3+p*58).toFixed(1)}" cy="6" r="4.5" fill="${p<0.25?"var(--z-fire)":p<0.6?"var(--z-fair)":"var(--up)"}"/></svg><span class="n small">${f(p*100,0)} %</span></span>`}
+function pageDown(){
+  document.title="Nedtryckta kvalitetsbolag · Full Throttle";
+  const F=dnUi();
+  const seg=(id,opts,cur)=>`<div class="seg" id="${id}">${opts.map(([k,l])=>`<button data-v="${k}" aria-pressed="${String(cur)===String(k)}">${l}</button>`).join("")}</div>`;
+  const hasAth=rows.some(d=>nn(d.ath));
+  $("app").innerHTML=`<section class="card"><div class="bd">
+      <h1 style="font-size:20px">Nedtryckta kvalitetsbolag${ib("dnInfo")}</h1>
+      <p class="muted" style="margin-top:4px">Bolag som har fallit kraftigt från toppen trots att de tjänar pengar och växer. Här hittar du kvalitet på rea. Tryck på ett bolag för att gå till aktien.</p>
+      ${hasAth?"":`<p class="note small" style="margin-top:8px">All-time high hämtas i nattkörningen. Tills dess finns inga bolag i listan.</p>`}
+      <div id="dnStory" style="margin-top:12px"></div>
+    </div>
+    <div class="sfbox">
+      <div class="sfrow"><b>Fall från toppen</b>${seg("dnAth",[[20,"≥ 20 %"],[30,"≥ 30 %"],[40,"≥ 40 %"],[50,"≥ 50 %"],[60,"≥ 60 %"],[70,"≥ 70 %"]],F.ath)}</div>
+      <div class="sfrow"><b>Läge i 52 veckor${ib("dn52")}</b>${seg("dn52",[[100,"Alla"],[50,"Nedre halvan"],[25,"Nära botten (≤ 25 %)"],[10,"Vid botten (≤ 10 %)"]],F.p52)}</div>
+      <div class="sfrow"><b>Fundamenta</b><label class="sfk${F.prof?" on":""}"><input type="checkbox" id="dnProf" ${F.prof?"checked":""}> Tjänar pengar (vinst och kassaflöde)</label><label class="sfk${F.grow?" on":""}"><input type="checkbox" id="dnGrow" ${F.grow?"checked":""}> Omsättningen växer</label></div>
+      <div class="sfrow"><b>Värdering</b>${seg("dnVal",[["all","Alla"],["notover","Inte övervärderad"],["under","Bara undervärderad"]],F.val)}</div>
+      <div class="sfrow"><b>Klarar strategi</b><div class="sfc" id="dnStrat"></div><span class="small muted">Inget ikryssat = alla. Flera = någon av dem.</span></div>
+      <div class="sfrow"><b>Börsvärde</b>${seg("dnMc",[[0,"Alla"],[10,"≥ 10 md $"],[50,"≥ 50 md $"],[200,"Mega ≥ 200 md $"]],F.mc)}</div>
+      <div class="sfrow"><b>Sektor</b><div class="sfc" id="dnSec"></div></div>
+    </div>
+    <div class="tw"><table class="scr" id="dnT"><thead><tr id="dnH"></tr></thead><tbody id="dnB"></tbody></table></div>
+  </section>`;
+  const sv=()=>{saveUi();dnRender()};
+  const segB=(id,key,num)=>$(id).querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{F[key]=num?+b.dataset.v:b.dataset.v;$(id).querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));sv()}));
+  segB("dnAth","ath",1);segB("dn52","p52",1);segB("dnVal","val");segB("dnMc","mc",1);
+  $("dnProf").addEventListener("change",e=>{F.prof=e.target.checked;e.target.parentNode.classList.toggle("on",F.prof);sv()});
+  $("dnGrow").addEventListener("change",e=>{F.grow=e.target.checked;e.target.parentNode.classList.toggle("on",F.grow);sv()});
+  dnRender();
+}
+function dnRender(){
+  const F=dnUi(),all=dnBase(F,true),L=dnBase(F,false);
+  // strategi- och sektorchips med antal
+  const base0=dnBase(Object.assign({},F,{strat:[]}),false);
+  $("dnStrat").innerHTML=DNS.map(([k,nm])=>`<label class="sfk${F.strat.includes(k)?" on":""}"><input type="checkbox" data-k="${k}" ${F.strat.includes(k)?"checked":""}> ${nm} <span class="c">${base0.filter(d=>dnPass(d,k)).length}</span></label>`).join("");
+  $("dnStrat").querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{F.strat=i.checked?F.strat.concat(i.dataset.k):F.strat.filter(x=>x!==i.dataset.k);saveUi();dnRender()}));
+  const sc={};all.forEach(d=>{const k=d.sector||"Övrigt";sc[k]=(sc[k]||0)+1});
+  const secs=Object.keys(sc).sort((a,b)=>sc[b]-sc[a]);F.sec.forEach(x=>{if(!secs.includes(x))secs.push(x)});
+  $("dnSec").innerHTML=secs.map(k=>`<label class="sfk${F.sec.includes(k)?" on":""}"><input type="checkbox" data-s="${esc(k)}" ${F.sec.includes(k)?"checked":""}> ${esc(k)} <span class="c">${sc[k]||0}</span></label>`).join("")+(F.sec.length?`<button class="more" id="dnSecClr" style="margin:0">Rensa sektorer</button>`:"");
+  $("dnSec").querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{const k=i.dataset.s;F.sec=i.checked?F.sec.concat(k):F.sec.filter(x=>x!==k);saveUi();dnRender()}));
+  const clr=$("dnSecClr");if(clr)clr.addEventListener("click",()=>{F.sec=[];saveUi();dnRender()});
+  // sortering
+  const k=F.sort,dir=F.dir;
+  L.sort((a,b)=>{const x=dnKey(a,k),y=dnKey(b,k);if(typeof x==="string")return x.localeCompare(y,"sv")*dir;if(!nn(x))return 1;if(!nn(y))return -1;return (x-y)*dir});
+  $("dnH").innerHTML=DNC.map(([c,l,al])=>`<th class="${al||""} sortable" data-c="${c}" aria-sort="${c===k?(dir>0?"ascending":"descending"):"none"}" style="cursor:pointer;white-space:nowrap">${l}${c===k?(dir>0?" ▲":" ▼"):""}</th>`).join("");
+  $("dnH").querySelectorAll("th").forEach(th=>th.addEventListener("click",()=>{const c=th.dataset.c;if(F.sort===c)F.dir=-F.dir;else{F.sort=c;F.dir=["fromAth","p52","fwdPe","peg","ticker","sector","dist200w"].includes(c)?1:-1}saveUi();dnRender()}));
+  $("dnB").innerHTML=L.length?L.map(d=>{const v=valView(d),q=qualOf(d),fa=fromAth(d);return `<tr class="go" data-t="${esc(d.ticker)}">
+    <td class="l">${co(d)}</td><td class="l small">${esc(d.sector||"–")}</td><td class="n">${mcap(d.mcapB)}</td>
+    <td class="n down" title="Topp ${money(d.ath,d.currency)}${d.athDate?" ("+esc(d.athDate)+")":""}"><b>${pct(fa,0)}</b><span class="subv">${d.athDate?esc(d.athDate.slice(0,7)):""}</span></td>
+    <td class="l">${bar52(d)}</td><td class="l">${zchip(d)}</td><td class="l">${vChip(v)}</td>
+    <td class="n">${nn(d.fwdPe)?(d.fwdPe>0?f(d.fwdPe,1):"neg."):"–"}</td><td class="n">${nn(d.peg)&&d.peg>0?f(d.peg,2):"–"}</td>
+    <td class="n ${cls(d.revGrowth1y)}">${nn(d.revGrowth1y)?pct(d.revGrowth1y,0):"–"}</td><td class="n ${cls(d.fcfMargin)}">${nn(d.fcfMargin)?f(d.fcfMargin,0," %"):"–"}</td>
+    <td class="n">${nn(q)?`<b>${f(q,0)}</b>`:"–"}</td>
+    <td class="l">${DNS.filter(([s])=>dnPass(d,s)).map(([s,nm])=>`<span class="spill pass" style="font-size:11px;padding:1px 6px">${nm}</span>`).join(" ")||'<span class="faint small">–</span>'}</td></tr>`}).join(""):`<tr><td colspan="${DNC.length}" class="empty">Inga bolag klarar alla filter. Prova ett mindre fall från toppen eller ta bort något krav.</td></tr>`;
+  bindRows($("dnB"));
+  // berättelsen överst
+  const und=L.filter(d=>valView(d).k==="pos"),st=L.filter(d=>DNS.some(([s])=>dnPass(d,s))),big=L.filter(d=>(d.mcapB||0)>=50);
+  const best=L.filter(d=>valView(d).k==="pos").sort((a,b)=>(DNS.filter(([s])=>dnPass(b,s)).length-DNS.filter(([s])=>dnPass(a,s)).length)||((qualOf(b)||0)-(qualOf(a)||0))).slice(0,5);
+  const topSec=Object.entries(L.reduce((o,d)=>(o[d.sector||"Övrigt"]=(o[d.sector||"Övrigt"]||0)+1,o),{})).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  $("dnStory").innerHTML=`<div class="dstats">
+      <div><span class="sub">Bolag i listan</span><b class="n">${L.length}</b><span class="small muted">ner minst ${F.ath} % från toppen</span></div>
+      <div><span class="sub">Undervärderade</span><b class="n">${und.length}</b><span class="small muted">enligt den sammanvägda värderingen</span></div>
+      <div><span class="sub">Klarar din strategi</span><b class="n">${st.length}</b><span class="small muted">${DNS.map(([s,nm])=>{const n=L.filter(d=>dnPass(d,s)).length;return n?`${nm} ${n}`:""}).filter(Boolean).join(" · ")||"ingen"}</span></div>
+      <div><span class="sub">Stora bolag ≥ 50 md $</span><b class="n">${big.length}</b><span class="small muted">${topSec.map(([k,n])=>`${esc(k)} ${n}`).join(" · ")}</span></div>
+    </div>
+    ${best.length?`<p style="margin-top:10px;line-height:1.55"><b>Mest intressanta just nu</b> (undervärderade, flest strategier, högst kvalitet): ${best.map(d=>`<a href="${link(d.ticker)}"><b class="tk">${esc(d.ticker)}</b></a> <span class="n down">${pct(fromAth(d),0)}</span>`).join(", ")}.</p>`:""}`;
+}
 
 /* ============ AKTIE ============ */
 async function getDetail(t){

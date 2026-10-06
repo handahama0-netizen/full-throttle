@@ -906,6 +906,9 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
                     "ma200w": sig(ma, 6) if ma else None, "dist200w": rnd(dist), "zone": zone_of(dist),
                     "asOf": today, "stale": False})
         rec.update(safe(lambda: momentum(df), {}))
+        hi = df["High"].dropna()
+        if len(hi):  # högsta kurs sedan 2010 (så långt kurshistoriken går) = all-time high för nästan alla bolag
+            rec["ath"], rec["athDate"] = sig(hi.max(), 6), str(hi.idxmax())[:10]
         if rec.get("hi52") is None:
             last = df.tail(252)
             rec["hi52"], rec["lo52"] = sig(last["High"].max()), sig(last["Low"].min())
@@ -995,6 +998,9 @@ def run_quotes(prev: Path, out: Path):
         last_day = daycode(df.index[-1])
         r["price"], r["prevClose"] = sig(price, 6), sig(prev_close, 6)
         r["chg"] = rnd((price / prev_close - 1) * 100) if price and prev_close else None
+        hi_today = num(df["High"].iloc[-1])
+        if hi_today and r.get("ath") and hi_today > r["ath"]:
+            r["ath"], r["athDate"] = sig(hi_today, 6), str(df.index[-1])[:10]
         r["lastBar"] = {"t": last_day, "o": sig(df["Open"].iloc[-1]), "h": sig(df["High"].iloc[-1]),
                         "l": sig(df["Low"].iloc[-1]), "c": sig(price)}
         if r.get("ma200w") and price:
