@@ -808,6 +808,9 @@ def analyse(t, df, rec, det, raw, bench, rf_usd):
             rec["fairValue"] = base
             rec["fairUpside"] = round((base / rec["price"] - 1) * 100, 1) if base and rec.get("price") else None
             rec["impliedG"] = val.get("impliedG")
+    dcf = (det.get("val") or {}).get("dcf") or {}
+    if dcf.get("base") and dcf["base"] > 0:  # bear/bull-värde från kassaflödesvärderingen, för bear case i listorna
+        rec["bearV"], rec["bullV"] = dcf.get("bear"), dcf.get("bull")
 
 
 def run_full(prev: Path, out: Path, limit: int | None = None):

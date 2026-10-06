@@ -644,6 +644,7 @@ const GL={
   recMean:["Analytikernas betyg","Snitt av alla rekommendationer på en skala 1–5: 1 = starkt köp, 3 = behåll, 5 = sälj."],
   analysts:["Analytikerna","Sammanställning av bankernas och analyshusens rekommendationer och riktkurser, via Yahoo Finance."],
   dnInfo:["Nedtryckta kvalitetsbolag","Fall från toppen = hur långt kursen ligger under sin högsta kurs (all-time high, räknat på kurshistorik sedan 2010). Tjänar pengar = positiv nettomarginal och positivt fritt kassaflöde. Växer = omsättningen ökade senaste året. Ett stort fall i ett bolag som fortfarande är lönsamt och växer kan vara ett köpläge, men kolla alltid varför det föll: ibland vet marknaden något som siffrorna bakåt inte visar än."],
+  dnBear:["Bear case","Bear case är det pessimistiska värdet på aktien, i procent mot dagens kurs. Från kassaflödesvärderingen (DCF, halverad tillväxt och högre ränta) när den finns, annars analytikernas lägsta riktkurs. Bear case ≥ −10 % betyder att även i ett dåligt scenario faller aktien högst 10 %. Över 0 % = aktien är billigare än även det pessimistiska värdet. Förväntat väger bear 25 %, bas 50 % och bull 25 %, samma som på aktiesidan."],
   dn52:["Läge i 52 veckor","Var kursen ligger mellan årets lägsta (0 %) och högsta (100 %) kurs. Nära 0 % = aktien handlas nära årets botten."],
   earnBeat:["Slog eller missade","Vid varje kvartalsrapport jämförs bolagets vinst per aktie med vad analytikerna väntade sig i snitt. Slog = högre än väntat. Kursreaktionen visar hur marknaden tog emot rapporten. Ett bolag som slår gång på gång men där kursen ändå faller har ofta väldigt höga förväntningar inbakade."],
   nextEarnings:["Nästa rapport","Datum för nästa kvartalsrapport. Kursen kan röra sig kraftigt kring rapporten, så många undviker att öppna nya swingar veckan innan."],
@@ -937,7 +938,14 @@ const isGrow=d=>nn(d.revGrowth1y)&&d.revGrowth1y>0;
 const qualOf=d=>d.fx&&nn(d.fx.Q)?d.fx.Q:d.qScore;
 const DNS=[["diamant","💎 Diamant"],["gold","Guld"],["lrhr","LRHR"],["ftp","FT+"],["ft","FT"]];
 const dnPass=(d,k)=>k==="diamant"?d.sig.includes("diamant"):d.res[k]&&d.res[k].status==="pass";
-const DN_DEF={ath:40,p52:100,prof:true,grow:true,val:"all",strat:[],sec:[],mc:0,de:0,inst:0,peg:0,pe:0,sort:"fromAth",dir:1,cols:"key",open:false};
+// bear/bas/bull som på aktiesidan: kassaflödesvärdering (DCF) i första hand, annars analytikernas lägsta/snitt/högsta riktkurs
+// DCF som ger mer än 3 gånger eller under en femtedel av kursen är oftast fel indata (engångsposter, valuta): använd analytikerna då
+const dcfSane=(base,price)=>nn(base)&&base>0&&(!nn(price)||(base<price*3&&base>price*0.2));
+function casesOf(d){if(d._cs!==undefined)return d._cs;const up=v=>nn(v)&&nn(d.price)&&d.price>0?(v/d.price-1)*100:null;let T=null;
+  if(nn(d.bearV)&&nn(d.fairValue)&&dcfSane(d.fairValue,d.price)&&nn(d.bullV))T={bear:d.bearV,base:d.fairValue,bull:d.bullV,src:"DCF"};
+  else if(nn(d.targetLow)&&nn(d.targetMean)&&nn(d.targetHigh)&&(d.nAnalysts||0)>=3)T={bear:d.targetLow,base:d.targetMean,bull:d.targetHigh,src:"Analytiker"};
+  return d._cs=T?{src:T.src,bear:up(T.bear),base:up(T.base),bull:up(T.bull),ev:up(T.bear*0.25+T.base*0.5+T.bull*0.25),bv:T.bear}:null}
+const DN_DEF={bear:-999,ev:-999,ath:40,p52:100,prof:true,grow:true,val:"all",strat:[],sec:[],mc:0,de:0,inst:0,peg:0,pe:0,sort:"fromAth",dir:1,cols:"key",open:false};
 function dnUi(){if(!ui.dn||ui.dn._v!==2)ui.dn=Object.assign({},DN_DEF,ui.dn||{},{_v:2});return ui.dn}
 function dnTest(d,F,skip){
   const fa=fromAth(d),p=pos52(d);
@@ -951,6 +959,8 @@ function dnTest(d,F,skip){
     &&(!F.inst||(nn(d.instPct)&&d.instPct>=F.inst))
     &&(!F.peg||(nn(d.peg)&&d.peg>0&&d.peg<F.peg))
     &&(!F.pe||(nn(d.fwdPe)&&d.fwdPe>0&&d.fwdPe<F.pe))
+    &&(F.bear<=-999||(casesOf(d)&&nn(casesOf(d).bear)&&casesOf(d).bear>=F.bear))
+    &&(F.ev<=-999||(casesOf(d)&&nn(casesOf(d).ev)&&casesOf(d).ev>=F.ev))
     &&(skip==="sec"||!F.sec.length||F.sec.includes(d.sector||"Övrigt"));
 }
 // färg efter hur bra värdet är: grön = bra, röd = svagt
@@ -966,6 +976,8 @@ const DNC={
   peg:["PEG","","peg",d=>`<span class="${d.peg>0?tone(d.peg,1,2,1):""}">${nn(d.peg)&&d.peg>0?f(d.peg,2):"–"}</span>`],
   de:["Skuld/EK","","de",d=>`<span class="${d.negEquity?"t-bad":tone(d.de,0.5,1.5,1)}">${deTxt(d)}</span>`],
   inst:["Inst. äger","","instPct",d=>`<span class="${tone(d.instPct,60,20)}">${nn(d.instPct)?f(d.instPct,0," %"):"–"}</span>${d.instFlow&&IV[d.instFlow]?`<span class="subv" title="Institutionernas nettoflöde senaste kvartalet">${IV[d.instFlow][2]} ${d.instFlow==="bull"?"köper":d.instFlow==="bear"?"säljer":"neutrala"}</span>`:""}`],
+  bear:["Bear case","","bear",d=>{const c=casesOf(d);return c&&nn(c.bear)?`<b class="${c.bear>=0?"t-good":c.bear<=-30?"t-bad":""}">${pct(c.bear,0)}</b><span class="subv" title="${c.src==="DCF"?"Pessimistisk kassaflödesvärdering":"Analytikernas lägsta riktkurs"}">${money(c.bv,d.currency)} · ${c.src}</span>`:'<span class="faint">–</span>'}],
+  ev:["Förväntat","","ev",d=>{const c=casesOf(d);return c&&nn(c.ev)?`<span class="${tone(c.ev,20,0)}">${pct(c.ev,0)}</span><span class="subv">bas ${pct(c.base,0)} · bull ${pct(c.bull,0)}</span>`:'<span class="faint">–</span>'}],
   val:["Värdering","l","val",d=>vChip(valView(d))],
   strat:["Din strategi","l","strat",d=>DNS.filter(([s])=>dnPass(d,s)).map(([s,nm])=>`<span class="spill pass" style="font-size:11px;padding:1px 6px">${nm}</span>`).join(" ")||'<span class="faint small">–</span>'],
   z:["200W","l","dist200w",d=>zchip(d)],
@@ -973,13 +985,14 @@ const DNC={
   fcf:["FCF-marg.","","fcfMargin",d=>`<span class="${tone(d.fcfMargin,15,0)}">${nn(d.fcfMargin)?f(d.fcfMargin,0," %"):"–"}</span>`],
   ins:["Insiders","","insPct",d=>nn(d.insPct)?f(d.insPct,1," %"):"–"],
   q:["Kvalitet","","q",d=>`<span class="${tone(qualOf(d),70,30)}">${nn(qualOf(d))?f(qualOf(d),0):"–"}</span>`]};
-const DN_COLS=["co","sec","mc","fromAth","p52","z","fwdPe","peg","de","inst","ins","rev","fcf","q","val","strat"];
-const DN_SORT=[["fromAth","Fall från toppen"],["mcapB","Börsvärde"],["sector","Sektor"],["p52","Läge i 52 veckor"],["fwdPe","P/E framåt"],["peg","PEG"],["de","Skuldsättning"],["instPct","Institutionsägande"],["val","Värdering (billigast först)"],["q","Kvalitet"],["strat","Antal strategier"],["ticker","Ticker A–Ö"]];
+const DN_COLS=["co","sec","mc","fromAth","p52","z","bear","ev","fwdPe","peg","de","inst","ins","rev","fcf","q","val","strat"];
+const DN_SORT=[["fromAth","Fall från toppen"],["mcapB","Börsvärde"],["sector","Sektor"],["p52","Läge i 52 veckor"],["fwdPe","P/E framåt"],["peg","PEG"],["de","Skuldsättning"],["instPct","Institutionsägande"],["val","Värdering (billigast först)"],["bear","Bear case (minst nedsida först)"],["ev","Förväntad uppsida"],["q","Kvalitet"],["strat","Antal strategier"],["ticker","Ticker A–Ö"]];
 const DN_ASC=["fromAth","p52","fwdPe","peg","de","ticker","sector","dist200w"];
-function dnKey(d,k){return k==="fromAth"?fromAth(d):k==="p52"?pos52(d):k==="val"?valView(d).score:k==="q"?qualOf(d):k==="strat"?DNS.filter(([s])=>dnPass(d,s)).length:k==="ticker"||k==="sector"?String(d[k]||""):k==="fwdPe"||k==="peg"?(d[k]>0?d[k]:null):k==="de"?(d.negEquity?null:d.de):d[k]}
+function dnKey(d,k){if(k==="bear"||k==="ev"){const c=casesOf(d);return c?c[k]:null}return k==="fromAth"?fromAth(d):k==="p52"?pos52(d):k==="val"?valView(d).score:k==="q"?qualOf(d):k==="strat"?DNS.filter(([s])=>dnPass(d,s)).length:k==="ticker"||k==="sector"?String(d[k]||""):k==="fwdPe"||k==="peg"?(d[k]>0?d[k]:null):k==="de"?(d.negEquity?null:d.de):d[k]}
 function bar52(d){const p=pos52(d);if(!nn(p))return `<span class="faint">–</span>`;
   return `<span class="b52" title="52 veckor: låg ${money(d.lo52,d.currency)}, hög ${money(d.hi52,d.currency)}"><svg width="64" height="12" viewBox="0 0 64 12" aria-hidden="true"><line x1="3" x2="61" y1="6" y2="6" stroke="var(--line-strong)" stroke-width="3" stroke-linecap="round"/><circle cx="${(3+p*58).toFixed(1)}" cy="6" r="4.5" fill="${p<0.25?"var(--z-fire)":p<0.6?"var(--z-fair)":"var(--up)"}"/></svg><span class="n small">${f(p*100,0)} %</span></span>`}
-const DN_SEG={ath:[[20,"≥ 20 %"],[30,"≥ 30 %"],[40,"≥ 40 %"],[50,"≥ 50 %"],[60,"≥ 60 %"],[70,"≥ 70 %"]],p52:[[100,"Alla"],[50,"Nedre halvan"],[25,"Nära botten ≤ 25 %"],[10,"Vid botten ≤ 10 %"]],
+const DN_SEG={bear:[[-999,"Alla"],[-40,"≥ −40 %"],[-30,"≥ −30 %"],[-20,"≥ −20 %"],[-10,"≥ −10 %"],[0,"≥ 0 % (över kursen)"],[10,"≥ +10 %"],[20,"≥ +20 %"]],
+  ev:[[-999,"Alla"],[0,"≥ 0 %"],[10,"≥ +10 %"],[20,"≥ +20 %"],[30,"≥ +30 %"],[50,"≥ +50 %"]],ath:[[20,"≥ 20 %"],[30,"≥ 30 %"],[40,"≥ 40 %"],[50,"≥ 50 %"],[60,"≥ 60 %"],[70,"≥ 70 %"]],p52:[[100,"Alla"],[50,"Nedre halvan"],[25,"Nära botten ≤ 25 %"],[10,"Vid botten ≤ 10 %"]],
   val:[["all","Alla"],["notover","Inte övervärderad"],["under","Undervärderad"]],mc:[[0,"Alla"],[10,"≥ 10 md $"],[50,"≥ 50 md $"],[200,"≥ 200 md $"]],
   de:[[0,"Alla"],[1.5,"< 1,5"],[1,"< 1"],[0.5,"< 0,5"]],inst:[[0,"Alla"],[30,"≥ 30 %"],[50,"≥ 50 %"],[70,"≥ 70 %"]],peg:[[0,"Alla"],[2,"< 2"],[1.5,"< 1,5"],[1,"< 1"]],pe:[[0,"Alla"],[30,"< 30"],[20,"< 20"],[15,"< 15"]]};
 function dnChips(F){const c=[],lab=(k,v)=>(DN_SEG[k].find(x=>String(x[0])===String(v))||[,""])[1];
@@ -988,6 +1001,7 @@ function dnChips(F){const c=[],lab=(k,v)=>(DN_SEG[k].find(x=>String(x[0])===Stri
   if(F.prof)c.push(["prof","Tjänar pengar"]);if(F.grow)c.push(["grow","Växer"]);
   if(F.val!=="all")c.push(["val",lab("val",F.val)]);
   if(F.mc)c.push(["mc",`Börsvärde ${lab("mc",F.mc)}`]);if(F.de)c.push(["de",`Skuld/EK ${lab("de",F.de)}`]);
+  if(F.bear>-999)c.push(["bear",`Bear case ${lab("bear",F.bear)}`]);if(F.ev>-999)c.push(["ev",`Förväntat ${lab("ev",F.ev)}`]);
   if(F.inst)c.push(["inst",`Inst. äger ${lab("inst",F.inst)}`]);if(F.peg)c.push(["peg",`PEG ${lab("peg",F.peg)}`]);if(F.pe)c.push(["pe",`P/E fr. ${lab("pe",F.pe)}`]);
   F.strat.forEach(k=>c.push(["strat:"+k,(DNS.find(x=>x[0]===k)||[])[1]]));
   F.sec.forEach(k=>c.push(["sec:"+k,k]));
@@ -1005,6 +1019,7 @@ function pageDown(){
       <div class="dngrid">
         ${sel("ath","Fall från toppen")}${sel("p52","Läge i 52 veckor","dn52")}${sel("mc","Börsvärde")}${sel("val","Värdering","valVerdict")}
         ${sel("pe","P/E framåt")}${sel("peg","PEG")}${sel("de","Skuld / eget kapital")}${sel("inst","Institutioner äger")}
+        ${sel("bear","Bear case: kurs mot värst","dnBear")}${sel("ev","Förväntad uppsida (25/50/25)","dnBear")}
       </div>
       <div class="dnf"><span class="dnl">Fundamenta</span><div class="sfc"><label class="sfk"><input type="checkbox" id="dnProf"> Tjänar pengar (vinst och kassaflöde)</label><label class="sfk"><input type="checkbox" id="dnGrow"> Omsättningen växer</label></div></div>
       <div class="dnf"><span class="dnl">Klarar strategi</span><div class="sfc" id="dnStrat"></div></div>
@@ -2989,7 +3004,7 @@ function leadOf(d){
 function casesCard(d,det){
   const val=(det&&det.val)||{},dcf=val.dcf,est=(det&&det.est)||{},I=det&&det.inst;
   let T=null,src="";
-  if(dcf&&nn(dcf.base)&&dcf.base>0&&nn(dcf.bear)&&nn(dcf.bull)){T={bear:dcf.bear,base:dcf.base,bull:dcf.bull};src="Kassaflödesvärdering (DCF)"}
+  if(dcf&&nn(dcf.base)&&dcfSane(dcf.base,d.price)&&nn(dcf.bear)&&nn(dcf.bull)){T={bear:dcf.bear,base:dcf.base,bull:dcf.bull};src="Kassaflödesvärdering (DCF)"}
   else if(nn(d.targetMean)&&nn(d.targetLow)&&nn(d.targetHigh)){T={bear:d.targetLow,base:d.targetMean,bull:d.targetHigh};src="Analytikernas riktkurser (lägst, snitt, högst)"}
   const g=d._pg||(d._pg=peerGroup(d)),peers=(d.industry||(d.sector&&d.sector!=="Övrigt"))?g.peers:[];
   const pro=[],con=[];
