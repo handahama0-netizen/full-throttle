@@ -62,6 +62,10 @@ Fliken **Branscher** visar vilka branscher som är hetast, vilka som kan vara n�
 
 Varje aktie har kortet **Din strategi** med vilka strategier den klarar och en handelsplan (köpnivå, sälj enligt förbättrad regel och original, stop), och **Vem dominerar branschen?** med rank efter omsättning och varför ledaren är störst. Översikten har **Din strategi just nu**: innehav att agera på, köplägen och aktier som snart når köpzonen.
 
+## Sektorrotation
+
+Fliken **Sektorrotation** (`#/rotation`) visar var pengarna är och vart de är på väg. `scripts/sectors.py` bygger ett likaviktat veckoindex per sektor och bransch och mäter styrka (avkastning mot S&P 500 senaste kvartalet) och fart (förändring senaste 4 veckorna). Fyra lägen: 🔥 Hett, 🚀 På väg upp (pengar börjar rotera in), ↘ Svalnar och ❄ Kallt. Sidan rangordnar sektorerna från hetast till svagast, visar de tre bolag som dominerar varje sektor efter omsättning och branscherna inom varje sektor.
+
 ## Larm till mobilen och mejl
 
 Nattkörningen och kursuppdateringarna (var 30:e minut under börsdagen) skickar larm när ett bolag går in i 💎 Diamant, Guld, Swing eller Rea, när ett innehav närmar sig eller når stop (−15/−20 %), når Fair Value eller Expensive, har rapport inom 7 dagar, eller när institutionerna börjar sälja. Larmen går till appen ntfy (ämnet står i `config/larm.txt`) och som GitHub-issue (mejl). Innehav för stop- och säljlarm läggs i `config/innehav.txt` (knapp på sidan under Innehav).

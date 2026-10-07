@@ -324,6 +324,17 @@ def weekly(df):
 _fx: dict = {}
 
 
+def ps_fixed(info, cur, fin_cur, mcap, trev):
+    """Yahoos P/S blandar valutor när bolaget rapporterar i en annan valuta än aktien handlas i
+    (TSMC i TWD, Novo i DKK, svenska bolag i EUR/USD). Räkna då om: börsvärde / omsättning i samma valuta."""
+    ps = num(info.get("priceToSalesTrailing12Months"))
+    if fin_cur and cur and fin_cur.upper() != cur.upper() and mcap and trev:
+        rf, rt = usd_rate(fin_cur), usd_rate(cur)
+        if rf and rt:
+            return mcap / (trev * rf / rt)
+    return ps
+
+
 def usd_rate(cur):
     if not cur or cur.upper() == "USD":
         return 1.0
@@ -461,7 +472,7 @@ def fundamentals(tk: str, extras: bool = True):
         "netMargin": rnd(num(info.get("profitMargins")) * 100) if num(info.get("profitMargins")) is not None else None,
         "shareChange": share_change(row(bal, "Ordinary Shares Number", "Share Issued")),
         "pe": rnd(info.get("trailingPE")), "fwdPe": rnd(info.get("forwardPE")),
-        "ps": rnd(info.get("priceToSalesTrailing12Months")), "pb": rnd(info.get("priceToBook")),
+        "ps": rnd(ps_fixed(info, cur, fin_cur, mcap, trev)), "pb": rnd(info.get("priceToBook")),
         "evEbitda": rnd(info.get("enterpriseToEbitda")), "beta": rnd(info.get("beta")),
         "divYield": rnd(num(info.get("dividendYield"))) if num(info.get("dividendYield")) is not None else None,
         "hi52": rnd(info.get("fiftyTwoWeekHigh")), "lo52": rnd(info.get("fiftyTwoWeekLow")),
@@ -1223,6 +1234,13 @@ def main():
                 write_json(out / "data" / "backtest.json", backtest.run(out / "data"))
             except Exception as e:  # noqa: BLE001
                 log("backtest fel", e)
+            try:  # sektorrotation: veckoindex och läge per sektor och bransch
+                import sectors
+                res = sectors.run(out / "data")
+                if res:
+                    write_json(out / "data" / "sectors.json", res)
+            except Exception as e:  # noqa: BLE001
+                log("sektorrotation fel", e)
             import ai_notes
             ai_notes.run(out, None, read_list(SRC / "config" / "ai.txt"), max_n=12, log=log)
     if code != 0:

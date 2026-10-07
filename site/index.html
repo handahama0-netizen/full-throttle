@@ -117,6 +117,11 @@ main{padding-block:18px 48px}
 .dec{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;margin-top:14px}
 .decg h3{font-size:13.5px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px}.decg h3 .c{font-family:var(--mono);font-size:12px;background:var(--sunk);border-radius:999px;padding:0 7px}.decg h3 .sub{font-weight:400;font-size:12px;color:var(--muted)}
 @media (max-width:760px){.dec{grid-template-columns:1fr}}
+.rrg{width:100%;height:auto;display:block}.rrg text{font-size:11px;fill:var(--muted)}.rrg .lab{font-size:12px;font-weight:650;fill:var(--ink)}.rrg .ql{font-size:11.5px;font-weight:750;letter-spacing:.04em}.rrg .rp{cursor:pointer}
+.phc{display:inline-flex;gap:4px;align-items:center;font-weight:700;font-size:12.5px;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.rotc{margin-bottom:12px}.roth{display:flex;gap:12px;align-items:flex-start}.roth h3{font-size:16px}.rk{font-family:var(--mono);font-weight:750;font-size:18px;color:var(--muted);min-width:24px}
+.rots{display:grid;justify-items:end;gap:2px}
+@media (max-width:640px){.rots{display:none}}
 /* nedtryckta */
 .dnbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--sunk)}
 @media (min-width:701px){.dnbar{position:sticky;top:var(--hh,58px);z-index:5}}
@@ -545,6 +550,7 @@ ul.tips li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;font-si
       <a href="#/" data-nav="start">Start</a>
       <a href="#/mina" data-nav="mina">Mina aktier</a>
       <a href="#/branscher" data-nav="branscher">Branscher</a>
+      <a href="#/rotation" data-nav="rotation">Sektorrotation</a>
       <a href="#/innehav/port" data-nav="port">Innehav</a>
       <a href="#/screener" data-nav="screener">Screener</a>
       <a href="#/fallna" data-nav="fallna">Nedtryckta</a>
@@ -648,6 +654,7 @@ const GL={
   recMean:["Analytikernas betyg","Snitt av alla rekommendationer på en skala 1–5: 1 = starkt köp, 3 = behåll, 5 = sälj."],
   analysts:["Analytikerna","Sammanställning av bankernas och analyshusens rekommendationer och riktkurser, via Yahoo Finance."],
   dnInfo:["Nedtryckta kvalitetsbolag","Fall från toppen = hur långt kursen ligger under sin högsta kurs (all-time high, räknat på kurshistorik sedan 2010). Tjänar pengar = positiv nettomarginal och positivt fritt kassaflöde. Växer = omsättningen ökade senaste året. Ett stort fall i ett bolag som fortfarande är lönsamt och växer kan vara ett köpläge, men kolla alltid varför det föll: ibland vet marknaden något som siffrorna bakåt inte visar än."],
+  rotInfo:["Sektorrotation","Pengar flyttar mellan sektorer i cykler. Varje sektor mäts med två tal: styrka = hur mycket bättre eller sämre den gått än S&P 500 senaste kvartalet, och fart = om styrkan ökar eller minskar senaste 4 veckorna. Fart som vänder upp i en svag sektor (🚀 På väg upp) är ofta första tecknet på att pengar börjar rotera in, innan sektorn syns bland de hetaste. Samma idé som ett Relative Rotation Graph (RRG)."],
   dnBear:["Bear case","Bear case är det pessimistiska värdet på aktien, i procent mot dagens kurs. Från kassaflödesvärderingen (DCF, halverad tillväxt och högre ränta) när den finns, annars analytikernas lägsta riktkurs. Bear case ≥ −10 % betyder att även i ett dåligt scenario faller aktien högst 10 %. Över 0 % = aktien är billigare än även det pessimistiska värdet. Förväntat väger bear 25 %, bas 50 % och bull 25 %, samma som på aktiesidan."],
   dn52:["Läge i 52 veckor","Var kursen ligger mellan årets lägsta (0 %) och högsta (100 %) kurs. Nära 0 % = aktien handlas nära årets botten."],
   earnBeat:["Slog eller missade","Vid varje kvartalsrapport jämförs bolagets vinst per aktie med vad analytikerna väntade sig i snitt. Slog = högre än väntat. Kursreaktionen visar hur marknaden tog emot rapporten. Ett bolag som slår gång på gång men där kursen ändå faller har ofta väldigt höga förväntningar inbakade."],
@@ -876,6 +883,7 @@ function route(){
   if(page==="fallna")return pageDown();
   if(page==="mina")return pageMine();
   if(page==="branscher")return pageSectors();
+  if(page==="rotation")return pageRotation();
   if(page==="innehav"&&parts[1]==="analys")return pageAnalysis();
   if(page==="innehav")return pageHoldings(parts[1]||"swing",parts[2]==="add"?decodeURIComponent(parts[3]||""):null);
   if(page==="strategier")return pageMethod();
@@ -2620,6 +2628,91 @@ function btSection(){
       <li>Veckostängningar: en stop kan i verkligheten slå ut på en sämre nivå. Courtage och spread 0,1 % per affär och håll ingår. Utdelningar ingår eftersom kurserna är utdelningsjusterade. Skatt ingår inte.</li>
       <li>Median årstakt räknar om varje affär till årstakt, korta vinnare blir därför höga tal. Det är inte portföljens avkastning.</li>
       <li>2x hävstång: lånet är lika stort som insatsen vid köpet, växer med 5 % ränta per år och ombalanseras inte. Faller det egna kapitalet under 30 % av värdet (aktien ner ca 29 %) tvångssäljs positionen, som en margin call hos banken.</li></ul></div>`;
+}
+
+/* ============ SEKTORROTATION ============ */
+let SECT=null;
+async function getSect(){if(SECT)return SECT;try{const r=await fetch("data/sectors.json?v="+encodeURIComponent(U.updatedAt||""));if(r.ok)SECT=await r.json()}catch(e){}return SECT}
+const PH={hot:["🔥","Hett","Stark och blir starkare: pengarna är här","var(--up)"],rising:["🚀","På väg upp","Svag men vänder upp: pengar börjar rotera in","var(--accent)"],cooling:["↘","Svalnar","Stark men tappar fart: pengar roterar ut","var(--warn)"],cold:["❄","Kallt","Svag och blir svagare","var(--down)"]};
+const phChip=(ph,small)=>{const p=PH[ph];return p?`<span class="phc" style="color:${p[3]};background:color-mix(in srgb,${p[3]} 12%,var(--card))${small?";font-size:11px":""}">${p[0]} ${p[1]}</span>`:""};
+const heatScore=x=>x.rrg[x.rrg.length-1][0]+x.rrg[x.rrg.length-1][1]*1.5;
+function sectorRows(){
+  const by={};rows.forEach(d=>{if((d.type&&d.type!=="EQUITY")||!d.sector||d.sector==="Övrigt")return;(by[d.sector]=by[d.sector]||[]).push(d)});return by}
+function rrgSvg(S,names){
+  const W=innerWidth<640?420:760,H=innerWidth<640?400:440,L=40,Rm=16,T=16,B=34,pw=W-L-Rm,ph=H-T-B;
+  const pts=names.flatMap(n=>S[n].rrg),mx=Math.max(6,...pts.map(p=>Math.abs(p[0])))*1.12,my=Math.max(3,...pts.map(p=>Math.abs(p[1])))*1.12;
+  const X=v=>L+(v+mx)/(2*mx)*pw,Y=v=>T+(1-(v+my)/(2*my))*ph,x0=X(0),y0=Y(0);
+  let g=`<rect x="${x0}" y="${T}" width="${W-Rm-x0}" height="${y0-T}" fill="var(--up)" opacity=".07"/><rect x="${L}" y="${T}" width="${x0-L}" height="${y0-T}" fill="var(--accent)" opacity=".07"/>
+    <rect x="${x0}" y="${y0}" width="${W-Rm-x0}" height="${T+ph-y0}" fill="var(--warn)" opacity=".07"/><rect x="${L}" y="${y0}" width="${x0-L}" height="${T+ph-y0}" fill="var(--down)" opacity=".07"/>
+    <line x1="${L}" x2="${W-Rm}" y1="${y0}" y2="${y0}" stroke="var(--line-strong)"/><line x1="${x0}" x2="${x0}" y1="${T}" y2="${T+ph}" stroke="var(--line-strong)"/>
+    <text x="${W-Rm-6}" y="${T+14}" text-anchor="end" class="ql" style="fill:var(--up)">🔥 HETT</text><text x="${L+6}" y="${T+14}" class="ql" style="fill:var(--accent)">🚀 PÅ VÄG UPP</text>
+    <text x="${W-Rm-6}" y="${T+ph-8}" text-anchor="end" class="ql" style="fill:var(--warn)">↘ SVALNAR</text><text x="${L+6}" y="${T+ph-8}" class="ql" style="fill:var(--down)">❄ KALLT</text>
+    <text x="${(L+W-Rm)/2}" y="${H-6}" text-anchor="middle">Styrka mot S&amp;P 500, senaste kvartalet →</text>
+    <text x="12" y="${(T+T+ph)/2}" text-anchor="middle" transform="rotate(-90 12 ${(T+T+ph)/2})">Fart (förändring 4 veckor) →</text>`;
+  // svans: 5 veckor, utjämnad (snitt av 2 veckor) så att riktningen syns utan sicksack
+  const tailOf=r=>{const sm=r.map((p,i)=>i?[(p[0]+r[i-1][0])/2,(p[1]+r[i-1][1])/2]:p);sm[sm.length-1]=r[r.length-1];return sm.slice(-5)};
+  const placed=[],free=(x,y,w)=>x>L+2&&x+w<W-Rm-2&&y>T+16&&y<T+ph-4&&!placed.some(q=>x<q[0]+q[2]&&x+w>q[0]&&Math.abs(y-q[1])<15);
+  const T5=names.map(n=>tailOf(S[n].rrg));
+  T5.forEach(r=>{const cx=X(r[r.length-1][0]),cy=Y(r[r.length-1][1]);placed.push([cx-8,cy,16])});
+  let lines="";
+  names.forEach((n,k)=>{const r=T5[k],col=PH[S[n].phase][3],path=r.map((p,i)=>`${i?"L":"M"}${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join("");
+    const cx=X(r[r.length-1][0]),cy=Y(r[r.length-1][1]),w=n.length*7.6+4;
+    const opts=[];[[10,4],[-10-w,4],[-w/2,-12],[-w/2,20]].forEach(o=>opts.push(o));
+    for(const dy of [-16,16,-30,30,-44,44])for(const dx of [12,-12-w])opts.push([dx,dy+4]);
+    const o=opts.find(([dx,dy])=>free(cx+dx,cy+dy-4,w))||opts[0],lx=cx+o[0],ly=cy+o[1];placed.push([lx,ly-4,w]);
+    if(Math.abs(o[1]-4)>14)lines+=`<line x1="${cx.toFixed(1)}" y1="${cy.toFixed(1)}" x2="${(o[0]>0?lx-2:lx+w-2).toFixed(1)}" y2="${(ly-4).toFixed(1)}" stroke="${col}" stroke-width="1" opacity=".6"/>`;
+    g+=`<g class="rp" data-s="${esc(n)}"><path d="${path}" fill="none" stroke="${col}" stroke-width="2" opacity=".5" stroke-linecap="round"/>${r.slice(0,-1).map((p,i)=>`<circle cx="${X(p[0]).toFixed(1)}" cy="${Y(p[1]).toFixed(1)}" r="${1.6+i*0.4}" fill="${col}" opacity=".5"/>`).join("")}
+      <circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="7" fill="${col}" stroke="var(--card)" stroke-width="2"/>
+      <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" class="lab">${esc(n)}</text></g>`});
+  g+=lines;
+  return `<svg class="rrg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Rotationsdiagram för sektorerna">${g}</svg>`;
+}
+function spark(idx,spy,w=120,h=30){const n=Math.min(52,idx.length),a=idx.slice(-n),b=spy.slice(-n),rel=a.map((v,i)=>v/a[0]/(b[i]/b[0])*100),mn=Math.min(...rel),mx=Math.max(...rel),Y=v=>h-2-(v-mn)/((mx-mn)||1)*(h-4);
+  const up=rel[rel.length-1]>=rel[0];return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><line x1="0" x2="${w}" y1="${Y(100).toFixed(1)}" y2="${Y(100).toFixed(1)}" stroke="var(--line)" stroke-dasharray="3 3"/><path d="${rel.map((v,i)=>`${i?"L":"M"}${(i/(n-1)*w).toFixed(1)},${Y(v).toFixed(1)}`).join("")}" fill="none" stroke="${up?"var(--up)":"var(--down)"}" stroke-width="1.6"/></svg>`}
+async function pageRotation(){
+  document.title="Sektorrotation · Full Throttle";
+  if(!SECT)$("app").innerHTML=`<div class="skel">Laddar sektordata…</div>`;
+  const S=await getSect();if(!location.hash.startsWith("#/rotation"))return;
+  if(!S||!S.sectors){$("app").innerHTML=`<section class="card"><div class="bd"><p class="muted">Sektordatan räknas i nattkörningen och visas här efteråt.</p></div></section>`;return}
+  const by=sectorRows(),sort=ui.rotSort||"heat";
+  const names=Object.keys(S.sectors).filter(n=>by[n]).sort((a,b)=>sort==="mom"?S.sectors[b].rrg.at(-1)[1]-S.sectors[a].rrg.at(-1)[1]:heatScore(S.sectors[b])-heatScore(S.sectors[a]));
+  const pc=x=>`<span class="n ${cls(x)}">${nn(x)?pct(x*100,1):"–"}</span>`;
+  const indBySec={};rows.forEach(d=>{if(d.industry&&d.sector)indBySec[d.industry]=d.sector});
+  const ins=names.filter(n=>S.sectors[n].phase==="rising"),outs=names.filter(n=>S.sectors[n].phase==="cooling"),hot=names.filter(n=>S.sectors[n].phase==="hot");
+  const changed=names.filter(n=>S.sectors[n].prev&&S.sectors[n].prev!==S.sectors[n].phase&&S.sectors[n].weeks<=3);
+  const story=`${hot.length?`Hetast just nu: <b>${hot.map(esc).join(", ")}</b>. `:""}${ins.length?`Pengar börjar rotera <b>in i ${ins.map(esc).join(", ")}</b>. `:""}${outs.length?`Pengar roterar <b>ut ur ${outs.map(esc).join(", ")}</b>. `:""}${changed.length?`Bytt läge senaste veckorna: ${changed.map(n=>`${esc(n)} (${PH[S.sectors[n].prev][1].toLowerCase()} → ${PH[S.sectors[n].phase][1].toLowerCase()})`).join(", ")}.`:""}`;
+  const card=(n,i)=>{const x=S.sectors[n],m=by[n],last=x.rrg.at(-1),med2=k=>med(m.map(d=>d[k]));
+    const lead=m.map(d=>({d,rev:revEst(d)})).filter(o=>o.rev).sort((a,b)=>b.rev-a.rev),tot=lead.reduce((s2,o)=>s2+o.rev,0);
+    const above=m.filter(d=>nn(d.sma200)&&nn(d.price)),ab=above.length?above.filter(d=>d.price>d.sma200).length/above.length*100:null;
+    const inds=Object.entries(S.industries).filter(([k])=>indBySec[k]===n).sort((a,b)=>heatScore(b[1])-heatScore(a[1]));
+    const open=ui.rotOpen===n;
+    return `<section class="card rotc" id="rot-${i}"><div class="bd">
+      <div class="roth"><span class="rk">${i+1}</span><div style="flex:1;min-width:0"><h3>${esc(n)} <span class="sub">${m.length} bolag</span></h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px">${phChip(x.phase)}<span class="small muted">${PH[x.phase][2]} · ${x.weeks} ${x.weeks===1?"vecka":"veckor"} i läget${x.prev&&x.prev!==x.phase?`, var ${PH[x.prev][1].toLowerCase()} för 4 veckor sedan`:""}</span></div></div>
+        <div class="rots"><span class="sub">Mot S&amp;P 500, 1 år</span>${spark(x.idx,S.spy)}</div></div>
+      <div class="secm" style="margin-top:10px"><span>Styrka <b class="n ${cls(last[0])}">${pct(last[0],1)}</b></span><span>Fart <b class="n ${cls(last[1])}">${last[1]>=0?"▲":"▼"} ${pct(last[1],1)}</b></span><span>1 v ${pc(med2("r5"))}</span><span>1 mån ${pc(med2("r21"))}</span><span>3 mån ${pc(med2("r63"))}</span><span>6 mån ${pc(med2("r126"))}</span><span>Över 200 dagar <b class="n">${nn(ab)?f(ab,0," %"):"–"}</b></span><span>Prognoser 30 d ${(()=>{const v=med(m.map(d=>d.epsRev30).filter(nn));return nn(v)?`<b class="n ${cls(v)}">${pct(v,1)}</b>`:"–"})()}</span></div>
+      <h4 class="qh">Dominerar sektorn</h4>
+      <ol class="lead">${lead.slice(0,3).map((o,j)=>`<li data-go="${esc(o.d.ticker)}"><span>${j+1}. <b class="tk">${esc(o.d.ticker)}</b> <span class="muted small">${esc(o.d.name)}</span></span><span class="small" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><span class="n">${f(o.rev/tot*100,0)} % av omsättningen</span><span class="n muted">${mcap(o.d.mcapB)}</span>${zchip(o.d)}${sigB(o.d)}</span></li>`).join("")}</ol>
+      ${inds.length?`<button class="more" data-rot="${esc(n)}" style="margin-top:8px">${open?"Dölj branscherna ↑":`Branscherna i ${esc(n)} (${inds.length}) ↓`}</button>
+      ${open?`<div class="tw" style="margin-top:8px"><table class="crit"><thead><tr><th>Bransch</th><th>Läge</th><th class="r">Styrka</th><th class="r">Fart</th><th>Mot S&amp;P 500, 1 år</th><th>Störst</th></tr></thead><tbody>${inds.map(([k,v])=>{const big3=rows.filter(d=>d.industry===k).map(d=>({d,rev:revEst(d)})).filter(o=>o.rev).sort((a,b)=>b.rev-a.rev).slice(0,3);return `<tr><td>${esc(k)} <span class="small muted">${v.n}</span></td><td>${phChip(v.phase,1)}</td><td class="r n ${cls(v.rrg.at(-1)[0])}">${pct(v.rrg.at(-1)[0],1)}</td><td class="r n ${cls(v.rrg.at(-1)[1])}">${pct(v.rrg.at(-1)[1],1)}</td><td>${spark(v.idx,S.spy,90,22)}</td><td class="small">${big3.map(o=>`<a href="${link(o.d.ticker)}" class="tk">${esc(o.d.ticker)}</a>`).join(", ")}</td></tr>`}).join("")}</tbody></table></div>`:""}`:""}
+    </div></section>`};
+  $("app").innerHTML=`<section class="card"><div class="bd">
+      <h1 style="font-size:20px">Sektorrotation${ib("rotInfo")}</h1>
+      <p style="margin-top:6px;line-height:1.6">${story}</p>
+      <div style="margin-top:12px">${rrgSvg(S.sectors,names)}</div>
+      <p class="small muted" style="margin-top:4px">Sektorerna rör sig medurs: 🚀 På väg upp → 🔥 Hett → ↘ Svalnar → ❄ Kallt. Svansen visar vägen de senaste 5 veckorna, stora pricken är nu. Håll muspekaren över en sektor för siffrorna.</p>
+    </div></section>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0 10px"><h2 style="font-size:16px">Från hetast till svagast</h2>
+      <div class="seg" id="rotSort"><button data-v="heat" aria-pressed="${sort==="heat"}">Hetast först</button><button data-v="mom" aria-pressed="${sort==="mom"}">Starkast trend upp</button></div></div>
+    ${names.map(card).join("")}
+    <p class="small muted" style="margin-top:10px">Likaviktat index av sektorns aktier på sidan (S&amp;P 500, Nasdaq-100, Stockholmsbörsen och dina egna), veckokurser. Styrka = avkastning mot S&amp;P 500 senaste ${S.look} veckorna. Fart = hur styrkan ändrats senaste ${S.mom} veckorna. Dominerar = störst omsättning (börsvärde / P/S). Uppdaterad ${esc(S.asOf||"")}.</p>`;
+  bindRows($("app"));
+  $("rotSort").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ui.rotSort=b.dataset.v;saveUi();pageRotation()}));
+  document.querySelectorAll("[data-rot]").forEach(b=>b.addEventListener("click",()=>{ui.rotOpen=ui.rotOpen===b.dataset.rot?null:b.dataset.rot;saveUi();pageRotation()}));
+  const tip=$("tip");document.querySelectorAll(".rrg .rp").forEach(el=>{const n=el.dataset.s,x=S.sectors[n],l=x.rrg.at(-1);
+    const show=e=>{tip.innerHTML=`<b>${esc(n)}</b> ${PH[x.phase][0]} ${PH[x.phase][1]}<br>Styrka ${pct(l[0],1)} · fart ${pct(l[1],1)}<br>${x.weeks} veckor i läget`;tip.hidden=false;tip.style.left=Math.min(e.clientX+14,innerWidth-240)+"px";tip.style.top=(e.clientY+14)+"px"};
+    el.addEventListener("mousemove",show);el.addEventListener("mouseleave",()=>tip.hidden=true);
+    el.addEventListener("click",()=>{tip.hidden=true;const i=names.indexOf(n);const c=$("rot-"+i);if(c)c.scrollIntoView({behavior:"smooth",block:"start"})})});
 }
 
 /* ============ BRANSCHER ============ */
