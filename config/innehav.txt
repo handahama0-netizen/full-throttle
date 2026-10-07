@@ -1,0 +1,6 @@
+# Dina innehav för larm (stop, säljzoner, rapporter). En rad per innehav:
+#   TICKER  KÖPKURS  [ANTAL]
+# Exempel:
+#   NVDA 120.5 10
+#   EVO.ST 820 25
+# Enklast: på sidan under Innehav, tryck "Larm: kopiera innehav" och klistra in här.

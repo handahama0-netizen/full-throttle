@@ -1,0 +1,8 @@
+# Larm till mobilen via ntfy (gratis app, inget konto behövs):
+# 1. Installera appen ntfy (iPhone/Android) eller öppna https://ntfy.sh/ft-9eec454e5f68
+# 2. Prenumerera på ämnet nedan.
+# Larm skickas också som en GitHub-issue (mejl om du har notiser på för repot).
+ntfy: ft-9eec454e5f68
+# Larm för: nya Diamant/Guld/Swing/Rea-lägen, innehav nära stop (−15 %) och vid stop (−20 %),
+# innehav som når Fair Value/Expensive, rapport inom 7 dagar och institutioner som börjar sälja
+# (gäller innehav, Mina aktier och egna.txt).

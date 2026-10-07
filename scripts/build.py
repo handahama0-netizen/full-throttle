@@ -185,6 +185,10 @@ def signals(d):
     dist = d.get("dist200w")
     out = []
     if dist is not None:
+        if passes_lrhr(d) and dist < 0:
+            out.append("diamant")
+        if d.get("goldQ") and dist < 20:
+            out.append("guld")
         if passes_lrhr(d) and dist < 20:
             out.append("swing")
         if passes_ftp(d) and dist < 30:
@@ -944,6 +948,7 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
                 det["sec"] = old_sec
         if det is not None and rec.get("type", "EQUITY") == "EQUITY":
             analyse(t, df, rec, det, raw, bench, rf_usd)
+        rec["goldQ"] = (old or {}).get("goldQ")  # räknas om när alla bolag är klara (behöver branschledarna)
         rec["signals"] = signals(rec)
         if not first_time:
             evs = diff_events(old, rec, today)
@@ -958,6 +963,25 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
         write_json(out / "data" / "t" / fname(t), {**(det or {}), "d": pack_bars(df, DAILY_DAYS),
                                                     "w": pack_bars(wk, WEEKLY_WEEKS, with_vol=False)})
 
+    # Guld kräver branschledare, så det räknas när alla bolag är klara
+    try:
+        import backtest as BTM
+        lead = BTM.leaders([r for r in rows if r.get("type", "EQUITY") == "EQUITY"])
+        for rec in rows:
+            q = bool(rec.get("type", "EQUITY") == "EQUITY" and BTM.gold_quality(rec, lead))
+            if q != bool(rec.get("goldQ")):
+                had = "guld" in (rec.get("signals") or [])
+                rec["goldQ"] = q
+                rec["signals"] = signals(rec)
+                has = "guld" in rec["signals"]
+                if has and not had:
+                    events.append({"date": today, "ticker": rec["ticker"], "type": "in", "signal": "guld"})
+                    alerts.append((rec, "guld"))
+                elif had and not has:
+                    events.append({"date": today, "ticker": rec["ticker"], "type": "out", "signal": "guld"})
+    except Exception as e:  # noqa: BLE001
+        log("Guld-beräkning misslyckades", e)
+    alerts += watch_alerts(rows, prev_rows, today, full=True)
     if len([r for r in rows if not r.get("stale")]) < max(20, len(tickers) * 0.3):
         log("För få aktier lyckades – avbryter och behåller förra datan.")
         return 1
@@ -991,11 +1015,13 @@ def run_quotes(prev: Path, out: Path):
     prices = download_prices([r["ticker"] for r in rows], period="5d", interval="1d")
     today = datetime.now(ZoneInfo("Europe/Stockholm")).date().isoformat()
     events, alerts, n = [], [], 0
+    olds = {}
     for r in rows:
         df = prices.get(r["ticker"])
         if df is None or df.empty:
             continue
         old = dict(r)
+        olds[r["ticker"]] = old
         price = num(df["Close"].iloc[-1])
         prev_close = num(df["Close"].iloc[-2]) if len(df) > 1 else r.get("prevClose")
         last_day = daycode(df.index[-1])
@@ -1014,6 +1040,7 @@ def run_quotes(prev: Path, out: Path):
         events += ev
         alerts += [(r, e["signal"]) for e in ev if e["type"] == "in"]
         n += 1
+    alerts += watch_alerts(rows, olds, today, full=False)
     u["quotesAt"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     u["fx"] = fx_sek({r.get("currency") for r in rows}) or u.get("fx")
     u["events"] = (events + u.get("events", []))[:MAX_EVENTS]
@@ -1034,16 +1061,95 @@ def fx_sek(currencies):
     return out
 
 
+def read_holdings():
+    """config/innehav.txt: TICKER KÖPKURS [ANTAL] per rad, plus positioner som Claude lagt in (site/positions.json)."""
+    out = {}
+    for p in (load_json(SRC / "site" / "positions.json", {}) or {}).get("positions", []):
+        try:
+            out[str(p["ticker"]).upper()] = {"price": float(p["price"]), "n": p.get("qty")}
+        except (KeyError, TypeError, ValueError):
+            continue
+    for line in read_list(SRC / "config" / "innehav.txt"):
+        parts = line.replace(",", ".").split()
+        try:
+            out[parts[0]] = {"price": float(parts[1]), "n": float(parts[2]) if len(parts) > 2 else None}
+        except (IndexError, ValueError):
+            continue
+    return out
+
+
+def watch_alerts(rows, prev, today, full):
+    """Larm för det du äger och följer: stop, säljzoner, rapporter och institutioner som säljer.
+
+    Larmar bara när en gräns passeras sedan förra körningen, så samma larm kommer inte varje halvtimme."""
+    hold = read_holdings()
+    watch = set(hold) | set(read_list(SRC / "config" / "mina.txt")) | set(read_list(SRC / "config" / "egna.txt"))
+    out = []
+    for r in rows:
+        t = r["ticker"]
+        o = prev.get(t) or {}
+        p, op = r.get("price"), o.get("price")
+        if t in hold and p and op:
+            ep = hold[t]["price"]
+            for lvl, txt in ((0.80, "har nått din stop (−20 % från köpkursen)"), (0.85, "närmar sig din stop (−15 % från köpkursen)")):
+                if p <= ep * lvl < op:
+                    out.append((r, f"⚠️ {t} {txt}: kurs {p:g} mot köp {ep:g}. Stop vid {ep * 0.8:.2f}."))
+                    break
+            d, od = r.get("dist200w"), o.get("dist200w")
+            if d is not None and od is not None:
+                for lvl, txt in ((40, "Expensive (40 % över 200W): originalregeln säljer här"), (30, "Fair Value (30 % över 200W): förbättrade regeln säljer här")):
+                    if d >= lvl > od:
+                        out.append((r, f"💰 {t} har nått {txt}. Kurs {p:g}, {(p / ep - 1) * 100:+.0f} % mot din köpkurs."))
+                        break
+        if t not in watch:
+            continue
+        ne, one = r.get("nextEarnings"), o.get("nextEarnings")
+        if ne:
+            try:
+                days = (datetime.strptime(ne[:10], "%Y-%m-%d").date() - datetime.strptime(today, "%Y-%m-%d").date()).days
+                odays = (datetime.strptime(one[:10], "%Y-%m-%d").date() - datetime.strptime(o.get("asOf") or today, "%Y-%m-%d").date()).days if one else 99
+            except ValueError:
+                days, odays = 99, 99
+            if 0 <= days <= 7 and (odays > 7 or one != ne):
+                out.append((r, f"📅 {t} rapporterar {ne} (om {days} dagar). Kursen kan röra sig kraftigt, fundera på hävstången."))
+        if full and r.get("instFlow") == "bear" and o.get("instFlow") not in (None, "bear"):
+            out.append((r, f"🏛 Institutionerna har börjat sälja {t} (nettoflöde senaste kvartalet)."))
+    return out
+
+
+SIG_LABEL = {"diamant": "💎 Diamant (Low Risk, High Reward + under 200W)", "guld": "🥇 Guld (stort, stabilt kvalitetsbolag + 200W)",
+             "swing": "Swing-läge (Low Risk, High Reward + 200W)", "rea": "Tillväxt på rea (Full Throttle+ + 200W)"}
+SITE = "https://handahama0-netizen.github.io/full-throttle/"
+
+
 def write_alerts(alerts, today):
+    """alerts.md blir en GitHub-issue (mejl), och samma larm skickas till mobilen via ntfy om ämne finns i config/larm.txt."""
     p = Path("alerts.md")  # i arbetsmappen; workflowet skapar en issue av den
     if not alerts:
         return
-    label = {"swing": "Swing-läge (Low Risk, High Reward + 200W)", "rea": "Tillväxt på rea (Full Throttle+ + 200W)"}
-    lines = [f"Nya signaler {today}:", ""]
+    lines, push = [f"Larm {today}:", ""], []
     for d, s in alerts:
-        lines.append(f"- **{d['ticker']}** {d.get('name','')}: {label[s]}. Kurs {d.get('price')} {d.get('currency','')}, "
-                     f"{d.get('dist200w')} % över 200W ({zone_name(d.get('zone'))}).")
-    p.write_text("\n".join(lines + ["", "Öppna sidan för detaljer."]), encoding="utf-8")
+        if s in SIG_LABEL:
+            txt = (f"{SIG_LABEL[s]}: {d['ticker']} {d.get('name', '')}. Kurs {d.get('price')} {d.get('currency', '')}, "
+                   f"{d.get('dist200w')} % mot 200W ({zone_name(d.get('zone'))}).")
+        else:
+            txt = s
+        lines.append(f"- {txt} [Öppna]({SITE}#/aktie/{d['ticker']})")
+        push.append((d["ticker"], txt))
+    p.write_text("\n".join(lines + ["", f"Öppna sidan: {SITE}"]), encoding="utf-8")
+    topic = None
+    for line in read_list(SRC / "config" / "larm.txt"):
+        if line.lower().startswith("NTFY:".lower()):
+            topic = line.split(":", 1)[1].strip().lower()
+    if not topic:
+        return
+    import requests
+    for tk, txt in push[:15]:
+        try:
+            requests.post(f"https://ntfy.sh/{topic}", data=txt.encode("utf-8"), timeout=15,
+                          headers={"Title": f"Full Throttle: {tk}", "Click": f"{SITE}#/aktie/{tk}", "Tags": "chart_with_upwards_trend"})
+        except Exception as e:  # noqa: BLE001
+            log("ntfy misslyckades", e)
 
 
 def main():

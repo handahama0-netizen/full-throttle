@@ -73,11 +73,11 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python "${{ steps.src.outputs.dir }}/scripts/build.py" --mode "${{ steps.mode.outputs.mode }}" --tickers "${{ inputs.tickers }}" --prev _prev --out _site
 
-      - name: Mejllarm vid nya signaler
+      - name: Larm (mejl via issue)
         if: hashFiles('alerts.md') != ''
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh issue create --title "Nya signaler $(date -u +%Y-%m-%d)" --body-file alerts.md
+        run: gh issue create --title "Larm $(date -u +%Y-%m-%d %H:%M) UTC" --body-file alerts.md
 
       - name: Publicera
         uses: peaceiris/actions-gh-pages@v4

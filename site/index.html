@@ -1662,6 +1662,23 @@ function startHoldings(){
   return `<section class="card" style="margin-bottom:16px"><div class="hd"><h2>Mina innehav</h2><span class="sub">Kurser ${esc(rel(U.quotesAt||U.updatedAt))}</span></div><div class="bd"><div class="hgrid">${blk("Swingar",sw,"swing")}${blk("Portfölj",pf,"port")}</div></div></section>`;
 }
 let hForm=null; // {id?,list,ticker,price,qty,sek,date,stop,target,note}
+// larm: innehaven måste ligga i repot för att nattkörningen ska kunna larma (webbläsarens lagring syns inte där)
+const NTFY="ft-9eec454e5f68",REPO="https://github.com/handahama0-netizen/full-throttle";
+function alarmCard(){
+  const local=allPos().filter(p=>p.src!=="repo"&&p.ticker&&nn(p.price));
+  const txt=local.map(p=>`${p.ticker} ${String(+(+p.price).toFixed(4))}${nn(p.qty)?" "+p.qty:""}`).join("\n");
+  return `<section class="card" style="margin-top:16px" id="alarmCard"><div class="hd"><h2>Larm till mobilen och mejl</h2><span class="sub">Du behöver inte gå in på sidan</span></div><div class="bd">
+    <p class="small" style="line-height:1.55">Du får larm när ett bolag går in i <b>💎 Diamant, Guld, Swing eller Rea</b>, när ett innehav <b>närmar sig eller når din stop</b> (−15 % och −20 %), når <b>Fair Value eller Expensive</b>, har <b>rapport inom 7 dagar</b>, eller när <b>institutionerna börjar sälja</b>. Kollas var 30:e minut under börsdagen och varje natt.</p>
+    <ol class="small" style="margin:10px 0 0 18px;line-height:1.7">
+      <li><b>Mobilen:</b> installera appen <a href="https://ntfy.sh" target="_blank" rel="noopener">ntfy</a> (gratis, inget konto) och prenumerera på <code>${NTFY}</code>. Eller öppna <a href="https://ntfy.sh/${NTFY}" target="_blank" rel="noopener">ntfy.sh/${NTFY}</a> i webbläsaren.</li>
+      <li><b>Mejl:</b> larmen blir också en GitHub-issue. Slå på notiser för repot (Watch → All activity) så kommer de som mejl.</li>
+      <li><b>Dina innehav:</b> stop- och säljlarm kräver att innehaven finns i repot. ${local.length?`Tryck på knappen, öppna filen och klistra in.`:"Lägg till innehav nedan först."}</li>
+    </ol>
+    ${local.length?`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn" id="alarmCopy">Kopiera ${local.length} innehav</button><a class="btn" href="${REPO}/edit/main/config/innehav.txt" target="_blank" rel="noopener">Öppna config/innehav.txt ↗</a></div>
+    <pre class="small" style="margin-top:8px;background:var(--sunk);padding:8px 10px;border-radius:8px;overflow:auto">${esc(txt)}</pre>`:""}
+  </div></section>`;
+}
+function bindAlarm(){const b=$("alarmCopy");if(!b)return;b.addEventListener("click",async()=>{const t=$("alarmCard").querySelector("pre").textContent;try{await navigator.clipboard.writeText(t);b.textContent="Kopierat ✓"}catch(e){b.textContent="Markera texten och kopiera"}})}
 function pageHoldings(listKey,addTicker){
   const L=listKey==="port"?"port":"swing";
   document.title=`${LISTS[L]} · Full Throttle`;
@@ -1681,6 +1698,7 @@ function pageHoldings(listKey,addTicker){
   <div class="hero"><h1>${L==="swing"?"Live swing":"Portfölj"}</h1><div class="seg" id="hseg"><button data-l="swing" aria-pressed="${L==="swing"}">Swingar</button><button data-l="port" aria-pressed="${L==="port"}">Portfölj</button><button data-l="analys">Analys</button></div></div>
   <section class="card"><div class="bd">${tiles(t)}</div></section>
   ${riskCard(list)}
+  ${alarmCard()}
   <section class="card" style="margin-top:16px"><div class="hd"><h2>${F.id?"Ändra":"Lägg till"} ${L==="swing"?"swing":"innehav"}</h2><span class="sub">Ange antal eller belopp i kronor, det andra räknas ut</span></div>
     <div class="bd"><form id="hform" class="hform" autocomplete="off">
       <label class="fld" style="position:relative"><span>Aktie</span><input id="h-tk" value="${esc(F.ticker||"")}" placeholder="Sök, t.ex. SOFI" required><div class="dd" id="h-dd" hidden></div></label>
@@ -1697,7 +1715,7 @@ function pageHoldings(listKey,addTicker){
     <div class="bd flush">${list.length?`<div class="tw"><table><thead><tr><th class="l stick">Aktie</th><th>Antal</th><th>Köpkurs</th><th>Kurs${ib("price")}</th><th>Idag</th><th>Insats${ib("invested")}</th><th>Värde${ib("value")}</th><th>Resultat${ib("pl")}</th><th>%</th><th class="l">200W${ib("zones")}</th><th class="l">Signal</th><th>Dagar${ib("held")}</th><th>Stop / mål${ib("stopTarget")}</th><th class="l">Varningar</th><th></th></tr></thead><tbody>${rowsH}</tbody></table></div>`:`<p class="empty">Inga ${L==="swing"?"swingar":"innehav"} än. Lägg till med formuläret ovan, eller via knappen + Swing på en aktie.</p>`}</div>
     <div class="bd" id="h-io" hidden></div></section>
   <p class="small muted" style="margin-top:10px">Positioner du lägger in här sparas i den här webbläsaren (Flytta till annan enhet för mobilen). Positioner som Claude lagt in på din begäran syns på alla enheter. Be Claude i chatten, t.ex. "lägg till 200 SOFI à 15,20 med stop 13". Belopp i kronor räknas med dagens valutakurs från Yahoo Finance.</p>`;
-  document.querySelectorAll("#hseg button").forEach(b=>b.addEventListener("click",()=>{hForm=null;location.hash="#/innehav/"+b.dataset.l}));
+  document.querySelectorAll("#hseg button").forEach(b=>b.addEventListener("click",()=>{hForm=null;location.hash="#/innehav/"+b.dataset.l}));bindAlarm();
   // formulär
   const tk=$("h-tk"),dd2=$("h-dd"),pr=$("h-price"),qt=$("h-qty"),sk=$("h-sek"),msg=$("h-msg");
   const val=el=>{const v=parseFloat(String(el.value).replace(/\s/g,"").replace(",","."));return isNaN(v)?null:v};
