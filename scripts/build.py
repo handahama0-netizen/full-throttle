@@ -987,6 +987,17 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
             if det.get("inst"):
                 rec["instFlow"] = det["inst"].get("verdict")
                 rec["instNetp"] = det["inst"].get("netp")
+            ih = [h for h in (det.get("instHist") or []) if isinstance(h, dict) and h.get("q")]
+            if ih:  # vilket kvartal 13F-datan gäller och andelen kvartalet innan (för jämförelse)
+                rec["instQ"] = ih[-1]["q"]
+                rec["instPrevPct"] = ih[-2].get("pct") if len(ih) >= 2 else None
+                rec["instQPct"] = ih[-1].get("pct")
+            own = [o for o in (det.get("own") or []) if o.get("i") is not None]
+            if len(own) >= 2:  # Yahoos andel: förändring mot äldsta punkten inom 100 dagar
+                cut = datetime.fromordinal(datetime.strptime(today, "%Y-%m-%d").date().toordinal() - 100).date().isoformat()
+                base = next((o for o in own if o["d"] >= cut), own[0])
+                if base["d"] < today:
+                    rec["instChg"], rec["instChgFrom"] = round(own[-1]["i"] - base["i"], 2), base["d"]
         s = secd.get(t.upper())
         if s and det is not None:
             apply_sec(rec, det, raw, s)

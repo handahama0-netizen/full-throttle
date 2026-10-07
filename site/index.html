@@ -123,6 +123,7 @@ main{padding-block:18px 48px}
 .rots{display:grid;justify-items:end;gap:2px}
 @media (max-width:640px){.rots{display:none}}
 .opp{display:inline-grid;place-items:center;min-width:30px;height:24px;padding:0 6px;border-radius:7px;font-family:var(--mono);font-weight:750;font-size:12.5px;color:#fff;background:color-mix(in srgb,var(--up) calc(var(--o)*1%),var(--down))}
+.instc{display:inline-grid;justify-items:end;line-height:1.25}.instc .subv{font-size:11px;white-space:nowrap}
 .owl{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}.ow{font-size:11px;background:var(--sunk);border:1px solid var(--line);border-radius:999px;padding:0 7px;color:var(--muted);white-space:nowrap}
 ol.best li{align-items:center}
 @media (max-width:640px){ol.best li{flex-wrap:wrap;row-gap:6px}ol.best li>span:last-child{width:100%;justify-content:flex-start!important;padding-left:38px}}
@@ -659,6 +660,7 @@ const GL={
   analysts:["Analytikerna","Sammanställning av bankernas och analyshusens rekommendationer och riktkurser, via Yahoo Finance."],
   dnInfo:["Nedtryckta kvalitetsbolag","Fall från toppen = hur långt kursen ligger under sin högsta kurs (all-time high, räknat på kurshistorik sedan 2010). Tjänar pengar = positiv nettomarginal och positivt fritt kassaflöde. Växer = omsättningen ökade senaste året. Ett stort fall i ett bolag som fortfarande är lönsamt och växer kan vara ett köpläge, men kolla alltid varför det föll: ibland vet marknaden något som siffrorna bakåt inte visar än."],
   rotInfo:["Sektorrotation","Pengar flyttar mellan sektorer i cykler. Varje sektor mäts med två tal: styrka = hur mycket bättre eller sämre den gått än S&P 500 senaste kvartalet, och fart = om styrkan ökar eller minskar senaste 4 veckorna. Fart som vänder upp i en svag sektor (🚀 På väg upp) är ofta första tecknet på att pengar börjar rotera in, innan sektorn syns bland de hetaste. Samma idé som ett Relative Rotation Graph (RRG)."],
+  instData:["Institutionsägande och förändring","Andel: hur stor del av aktierna fonder, pensionsbolag och banker äger, från Yahoo Finance. Hämtas varje natt, men Yahoo uppdaterar själva siffran ungefär en gång i månaden. Förändring (USA): nettoköp eller nettoförsäljning senaste kvartalet i procent av institutionernas innehav, från 13F-rapporterna via Nasdaq. Institutionerna rapporterar en gång per kvartal och har 45 dagar på sig, så Q2 (april–juni) blir komplett i mitten av augusti. ▲ över +0,25 % = köper, ▼ under −0,25 % = säljer. 'Förra kv.' = ägd andel enligt 13F kvartalet innan (visas när vi har två kvartal sparade). Svenska bolag har ingen 13F: där visas ändringen i Yahoos andel sedan ett tidigare datum när den finns. Över 100 % kan förekomma i 13F eftersom aktier som lånats ut räknas hos flera."],
   oppInfo:["Bäst läge","En poäng 0–100 för hur bra köpläge bolaget har just nu jämfört med andra i samma bransch: P/E framåt mot branschens median (20 %), PEG (15 %), sammanvägd värdering med DCF och riktkurser (15 %), avstånd till 200W-snittet (20 %), hur mycket institutionerna äger och om de köper (15 %) och kvalitet (15 %). Avdrag: förlust 40 %, negativt kassaflöde 15 %, kurs mer än 60 % över 200W 15 % och mer än 100 % över 25 %. Störst är något annat: det är bara omsättning."],
   dnBear:["Bear case","Bear case är det pessimistiska värdet på aktien, i procent mot dagens kurs. Från kassaflödesvärderingen (DCF, halverad tillväxt och högre ränta) när den finns, annars analytikernas lägsta riktkurs. Bear case ≥ −10 % betyder att även i ett dåligt scenario faller aktien högst 10 %. Över 0 % = aktien är billigare än även det pessimistiska värdet. Förväntat väger bear 25 %, bas 50 % och bull 25 %, samma som på aktiesidan."],
   dn52:["Läge i 52 veckor","Var kursen ligger mellan årets lägsta (0 %) och högsta (100 %) kurs. Nära 0 % = aktien handlas nära årets botten."],
@@ -993,7 +995,7 @@ const DNC={
   fwdPe:["P/E fr.","","fwdPe",d=>`<span class="${d.fwdPe>0?tone(d.fwdPe,15,30,1):"t-bad"}">${nn(d.fwdPe)?(d.fwdPe>0?f(d.fwdPe,1):"neg."):"–"}</span>`],
   peg:["PEG","","peg",d=>`<span class="${d.peg>0?tone(d.peg,1,2,1):""}">${nn(d.peg)&&d.peg>0?f(d.peg,2):"–"}</span>`],
   de:["Skuld/EK","","de",d=>`<span class="${d.negEquity?"t-bad":tone(d.de,0.5,1.5,1)}">${deTxt(d)}</span>`],
-  inst:["Inst. äger","","instPct",d=>`<span class="${tone(d.instPct,60,20)}">${nn(d.instPct)?f(d.instPct,0," %"):"–"}</span>${d.instFlow&&IV[d.instFlow]?`<span class="subv" title="Institutionernas nettoflöde senaste kvartalet">${IV[d.instFlow][2]} ${d.instFlow==="bull"?"köper":d.instFlow==="bear"?"säljer":"neutrala"}</span>`:""}`],
+  inst:["Inst. äger","","instPct",d=>instCell(d,1)],
   bear:["Bear case","","bear",d=>{const c=casesOf(d);return c&&nn(c.bear)?`<b class="${c.bear>=0?"t-good":c.bear<=-30?"t-bad":""}">${pct(c.bear,0)}</b><span class="subv" title="${c.src==="DCF"?"Pessimistisk kassaflödesvärdering":"Analytikernas lägsta riktkurs"}">${money(c.bv,d.currency)} · ${c.src}</span>`:'<span class="faint">–</span>'}],
   ev:["Förväntat","","ev",d=>{const c=casesOf(d);return c&&nn(c.ev)?`<span class="${tone(c.ev,20,0)}">${pct(c.ev,0)}</span><span class="subv">bas ${pct(c.base,0)} · bull ${pct(c.bull,0)}</span>`:'<span class="faint">–</span>'}],
   val:["Värdering","l","val",d=>vChip(valView(d))],
@@ -2579,8 +2581,8 @@ function giantsCard(d){
   const bestTxt=bi===0?`<b>${esc(d.ticker)} har bäst läge i ${esc(g.label)} just nu</b> (poäng ${bo.s} av 100).`:bi>0?`<b>${esc(d.ticker)} är nr ${bi+1} av ${B.length}</b> i ${esc(g.label)} på bäst läge (poäng ${bo.s}). Bäst just nu: <a href="${link(B[0].ticker)}">${esc(B[0].ticker)}</a> (${oppOf(B[0]).s}).`:"";
   return `<section class="card" style="margin-top:16px"><div class="hd"><h2>Bäst läge i branschen${ib("oppInfo")}</h2>${drill("peer","Hela branschen")}</div><div class="bd">
     ${bestTxt?`<p style="font-size:13.5px;line-height:1.55">${bestTxt}</p>
-    <div class="tw" style="margin-top:8px"><table class="crit"><thead><tr><th>#</th><th>Bolag</th><th class="r">Poäng</th><th>Varför</th><th class="r">P/E fr.</th><th class="r">PEG</th><th class="r">Inst.</th><th>200W</th></tr></thead><tbody>
-      ${bt.map(x=>{const o=oppOf(x);return `<tr class="go" data-t="${esc(x.ticker)}" style="${x===d?"background:var(--accent-soft)":""}"><td class="n">${B.indexOf(x)+1}</td><td>${co(x)}</td><td class="r">${oppB(o)}</td><td><span class="owl" style="margin:0">${oppWhy(o,3)}</span></td><td class="r n">${nn(x.fwdPe)?(x.fwdPe>0?f(x.fwdPe,1):"neg."):"–"}</td><td class="r n">${nn(x.peg)&&x.peg>0?f(x.peg,2):"–"}</td><td class="r n">${nn(x.instPct)?f(x.instPct,0," %"):"–"}</td><td>${zchip(x)}</td></tr>`}).join("")}
+    <div class="tw" style="margin-top:8px"><table class="crit"><thead><tr><th>#</th><th>Bolag</th><th class="r">Poäng</th><th>Varför</th><th class="r">P/E fr.</th><th class="r">PEG</th><th class="r">Institutioner äger${ib("instData")}</th><th>200W</th></tr></thead><tbody>
+      ${bt.map(x=>{const o=oppOf(x);return `<tr class="go" data-t="${esc(x.ticker)}" style="${x===d?"background:var(--accent-soft)":""}"><td class="n">${B.indexOf(x)+1}</td><td>${co(x)}</td><td class="r">${oppB(o)}</td><td><span class="owl" style="margin:0">${oppWhy(o,3)}</span></td><td class="r n">${nn(x.fwdPe)?(x.fwdPe>0?f(x.fwdPe,1):"neg."):"–"}</td><td class="r n">${nn(x.peg)&&x.peg>0?f(x.peg,2):"–"}</td><td class="r">${instCell(x)}</td><td>${zchip(x)}</td></tr>`}).join("")}
     </tbody></table></div>`:""}
     <h4 class="qh" style="margin-top:16px">Störst i branschen${ib("dominance")}</h4>
     <p style="font-size:13.5px;line-height:1.55">${meTxt}</p>
@@ -2666,10 +2668,18 @@ function oppOf(d){if(d._opp!==undefined)return d._opp;
   if(nn(d.dist200w)&&d.dist200w>100){sc*=0.75;why.push("Långt över 200W")}else if(nn(d.dist200w)&&d.dist200w>60)sc*=0.85;
   return d._opp={s:Math.round(sc),why};
 }
+// institutionsägande med förändring: 13F-nettoflödet senaste kvartalet (USA), annars Yahoos andel mot tidigare
+const qLabel=q=>q?`Q${Math.floor((+q.slice(5,7)-1)/3)+1} ${q.slice(0,4)}`:"";
+function instCell(d,compact){if(!nn(d.instPct))return'<span class="faint">–</span>';
+  let ch="";
+  if(nn(d.instNetp)){const v=d.instNetp,c=v>0.25?"up":v<-0.25?"down":"muted";ch=`<span class="${c}">${v>0.25?"▲":v<-0.25?"▼":"▶"} ${v>0?"+":""}${f(v,1)} %</span> ${compact?"":"nettoköp "}${qLabel(d.instQ)}`}
+  else if(nn(d.instChg)&&Math.abs(d.instChg)>=0.05){const v=d.instChg;ch=`<span class="${v>0?"up":"down"}">${v>0?"▲":"▼"} ${v>0?"+":""}${f(v,1)} pe</span> sedan ${esc((d.instChgFrom||"").slice(5))}`}
+  const prev=nn(d.instPrevPct)&&nn(d.instQPct)?` · förra kv. ${f(d.instPrevPct,0)} %`:"";
+  return `<span class="instc"><b class="n">${f(d.instPct,0)} %</b>${ch||prev?`<span class="subv">${ch}${compact?"":prev}</span>`:""}</span>`}
 const oppB=o=>o?`<span class="opp" style="--o:${o.s}" title="Bäst läge-poäng ${o.s} av 100">${o.s}</span>`:"";
 const oppWhy=(o,n=3)=>o?o.why.slice(0,n).map(w=>`<span class="ow">${esc(w)}</span>`).join(""):"";
 const bestOf=list=>list.filter(d=>oppOf(d)).sort((a,b)=>oppOf(b).s-oppOf(a).s);
-function bestList(list,n=3){const B=bestOf(list).slice(0,n);return B.length?`<ol class="lead best">${B.map((d,j)=>{const o=oppOf(d);return `<li data-go="${esc(d.ticker)}"><span style="display:flex;gap:8px;align-items:center;min-width:0">${oppB(o)}<span style="min-width:0"><b class="tk">${esc(d.ticker)}</b> <span class="muted small">${esc(d.name)}</span><span class="owl">${oppWhy(o)}</span></span></span><span class="small" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><span class="n muted">${mcap(d.mcapB)}</span>${zchip(d)}${sigB(d)}</span></li>`}).join("")}</ol>`:`<p class="small muted">Inga bolag med tillräcklig data.</p>`}
+function bestList(list,n=3){const B=bestOf(list).slice(0,n);return B.length?`<ol class="lead best">${B.map((d,j)=>{const o=oppOf(d);return `<li data-go="${esc(d.ticker)}"><span style="display:flex;gap:8px;align-items:center;min-width:0">${oppB(o)}<span style="min-width:0"><b class="tk">${esc(d.ticker)}</b> <span class="muted small">${esc(d.name)}</span><span class="owl">${oppWhy(o)}</span></span></span><span class="small" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><span class="small muted" style="text-align:right">Inst. ${instCell(d,1)}</span><span class="n muted">${mcap(d.mcapB)}</span>${zchip(d)}${sigB(d)}</span></li>`}).join("")}</ol>`:`<p class="small muted">Inga bolag med tillräcklig data.</p>`}
 
 /* ============ SEKTORROTATION ============ */
 let SECT=null;
@@ -2732,7 +2742,7 @@ async function pageRotation(){
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px">${phChip(x.phase)}<span class="small muted">${PH[x.phase][2]} · ${x.weeks} ${x.weeks===1?"vecka":"veckor"} i läget${x.prev&&x.prev!==x.phase?`, var ${PH[x.prev][1].toLowerCase()} för 4 veckor sedan`:""}</span></div></div>
         <div class="rots"><span class="sub">Mot S&amp;P 500, 1 år</span>${spark(x.idx,S.spy)}</div></div>
       <div class="secm" style="margin-top:10px"><span>Styrka <b class="n ${cls(last[0])}">${pct(last[0],1)}</b></span><span>Fart <b class="n ${cls(last[1])}">${last[1]>=0?"▲":"▼"} ${pct(last[1],1)}</b></span><span>1 v ${pc(med2("r5"))}</span><span>1 mån ${pc(med2("r21"))}</span><span>3 mån ${pc(med2("r63"))}</span><span>6 mån ${pc(med2("r126"))}</span><span>Över 200 dagar <b class="n">${nn(ab)?f(ab,0," %"):"–"}</b></span><span>Prognoser 30 d ${(()=>{const v=med(m.map(d=>d.epsRev30).filter(nn));return nn(v)?`<b class="n ${cls(v)}">${pct(v,1)}</b>`:"–"})()}</span></div>
-      <h4 class="qh">Bäst läge i sektorn${ib("oppInfo")}</h4>
+      <h4 class="qh">Bäst läge i sektorn${ib("oppInfo")} <span class="small muted" style="font-weight:400">· institutioner${ib("instData")}</span></h4>
       ${bestList(m)}
       <p class="small muted" style="margin-top:6px">Störst efter omsättning: ${lead.slice(0,3).map(o=>`<a href="${link(o.d.ticker)}" class="tk">${esc(o.d.ticker)}</a> ${f(o.rev/tot*100,0)} %`).join(" · ")}</p>
       ${inds.length?`<button class="more" data-rot="${esc(n)}" style="margin-top:8px">${open?"Dölj branscherna ↑":`Branscherna i ${esc(n)} (${inds.length}) ↓`}</button>
@@ -2784,7 +2794,7 @@ function pageSectors(){
   const card=s=>{const open=openSec===s.name;return `<section class="card seccard" id="sec-${esc(s.name.replace(/\W/g,""))}"><div class="bd">
     <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><h3 style="font-size:15.5px">${esc(s.name)} <span class="sub">${s.n} bolag</span></h3><span class="pill" style="border-color:transparent;${HEATCLS[heatOf(s,S)]||""}">${heatOf(s,S)}</span></div>
     <div class="secm"><span>1 v ${pc(s.r5)}</span><span>1 mån ${pc(s.r21)}</span><span>3 mån ${pc(s.r63)}</span><span>Över 200W <b class="n">${nn(s.above)?f(s.above,0," %"):"–"}</b></span><span>P/E fr. <b class="n">${f(s.pe,0)}</b></span><span>Prognos 30 d ${nn(s.rev)?`<b class="n ${cls(s.rev)}">${pct(s.rev,1)}</b>`:"–"}</span></div>
-    <h4 class="qh">Bäst läge${ib("oppInfo")}</h4>${bestList(s.m)}
+    <h4 class="qh">Bäst läge${ib("oppInfo")} <span class="small muted" style="font-weight:400">· institutioner${ib("instData")}</span></h4>${bestList(s.m)}
     <p class="small muted" style="margin-top:6px">Störst efter omsättning: ${s.lead.map(x=>`<a href="${link(x.d.ticker)}" class="tk">${esc(x.d.ticker)}</a> ${f(x.share,0)} %`).join(" · ")}</p>
     <h4 class="qh">Stora bolag i din köpzon</h4>${s.zone.length?`<div class="chipl">${s.zone.slice(0,6).map(d=>`<a class="pill${d.sig.includes("guld")?" pass":""}" href="${link(d.ticker)}"><span class="tk">${esc(d.ticker)}</span> ${pct(d.dist200w,0)}${d.sig.includes("guld")?" · GULD":""}</a>`).join("")}</div>`:`<p class="small muted">Inga just nu.</p>`}
     <button class="more" data-open="${esc(s.name)}" style="margin-top:10px">${open?"Dölj bolagen ↑":"Alla bolag i branschen ↓"}</button>
