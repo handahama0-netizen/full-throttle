@@ -51,7 +51,21 @@ p{margin:0}
 .top{position:sticky;top:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
 .top .wrap{display:flex;align-items:center;gap:20px;height:58px}
 .brand{font-weight:750;font-size:17px;color:var(--ink);white-space:nowrap;display:flex;align-items:center;gap:8px}
-.brand:hover{text-decoration:none}
+.brand:hover{text-decoration:none}.brand a{color:var(--ink)}.brand a:hover{text-decoration:none}
+.menubtn{border:0;background:none;padding:6px;margin:-6px;cursor:pointer;border-radius:8px;display:grid;place-items:center}.menubtn:hover{background:var(--hover)}
+#menuBg{position:fixed;inset:0;background:rgb(0 0 0 / .35);z-index:60}
+#sitemenu{position:fixed;top:0;left:0;bottom:0;width:min(340px,88vw);background:var(--card);border-right:1px solid var(--line);z-index:61;overflow-y:auto;padding:14px 12px 30px;box-shadow:8px 0 30px rgb(0 0 0 / .18);padding-top:calc(14px + env(safe-area-inset-top,0px))}
+#sitemenu .mh{display:flex;justify-content:space-between;align-items:center;padding:0 6px 8px}
+#sitemenu .mh b{font-size:17px}
+#sitemenu .mx{border:0;background:none;font-size:22px;cursor:pointer;color:var(--muted);padding:4px 10px;border-radius:8px}#sitemenu .mx:hover{background:var(--hover)}
+#sitemenu h4{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:14px 8px 4px}
+#sitemenu a.mi{display:grid;grid-template-columns:28px minmax(0,1fr);gap:4px 8px;align-items:start;padding:8px;border-radius:8px;color:var(--ink)}
+#sitemenu a.mi:hover,#sitemenu a.mi.on{background:var(--hover);text-decoration:none}
+#sitemenu a.mi.on{box-shadow:inset 3px 0 0 var(--accent)}
+#sitemenu a.mi .ic{font-size:17px;line-height:1.3;text-align:center}
+#sitemenu a.mi b{font-size:14px;font-weight:650}
+#sitemenu a.mi small{grid-column:2;color:var(--muted);font-size:12px;line-height:1.35}
+#sitemenu a.ms{display:block;padding:6px 8px 6px 44px;border-radius:8px;color:var(--ink);font-size:13.5px}#sitemenu a.ms:hover{background:var(--hover);text-decoration:none}
 .brand i{width:22px;height:22px;border-radius:6px;background:var(--accent);display:inline-block;position:relative}
 .brand i::after{content:"";position:absolute;left:5px;right:5px;bottom:6px;height:2px;background:var(--accent-ink);box-shadow:0 -4px 0 var(--accent-ink),0 -8px 0 var(--accent-ink);opacity:.9;width:12px}
 .search{position:relative;flex:1;max-width:520px}
@@ -119,6 +133,8 @@ main{padding-block:18px 48px}
 @media (max-width:760px){.dec{grid-template-columns:1fr}}
 .rrg{width:100%;height:auto;display:block}.rrg text{font-size:11px;fill:var(--muted)}.rrg .lab{font-size:12px;font-weight:650;fill:var(--ink)}.rrg .ql{font-size:11.5px;font-weight:750;letter-spacing:.04em}.rrg .rp{cursor:pointer}
 .phc{display:inline-flex;gap:4px;align-items:center;font-weight:700;font-size:12.5px;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.sech{display:flex;gap:10px;align-items:flex-start;cursor:pointer}.seccard.closed .secbody{display:none}
+@media (max-width:640px){.sech{flex-wrap:wrap}.sech>div{flex-basis:100%!important}.secfold{margin-left:0}}
 .rotc{margin-bottom:10px}.roth{display:flex;gap:12px;align-items:flex-start;cursor:pointer}.rotc.closed .rotbody{display:none}.rotsum{margin-top:6px;display:flex;gap:4px;align-items:center;flex-wrap:wrap}.rotfold{margin-left:4px}
 @media (max-width:640px){.roth{flex-wrap:wrap}.rotmain{flex-basis:calc(100% - 40px)!important}.rotfold{margin-left:36px}}.roth h3{font-size:16px}.rk{font-family:var(--mono);font-weight:750;font-size:18px;color:var(--muted);min-width:24px}
 .rots{display:grid;justify-items:end;gap:2px}
@@ -554,7 +570,7 @@ ul.tips li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;font-si
 <body>
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#/"><i></i>Full Throttle</a>
+    <div class="brand"><button type="button" id="menuBtn" class="menubtn" aria-label="Öppna menyn" aria-expanded="false" aria-controls="sitemenu"><i></i></button><a href="#/">Full Throttle</a></div>
     <div class="search" role="search">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <input id="q" type="search" placeholder="Sök aktie, t.ex. SoFi, NVDA eller Atlas Copco" autocomplete="off" aria-label="Sök aktie" aria-controls="dd">
@@ -576,6 +592,8 @@ ul.tips li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;font-si
 <div id="tip" hidden></div>
 <button id="toTop" hidden aria-label="Till toppen" onclick="scrollTo({top:0,behavior:'smooth'})">↑</button>
 <div id="pop" role="dialog" hidden></div>
+<div id="menuBg" hidden></div>
+<nav id="sitemenu" aria-label="Meny" hidden></nav>
 
 <script src="lightweight-charts.js"></script>
 <script>
@@ -885,6 +903,29 @@ q.addEventListener("keydown",e=>{
 dd.addEventListener("click",()=>{q.value="";dd.hidden=true});
 document.addEventListener("click",e=>{if(!e.target.closest(".search"))dd.hidden=true});
 document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement.tagName!=="INPUT"){e.preventDefault();q.focus()}});
+
+/* ============ meny för hela sidan ============ */
+const MENU=[["Idag",[["#/","start","🏠","Start","Det som kräver beslut idag: sälj, risk, köplägen"],["#/mina","mina","⭐","Mina aktier","Aktierna du följer med läge och nyckeltal"]]],
+  ["Hitta aktier",[["#/fallna","fallna","📉","Nedtryckta","Kvalitetsbolag långt under toppen, med bear case"],["#/screener","screener","🔎","Screener","Filtrera på dina strategier och 200W-zoner"],["#/branscher","branscher","🏭","Branscher","Teman, bäst läge per bransch och Jordi Visser"],["#/rotation","rotation","🔄","Sektorrotation","Var pengarna är och vart de är på väg"]]],
+  ["Mina pengar",[["#/innehav/swing","swing","⚡","Live swing","Dina swingar med stop, mål och läge"],["#/innehav/port","port","💼","Portfölj","Långsiktiga innehav och larm"],["#/innehav/analys","analys","📊","Portföljanalys","Risk, Sharpe och tips för bättre portfölj"]]],
+  ["Strategi",[["#/strategier","strategier","🧭","Strategi och backtest","Dina strategier, Diamant och backtest utan facit"]]]];
+function renderMenu(){const m=$("sitemenu");if(!m)return;const h=location.hash||"#/";
+  const cur=h.startsWith("#/aktie")?"":h.startsWith("#/innehav/analys")?"analys":h.startsWith("#/innehav/port")?"port":h.startsWith("#/innehav")?"swing":(h.slice(2).split("/")[0]||"start");
+  const secs=[...document.querySelectorAll("#app .snav [data-to]")].map(b=>[b.dataset.to,b.textContent.trim()]);
+  const pageName=h.startsWith("#/aktie")?(document.title.split(" · ")[0]||"Aktien"):((MENU.flatMap(g=>g[1]).find(x=>x[1]===cur)||[])[3]||"");
+  m.innerHTML=`<div class="mh"><b>Full Throttle</b><button class="mx" type="button" aria-label="Stäng menyn">×</button></div>
+    ${secs.length?`<h4>På den här sidan${pageName?": "+esc(pageName):""}</h4>${secs.map(([id,l])=>`<a class="ms" href="#" data-sec="${esc(id)}">↳ ${esc(l)}</a>`).join("")}`:""}
+    ${MENU.map(([g,items])=>`<h4>${g}</h4>${items.map(([href,k,ic,l,d])=>`<a class="mi${k===cur?" on":""}" href="${href}"><span class="ic">${ic}</span><b>${l}</b><small>${d}</small></a>`).join("")}`).join("")}
+    <h4>Sök</h4><p class="small muted" style="padding:0 8px">Sök på en aktie i fältet högst upp, eller tryck / på tangentbordet.</p>`;
+  m.querySelector(".mx").addEventListener("click",closeMenu);
+  m.querySelectorAll("a.mi").forEach(a=>a.addEventListener("click",closeMenu));
+  m.querySelectorAll("a.ms").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();closeMenu();goTo(a.dataset.sec)}));
+}
+function openMenu(){renderMenu();$("sitemenu").hidden=false;$("menuBg").hidden=false;$("menuBtn").setAttribute("aria-expanded","true");document.body.style.overflow="hidden";const f=$("sitemenu").querySelector("a.mi.on,a.mi");if(f)f.focus({preventScroll:true})}
+function closeMenu(){$("sitemenu").hidden=true;$("menuBg").hidden=true;$("menuBtn").setAttribute("aria-expanded","false");document.body.style.overflow=""}
+$("menuBtn").addEventListener("click",()=>$("sitemenu").hidden?openMenu():closeMenu());
+$("menuBg").addEventListener("click",closeMenu);
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("sitemenu").hidden)closeMenu()});
 
 /* ============ router ============ */
 function route(){
@@ -2817,15 +2858,18 @@ function pageSectors(){
   const cool=S.filter(s=>!hot.includes(s)&&!next.includes(s)&&nn(s.r63)&&s.r63>0.02&&nn(s.r21)&&s.r21<0).slice(0,4);
   const pc=x=>`<span class="n ${cls(x)}">${nn(x)?pct(x*100,1):"–"}</span>`;
   const mini=(s,why)=>`<li data-sec="${esc(s.name)}"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(s.name)}</b><span class="small">1 mån ${pc(s.r21)} · 3 mån ${pc(s.r63)}</span></div><span class="small muted">${why}</span></li>`;
-  const card=s=>{const open=openSec===s.name;return `<section class="card seccard" id="sec-${esc(s.name.replace(/\W/g,""))}"><div class="bd">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><h3 style="font-size:15.5px">${esc(s.name)} <span class="sub">${s.n} bolag</span></h3><span class="pill" style="border-color:transparent;${HEATCLS[heatOf(s,S)]||""}">${heatOf(s,S)}</span></div>
+  const card=s=>{const open=openSec===s.name,exp=!!(ui.secExp||{})[s.name],b1=bestOf(s.m)[0],o1=b1&&oppOf(b1);return `<section class="card seccard${exp?"":" closed"}" id="sec-${esc(s.name.replace(/\W/g,""))}" data-secn="${esc(s.name)}"><div class="bd">
+    <div class="sech"><div style="min-width:0;flex:1"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><h3 style="font-size:15.5px">${esc(s.name)} <span class="sub">${s.n} bolag</span></h3><span class="pill" style="border-color:transparent;${HEATCLS[heatOf(s,S)]||""}">${heatOf(s,S)}</span></div>
+      <div class="rotsum small">1 mån ${pc(s.r21)} · 3 mån ${pc(s.r63)}${b1?` · Bäst läge <a href="${link(b1.ticker)}" class="tk">${esc(b1.ticker)}</a> ${oppB(o1)}`:""}</div></div>
+      <button class="qfold secfold" type="button" aria-expanded="${exp}">${exp?"Dölj ▲":"Visa mer ▼"}</button></div>
+    <div class="secbody">
     <div class="secm"><span>1 v ${pc(s.r5)}</span><span>1 mån ${pc(s.r21)}</span><span>3 mån ${pc(s.r63)}</span><span>Över 200W <b class="n">${nn(s.above)?f(s.above,0," %"):"–"}</b></span><span>P/E fr. <b class="n">${f(s.pe,0)}</b></span><span>Prognos 30 d ${nn(s.rev)?`<b class="n ${cls(s.rev)}">${pct(s.rev,1)}</b>`:"–"}</span></div>
     <h4 class="qh">Bäst läge${ib("oppInfo")} <span class="small muted" style="font-weight:400">· institutioner${ib("instData")}</span></h4>${bestList(s.m)}
     <p class="small muted" style="margin-top:6px">Störst efter omsättning: ${s.lead.map(x=>`<a href="${link(x.d.ticker)}" class="tk">${esc(x.d.ticker)}</a> ${f(x.share,0)} %`).join(" · ")}</p>
     <h4 class="qh">Stora bolag i din köpzon</h4>${s.zone.length?`<div class="chipl">${s.zone.slice(0,6).map(d=>`<a class="pill${d.sig.includes("guld")?" pass":""}" href="${link(d.ticker)}"><span class="tk">${esc(d.ticker)}</span> ${pct(d.dist200w,0)}${d.sig.includes("guld")?" · GULD":""}</a>`).join("")}</div>`:`<p class="small muted">Inga just nu.</p>`}
     <button class="more" data-open="${esc(s.name)}" style="margin-top:10px">${open?"Dölj bolagen ↑":"Alla bolag i branschen ↓"}</button>
     ${open?`<div class="tw" style="margin-top:8px"><table class="crit"><thead><tr><th>Bolag</th><th class="r">Börsvärde</th><th class="r">1 mån</th><th class="r">3 mån</th><th>200W</th><th>Strategi</th></tr></thead><tbody>${s.m.slice().sort((a,b)=>(b.mcapB||0)-(a.mcapB||0)).map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td>${co(d)}</td><td class="r n">${mcap(d.mcapB)}</td><td class="r n ${cls(d.r21)}">${nn(d.r21)?pct(d.r21*100,0):"–"}</td><td class="r n ${cls(d.r63)}">${nn(d.r63)?pct(d.r63*100,0):"–"}</td><td>${zchip(d)}</td><td>${sigB(d)||SORDER.filter(k=>d.res[k]&&d.res[k].status==="pass").map(k=>`<span class="pill pass" style="font-size:11px">${STRATS[k].short}</span>`).join(" ")||'<span class="faint">–</span>'}</td></tr>`).join("")}</tbody></table></div>`:""}
-  </div></section>`};
+  </div></div></section>`};
   // Visser + strategi
   const picks=((I&&I.picks)||[]).map(p=>({...p,d:bySym[p.ticker]})).filter(p=>p.d);
   const vis=V?`<section class="card" id="b-vis" style="margin-top:16px"><div class="hd"><h2>Jordi Visser denna vecka</h2><span class="sub">Sammanfattat av Claude ${esc(I.date||"")}</span></div><div class="bd">
@@ -2844,19 +2888,22 @@ function pageSectors(){
   <div class="hero"><h1>Branscher</h1><label class="chk"><input type="checkbox" id="secBig" ${ui.secBig?"checked":""}> Bara stora bolag (≥ 50 md $)</label></div>
   ${subnav([["b-ana","Analys"],["b-now","Hetast och nästa"]].concat(V?[["b-vis","Jordi Visser"]]:[]).concat([["b-all","Alla branscher"]]))}
   <div style="height:12px"></div>
-  ${ind?`<section class="card story" id="b-ana"><div class="bd"><div class="small muted" style="margin-bottom:6px;font-weight:600;letter-spacing:.05em;text-transform:uppercase">Claudes branschanalys ${esc(I.date||"")}</div><p class="lead">${esc(ind.headline)}</p>${ind.text.map(t=>`<p style="margin-top:10px;font-size:14px;line-height:1.6;max-width:85ch">${esc(t)}</p>`).join("")}</div></section>`:""}
+  ${ind?`<section class="card story" id="b-ana"><div class="bd"><div class="small muted" style="margin-bottom:6px;font-weight:600;letter-spacing:.05em;text-transform:uppercase">Claudes branschanalys ${esc(I.date||"")}</div><p class="lead">${esc(ind.headline)}</p>${ind.text.slice(0,1).map(t=>`<p style="margin-top:10px;font-size:14px;line-height:1.6;max-width:85ch">${esc(t)}</p>`).join("")}${ind.text.length>1?`<details class="xs"><summary>Läs hela analysen <span class="muted">(${ind.text.length-1} stycken till)</span></summary>${ind.text.slice(1).map(t=>`<p style="margin-top:10px;font-size:14px;line-height:1.6;max-width:85ch">${esc(t)}</p>`).join("")}</details>`:""}</div></section>`:""}
   <div class="grid" id="b-now" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));margin-top:16px">
     <section class="card"><div class="hd"><h2>🔥 Hetast nu</h2></div><div class="bd"><ul class="slist">${hot.map(s=>mini(s,`${f(s.above,0)} % över 200W${nn(s.rev)&&s.rev>0?", prognoserna höjs":""}`)).join("")||'<li class="muted">Inget tema går upp just nu.</li>'}</ul></div></section>
     <section class="card"><div class="hd"><h2>🌱 Kan vara nästa</h2></div><div class="bd"><ul class="slist">${next.map(s=>mini(s,esc((ind&&ind.nextWhy&&ind.nextWhy[s.name])||`Senaste månaden bättre än trenden${nn(s.above)?`, bara ${f(s.above,0)} % över 200W`:""}`))).join("")||'<li class="muted">Inga tydliga vändningar.</li>'}</ul></div></section>
     <section class="card"><div class="hd"><h2>❄️ Svalnar</h2></div><div class="bd"><ul class="slist">${cool.map(s=>mini(s,"Uppe på 3 månader men faller senaste månaden")).join("")||'<li class="muted">Inga just nu.</li>'}</ul></div></section>
   </div>
   ${vis}
-  <h2 class="sect" id="b-all">Alla branscher <span class="sub" style="font-weight:400">sorterade efter värme</span></h2>
+  <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><h2 class="sect" id="b-all">Alla branscher <span class="sub" style="font-weight:400">sorterade efter värme</span></h2><button class="more" id="secAll" type="button" style="margin:0">${S.every(x=>(ui.secExp||{})[x.name])?"Fäll ihop alla ▲":"Visa alla branscher ▼"}</button></div>
   <div class="fgrid" style="grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr))">${S.map(card).join("")}</div>
   <p class="small muted" style="margin-top:12px">Branscherna bygger på sidans ~600 aktier. Dominerar = störst omsättning (börsvärde / P/S). Värme = 1 vecka 20 %, 1 månad 50 %, 3 månader 30 % (median).</p>`;
   $("secBig").addEventListener("change",e=>{ui.secBig=e.target.checked;saveUi();pageSectors()});
   $("app").querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>{openSec=openSec===b.dataset.open?null:b.dataset.open;pageSectors()}));
-  $("app").querySelectorAll("li[data-sec]").forEach(li=>li.addEventListener("click",()=>{const el=$("sec-"+li.dataset.sec.replace(/\W/g,""));if(el)el.scrollIntoView({behavior:"smooth",block:"start"})}));
+  const setSec=(c,on)=>{ui.secExp=ui.secExp||{};ui.secExp[c.dataset.secn]=on;saveUi();c.classList.toggle("closed",!on);const b=c.querySelector(".secfold");b.textContent=on?"Dölj ▲":"Visa mer ▼";b.setAttribute("aria-expanded",on)};
+  $("app").querySelectorAll(".seccard .sech").forEach(h=>h.addEventListener("click",e=>{if(e.target.closest("a,.ib")&&!e.target.closest(".secfold"))return;const c=h.closest(".seccard");setSec(c,c.classList.contains("closed"))}));
+  $("secAll").addEventListener("click",()=>{const cs=[...document.querySelectorAll(".seccard")],to=cs.some(c=>c.classList.contains("closed"));cs.forEach(c=>setSec(c,to));$("secAll").textContent=to?"Fäll ihop alla ▲":"Visa alla branscher ▼"});
+  $("app").querySelectorAll("li[data-sec]").forEach(li=>li.addEventListener("click",()=>{const el=$("sec-"+li.dataset.sec.replace(/\W/g,""));if(el){if(el.classList.contains("closed"))setSec(el,true);el.scrollIntoView({behavior:"smooth",block:"start"})}}));
   bindRows($("app"));
 }
 function heatOf(s,S){const k=S.filter(x=>nn(x.mom)),i=k.indexOf(s);if(i<0)return"–";return i<2&&s.mom>0?"Hetast":i<Math.ceil(k.length*.3)&&s.mom>0?"Het":i>=k.length-2&&s.mom<0?"Kallast":i>=Math.floor(k.length*.7)&&s.mom<0?"Sval":"Neutral"}
