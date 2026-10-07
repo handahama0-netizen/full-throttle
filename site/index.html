@@ -1,7 +1,11 @@
 <!doctype html>
-<html lang="sv">
+<html lang="sv" data-theme="dark">
 <head>
 <meta charset="utf-8">
+<script>try{var t=localStorage.getItem("ft-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+<meta name="theme-color" content="#060807">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Aktier med 200-veckorszoner, Full Throttle och Low Risk High Reward. Kurser, analytiker och nyckeltal.">
 <title>Full Throttle</title>
@@ -9,8 +13,8 @@
 /* Layout: app shell — sticky header with search; pages: Start, Aktie, Screener, Strategier */
 :root{
   --bg:#f3f4f6; --card:#ffffff; --sunk:#f7f8f9; --hover:#f0f2f4; --line:#e3e6e9; --line-strong:#cfd4d9;
-  --ink:#1c2024; --muted:#68717a; --faint:#9aa2aa; --accent:#0b6e5d; --accent-ink:#ffffff; --accent-soft:#e3f2ee;
-  --up:#0a8a4d; --down:#d1342c; --up-soft:#e6f4ec; --down-soft:#fbe9e8; --warn:#a15c00; --warn-soft:#fbf0dc;
+  --ink:#1c2024; --muted:#68717a; --faint:#9aa2aa; --accent:#2c8a17; --accent-ink:#ffffff; --accent-soft:#e4f4de;
+  --up:#2a8a17; --down:#d1342c; --up-soft:#e6f4e1; --down-soft:#fbe9e8; --warn:#a15c00; --warn-soft:#fbf0dc;
   --z-fire:#7b3fbf; --z-vcheap:#2563c9; --z-cheap:#15803d; --z-fair:#b38600; --z-exp:#d9670b; --z-vexp:#c62828;
   --z-fire-bg:#efe6fa; --z-vcheap-bg:#e3ecfb; --z-cheap-bg:#e2f4e8; --z-fair-bg:#faf2d6; --z-exp-bg:#fcebdc; --z-vexp-bg:#fbe3e3;
   --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
@@ -18,18 +22,18 @@
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0f1215; --card:#171b1f; --sunk:#1b2025; --hover:#20262c; --line:#262d34; --line-strong:#353e47;
-  --ink:#e7eaed; --muted:#919aa3; --faint:#6b747d; --accent:#3fb59b; --accent-ink:#0b1714; --accent-soft:#163029;
-  --up:#3fbf7f; --down:#ff6b61; --up-soft:#142a1e; --down-soft:#331a18; --warn:#e6a54a; --warn-soft:#33270f;
-  --z-fire:#b98af0; --z-vcheap:#6fa3f5; --z-cheap:#4cc38a; --z-fair:#e3c04f; --z-exp:#f39a4f; --z-vexp:#ff7b72;
-  --z-fire-bg:#2a1f3a; --z-vcheap-bg:#1a2740; --z-cheap-bg:#16301f; --z-fair-bg:#33290f; --z-exp-bg:#38230f; --z-vexp-bg:#3a1a1a;
+  --bg:#060807; --card:#0d110e; --sunk:#111612; --hover:#162019; --line:#1c271f; --line-strong:#2a3a2e;
+  --ink:#e6f0e7; --muted:#8c9a8f; --faint:#5f6e62; --accent:#5fd13a; --accent-ink:#061005; --accent-soft:#132c17;
+  --up:#5fd13a; --down:#ff5f57; --up-soft:#12291a; --down-soft:#331817; --warn:#e6a54a; --warn-soft:#33270f;
+  --z-fire:#b98af0; --z-vcheap:#6fa3f5; --z-cheap:#5fd13a; --z-fair:#e3c04f; --z-exp:#f39a4f; --z-vexp:#ff7b72;
+  --z-fire-bg:#241a33; --z-vcheap-bg:#16223a; --z-cheap-bg:#12291a; --z-fair-bg:#2e250e; --z-exp-bg:#33200e; --z-vexp-bg:#351818;
   color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0f1215; --card:#171b1f; --sunk:#1b2025; --hover:#20262c; --line:#262d34; --line-strong:#353e47;
-  --ink:#e7eaed; --muted:#919aa3; --faint:#6b747d; --accent:#3fb59b; --accent-ink:#0b1714; --accent-soft:#163029;
-  --up:#3fbf7f; --down:#ff6b61; --up-soft:#142a1e; --down-soft:#331a18; --warn:#e6a54a; --warn-soft:#33270f;
-  --z-fire:#b98af0; --z-vcheap:#6fa3f5; --z-cheap:#4cc38a; --z-fair:#e3c04f; --z-exp:#f39a4f; --z-vexp:#ff7b72;
-  --z-fire-bg:#2a1f3a; --z-vcheap-bg:#1a2740; --z-cheap-bg:#16301f; --z-fair-bg:#33290f; --z-exp-bg:#38230f; --z-vexp-bg:#3a1a1a;
+  --bg:#060807; --card:#0d110e; --sunk:#111612; --hover:#162019; --line:#1c271f; --line-strong:#2a3a2e;
+  --ink:#e6f0e7; --muted:#8c9a8f; --faint:#5f6e62; --accent:#5fd13a; --accent-ink:#061005; --accent-soft:#132c17;
+  --up:#5fd13a; --down:#ff5f57; --up-soft:#12291a; --down-soft:#331817; --warn:#e6a54a; --warn-soft:#33270f;
+  --z-fire:#b98af0; --z-vcheap:#6fa3f5; --z-cheap:#5fd13a; --z-fair:#e3c04f; --z-exp:#f39a4f; --z-vexp:#ff7b72;
+  --z-fire-bg:#241a33; --z-vcheap-bg:#16223a; --z-cheap-bg:#12291a; --z-fair-bg:#2e250e; --z-exp-bg:#33200e; --z-vexp-bg:#351818;
   color-scheme:dark}
 
 *{box-sizing:border-box}
@@ -51,7 +55,7 @@ p{margin:0}
 .top{position:sticky;top:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
 .top .wrap{display:flex;align-items:center;gap:20px;height:58px}
 .brand{font-weight:750;font-size:17px;color:var(--ink);white-space:nowrap;display:flex;align-items:center;gap:8px}
-.brand:hover{text-decoration:none}.brand a{color:var(--ink)}.brand a:hover{text-decoration:none}
+.brand:hover{text-decoration:none}.brand a{color:var(--ink)}.brandl{display:inline-flex;align-items:center;gap:8px}.brandl img{width:28px;height:28px;border-radius:50%;box-shadow:0 0 0 1px var(--line-strong),0 0 10px color-mix(in srgb,var(--accent) 35%,transparent)}.brand a:hover{text-decoration:none}
 .menubtn{border:0;background:none;padding:6px;margin:-6px;cursor:pointer;border-radius:8px;display:grid;place-items:center}.menubtn:hover{background:var(--hover)}
 #menuBg{position:fixed;inset:0;background:rgb(0 0 0 / .35);z-index:60}
 #sitemenu{position:fixed;top:0;left:0;bottom:0;width:min(340px,88vw);background:var(--card);border-right:1px solid var(--line);z-index:61;overflow-y:auto;padding:14px 12px 30px;box-shadow:8px 0 30px rgb(0 0 0 / .18);padding-top:calc(14px + env(safe-area-inset-top,0px))}
@@ -66,8 +70,8 @@ p{margin:0}
 #sitemenu a.mi b{font-size:14px;font-weight:650}
 #sitemenu a.mi small{grid-column:2;color:var(--muted);font-size:12px;line-height:1.35}
 #sitemenu a.ms{display:block;padding:6px 8px 6px 44px;border-radius:8px;color:var(--ink);font-size:13.5px}#sitemenu a.ms:hover{background:var(--hover);text-decoration:none}
-.brand i{width:22px;height:22px;border-radius:6px;background:var(--accent);display:inline-block;position:relative}
-.brand i::after{content:"";position:absolute;left:5px;right:5px;bottom:6px;height:2px;background:var(--accent-ink);box-shadow:0 -4px 0 var(--accent-ink),0 -8px 0 var(--accent-ink);opacity:.9;width:12px}
+.brand i{width:22px;height:22px;border-radius:6px;background:transparent;display:inline-block;position:relative}
+.brand i::after{content:"";position:absolute;left:5px;right:5px;bottom:6px;height:2px;background:var(--ink);box-shadow:0 -5px 0 var(--ink),0 -10px 0 var(--ink);opacity:.9;width:16px;left:3px;bottom:5px}
 .search{position:relative;flex:1;max-width:520px}
 .search input{width:100%;height:38px;border:1px solid var(--line-strong);border-radius:8px;background:var(--sunk);padding:0 12px 0 36px;font-size:14px}
 .search input:focus{background:var(--card);border-color:var(--accent);outline:none}
@@ -570,7 +574,7 @@ ul.tips li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;font-si
 <body>
 <header class="top">
   <div class="wrap">
-    <div class="brand"><button type="button" id="menuBtn" class="menubtn" aria-label="Öppna menyn" aria-expanded="false" aria-controls="sitemenu"><i></i></button><a href="#/">Full Throttle</a></div>
+    <div class="brand"><button type="button" id="menuBtn" class="menubtn" aria-label="Öppna menyn" aria-expanded="false" aria-controls="sitemenu"><i></i></button><a href="#/" class="brandl"><img src="logo.png" alt="" width="28" height="28">Full Throttle</a></div>
     <div class="search" role="search">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <input id="q" type="search" placeholder="Sök aktie, t.ex. SoFi, NVDA eller Atlas Copco" autocomplete="off" aria-label="Sök aktie" aria-controls="dd">
@@ -916,7 +920,9 @@ function renderMenu(){const m=$("sitemenu");if(!m)return;const h=location.hash||
   m.innerHTML=`<div class="mh"><b>Full Throttle</b><button class="mx" type="button" aria-label="Stäng menyn">×</button></div>
     ${secs.length?`<h4>På den här sidan${pageName?": "+esc(pageName):""}</h4>${secs.map(([id,l])=>`<a class="ms" href="#" data-sec="${esc(id)}">↳ ${esc(l)}</a>`).join("")}`:""}
     ${MENU.map(([g,items])=>`<h4>${g}</h4>${items.map(([href,k,ic,l,d])=>`<a class="mi${k===cur?" on":""}" href="${href}"><span class="ic">${ic}</span><b>${l}</b><small>${d}</small></a>`).join("")}`).join("")}
+    <h4>Utseende</h4><a class="mi" href="#" id="themeTgl"><span class="ic">${document.documentElement.dataset.theme==="light"?"🌙":"☀️"}</span><b>${document.documentElement.dataset.theme==="light"?"Mörkt läge (loggans färger)":"Ljust läge"}</b><small>Sparas på den här enheten</small></a>
     <h4>Sök</h4><p class="small muted" style="padding:0 8px">Sök på en aktie i fältet högst upp, eller tryck / på tangentbordet.</p>`;
+  m.querySelector("#themeTgl").addEventListener("click",e=>{e.preventDefault();const t=document.documentElement.dataset.theme==="light"?"dark":"light";document.documentElement.dataset.theme=t;try{localStorage.setItem("ft-theme",t)}catch(x){}closeMenu();route()});
   m.querySelector(".mx").addEventListener("click",closeMenu);
   m.querySelectorAll("a.mi").forEach(a=>a.addEventListener("click",closeMenu));
   m.querySelectorAll("a.ms").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();closeMenu();goTo(a.dataset.sec)}));
