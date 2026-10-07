@@ -113,6 +113,7 @@ main{padding-block:18px 48px}
 .sig{font-size:10.5px;font-weight:750;padding:2px 6px;border-radius:4px;letter-spacing:.04em;white-space:nowrap}
 .sig.guld{background:#b8860b;color:#fff} .sig.diamant{background:linear-gradient(135deg,#2b6cb0,#7f5af0);color:#fff} .sig.swing{background:var(--z-cheap);color:var(--card)} .sig.rea{background:var(--z-vcheap);color:var(--card)}
 
+.ptools{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}.ptools .fld{display:grid;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}.ptools input{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line-strong);border-radius:7px;background:var(--card);color:var(--ink);width:130px}
 /* nedtryckta */
 .dnbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--sunk)}
 @media (min-width:701px){.dnbar{position:sticky;top:var(--hh,58px);z-index:5}}
@@ -1152,7 +1153,7 @@ function pageStock(t){
   renderStab(d);
   getDetail(d.ticker).then(det=>{if(location.hash!==link(d.ticker)&&decodeURIComponent(location.hash)!==decodeURIComponent(link(d.ticker)))return;d._det=det;
       $("chapA").innerHTML=chaptersA(d,det);$("valBox").innerHTML=valBlock(d,det);$("priceAns").innerHTML=priceAns(d,det);$("chapB").innerHTML=chaptersB(d,det);
-      bindDrill(d);bindChap(d);bindRows($("chapA"));bindRows($("chapB"));bindOwn();bindDash(d);bindEarn(d);mountSubnav();
+      bindDrill(d);bindChap(d);bindRows($("chapA"));bindRows($("chapB"));bindOwn();bindDash(d);bindEarn(d);preTrade(d);mountSubnav();
       drawChart(d);renderStab(d)})
     .catch(()=>{const m=$("chartMsg");if(m)m.textContent="Kunde inte ladda kursdata för den här aktien."});
 }
@@ -3214,6 +3215,59 @@ function bindEarn(d){
       tip.hidden=false;tip.style.left=Math.min(e.clientX+14,innerWidth-260)+"px";tip.style.top=(e.clientY+14)+"px"};
     el.addEventListener("mousemove",show);el.addEventListener("click",show);el.addEventListener("mouseleave",()=>tip.hidden=true)});
 }
+/* ---- risk före köp: hur påverkar köpet portföljen? ---- */
+function retsOf(det,days){const D=det&&det.d;if(!D)return null;const m=new Map();D.t.forEach((x,i)=>m.set(x,D.c[i]));let lv=null;const pr=days.map(x=>{const v=m.get(x)??lv;if(v)lv=v;return v});
+  if(pr.filter(Boolean).length<days.length*0.9)return null;const r=[];for(let k=1;k<pr.length;k++)r.push(pr[k]&&pr[k-1]?pr[k]/pr[k-1]-1:0);return r}
+function pmStats(R,w,spy){const n=R[0].length,port=R[0].map((_,k)=>R.reduce((s,r,i)=>s+w[i]*r[k],0));
+  const mean=a=>a.reduce((s,x)=>s+x,0)/a.length,sd=a=>{const m=mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/(a.length-1))};
+  const cov=(a,b)=>{const ma=mean(a),mb=mean(b);return a.reduce((s,x,i)=>s+(x-ma)*(b[i]-mb),0)/(a.length-1)};
+  let pk=1,ix=1,mdd=0;port.forEach(x=>{ix*=1+x;pk=Math.max(pk,ix);mdd=Math.min(mdd,ix/pk-1)});
+  const {mu,C}=pStats(R),muS=shrink(mu),vol=Math.sqrt(pVar(w,C)),ret=pRet(w,muS);
+  return{vol,ret,sharpe:vol>0?(ret-0.04)/vol:null,beta:spy?cov(port,spy)/cov(spy,spy):null,mdd,port}}
+async function preTrade(d){
+  const box=$("preTrade");if(!box||!d._det)return;
+  const lev=ui.ptLev||1,list=allPos().filter(p=>p.ticker!==d.ticker||true);
+  const byT={};list.forEach(p=>{const c=posCalc(p);if(nn(c.value)&&c.d&&c.d.ticker)byT[p.ticker]=(byT[p.ticker]||0)+c.value});
+  const T=Object.keys(byT),tot=T.reduce((s,t)=>s+byT[t],0);
+  const amt=ui.ptAmt||(tot?Math.round(tot*0.1/1000)*1000||10000:50000);
+  const dets={};await Promise.all(T.concat(["SPY"]).map(async t=>{try{dets[t]=await getDetail(t)}catch(e){}}));
+  if(!$("preTrade"))return;
+  const D=d._det.d;if(!D){box.innerHTML="";return}
+  const days=D.t.slice(-253),spy=dets.SPY?retsOf(dets.SPY,days):null,rNew=retsOf(d._det,days);
+  if(!rNew){box.innerHTML=`<p class="muted small">För kort kurshistorik för att räkna risken.</p>`;return}
+  const okT=T.filter(t=>dets[t]&&retsOf(dets[t],days)),R0=okT.map(t=>retsOf(dets[t],days));
+  const vals=okT.map(t=>byT[t]),V0=vals.reduce((a,b)=>a+b,0);
+  const iNew=okT.indexOf(d.ticker),R1=iNew>=0?R0:R0.concat([rNew]),vals1=iNew>=0?vals.map((v,i)=>i===iNew?v+amt:v):vals.concat([amt]),V1=V0+amt;
+  const w1=vals1.map(v=>v/V1),B=okT.length?pmStats(R0,vals.map(v=>v/V0),spy):null,A=pmStats(R1,w1,spy),S=pmStats([rNew],[1],spy);
+  const k=iNew>=0?iNew:R1.length-1,{C}=pStats(R1),Cw=C.map(r=>r.reduce((s,x,j)=>s+x*w1[j],0)),vP=pVar(w1,C),rc=w1[k]*Cw[k]/vP;
+  let corr=null;if(B){const a=B.port,b=rNew,ma=a.reduce((s,x)=>s+x,0)/a.length,mb=b.reduce((s,x)=>s+x,0)/b.length;let c=0,va=0,vb=0;for(let i=0;i<a.length;i++){c+=(a[i]-ma)*(b[i]-mb);va+=(a[i]-ma)**2;vb+=(b[i]-mb)**2}corr=va&&vb?c/Math.sqrt(va*vb):null}
+  const eq=V1/lev,mc=lev>1?(1-(1/lev))/(1-0.30)*0:null;
+  // margin call när eget kapital < 30 % av värdet: (V(1-x) - lån) / (V(1-x)) < 0,3
+  const loan=V1-eq,mcFall=lev>1?1-loan/(0.7*V1):null,mcMkt=nn(mcFall)&&A.beta>0?mcFall/A.beta:null;
+  const stress=[10,20,30].map(m=>{const loss=V1*(A.beta??1)*m/100;return[m,loss,loss/eq*100]});
+  const arrow=(a,b,good)=>!nn(a)||!nn(b)?"":`<span class="${(b>a)===good?"ok":"no"}">${b>a?"▲":"▼"}</span>`;
+  const row=(l,a,b,fm,good)=>`<tr><td>${l}</td><td class="r n">${B?fm(a):"–"}</td><td class="r n"><b>${fm(b)}</b> ${B?arrow(a,b,good):""}</td></tr>`;
+  const verdict=!B?`Du har inga innehav inlagda, så siffrorna gäller bara ${esc(d.ticker)}.`:
+    `Köpet ${A.sharpe>B.sharpe+0.02?"<b class='ok'>höjer</b>":A.sharpe<B.sharpe-0.02?"<b class='no'>sänker</b>":"ändrar knappt"} Sharpe (${f(B.sharpe,2)} → ${f(A.sharpe,2)}) och ${A.vol>B.vol+0.005?"höjer":"sänker"} risken (${f(B.vol*100,0)} → ${f(A.vol*100,0)} % svängningar). ${nn(corr)?(corr>0.7?`${esc(d.ticker)} rör sig mycket likt det du redan äger (korrelation ${f(corr,2)}), så spridningen blir sämre.`:corr<0.4?`${esc(d.ticker)} rör sig annorlunda än det du äger (korrelation ${f(corr,2)}), bra för spridningen.`:`Korrelation med portföljen ${f(corr,2)}.`):""} Den skulle stå för ${f(rc*100,0)} % av risken men ${f(w1[k]*100,0)} % av värdet.`;
+  box.innerHTML=`<div class="ptools"><label class="fld"><span>Belopp i kr</span><input id="ptAmt" inputmode="numeric" value="${amt}"></label>
+      <div class="fld"><span>Hävstång</span><div class="seg" id="ptLev">${[1,1.5,2,2.5].map(x=>`<button data-v="${x}" aria-pressed="${lev===x}">${String(x).replace(".",",")}x</button>`).join("")}</div></div></div>
+    <p class="small" style="margin:10px 0;line-height:1.55">${verdict}</p>
+    <div class="grid g2">
+      <div><div class="tw"><table class="crit"><thead><tr><th>Portföljen</th><th class="r">Före</th><th class="r">Efter köpet</th></tr></thead><tbody>
+        ${row("Förväntad avkastning/år",B&&B.ret,A.ret,x=>pct(x*100,0),true)}${row("Svängningar/år",B&&B.vol,A.vol,x=>f(x*100,0)+" %",false)}
+        ${row("Sharpe",B&&B.sharpe,A.sharpe,x=>f(x,2),true)}${row("Beta mot S&amp;P 500",B&&B.beta,A.beta,x=>f(x,2),false)}
+        ${row("Största fall senaste året",B&&B.mdd,A.mdd,x=>pct(x*100,0),true)}
+        <tr><td>Bara ${esc(d.ticker)}</td><td></td><td class="r n small">svängn. ${f(S.vol*100,0)} % · beta ${f(S.beta,2)} · fall ${pct(S.mdd*100,0)}</td></tr>
+      </tbody></table></div></div>
+      <div><div class="tw"><table class="crit"><thead><tr><th>Om börsen faller</th><th class="r">Förlust i kr</th><th class="r">Av ditt kapital</th></tr></thead><tbody>
+        ${stress.map(([m,l,p])=>`<tr><td>S&amp;P 500 −${m} %</td><td class="r n down">−${f(l,0)} kr</td><td class="r n ${p>=50?"no":p>=25?"":""}"><b>${pct(-p,0)}</b></td></tr>`).join("")}
+      </tbody></table></div>
+      <p class="small" style="margin-top:6px;line-height:1.5">Portfölj ${kr(V1)}${lev>1?`, varav ${kr(eq)} eget kapital och ${kr(loan)} lån`:""} med beta ${f(A.beta,2)}. ${nn(mcMkt)?`<b>Margin call</b> om portföljen faller ${f(mcFall*100,0)} %, ungefär när börsen faller <b>${f(mcMkt*100,0)} %</b>.`:"Utan hävstång finns ingen risk för margin call."}</p></div>
+    </div>
+    <p class="small muted" style="margin-top:6px">Senaste årets dagliga kurser för dina innehav (${okT.length} st) och ${esc(d.ticker)}. Förväntad avkastning är historisk avkastning krympt 50 % mot snittet. Stresstestet använder portföljens beta, verkliga fall kan bli större. Margin call räknas vid 30 % eget kapital.</p>`;
+  const ai=$("ptAmt");ai.addEventListener("change",()=>{const v=+String(ai.value).replace(/\s/g,"").replace(",",".");if(v>0){ui.ptAmt=v;saveUi();preTrade(d)}});
+  box.querySelectorAll("#ptLev button").forEach(b=>b.addEventListener("click",()=>{ui.ptLev=+b.dataset.v;saveUi();preTrade(d)}));
+}
 /* ---- avsnitten ---- */
 function qSec(id,n,q,a,body,next){return `<section class="qa" id="${id}"><div class="qhd"><span class="qn">${n}</span><div><h2>${q}</h2><p class="ans">${a}</p></div></div>${body?`<div class="qbody">${body}</div>`:""}${next?`<button class="nextq" data-to2="${next[0]}">Nästa: ${next[1]} ↓</button>`:""}</section>`}
 function chaptersA(d,det){
@@ -3223,7 +3277,7 @@ function chaptersA(d,det){
   if(eq)parts.push(qSec("q-thesis",1,"Vad är bolaget, och vad är tesen?",`Vad bolaget gör, vad som gör det starkt eller svagt, och tre utfall: bull, bas och bear.`,profileCard(d,det)+`<div style="height:14px"></div>`+casesCard(d,det),["q-strat","Passar den min strategi?"]));
   if(!eq)parts.push(`<div style="margin-top:16px">${profileCard(d,det)}</div>`);
   parts.push(qSec("q-strat",eq?2:1,"Passar den min strategi?",`<span class="yn ${v.k}">${yes(v.k)}</span> ${esc(v.t)}`,
-    stratCard(d).replace('style="margin-top:16px"',"").replace(/<p class="sv">[\s\S]*?<\/p>/,"")+`<div id="q-hist" style="margin-top:16px"><h3 class="sub3" style="margin-bottom:4px">Fungerar 💎 Diamant på ${esc(d.ticker)}? Backtest från 2015</h3><p class="ans" style="margin-bottom:10px">${H.a}</p>${H.b}</div>`,
+    stratCard(d).replace('style="margin-top:16px"',"").replace(/<p class="sv">[\s\S]*?<\/p>/,"")+`<div id="q-hist" style="margin-top:16px"><h3 class="sub3" style="margin-bottom:4px">Fungerar 💎 Diamant på ${esc(d.ticker)}? Backtest från 2015</h3><p class="ans" style="margin-bottom:10px">${H.a}</p>${H.b}</div>`+(eq?`<div id="q-buy" style="margin-top:16px"><h3 class="sub3" style="margin-bottom:4px">Om du köper: vad händer med din portfölj?</h3><section class="card"><div class="bd" id="preTrade"><p class="muted small">Räknar…</p></div></section></div>`:""),
     eq?["q-biz","Hur går affären?"]:["q-price","Vad kostar den?"]));
   if(eq)parts.push(qSec("q-biz",3,"Hur går affären?",(()=>{const g1=d.revGrowth1y,e1=d.earnGrowth1y;return `${nn(g1)?`Omsättningen ${g1>=0?"växte":"minskade"} ${f(Math.abs(g1),0)} % senaste året`:"Omsättning okänd"}${nn(e1)?`, vinsten per aktie ${e1>=0?"växte":"minskade"} ${f(Math.abs(e1),0)} %`:""}. ${ir?`Nr ${ir.rank} av ${ir.n} i ${esc(ir.label)}.`:""}${earnAns(d,det)}`})(),
     `<section class="card"><div class="bd" id="dashBox">${finDash(d,det)}</div></section>
