@@ -1245,13 +1245,6 @@ def main():
                 write_json(out / "data" / "backtest.json", backtest.run(out / "data"))
             except Exception as e:  # noqa: BLE001
                 log("backtest fel", e)
-            try:  # sektorrotation: veckoindex och läge per sektor och bransch
-                import sectors
-                res = sectors.run(out / "data")
-                if res:
-                    write_json(out / "data" / "sectors.json", res)
-            except Exception as e:  # noqa: BLE001
-                log("sektorrotation fel", e)
             import ai_notes
             ai_notes.run(out, None, read_list(SRC / "config" / "ai.txt"), max_n=12, log=log)
     if code != 0:
@@ -1260,6 +1253,14 @@ def main():
             shutil.copytree(prev, out, ignore=shutil.ignore_patterns(".git"))
         else:
             return code
+    if (out / "data" / "universe.json").exists() and not (out / "data" / "sectors.json").exists() or a.mode == "full":
+        try:  # sektorrotation: räknas i nattkörningen och fylls i om den saknas (snabbt, ca 1 sekund)
+            import sectors
+            res = sectors.run(out / "data")
+            if res:
+                write_json(out / "data" / "sectors.json", res)
+        except Exception as e:  # noqa: BLE001
+            log("sektorrotation fel", e)
     copy_site(out)
     return 0
 
