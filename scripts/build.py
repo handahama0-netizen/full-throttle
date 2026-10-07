@@ -413,7 +413,7 @@ def fundamentals(tk: str, extras: bool = True):
     rev_est = call(lambda: t.revenue_estimate) if ex else None
     eps_est = call(lambda: t.earnings_estimate) if ex else None
     earn_hist = call(lambda: t.earnings_history) if ex else None
-    earn_dates = call(lambda: t.get_earnings_dates(limit=48)) if ex else None
+    earn_dates = call(lambda: t.get_earnings_dates(limit=80)) if ex else None
     ins_tx = call(lambda: t.insider_transactions) if ex and not tk.endswith(".ST") else None
     inst_h = call(lambda: t.institutional_holders) if ex else None
     news = (call(lambda: t.news) or []) if ex else []
@@ -500,6 +500,7 @@ def fundamentals(tk: str, extras: bool = True):
     est = safe(lambda: A.estimates(eps_trend, eps_rev, rev_est, eps_est, earn_hist), {}) if ex else None
     detail["est"] = est
     detail["epsq"] = safe(lambda: eps_quarters(earn_dates)) or None
+    detail["revq0"] = safe(lambda: rev_estimate_q(rev_est, next_earn)) if ex else None
     detail["ins"] = safe(lambda: insiders(ins_tx)) if ins_tx is not None else None
     detail["holders"] = safe(lambda: holders(inst_h)) if inst_h is not None else None
     detail["news"] = parse_news(news) or None
@@ -612,7 +613,23 @@ def merge_eps(old, new):
     """Behåll äldre kvartal från förra körningen, nya värden vinner."""
     m = {q["d"]: q for q in (old or []) if isinstance(q, dict) and q.get("d")}
     m.update({q["d"]: q for q in (new or [])})
-    return [m[k] for k in sorted(m)][-60:] or None
+    return [m[k] for k in sorted(m)][-100:] or None
+
+
+def rev_estimate_q(rev_est, next_earn):
+    """Analytikernas omsättningsförväntan för kvartalet som rapporteras nästa gång (sparas till efter rapporten)."""
+    if rev_est is None or getattr(rev_est, "empty", True) or not next_earn or "0q" not in rev_est.index:
+        return None
+    e = num(rev_est.loc["0q"].get("avg"))
+    return {"d": str(next_earn)[:10], "e": e, "n": num(rev_est.loc["0q"].get("numberOfAnalysts"))} if e else None
+
+
+def merge_revq(old, new, today):
+    """En förväntan per rapportdag. Uppdateras fram till rapportdagen, sedan låst, så den kan jämföras med utfallet."""
+    m = {q["d"]: q for q in (old or []) if isinstance(q, dict) and q.get("d")}
+    if new and new["d"] >= today:
+        m[new["d"]] = new
+    return [m[k] for k in sorted(m)][-40:] or None
 
 
 _rss_gate = threading.Lock()
@@ -774,6 +791,22 @@ def apply_sec(rec, det, raw, s):
         raw["epsG"] = raw.get("epsG") or ((e.get("eps") or {}).get("+1y") or {}).get("growth")
 
 
+def norm_fcf(fcf, det):
+    """Kassaflödet de senaste 12 månaderna kan vara skevt av engångsposter (skatt, lager, förvärv).
+    Avviker det mer än 40 % från medianen av de tre senaste åren och 12 mån används medianen i DCF:en."""
+    if fcf is None:
+        return None, False
+    annual = [r["fcf"] for r in (det.get("fa") or []) if isinstance(r, dict) and r.get("fcf") is not None][-3:]
+    if len(annual) < 2:
+        return fcf, False
+    vals = sorted(annual + [fcf])
+    n = len(vals)
+    med = vals[n // 2] if n % 2 else (vals[n // 2 - 1] + vals[n // 2]) / 2
+    if med > 0 and abs(fcf / med - 1) > 0.4:
+        return med, True
+    return fcf, False
+
+
 def analyse(t, df, rec, det, raw, bench, rf_usd):
     """Kursattribution och värdering för en aktie (läggs i detaljfilen och sammanfattningen)."""
     se = t.endswith(".ST")
@@ -800,13 +833,16 @@ def analyse(t, df, rec, det, raw, bench, rf_usd):
         fx_t, fx_f = usd_rate(raw.get("cur")), usd_rate(raw.get("finCur"))
         fx = fx_f / fx_t if fx_t and fx_f else None
         rf = rf_usd if (raw.get("finCur") or "USD") == "USD" else 0.025
-        val = safe(lambda: A.valuation(fcf=raw["fcf"], sbc=raw["sbc"], cash=raw["cash"], debt=raw["debt"],
+        fcf_n, normed = norm_fcf(raw.get("fcf"), det)
+        val = safe(lambda: A.valuation(fcf=fcf_n, sbc=raw["sbc"], cash=raw["cash"], debt=raw["debt"],
                                        mcap_trading=raw["mcap"], price=rec.get("price"), fx_fin_to_trading=fx,
                                        beta=raw["beta"], rf=rf, rev_growth_est=raw["revG"], rev_cagr=rec.get("revCagr"),
                                        eps_fwd=raw["epsFwd"], eps_growth_est=raw["epsG"], aaa=rf_usd * 100 + 1.0))
         if val:
             val["finCur"] = raw.get("finCur")
-            val["fcfSrc"] = raw.get("fcfSrc") or "Yahoo Finance"
+            val["fcfSrc"] = (raw.get("fcfSrc") or "Yahoo Finance") + (", normaliserat: median av senaste 3 åren och 12 mån" if normed else "")
+            if normed:
+                val["fcfRaw"] = raw.get("fcf")
             det["val"] = val
             base = (val.get("dcf") or {}).get("base")
             rec["fairValue"] = base
@@ -897,7 +933,7 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
             if old:
                 rec = {k: v for k, v in old.items() if k not in ("price", "prevClose", "chg", "ma200w", "dist200w", "zone", "signals", "stale")}
                 old_det = load_json(prev / "data" / "t" / fname(t), {})
-                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att", "epsq", "sec", "ins", "holders", "own", "inst", "instHist", "fq", "fa")}
+                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att", "epsq", "sec", "ins", "holders", "own", "inst", "instHist", "fq", "fa", "revq")}
             else:
                 rec = {"ticker": t, "name": t, "type": "EQUITY", "currency": "SEK" if t.endswith(".ST") else "USD",
                        "sector": "Övrigt", "excluded": True}
@@ -929,6 +965,7 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
         if det is not None:  # EPS-historiken byggs på över tid
             _old = load_json(prev / "data" / "t" / fname(t), {})
             det["epsq"] = merge_eps(_old.get("epsq"), det.get("epsq"))
+            det["revq"] = merge_revq(_old.get("revq"), det.pop("revq0", None), today)
             det["fq"] = merge_rows(_old.get("fq"), det.get("fq"))
             det["fa"] = merge_rows(_old.get("fa"), det.get("fa"), 30)
             det["own"] = merge_own(_old.get("own"), rec, today)

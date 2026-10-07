@@ -3172,8 +3172,11 @@ function earnRows(det){
     if(W.t&&W.t.length&&days<=5){let i0=-1;for(let i=0;i<W.t.length;i++){if(W.t[i]<t-3)i0=i;else break}const i1=i0+1;if(i0<0||i1>=W.t.length)return null;return W.c[i1]/W.c[i0]-1}
     if(W.t&&W.t.length){let i0=-1;for(let i=0;i<W.t.length;i++){if(W.t[i]<t-3)i0=i;else break}const i1=i0+Math.round(days/5);if(i0<0||i1>=W.t.length)return null;return W.c[i1]/W.c[i0]-1}
     return null};
+  // omsättning: förväntan sparad före rapporten (revq) mot rapporterad kvartalsomsättning (fq)
+  const RQ=(det.revq||[]).map(r=>({t:day(r.d),e:r.e})),FQ=(det.fq||[]).filter(r=>nn(r.rev)).map(r=>({t:day(r.d),v:r.rev}));
+  const revOf=t=>{const e=RQ.find(r=>Math.abs(r.t-t)<=7);if(!e)return null;const a=FQ.filter(r=>r.t<=t-5&&r.t>=t-100).pop();if(!a)return null;const sp=(a.v/e.e-1)*100;return{e:e.e,a:a.v,sp,beat:sp>0.05?1:sp<-0.05?-1:0}};
   return q.map(x=>{const t=day(x.d),ok=nn(x.e)&&Math.abs(x.e)>=0.05,sp=ok?(x.a-x.e)/Math.abs(x.e)*100:null;
-    return{d:x.d,t,a:x.a,e:x.e,sp,beat:ok?(x.a>x.e+1e-9?1:Math.abs(x.a-x.e)<1e-9?0:-1):null,r1:react(t,1),r5:react(t,5),r20:react(t,20)}});
+    return{d:x.d,t,a:x.a,e:x.e,sp,beat:ok?(x.a>x.e+1e-9?1:Math.abs(x.a-x.e)<1e-9?0:-1):null,r1:react(t,1),r5:react(t,5),r20:react(t,20),rev:revOf(t)}});
 }
 function earnStats(E){const w=E.filter(x=>x.beat!=null),b=w.filter(x=>x.beat>0),m=w.filter(x=>x.beat<0),avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
   return{n:w.length,nb:b.length,nm:m.length,sp:med(w.map(x=>x.sp).filter(nn)),rb:avg(b.map(x=>x.r1).filter(nn)),rm:avg(m.map(x=>x.r1).filter(nn)),streak:(()=>{let k=0;for(let i=w.length-1;i>=0&&w[i].beat>0;i--)k++;return k})()}}
@@ -3207,11 +3210,11 @@ function earnCard(d,det){
     g+=`<rect class="hv" data-i="${i}" x="${(Lm+i*bw).toFixed(1)}" y="${T}" width="${bw.toFixed(1)}" height="${H-T-14}" fill="transparent"/>`});
   window._earnE=E;
   const segs=`<div class="seg" id="erR">${[[8,"8 kvartal"],[12,"3 år"],[20,"5 år"],[0,"Allt"]].map(([k,l])=>`<button data-v="${k}" aria-pressed="${R===k}">${l}</button>`).join("")}</div>`;
-  const tbl=all.slice().reverse().slice(0,R||all.length).map(x=>`<tr><td class="n">${esc(x.d)}</td><td class="r n">${nn(x.e)?f(x.e,dec):"–"}</td><td class="r n">${f(x.a,dec)}</td><td class="r n" style="color:${BEATC(x.beat)}">${nn(x.sp)?pct(x.sp,1):"–"}</td><td>${x.beat==null?"–":`<span class="pill" style="border-color:transparent;color:#fff;background:${BEATC(x.beat)}">${x.beat>0?"Slog":x.beat<0?"Missade":"I linje"}</span>`}</td><td class="r n ${cls(x.r1)}">${nn(x.r1)?pct(x.r1*100,1):"–"}</td><td class="r n ${cls(x.r5)}">${nn(x.r5)?pct(x.r5*100,1):"–"}</td><td class="r n ${cls(x.r20)}">${nn(x.r20)?pct(x.r20*100,1):"–"}</td></tr>`).join("");
+  const tbl=all.slice().reverse().slice(0,R||all.length).map(x=>`<tr><td class="n">${esc(x.d)}</td><td class="r n">${nn(x.e)?f(x.e,dec):"–"}</td><td class="r n">${f(x.a,dec)}</td><td class="r n" style="color:${BEATC(x.beat)}">${nn(x.sp)?pct(x.sp,1):"–"}</td><td>${x.beat==null?"–":`<span class="pill" style="border-color:transparent;color:#fff;background:${BEATC(x.beat)}">${x.beat>0?"Slog":x.beat<0?"Missade":"I linje"}</span>`}</td><td class="r n" style="color:${x.rev?BEATC(x.rev.beat):""}">${x.rev?`${big(x.rev.a)} <span class="subv">väntat ${big(x.rev.e)} · ${pct(x.rev.sp,1)}</span>`:"–"}</td><td class="r n ${cls(x.r1)}">${nn(x.r1)?pct(x.r1*100,1):"–"}</td><td class="r n ${cls(x.r5)}">${nn(x.r5)?pct(x.r5*100,1):"–"}</td><td class="r n ${cls(x.r20)}">${nn(x.r20)?pct(x.r20*100,1):"–"}</td></tr>`).join("");
   const story=S.n?`${esc(d.ticker)} har slagit vinstförväntningarna i <b>${S.nb} av ${S.n}</b> rapporter (${f(S.nb/S.n*100,0)} %)${S8.n?`, ${S8.nb} av ${S8.n} de senaste två åren`:""}. Medianöverraskningen är ${pct(S.sp,1)}. ${nn(S.rb)?`När bolaget slog gick kursen i snitt ${pct(S.rb*100,1)} dagen efter`:""}${nn(S.rm)?`, när det missade ${pct(S.rm*100,1)}`:""}.${S.streak>=3?` Har slagit ${S.streak} rapporter i rad.`:""}${nn(S.rb)&&S.rb<0?" Kursen har ofta fallit trots att bolaget slog, alltså höga förväntningar.":""}`:"";
   return `<h3 class="sub3" style="margin-top:0">Rapporterna: slog de förväntningarna?${ib("earnBeat")}</h3>
     <div class="dstats">
-      <div><span class="sub">Senaste rapport</span><b class="n" style="color:${BEATC(L.beat)}">${L.beat==null?"–":L.beat>0?"Slog":L.beat<0?"Missade":"I linje"}</b><span class="small muted">${esc(L.d)}${nn(L.sp)?` · ${pct(L.sp,1)}`:""}</span></div>
+      <div><span class="sub">Senaste rapport</span><b class="n" style="color:${BEATC(L.beat)}">${L.beat==null?"–":L.beat>0?"Slog":L.beat<0?"Missade":"I linje"}</b><span class="small muted">${esc(L.d)}${nn(L.sp)?` · vinst ${pct(L.sp,1)}`:""}${L.rev?` · oms. <span style="color:${BEATC(L.rev.beat)}">${pct(L.rev.sp,1)}</span>`:""}</span></div>
       <div><span class="sub">Kursen dagen efter</span><b class="n ${cls(L.r1)}">${nn(L.r1)?pct(L.r1*100,1):"–"}</b><span class="small muted">${nn(L.r5)?`1 vecka ${pct(L.r5*100,1)}`:""}</span></div>
       <div><span class="sub">Slog förväntan</span><b class="n">${S.n?`${S.nb} av ${S.n}`:"–"}</b><span class="small muted">${S8.n?`senaste 8: ${S8.nb} av ${S8.n}`:""}</span></div>
       <div><span class="sub">Nästa rapport</span><b class="n">${d.nextEarnings?esc(d.nextEarnings):"–"}</b><span class="small muted">${days!=null&&days>=0?`om ${days} dagar`:""}</span></div>
@@ -3220,8 +3223,8 @@ function earnCard(d,det){
     <svg class="dash" id="earnSvg" viewBox="0 0 ${W} ${H}">${g}</svg>
     <div class="lg" style="margin-top:4px"><span><i style="background:transparent;border:1.6px solid var(--muted);border-radius:50%"></i>Förväntad EPS</span><span><i style="background:var(--up);border-radius:50%"></i>Slog</span><span><i style="background:var(--down);border-radius:50%"></i>Missade</span><span><i style="background:var(--up);border-radius:2px"></i>Kursreaktion</span></div>
     <p class="small" style="margin-top:8px;line-height:1.55">${story}</p>
-    <details class="xs" style="margin-top:8px"><summary>Alla rapporter i tabell</summary><div class="tw"><table class="crit"><thead><tr><th>Rapport</th><th class="r">Väntat</th><th class="r">Utfall</th><th class="r">Överraskning</th><th>Resultat</th><th class="r">1 dag</th><th class="r">1 vecka</th><th class="r">1 mån</th></tr></thead><tbody>${tbl}</tbody></table></div></details>
-    <p class="small muted" style="margin-top:6px">Vinst per aktie (justerad, som analytikerna räknar) mot analytikernas snitt före rapporten. Kursreaktion = stängning dagen före rapporten mot dagen efter. Äldre än ca 3 år mäts på veckokurser.</p>`;
+    <details class="xs" style="margin-top:8px"><summary>Alla rapporter i tabell</summary><div class="tw"><table class="crit"><thead><tr><th>Rapport</th><th class="r">Väntat</th><th class="r">Utfall</th><th class="r">Överraskning</th><th>Resultat</th><th class="r">Omsättning</th><th class="r">1 dag</th><th class="r">1 vecka</th><th class="r">1 mån</th></tr></thead><tbody>${tbl}</tbody></table></div></details>
+    <p class="small muted" style="margin-top:6px">Vinst per aktie (justerad, som analytikerna räknar) mot analytikernas snitt före rapporten. Omsättning mot förväntan sparas från och med oktober 2026 (Yahoo ger bara förväntan för kommande kvartal), så den kolumnen fylls på rapport för rapport. Kursreaktion = stängning dagen före rapporten mot dagen efter. Äldre än ca 3 år mäts på veckokurser.</p>`;
 }
 function bindEarn(d){
   const box=$("earnBox");if(!box||!d._det)return;

@@ -62,6 +62,14 @@ Fliken **Branscher** visar vilka branscher som är hetast, vilka som kan vara n�
 
 Varje aktie har kortet **Din strategi** med vilka strategier den klarar och en handelsplan (köpnivå, sälj enligt förbättrad regel och original, stop), och **Vem dominerar branschen?** med rank efter omsättning och varför ledaren är störst. Översikten har **Din strategi just nu**: innehav att agera på, köplägen och aktier som snart når köpzonen.
 
+## Larm till mobilen och mejl
+
+Nattkörningen och kursuppdateringarna (var 30:e minut under börsdagen) skickar larm när ett bolag går in i 💎 Diamant, Guld, Swing eller Rea, när ett innehav närmar sig eller når stop (−15/−20 %), når Fair Value eller Expensive, har rapport inom 7 dagar, eller när institutionerna börjar sälja. Larmen går till appen ntfy (ämnet står i `config/larm.txt`) och som GitHub-issue (mejl). Innehav för stop- och säljlarm läggs i `config/innehav.txt` (knapp på sidan under Innehav).
+
+## Backtest utan facit
+
+`scripts/backtest.py` testar också urvalen "utan facit": varje vecka används bara det som var känt då (rapporterad vinst per kvartal, vinsttillväxt, P/E och PEG bakåt, börsvärde justerat för marknadens nivå, beta). Courtage 0,1 % per affär och margin call vid 30 % eget kapital med 2x ingår. Resultatet 2015–2026: utan facit slog ingen variant S&P 500 riskjusterat.
+
 ## Nedtryckta kvalitetsbolag
 
 Fliken **Nedtryckta** (`#/fallna`) visar bolag som fallit kraftigt från sin högsta kurs (all-time high sedan 2010, `ath` i datan) men som tjänar pengar och växer. Filter: fall från toppen, läge i 52-veckorsspannet, lönsamhet, tillväxt, värdering, dina strategier (även 💎 Diamant), börsvärde och sektor. Kolumnerna sorteras med ett klick och varje rad leder till aktien.
