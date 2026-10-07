@@ -77,7 +77,7 @@ jobs:
         if: hashFiles('alerts.md') != ''
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh issue create --title "Larm $(date -u +%Y-%m-%d %H:%M) UTC" --body-file alerts.md
+        run: gh issue create --title "Larm $(date -u '+%Y-%m-%d %H:%M') UTC" --body-file alerts.md
 
       - name: Publicera
         uses: peaceiris/actions-gh-pages@v4
