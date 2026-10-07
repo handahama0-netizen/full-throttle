@@ -21,6 +21,8 @@ MA = 200
 FIN_COST = 0.05      # årlig ränta på lånade pengar vid hävstång
 LEV = 2.0
 MIN_TRADES = 5
+COST = 0.001         # courtage + spread per affär och håll (0,1 %)
+MC_RATIO = 0.30      # margin call när eget kapital < 30 % av värdet (2x hävstång: när aktien fallit ca 29 %)
 START = (date(2015, 1, 1) - date(1970, 1, 1)).days  # backtestet börjar 2015 (när 200W finns)
 
 GOLD_MCAP = 200.0    # mdr USD = megabolag
@@ -92,6 +94,71 @@ def mega(d):
     return not d.get("excluded") and (d.get("mcapB") or 0) >= GOLD_MCAP
 
 
+# ---------------- urval vid varje tidpunkt (point-in-time) ----------------
+# Bara det som fanns att veta den veckan: rapporterad vinst per kvartal (från rapportdagen), kursen,
+# börsvärdet (dagens antal aktier × kursen då) och beta mot S&P 500. Storleksgränserna skalas med
+# S&P 500:s nivå, så att 200 md $ i dag motsvarar ett lika exklusivt urval 2015.
+
+def _day(iso):
+    return (date.fromisoformat(iso[:10]) - date(1970, 1, 1)).days
+
+
+def pit_info(row, det, spy_map):
+    """Per vecka: börsvärde (md $, nivåjusterat), vinst 12 mån, vinsttillväxt, P/E, PEG bakåt och beta 2 år."""
+    pts = series(det)
+    if len(pts) < MA + 10 or not row.get("mcapB") or not pts[-1][1]:
+        return None
+    shares_b = row["mcapB"] / pts[-1][1]
+    spy_now = spy_map.get(max(spy_map)) if spy_map else None
+    q = sorted(((_day(x["d"]), x["a"]) for x in (det.get("epsq") or []) if x.get("a") is not None), key=lambda x: x[0])
+    out, j = [], 0
+    xs = ys = xy = xx = 0.0
+    win, rets = 104, []
+    prev_spy = None
+    for i, (d, c) in enumerate(pts):
+        # beta med rullande summor över 104 veckor
+        sp = spy_map.get(d)
+        if i and sp and prev_spy and pts[i - 1][1]:
+            x, y = sp / prev_spy - 1, c / pts[i - 1][1] - 1
+            rets.append((x, y))
+            xs += x; ys += y; xy += x * y; xx += x * x
+            if len(rets) > win:
+                ox, oy = rets[-win - 1]
+                xs -= ox; ys -= oy; xy -= ox * oy; xx -= ox * ox
+        prev_spy = sp or prev_spy
+        nwin = min(len(rets), win)
+        beta = None
+        if nwin >= 52:
+            var = xx / nwin - (xs / nwin) ** 2
+            beta = ((xy / nwin - xs / nwin * ys / nwin) / var) if var > 0 else None
+        while j < len(q) and q[j][0] <= d:
+            j += 1
+        known = q[:j]
+        ttm = prev = None
+        if len(known) >= 4 and known[-1][0] - known[-4][0] < 400:
+            ttm = sum(a for _, a in known[-4:])
+            if len(known) >= 8 and known[-5][0] - known[-8][0] < 400:
+                prev = sum(a for _, a in known[-8:-4])
+        g = (ttm / prev - 1) if ttm is not None and prev and prev > 0 else None
+        pe = c / ttm if ttm and ttm > 0 else None
+        peg = pe / (g * 100) if pe and g and g > 0 else None
+        scale = (spy_now / sp) if sp and spy_now else 1.0
+        out.append({"mc": shares_b * c * scale, "ttm": ttm, "g": g, "pe": pe, "peg": peg, "beta": beta})
+    return out
+
+
+PIT_GROUPS = {
+    "gold_pit": ("Guld utan facit: mega (≥ 200 md $ nivåjusterat), beta ≤ 1,3, vinst och vinsttillväxt ≥ 3 % just då",
+                 lambda x: x["mc"] >= GOLD_MCAP and x["beta"] is not None and x["beta"] <= GOLD_BETA
+                 and x["ttm"] is not None and x["ttm"] > 0 and x["g"] is not None and x["g"] >= 0.03),
+    "lrhr_pit": ("LRHR utan facit: ≥ 10 md $, vinst, vinsttillväxt ≥ 5 % och PEG bakåt < 1 just då",
+                 lambda x: x["mc"] >= 10 and x["ttm"] is not None and x["ttm"] > 0 and x["g"] is not None
+                 and x["g"] >= 0.05 and x["peg"] is not None and x["peg"] < 1),
+    "mega_pit": ("Megabolag utan facit: ≥ 200 md $ nivåjusterat just då",
+                 lambda x: x["mc"] >= GOLD_MCAP),
+}
+
+
 # ---------------- regler ----------------
 # varje regel: entry(dist, prev_dist, close, prev_close) och exit(dist, ret, weeks)
 
@@ -124,8 +191,11 @@ def series(det):
     return [(a, b) for a, b in zip(t, c) if b]
 
 
-def simulate(pts, rule):
-    """Affärer på en aktie. pts = [(daycode, close)] per vecka."""
+def simulate(pts, rule, mask=None):
+    """Affärer på en aktie. pts = [(daycode, close)] per vecka. mask[i] = aktien klarade urvalet vecka i (point-in-time).
+
+    Hävstången räknas som en swing med eget lån: 2x vid köp, lånet växer med räntan och ombalanseras inte.
+    Faller det egna kapitalet under MC_RATIO av värdet tvångssäljs positionen (margin call)."""
     if len(pts) < MA + 10:
         return []
     closes = [c for _, c in pts]
@@ -138,13 +208,18 @@ def simulate(pts, rule):
         ma = (pre[i + 1] - pre[i + 1 - MA]) / MA
         st = {"dist": (closes[i] / ma - 1) * 100, "c": closes[i], "pc": closes[i - 1], "ppc": closes[i - 2]}
         if pos is None:
-            if pts[i][0] >= START and entry(st):
-                pos = {"i": i, "p": closes[i], "low": closes[i], "lev": 1.0, "levlow": 1.0}
+            if pts[i][0] >= START and (mask is None or mask[i]) and entry(st):
+                pos = {"i": i, "p": closes[i], "low": closes[i], "loan": LEV - 1, "leq": 1.0, "levlow": 1.0, "mc": None}
         else:
-            r = closes[i] / closes[i - 1] - 1
             pos["low"] = min(pos["low"], closes[i])
-            pos["lev"] *= max(0.0, 1 + LEV * r - (LEV - 1) * FIN_COST / 52)
-            pos["levlow"] = min(pos["levlow"], pos["lev"])
+            if pos["mc"] is None:
+                pos["loan"] *= 1 + FIN_COST / 52
+                assets = LEV * closes[i] / pos["p"]
+                pos["leq"] = assets - pos["loan"]
+                pos["levlow"] = min(pos["levlow"], pos["leq"])
+                if pos["leq"] < MC_RATIO * assets:
+                    pos["mc"] = i
+                    pos["leq"] -= assets * COST
             tr = {"ret": closes[i] / pos["p"] - 1}
             if ex(st, tr):
                 trades.append(_close(pos, i, closes[i], pts, True))
@@ -156,41 +231,61 @@ def simulate(pts, rule):
 
 def _close(pos, i, price, pts, done):
     weeks = i - pos["i"]
-    return {"in": pts[pos["i"]][0], "out": pts[i][0], "w": weeks, "r": price / pos["p"] - 1,
-            "dd": pos["low"] / pos["p"] - 1, "lr": pos["lev"] - 1, "ldd": pos["levlow"] - 1, "done": done}
+    r = price * (1 - COST) / (pos["p"] * (1 + COST)) - 1
+    leq = pos["leq"] - (0 if pos["mc"] is not None else LEV * price / pos["p"] * COST) - LEV * COST
+    return {"in": pts[pos["i"]][0], "out": pts[i][0], "w": weeks, "r": r, "i0": pos["i"], "i1": i,
+            "dd": pos["low"] / pos["p"] - 1, "lr": max(-1.0, leq - 1), "ldd": max(-1.0, pos["levlow"] - 1), "done": done,
+            "mc": pos["mc"]}
 
 
-def portfolio(members, rule, data, spy):
+def portfolio(members, rule, data, spy, masks=None):
     """Portfölj: lika vikt i alla aktier som just nu har en öppen affär, annars kontanter (0 %).
 
-    Ger avkastning per år, max drawdown och Sharpe för hela strategin över tid, inte bara per affär."""
+    Ger avkastning per år, max drawdown och Sharpe för hela strategin över tid, inte bara per affär.
+    2x-raden: varje position har eget lån (2x vid köp) och tvångssäljs vid margin call."""
     days = [d for d, _ in spy]
     if len(days) <= MA:
         return None
     idx = {d: i for i, d in enumerate(days)}
     n = len(days)
     rets = [[] for _ in range(n)]
+    rets2 = [[] for _ in range(n)]
+    nmc = ntr = 0
     for r in members:
         pts = series(load(data / "t" / fname(r["ticker"])))
         if len(pts) < MA + 10:
             continue
-        for t in simulate(pts, rule):
-            # veckoavkastning för varje vecka affären var öppen
-            seg = [(d, c) for d, c in pts if t["in"] <= d <= t["out"]]
-            for (d0, c0), (d1, c1) in zip(seg, seg[1:]):
-                i = idx.get(d1)
+        for t in simulate(pts, rule, (masks or {}).get(r["ticker"])):
+            ntr += 1
+            nmc += t["mc"] is not None
+            p0, loan, eq_prev = pts[t["i0"]][1], LEV - 1.0, 1.0
+            for k in range(t["i0"] + 1, t["i1"] + 1):
+                i = idx.get(pts[k][0])
                 if i is None:
-                    i = min(range(n), key=lambda k: abs(days[k] - d1)) if abs(d1 - days[-1]) < 400 else None
-                if i is not None and c0:
-                    rets[i].append(c1 / c0 - 1)
+                    continue
+                c0, c1 = pts[k - 1][1], pts[k][1]
+                rr = c1 / c0 - 1
+                if k == t["i0"] + 1:
+                    rr -= COST
+                if k == t["i1"] and t["done"]:
+                    rr -= COST
+                rets[i].append(rr)
+                if t["mc"] is None or k <= t["mc"]:
+                    loan *= 1 + FIN_COST / 52
+                    eq = LEV * c1 / p0 - loan
+                    if k == t["i0"] + 1:
+                        eq -= LEV * COST
+                    rets2[i].append(max(-1.0, eq / eq_prev - 1) if eq_prev > 0 else 0.0)
+                    eq_prev = eq
     start = max(MA + 1, next((i for i, d in enumerate(days) if d >= START), MA + 1))
     eq, eq2, peak, peak2, dd, dd2, wk, inv = 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, [], 0
     for i in range(start, n):
         r = sum(rets[i]) / len(rets[i]) if rets[i] else 0.0
+        r2 = sum(rets2[i]) / len(rets2[i]) if rets2[i] else 0.0
         inv += 1 if rets[i] else 0
         wk.append(r)
         eq *= 1 + r
-        eq2 *= max(0.0, 1 + LEV * r - ((LEV - 1) * FIN_COST / 52 if rets[i] else 0))
+        eq2 *= max(0.0, 1 + r2)
         peak, peak2 = max(peak, eq), max(peak2, eq2)
         dd, dd2 = min(dd, eq / peak - 1), min(dd2, eq2 / peak2 - 1)
     yrs = (n - start) / 52
@@ -207,6 +302,7 @@ def portfolio(members, rule, data, spy):
     return {"cagr": round((eq ** (1 / yrs) - 1) * 100, 1), "maxdd": round(dd * 100, 1),
             "sharpe": round((m * 52 - 0.03) / (sd * 52 ** 0.5), 2) if sd else None,
             "cagr2": round((eq2 ** (1 / yrs) - 1) * 100, 1) if eq2 > 0 else -100.0, "maxdd2": round(dd2 * 100, 1),
+            "trades": ntr, "mc": nmc,
             "invested": round(inv / (n - start) * 100, 0), "years": round(yrs, 1),
             "spy": {"cagr": round((se ** (1 / yrs) - 1) * 100, 1), "maxdd": round(sdd * 100, 1),
                     "sharpe": round((sm * 52 - 0.03) / (ssd * 52 ** 0.5), 2)}}
@@ -231,7 +327,9 @@ def stats(trades, bench_cagr):
         "dd30": round(sum(1 for t in trades if t["dd"] <= -0.3) / n * 100, 1),
         "lev": {"avg": round(sum(t["lr"] for t in trades) / n * 100, 1), "ann": round(med(lann) * 100, 1),
                 "ddWorst": round(min(t["ldd"] for t in trades) * 100, 1),
-                "wiped": sum(1 for t in trades if t["ldd"] <= -0.5)},
+                "wiped": sum(1 for t in trades if t["ldd"] <= -0.5),
+                "mc": sum(1 for t in trades if t.get("mc") is not None),
+                "mcPct": round(sum(1 for t in trades if t.get("mc") is not None) / n * 100, 1)},
         "beatSpy": round(sum(1 for a in ann if bench_cagr is not None and a > bench_cagr) / n * 100, 1),
     }
 
@@ -252,6 +350,21 @@ def run(data: Path):
         s0 = max(MA, next((i for i, (d, _) in enumerate(spy) if d >= START), MA))
         a, b = spy[s0][1], spy[-1][1]
         bench = (b / a) ** (52 / (len(spy) - 1 - s0)) - 1
+    spy_map = {d: c for d, c in spy}
+    masks = {k: {} for k in PIT_GROUPS}
+    for r in rows:
+        if r.get("excluded"):
+            continue
+        det = load(data / "t" / fname(r["ticker"]))
+        info = pit_info(r, det, spy_map) if det else None
+        if not info:
+            continue
+        for gk, (_, fn) in PIT_GROUPS.items():
+            m = [bool(fn(x)) for x in info]
+            if any(m):
+                masks[gk][r["ticker"]] = m
+    for gk, (nm, _) in PIT_GROUPS.items():
+        groups[gk] = (nm, [r for r in rows if r["ticker"] in masks[gk]])
     cache = {}
     out = {"asOf": u.get("asOf"), "spyCagr": round(bench * 100, 1) if bench is not None else None,
            "from": (date(1970, 1, 1) + timedelta(days=spy[s0][0])).isoformat() if len(spy) > MA else None,
@@ -262,21 +375,23 @@ def run(data: Path):
         for rk in RULES:
             allt = []
             for r in members:
-                key = (r["ticker"], rk)
+                key = (r["ticker"], rk, gk if gk in PIT_GROUPS else "")
                 if key not in cache:
-                    cache[key] = simulate(series(load(data / "t" / fname(r["ticker"]))), rk)
+                    cache[key] = simulate(series(load(data / "t" / fname(r["ticker"]))), rk, masks[gk].get(r["ticker"]) if gk in PIT_GROUPS else None)
                 for t in cache[key]:
                     allt.append({**t, "t": r["ticker"]})
             out["res"][f"{gk}|{rk}"] = stats(allt, bench)
-            if rk == "orig" and gk in ("gold", "lrhr"):
+            if rk == "orig" and gk in ("gold", "lrhr", "gold_pit", "lrhr_pit"):
                 allt.sort(key=lambda t: t["in"], reverse=True)
                 out["trades"][gk] = [{"t": t["t"], "in": t["in"], "out": t["out"], "r": round(t["r"] * 100, 1),
                                       "dd": round(t["dd"] * 100, 1), "lr": round(t["lr"] * 100, 1), "done": t["done"]}
                                      for t in allt[:40]]
     out["port"] = {}
-    for gk in ("lrhr", "gold", "mega"):
+    for gk in ("lrhr", "gold", "mega", "lrhr_pit", "gold_pit", "mega_pit"):
         for rk in ("orig", "fire", "firefair", "fairstop"):
-            out["port"][f"{gk}|{rk}"] = portfolio(groups[gk][1], rk, data, spy)
+            out["port"][f"{gk}|{rk}"] = portfolio(groups[gk][1], rk, data, spy, masks.get(gk))
+    out["method"] = {"cost": COST, "mcRatio": MC_RATIO, "lev": LEV, "finCost": FIN_COST,
+                     "pit": "Urval med det som var känt varje vecka: rapporterad vinst per kvartal, kurs, börsvärde och beta."}
     # bästa regeln per urval (median årstakt, kräver minst 10 affärer)
     out["best"] = {}
     for gk in groups:
