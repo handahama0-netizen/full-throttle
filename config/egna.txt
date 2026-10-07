@@ -113,3 +113,12 @@ VST
 TSLA
 IBKR
 NU
+# AI-kedjan (flaskhalsar)
+ARM
+TLN
+CCJ
+SCCO
+NVT
+SMR
+IREN
+APLD

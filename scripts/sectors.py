@@ -92,9 +92,19 @@ def run(data: Path):
             pts.append([round(s, 2), round(s - s0, 2)])
         return pts[-TAIL:]
 
-    out = {"asOf": u.get("asOf"), "weeks": days, "spy": sidx, "look": LOOK, "mom": MOM, "sectors": {}, "industries": {}}
+    # AI-kedjan: teman från site/ai.json (egen grupp per flaskhals)
+    ai = load(Path(__file__).resolve().parent.parent / "site" / "ai.json", {}) or {}
+    have = {r["ticker"] for r in u.get("rows", [])}
+    for th in ai.get("themes", []):
+        tks = [t for t in th.get("t", []) if t in have]
+        if len(tks) >= 2:
+            groups["ai:" + th["id"]] = tks
+            for t in tks:
+                if t not in series:
+                    series[t] = weekly(load(data / "t" / fname(t)))
+    out = {"asOf": u.get("asOf"), "weeks": days, "spy": sidx, "look": LOOK, "mom": MOM, "sectors": {}, "industries": {}, "ai": {}}
     for name, tks in groups.items():
-        if len(tks) < (3 if name.startswith("ind:") else 4):
+        if len(tks) < (2 if name.startswith("ai:") else 3 if name.startswith("ind:") else 4):
             continue
         idx = index(tks)
         tail = rrg(idx)
@@ -108,7 +118,10 @@ def run(data: Path):
                 break
             k += 1
         rec = {"n": len(tks), "idx": idx, "rrg": tail, "phase": ph, "weeks": k, "prev": phase(*tail[-5]) if len(tail) >= 5 else None}
-        (out["industries"] if name.startswith("ind:") else out["sectors"])[name[4:] if name.startswith("ind:") else name] = rec
+        if name.startswith("ai:"):
+            out["ai"][name[3:]] = rec
+        else:
+            (out["industries"] if name.startswith("ind:") else out["sectors"])[name[4:] if name.startswith("ind:") else name] = rec
     return out
 
 
@@ -122,6 +135,8 @@ def main():
         for k, v in sorted(res["sectors"].items(), key=lambda x: -x[1]["rrg"][-1][0]):
             print(f"{k:14s} n={v['n']:3d} styrka={v['rrg'][-1][0]:6.1f} fart={v['rrg'][-1][1]:6.1f} {v['phase']:8s} {v['weeks']}v (förut {v['prev']})")
         print(len(res["industries"]), "branscher")
+        for k, v in res["ai"].items():
+            print(f"AI {k:10s} n={v['n']:2d} styrka={v['rrg'][-1][0]:6.1f} fart={v['rrg'][-1][1]:6.1f} {v['phase']}")
 
 
 if __name__ == "__main__":
