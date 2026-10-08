@@ -170,7 +170,15 @@ ol.best li{align-items:center}
 @media (max-width:640px){.tlrow{grid-template-columns:1fr;gap:3px}.tlax .tll{display:none}.tlnowl{display:none}.tlt .tlnowm{display:block}}
 .tlnowm{display:none;position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--accent);z-index:2}
 .ownb{display:grid;gap:10px}.ownl{display:grid;gap:8px}.ownl>div{font-size:13.5px;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}.ownl .dot{width:10px;height:10px;border-radius:3px;display:inline-block}.ownl .subv{flex-basis:100%;padding-left:18px}
-.ownbar{display:flex;height:34px;border-radius:6px;overflow:hidden;background:var(--sunk)}.ownbar span{display:block;height:100%}
+.ownbar{display:flex;height:34px;border-radius:4px;overflow:hidden;background:var(--sunk)}.ownbar span{display:block;height:100%}
+.owc{position:relative;margin-top:4px}
+.owlab{position:absolute;font-size:13.5px;line-height:1.3;white-space:nowrap}.owlab>div:first-child{display:flex;gap:6px;align-items:baseline;flex-wrap:nowrap}.owlab[style*="text-align:right"]>div:first-child{justify-content:flex-end}
+.ows{font-size:11.5px;color:var(--muted)}.owsh{font-size:12px;color:var(--muted)}
+.topstack{height:12px;border-radius:999px;background:var(--sunk);overflow:hidden}.topstack span{display:block;height:100%;background:linear-gradient(90deg,#8f4fe0,#b98af0)}
+.tbars{display:grid;gap:6px}.tb{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr) 62px 62px;gap:8px;align-items:center;font-size:13px}.tbn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbt{height:14px;background:var(--sunk);border-radius:4px;overflow:hidden}.tbt i{display:block;height:100%;background:#8f4fe0;border-radius:4px}
+.tb b,.tb>span:last-child{text-align:right}
+@media (max-width:640px){.tb{grid-template-columns:minmax(0,1fr) 58px 66px}.tb>span:last-child{white-space:nowrap}.tbt{grid-column:1/-1;grid-row:2}.owlab{font-size:12.5px}}
 .ownsec .sub3{margin-top:18px}.owt td:first-child{max-width:260px;white-space:normal}.owt td.n,.owt th.r{white-space:nowrap}
 @media (max-width:640px){.owt th:nth-child(3),.owt td:nth-child(3),.owt th:nth-child(6),.owt td:nth-child(6){display:none}.owt td,.owt th{padding-left:6px;padding-right:6px}}
 ul.flowl{list-style:none;margin:0;padding:0;display:grid;gap:4px}ul.flowl li{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:5px 0;border-bottom:1px solid var(--line)}
@@ -3649,15 +3657,24 @@ const bigN=x=>{if(!nn(x))return"–";const a=Math.abs(x),sg=x<0?"−":"";return 
 const OWNC={ins:"#c2558a",pub:"#d9ab62",inst:"#8f4fe0"};
 function ownBreak(d,compact){
   const inst=nn(d.instPct)?Math.min(100,d.instPct):null,ins=nn(d.insPct)?d.insPct:null;if(!nn(inst)&&!nn(ins))return "";
-  const pub=Math.max(0,100-(inst||0)-(ins||0)),so=sharesOut(d),sh=p=>nn(so)&&nn(p)?`<span class="subv">${bigN(so*p/100)} aktier</span>`:"";
-  const sa=k=>{const a=snittOf(d,k);return nn(a)?` <span class="muted small">snitt ${f(a,k==="insPct"?1:0)} %</span>`:""};
-  const seg=[["ins","Insiders",ins,"insPct"],["pub","Allmänheten (privatpersoner m.fl.)",pub,null],["inst","Institutioner",inst,"instPct"]];
+  const pub=Math.max(0,100-(inst||0)-(ins||0)),so=sharesOut(d);
+  const sa=k=>{const a=snittOf(d,k);return nn(a)?`<span class="ows">snitt ${f(a,k==="insPct"?1:0)} %</span>`:""};
+  // ordning som hos Simply Wall St: minsta överst, varje etikett har en linje ner till sin del av stapeln
+  let x=0;const seg=[["ins","Insiders",ins,"insPct"],["pub","Allmänheten",pub,null],["inst","Institutioner",inst,"instPct"]].filter(z=>nn(z[2])&&z[2]>0).map(z=>{const o={k:z[0],l:z[1],v:z[2],sk:z[3],s:x};x+=z[2];return o});
+  const RH=compact?44:52,BH=compact?30:40,H=seg.length*RH+BH+8;
+  const lab=(o,i)=>{const right=o.s>30,pos=right?`right:${(100-o.s-o.v).toFixed(2)}%;text-align:right;border-right:2px solid ${OWNC[o.k]};padding-right:10px`:`left:${o.s.toFixed(2)}%;border-left:2px solid ${OWNC[o.k]};padding-left:10px`;
+    return `<div class="owlab" style="top:${i*RH}px;bottom:${BH+8}px;${pos}"><div><b>${o.l}</b> <b class="n" style="color:${OWNC[o.k]}">${f(o.v,o.v<10?2:1)} %</b>${o.sk?sa(o.sk):""}</div>${nn(so)?`<div class="owsh">${bigN(so*o.v/100)} aktier</div>`:""}</div>`};
   return `<div class="ownb">
-    <div class="ownl">${seg.map(([k,l,v,sk])=>`<div><span class="dot" style="background:${OWNC[k]}"></span><b>${l}</b> <b class="n" style="color:${OWNC[k]}">${nn(v)?f(v,v<10?2:1)+" %":"–"}</b>${sk?sa(sk):""}${sh(v)}</div>`).join("")}</div>
-    <div class="ownbar" role="img" aria-label="Ägarfördelning">${seg.map(([k,l,v])=>nn(v)&&v>0?`<span style="width:${v}%;background:${OWNC[k]}" title="${l}: ${f(v,1)} %"></span>`:"").join("")}</div>
+    <div class="owc" style="height:${H}px">${seg.map(lab).join("")}
+      <div class="ownbar" style="position:absolute;left:0;right:0;bottom:0;height:${BH}px" role="img" aria-label="Ägarfördelning: ${seg.map(o=>`${o.l} ${f(o.v,1)} %`).join(", ")}">${seg.map(o=>`<span style="width:${o.v}%;background:${OWNC[o.k]}" title="${o.l}: ${f(o.v,1)} %"></span>`).join("")}</div></div>
     ${d.instPct>100?`<p class="small muted" style="margin-top:4px">Institutionerna rapporterar ${f(d.instPct,0)} %: över 100 % beror på utlånade och blankade aktier som räknas hos flera. Stapeln visar 100 %.</p>`:""}
     ${compact?"":`<p class="small muted" style="margin-top:6px">Staten och privata bolag redovisas inte separat i vår källa och ingår i Allmänheten.</p>`}
   </div>`}
+// de största ägarna som liggande staplar, plus hur stor del topplistan äger tillsammans
+function topBars(L,so){if(!L.length)return"";const mx=Math.max(...L.map(h=>h.p||0))||1,tot=L.reduce((a,h)=>a+(h.p||0),0);
+  return `<div class="topstack" title="De ${L.length} största: ${f(tot,1)} %"><span style="width:${Math.min(100,tot)}%"></span></div>
+    <p class="small" style="margin:6px 0 10px">De ${L.length} största äger tillsammans <b>${f(tot,1)} %</b> av bolaget.</p>
+    <div class="tbars">${L.map(h=>`<div class="tb"><span class="tbn">${esc(h.n.trim())}</span><span class="tbt"><i style="width:${((h.p||0)/mx*100).toFixed(1)}%"></i></span><b class="n">${nn(h.p)?f(h.p,2)+" %":"–"}</b><span class="n small ${cls(h.c)}">${nn(h.c)?pct(h.c,1):""}</span></div>`).join("")}</div>`}
 function ownTab(d,det){
   const so=sharesOut(d),H=(det.holders||[]).filter(h=>h.n),F=(det.funds||[]).filter(h=>h.n),I=det.inst;
   const top=H.reduce((a,h)=>a+(h.p||0),0);
@@ -3669,7 +3686,7 @@ function ownTab(d,det){
   return `<div class="ownsec">
     <h3 class="sub3" style="margin-top:0">Ägarfördelning${ib("ownBreak")}</h3>
     ${ownBreak(d)||'<p class="muted small">Ägarfördelning saknas för den här aktien.</p>'}
-    ${H.length?`<h3 class="sub3">Största institutionella ägare</h3><p class="small" style="margin-bottom:6px">De ${H.length} största institutionerna äger <b>${f(top,1)} %</b> av bolaget.</p>${tbl(H,"owH")}`:""}
+    ${H.length?`<h3 class="sub3">Största institutionella ägare</h3>${topBars(H,so)}<details class="xs"><summary>Tabell med aktier, värde och datum</summary>${tbl(H,"owH")}</details>`:""}
     ${F.length?`<h3 class="sub3">Största fonderna</h3>${tbl(F,"owF")}`:""}
     ${I&&I.n?`<h3 class="sub3">Senaste kvartalet: köper eller säljer institutionerna?${ib("instData")}</h3>
       <p class="small" style="margin-bottom:8px">${qLabel(I.q)} (13F): ${f(I.n,0)} institutioner äger ${nn(I.pct)?f(I.pct,1)+" %":"–"}. <b class="${I.netp>0?"up":I.netp<0?"down":""}">Nettoflöde ${I.netp>0?"+":""}${f(I.netp,1)} %</b>${nn(I.breadth)?`, ${f(I.breadth,2)} köpare per säljare`:""}. ${IV[I.verdict]?`<span class="vd ${IV[I.verdict][1]}">${IV[I.verdict][2]} ${I.verdict==="bull"?"Köper":I.verdict==="bear"?"Säljer":"Neutrala"}</span>`:""}</p>
