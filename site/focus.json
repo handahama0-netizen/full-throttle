@@ -1,95 +1,125 @@
 {
- "date": "2026-10-07",
- "time": "08:26",
- "market": "S&P 500 och Nasdaq satte nya rekord i tisdags, med Nvidia och AMD i spetsen, efter att S&P 500 för första gången stängt över 7 800 dagen innan. De långa amerikanska räntorna ligger kvar kring 5,3 % och viss risk för en Fed-höjning prisas fortfarande in, men räntor och olja stabiliserades under dagen. Fed-protokollet i kväll är dagens viktigaste makrohändelse; under ytan är skillnaden stor mellan AI-hårdvara (rekordnivåer) och applikationsmjukvara/IT-tjänster (Fire Sale-zoner).",
+ "date": "2026-10-08",
+ "time": "08:30",
+ "market": "Wall Street backade från rekordnivåerna i onsdags: S&P 500 −0,22 % till 7 802, Nasdaq −0,22 %, Dow −0,66 % och Russell 2000 −1,31 %, med över två tredjedelar av aktierna på minus. Den amerikanska 10-årsräntan ligger kring 5,29 % och 30-årsräntan kring 5,67 %, nära de högsta nivåerna på över två decennier. Fed-protokollet bekräftade att en ny räntehöjning väntas före årsskiftet (marknaden prisar ca 20 % chans redan 28 oktober). Under ytan fortsätter klyftan mellan AI-hårdvara på rekordnivåer och applikationsmjukvara i Fire Sale-zoner.",
  "picks": [
   {
    "ticker": "ADBE",
    "label": "Köpläge",
-   "title": "Adobe: djup Fire Sale trots stigande vinstprognoser",
-   "why": "Kursen 238 USD ligger 42 % under 200-veckorssnittet (Fire Sale) och samtliga sju Lower Risk-krav är uppfyllda: ROE 62 %, PEG 0,58, FCF-marginal 36 % och forward P/E 8,6. Senaste månaden föll aktien 11 % trots att teknikindex steg – den bolagsspecifika delen är −18 % (z −1,5) – samtidigt som EPS-prognosen för nästa år höjts något (27,50 → 27,67 USD) med 21 upp- mot 10 nedrevideringar. Mönstret liknar en överreaktion på AI-oro och ledningsbyten (vd-sökning, CFO-avgång) snarare än försämrade siffror.",
+   "title": "Adobe: djup Fire Sale medan prognoserna står still eller stiger",
+   "why": "Kursen 232,77 USD ligger 43,6 % under 200-veckorssnittet (Fire Sale) och alla sju Lower Risk-krav uppfylls: ROE 62 %, PEG 0,58, FCF-marginal 36 % och forward P/E 8,4. Senaste månaden −9,5 % medan teknikindex steg; den bolagsspecifika delen är −15,7 % (z −1,3), samtidigt som EPS-prognosen för nästa år höjts från 27,50 till 27,67 USD med 21 upp- mot 10 nedrevideringar. Rörelsen ser mer ut som en fortsatt överreaktion på AI-oro och CFO-avgången än som försämrade siffror.",
    "levels": "Fire Sale under 413 USD (200W) · Very Cheap under 454 USD · Cheap under 495 USD",
-   "risk": "Ledningsvakuum med både vd och CFO på väg ut samtidigt som generativ AI kan pressa prissättningskraften i Creative Cloud.",
+   "risk": "Ledningsbyten och generativ AI kan pressa prissättningskraften i Creative Cloud längre än marknaden räknar med.",
    "sources": [
     {
-     "t": "Adobe’s CFO Departs While Company Also Searches for New CEO – Bloomberg Law",
-     "u": "https://news.bloomberglaw.com/financial-accounting/adobes-cfo-departs-leaving-company-seeking-top-executives"
+     "t": "Adobe shares slide as investors continue to digest softer growth concerns after Q3",
+     "u": "https://news.google.com/rss/articles/CBMitgFBVV95cUxNWlBQUDdLZ1lpdEk1ajNTbnZNQklsekFmVnRvYVpqdUZ3MjVuYzBSenFvX2l0UktIMDZrWmNsbHRISktDbTJueFpNWmJDOHFBZzR0WnZpNHpweGVTczVOUEp1TVZSR0dtaVZScFFVekxKajZOUi1oaDlpUENMSGdCVnl6cDREblNiWUVzV2U4Zm1nTGlPNHlHREdSX3hlVWp4WjNsemtUeTNfbzRGUWFOV29JeUFCQQ?oc=5"
     },
     {
-     "t": "Adobe CFO leadership gap amid CEO search – CFO Dive",
-     "u": "https://www.cfodive.com/news/adobe-cfo-leadership-gap-marvell-amid-ceo-search-ai/822849/"
+     "t": "Adobe Stock Drops After-Hours As CFO Exit Eclipses Strong Q2 Results, FY26 Guidance",
+     "u": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxOYlFFRHYydDYtcVNIeTF0Zzh0Q2M2U2xFWW92cGxpci1FZGZ2NVkta3ZOd2JHUmFjMG1uMDkzOWxCS0lWMmVNRVFnVWtWWE41Zk15RlhZZkJYOHB0VUJaWGswbkdsQ2I3XzE5ZFNIN0JidUkxZXVELXNxcVBwdUNoZDdDNDVvdzFhUkdrMi1NN0hpWGZuckctazNDb3ZaQ0xFWFh4aW9VNEJtU3NLajhMMW55b0cyNVZtSF96andHbjdoU0xEMWpsMmllX0NRQUh4bW9tTjdCZW02VWliakJyYg?oc=5"
     },
     {
-     "t": "Have software stocks reached an extreme washout yet? – Yahoo Finance",
-     "u": "https://finance.yahoo.com/news/have-software-stocks-reached-an-extreme-washout-yet-141914857.html"
+     "t": "Adobe (ADBE) Stock May Be Undervalued On Raised 2026 Guidance",
+     "u": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxPXy1uNENmc3pJMmZGMmtac1d0cTZLZkI5WkFucTc3dVRHWVNjdnViVllmNnM4c1hEckRHRUJwSVhFLUFGLU4zZWw2ZkdzMkFjZHE4NE9PMEg1UEJuQzR0UC05TGNKZ19QaE14aDVNMi1ydUVFNXY1ZmNuSkRSdEhmQW54WFloSWRMZXd2M1JEQjBqTy1KYzZtSGJLS2xmQ1ZQUlJXUHRnY0EzdUdEd0xfZXZWcTRnWnAtUUFCZUpRTVrSAcYBQVVfeXFMT1ZVdlNZbWFJbmNSRkNLNzB5T21GUmFXQkduX2UyXzJzWkVoVWhSMHBFazFFOGZtcEpRcDU0YUFNZ0x3Nm5fLWswelo2ZE9KNlh1WDEwRFlxUUd4YjRIeDhxZktoMXZ5cElXUkdQR1M5ZUxGLXZqREpnenJ3TzBHdURTb1hScmRaU2xDRlMybVhRYzhHTTZsYkQxdGVNUkE1ZFA1ODIxeW16WllaS1RpWDFTelp3Vm9EQXhhbS1RU1NSZDNvVTBR?oc=5"
     }
    ]
   },
   {
    "ticker": "CRM",
    "label": "Köpläge",
-   "title": "Salesforce: bolagsspecifikt fall, prognoserna fortsätter upp",
-   "why": "Aktien handlas 4,9 % under 200W (225 mot 236 USD, Fire Sale) och klarar alla Lower Risk-krav med ROE 19 %, PEG 0,78 och FCF-marginal 40 %. Senaste månaden −13 %, varav −20 % bolagsspecifikt (z −1,47), medan EPS-prognosen för nästa år höjts från 15,51 till 16,02 USD på 90 dagar och 38 analytiker reviderat upp på 30 dagar. Fallet följer sektorns AI-disruptionsoro snarare än sämre siffror.",
-   "levels": "Fire Sale under 236 USD (200W) · Very Cheap under 260 USD · Cheap under 284 USD",
-   "risk": "Om AI-agenter minskar antalet betalda licenser kan tillväxten bromsa in, och då hjälper inte låg värdering.",
+   "title": "Salesforce: bolagsspecifikt ras trots 38 prognoshöjningar",
+   "why": "Kursen 224,56 USD ligger 5,0 % under 200W-snittet 236,5 USD (Fire Sale) och samtliga Lower Risk-krav uppfylls: ROE 19,4 %, PEG 0,78, FCF-marginal 40 % och forward P/E 14. Aktien föll 9,7 % senaste månaden, varav −16,1 % bolagsspecifikt (z −1,2), medan EPS-prognosen för nästa år höjts (15,91 → 16,02 USD) med 38 upp- mot 9 nedrevideringar. Ett sällsynt insiderköp i veckan har ännu inte vänt sentimentet.",
+   "levels": "Fire Sale under 237 USD (200W) · Very Cheap under 260 USD · Cheap under 284 USD",
+   "risk": "Om AI-agenter minskar behovet av licenser per användare kan tillväxten bromsa trots att dagens prognoser höjs.",
    "sources": [
     {
-     "t": "AI disruption continues, not just software – Schwab Network",
-     "u": "https://schwabnetwork.com/articles/ai-disruption-continues-not-just-software"
+     "t": "Salesforce Stock Slips After-Hours: Rare Insider Buy Fails To Boost Confidence Amid AI Threat And Ongoing Selloff",
+     "u": "https://news.google.com/rss/articles/CBMihwJBVV95cUxPZk9XYjVLcWRNMUtqOUtHaWxnVC1iMnhHZEVqUXl6ajJ0cVlTd2IzdDlTdTJmVXctYWh4X3RaOXE0ZEM3LXdOeW5PbVdQdVN5R1ZqWklSU3F5ajRJVXJjVE9fc25CR1ZHWlNFNzJId3NndnVKMnFiUjJzbHQzVEZONVozZTI4NmpSaFlVNlZBS01OWGFLYjZEc1BSNHNSWDFpbWJqY3djczBVWXZMd1VtbHAyNFRjSWlFVTA5dVVTVEZWZnFKZ19aSlJ6MVIyek5vWU5jX0hYUnMzaFhiZ1hVaTZJN1U1LWFCZ2FqYVk0TUhvWk5ub2h4RC03OFhybUF6bFVUa0VESQ?oc=5"
     },
     {
-     "t": "Have software stocks reached an extreme washout yet? – Yahoo Finance",
-     "u": "https://finance.yahoo.com/news/have-software-stocks-reached-an-extreme-washout-yet-141914857.html"
-    }
-   ]
-  },
-  {
-   "ticker": "WDAY",
-   "label": "Köpläge",
-   "title": "Workday: 15 % under 200W med kraftigt höjda prognoser",
-   "why": "Kursen 186,55 USD ligger 14,6 % under 200W-snittet på 218 USD (Fire Sale) och alla sju Lower Risk-krav uppfylls (ROE 16 %, PEG 0,70, omsättnings-CAGR 15 %, FCF-marginal 30 %). EPS-prognosen för nästa år har höjts från 12,64 till 13,23 USD på 90 dagar och 38 av 39 revideringar senaste månaden är uppåt; den bolagsspecifika rörelsen senaste månaden är −12 % (z −0,8). Grundarens trust säljer löpande aktier, vilket tynger kursen utan att säga något om verksamheten.",
-   "levels": "Fire Sale under 218 USD (200W) · Very Cheap under 240 USD · Cheap under 262 USD",
-   "risk": "Fortsatta insiderförsäljningar och oro för AI-driven sätespress i HR-mjukvara kan hålla aktien nere längre än fundamenta motiverar.",
-   "sources": [
-    {
-     "t": "Have software stocks reached an extreme washout yet? – Yahoo Finance",
-     "u": "https://finance.yahoo.com/news/have-software-stocks-reached-an-extreme-washout-yet-141914857.html"
+     "t": "Salesforce Stock Falls 15% YTD: Should Investors Keep Holding CRM?",
+     "u": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxPVFNLVmhKbHlfalFPTTk2eXNId1lEbEN1c0poTlEwQnd3RDJpZG9qNC1oTUNHcWZOYkJ1RDNzNlduY184bVdyWTFpVmY2TlVfc1BYcndmbEx4cWJxY3pPWmhnRVg1MWJBQTdfdzFqdm5NSXliOW5mQnQ2Y09IbUd2YVp2T2I0U0dNZUJDUjRXMmYxVkc0Y3dZYTN6ajc1U2JuTms5alRaNjBvN1FoNGdjZ2lwMmM0ZWtQQWYybklPRWZac2dHajJOU0ZpWXNnbDcyLUJKZ1FWc19xdE5nTDhtdXNR?oc=5"
     },
     {
-     "t": "The SaaSpocalypse: AI Comes for Software Stocks – Ainslie",
-     "u": "https://ainsliebullion.com.au/News-Resources/Article/The-SaaSpocalypse-AI-Comes-for-Software-Stocks/ID/9101"
+     "t": "J.P. Morgan: 'Broken Logic' Is Driving This Software Stock Sell-Off",
+     "u": "https://finance.yahoo.com/news/j-p-morgan-research-says-110500776.html"
     }
    ]
   },
   {
    "ticker": "FSLR",
    "label": "Köpläge",
-   "title": "First Solar: −21 % bolagsspecifikt men prognoserna står still",
-   "why": "Kursen 179,80 USD är 8 % under 200W (Fire Sale) och samtliga Lower Risk-krav är uppfyllda med PEG 0,36, ROE 19 %, omsättnings-CAGR 26 % och forward P/E 7,8. Senaste månaden −12 % trots att teknikindex steg, vilket ger en bolagsspecifik rörelse på −21 % (z −1,34), medan EPS-prognosen för nästa år ligger oförändrad kring 23,2 USD utan nedrevideringar. TD Cowen har höjt rekommendationen och bolagets TOPCon-patentprocesser kan bli en framtida intäktskälla.",
+   "title": "First Solar: överreaktion enligt kursattributionen – rapport 29 okt",
+   "why": "Kursen 180,13 USD ligger 7,8 % under 200W-snittet 195,4 USD (Fire Sale) med ROE 18,5 %, PEG 0,36, omsättningstillväxt 24 % och forward P/E 7,8. Senaste månaden −15,5 % trots stigande sektor; bolagsspecifikt −24,3 % (z −1,5), medan EPS-prognosen är oförändrad till svagt höjd (23,07 → 23,16 USD, 4 upp/0 ned). Fallet följde KeyBancs kommentar om höga amerikanska lager och långsammare projektstarter, men TD Cowen höjde betyget 6 oktober.",
    "levels": "Fire Sale under 195 USD (200W) · Very Cheap under 215 USD · Cheap under 234 USD",
-   "risk": "Rapporten 29 oktober och politiska beslut om solsubventioner och tullar kan ge stora kursrörelser åt båda hållen.",
+   "risk": "Kvartalsrapporten 29 oktober kan bekräfta prispress från lageruppbyggnad, och solaktier är politiskt känsliga (tariffer, subventioner).",
    "sources": [
     {
-     "t": "First Solar to withdraw Section 337 complaint on TOPCon IP, continues US District Court lawsuits – PV Tech",
-     "u": "https://www.pv-tech.org/first-solar-to-withdraw-section-337-complaint-on-topcon-ip-continues-us-district-court-lawsuits/"
+     "t": "First Solar drops 3% as KeyBanc cites inventory buildup",
+     "u": "https://www.money365.market/news/latest/first-solar-drops-3-as-keybanc-cites-inventory-buildup-and-8759a8c6"
     },
     {
-     "t": "First Solar sues JinkoSolar for alleged TOPCon patent infringement – pv magazine USA",
-     "u": "https://pv-magazine-usa.com/?p=14489"
+     "t": "First Solar (NASDAQ:FSLR) Stock Rating Upgraded by TD Cowen",
+     "u": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxQYzM4UElTT0gzTmk5MFFJZUZlN0txejkya0lyNWlWSVA4YlpOdWdDS3c1T2VZRkQ3Q0JjQnBJRFBfVmR3STVrblRFQ2l4TndFYWV5ZFR6Q0tJRGtoci1FV0xnZF94bmlFMWZkaXpVZ0V4Vm45UHBGUXJ4bU9GSUtxTm1nZExsVVU2YlhQRmFCSFZKNTNpQ21iOGc4YjQtMG5janVlbXZwMGJtdjUxaGZBUW8td1M1b2dwcFZF?oc=5"
+    },
+    {
+     "t": "Can Record Module Volume Lift First Solar (NASDAQ:FSLR) Into Earnings?",
+     "u": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNVHk5Z3prX0Q2RFlnd0k5a2R4c1lNcENGLUVDTnROMWJ3ZmxDS1U3SzlOY3lidVNueGswTERKb3hQNXBhTkNOY3paUXhuZVhqMGZYMTY1LXI1ZHpqVy14clRTTGZoSHhDd1VVRl9zRXRCRTAxeG05dHo5eVN4VmFQNzA4TGpkczFpOFViM0pNdlZOS2Nwa0FtbjZBTU5QRkM1WGlzbVBlM1FyNUlX?oc=5"
     }
    ]
   },
   {
-   "ticker": "DECK",
-   "label": "Bevaka",
-   "title": "Deckers: Fire Sale med stabila prognoser – rapport 22 oktober",
-   "why": "Aktien handlas 29 % under 200W (81,66 mot 115,62 USD) och uppfyller alla Lower Risk-krav: ROE 43 %, PEG 0,98, omsättnings-CAGR 15 %, forward P/E 9,8. Fallet senaste månaden (−5 %) är främst sektor- och tulldrivet (bolagsspecifikt bara −2 %, z −0,2) och EPS-prognoserna har snarare höjts (15 upp, 3 ned på 7 dagar). PEG nära gränsen 1 och rapporten 22 oktober gör att det är rimligt att invänta siffrorna.",
-   "levels": "Fire Sale under 116 USD (200W) · Very Cheap under 127 USD · Cheap under 139 USD",
-   "risk": "Avmattning för HOKA och UGG samt tullkostnader kan leda till sänkt prognos i rapporten.",
+   "ticker": "WDAY",
+   "label": "Köpläge",
+   "title": "Workday: Fire Sale med kraftigt stigande vinstprognoser",
+   "why": "Kursen 184,26 USD ligger 15,6 % under 200W-snittet 218,3 USD (Fire Sale) och alla Lower Risk-krav uppfylls: ROE 16 %, PEG 0,70, FCF-marginal 30 % och forward P/E 13,9. EPS-prognosen för nästa år har stigit från 12,64 till 13,23 USD på 90 dagar, med 38 upp- mot 1 nedrevidering senaste månaden. Veckans insiderförsäljningar sker enligt handelsplaner och för att täcka skatt vid tilldelning.",
+   "levels": "Fire Sale under 218 USD (200W) · Very Cheap under 240 USD · Cheap under 262 USD",
+   "risk": "Workday säljer per anställd-licens och påverkas direkt om AI minskar kundernas personalstyrka.",
    "sources": [
     {
-     "t": "Deckers Outdoor Corporation (DECK) Navigates Athletic Footwear Pullback and Tariff Concerns – Yahoo Finance",
-     "u": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOT0IybDFuTnZZNlFEME51MGNHay1oSzN6Q0luM0YxdC1UaU1UWDF5S1pIMG45S0NHNjRSQ1pwRFhwT3FVMFprYzFiUFp4b3NUVnJoR2FRTUVRU1d0ejJjRkxTeVZfVVFRaDhOWktUeFVwSnV3V29wTGJEd3RFdXVUcXdscXJTRmh4RDlmNGlmLUdBRkZNLXVaaTVuRkR4Z0RMRlBkMWNDVTJ0aUU?oc=5"
+     "t": "Workday (WDAY) CFO sold 6,000 shares under a trading plan; 10,010 were also withheld for taxes.",
+     "u": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxOQ2xvanFRWGFIRWpLR3hMdWcxOFFNQThDakMzcnBheFNmblI3bUs4T242V0s1Rk1meHYycXBxOFJWZmoxZkljSXFUUjgxR04tOFc5QThfVEo3bEVqbDF1U0VxWktwSVZuUnU3dTZVMGhXWWYyTWNqRXJiYmR5UnhqdlRoRnNQSVNXVUduMkVqcHYwLUlEblU2emdlTHlJX1JBWUdEOFI2eS0?oc=5"
+    },
+    {
+     "t": "Workday (NASDAQ:WDAY) Insider Sells 2,729 Shares of Company Stock",
+     "u": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxQNGNpRnZ5NFFQem4tdWItbVpheFl1ZDRPZEN4NUZMV0JmdC1vcmxYT0I0bFNLNVFuVFUxT2FfSjViWFBIOE9XSi0zTUVmUDFBMExNMmhFZWdBeTkyM2FHM2tEU1lkOTI0SGVpOUZpZ25QTHhWRzBjeDlVeGZnbmlZRnBWQjFULUZSQWlEMG1pU21hbEw3T1BsVGF2eU9UZTJCcy04RDRsOEFjakVaNkpGRVo5SkVQM1RLaXdKcGFsdjRvQQ?oc=5"
+    }
+   ]
+  },
+  {
+   "ticker": "CI",
+   "label": "Köpläge",
+   "title": "Cigna: under 200W med forward P/E 8 och stabila prognoser",
+   "why": "Kursen 278,51 USD ligger 3,6 % under 200W-snittet 288,9 USD (Fire Sale) och alla Lower Risk-krav uppfylls: ROE 16,8 %, PEG 0,75, D/E 0,75 och forward P/E 8,3. Rörelsen senaste månaden är liten (+1 %) och EPS-prognosen för nästa år ligger stilla på 33,50 USD; Piper Sandler höjde riktkursen till 370 USD och RBC lyfter möjligheten att nå de långsiktiga EPS-målen. Rapport 5 november.",
+   "levels": "Fire Sale under 289 USD (200W) · Very Cheap under 318 USD · Cheap under 347 USD",
+   "risk": "Politiskt tryck på PBM-verksamheten (Express Scripts) är den stora osäkerheten, och FCF-marginalen är låg (2,8 %).",
+   "sources": [
+    {
+     "t": "Cigna Better Positioned to Meet Long-Term EPS Growth Targets, RBC Says",
+     "u": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPbzFZY2hGRzItSWd2Nnc1UFFCb2lydkpDeVA5bURxSkVnSEFhVXFhWkdxQXJheGJRZHozUldxMkRGOVNtSjV1RkVxLXN3ZEl6WXlYb3pCSXdBLTNfbElTRlg4SEN4TWVqNFBGcDJ6cnhXa1B6REI2YUZEWm9pTUxzakw5aVVYREw4aDNUejV1X04zV3VMUDZhUG53?oc=5"
+    },
+    {
+     "t": "Cigna Group (CI) Could Be 58% Undervalued On PBM And Claims Review Concerns",
+     "u": "https://news.google.com/rss/articles/CBMixgFBVV95cUxQYU1zd0w5cHJZbWlJdmYxZHpMdmJ4UEN0OWhiMVFiZzNOSU1TY2VsMXNSS1AzajVTT0FWMFgzNzZzalQwT3JWVEs4bUNwTkFybjd6cFBPTjBGMXdSenlJX1c1enZTSlZScEU5OWRySzQ3Vmo2MEE1bEx4YnEyYXNjWU0tdk9PY2ZZaC1hZ2tueFg4ZlpvRHE1eWw1el9KdXdFOHYzREhRWFFwNUhnMnd4STRuSUVCRHVSdHNiOUVpMUpNUjVsNmfSAcwBQVVfeXFMTUQyQnJZSVJNSTlNR2RTdlBZUk9Obk50UkYwa2lVS3BsSzgwZjFhWndMcE9CbEgxWmF3VFRMR041Tlc3WWk2aWhwM0pHbENtLWNBSkZhWkVaSG1fV1ZveHdwQ3VvZFBXenVqajVvV0dkSjNwMUs3RHMzbzlwc2N2ZTljQjJRRi16SEtjejA5ckNteTJDbUNyaTBEeERFM0dtbkpMV3J4ZTBSUzNON1owaFc4TEZsNzNDZTRSX3p5R01tMmpOZ2FlY1MxZDNq?oc=5"
+    }
+   ]
+  },
+  {
+   "ticker": "SE",
+   "label": "Bevaka",
+   "title": "Sea Limited: Very Cheap nära 200W, missar ROE-kravet med marginal",
+   "why": "Kursen 94,66 USD ligger bara 1,2 % över 200W-snittet 93,5 USD (Very Cheap) med omsättningstillväxt 36 % och PEG 0,99, men ROE 14,7 % missar gränsen 15 %. Aktien föll 16,5 % senaste månaden, varav −14,8 % bolagsspecifikt (z −1,0), medan EPS-prognosen höjts från 5,14 till 5,21 USD. DBS sänkte riktkursen till 105 USD i veckan; rapport 10 november.",
+   "levels": "Fire Sale under 93,5 USD (200W) · Very Cheap under 103 USD · Cheap under 112 USD",
+   "risk": "Hård konkurrens i e-handeln i Sydostasien och mycket tunn FCF-marginal (0,2 %) gör vinstbanan känslig.",
+   "sources": [
+    {
+     "t": "Sea Limited stock falls 1.56 percent as DBS cuts target to USD 105",
+     "u": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxQMDc5UE5EYUVNNS02MnpMTXhVR09xYTItWWxUa3dFNm9tM1BLckREa3QyMWdkQ1ZCSGN3M0VPZWI1bVBwMnVnSFdRV0drc0F5RWNUVXNxVndWUnNlZDcxTFdlTjV1Tmd1Ukg0eFI5dWo1WWJRZ18xbkNVQ0M2TjlHVno3ckFGa0tRdkctUm1FR3pNTTlYaUJrMHdURHBNTWVWODFJc0dKWHEyRkx5ZFBtbi1GV253WFJlOTdYTUk2ekhDQUtDbk0xWA?oc=5"
+    },
+    {
+     "t": "Sea Limited stock reports strong second quarter growth",
+     "u": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxQbUhlWldhMDRrck4tSFdvOXR0djZLVEo3ZG16aFRjQXJWMEMydjlCdXVZVXZ0cEtmbEE0dVFxZlpEMlR5MU5HRDhQaGlpZDZxWkxXWWVwRFJVZDJmS0wta3NDMDV6cF9qQllsZVVONE9USlZJaHZUSmxPVVNuSzIwUUVSWl94WEhmRm9SZ0dnMnZfMFFsbGl4SkJlUmhmQXBnWWlQcjU0emwyNDVLbFg2c1RwNkdCV0xi?oc=5"
     }
    ]
   }
@@ -98,89 +128,72 @@
   {
    "name": "Halvledare",
    "heat": "Hetast",
-   "now": "Temats 17 aktier har stigit med median +15 % på en månad och +6 % senaste veckan; 94 % handlas över 200W och mediankursen ligger 86 % över snittet, alltså djupt i Very Expensive. Det är AMD (+36 %), Credo (+30 %), Marvell (+28 %) och Astera Labs (+26 %) som drar, medan Skyworks (Very Cheap), Microchip och NXP (Cheap) är de enda i köplägeszonerna.",
-   "outlook": "Bedömning, inte löfte: rapportsäsongen från mitten av oktober (TSMC tidigt, sedan AMD, Nvidia senare) avgör om rekordnivåerna håller. Starka AI-kommentarer kan förlänga uppgången, men med median forward P/E 22 och 3-månadersavkastning på bara +2 % finns risk för en kraftig rekyl om räntorna stiger ytterligare eller någon storkund sänker investeringstakten.",
-   "why": "AI-optimismen har kommit tillbaka och lyft S&P 500 och Nasdaq till rekord, med Nvidia och AMD som drivande namn. Analytiker har höjt riktkurser för bland annat Marvell, och vinstrevideringarna är positiva (median +0,3 % på 30 dagar).",
+   "now": "Median +11,1 % senaste månaden och +3,4 % senaste veckan, men −2,7 % på tre månader efter sommarens nedgång. Samtliga 18 bolag ligger över 200W-snittet med median +83 % och 11 av 18 i Very Expensive. ALAB (+32 %), CRDO (+31 %), AMD (+28 %) och MRVL (+26 %) drar, medan QCOM och NXPI ligger i Cheap.",
+   "outlook": "Bedömning, inte löfte: rapportsäsongen (AMD, NXPI m.fl. i slutet av oktober, Nvidia i november) avgör om rekordnivåerna håller. Med median +83 % över 200W och 10-årsräntan på 5,3 % är marginalen för besvikelser liten; en hökaktig Fed eller tecken på AI-capex-mättnad kan ge en snabb rekyl, medan fler stora GPU-avtal kan förlänga rörelsen.",
+   "why": "AMD:s avtal med OpenAI om 6 GW MI450-utbyggnad och Oracles order på 50 000 GPU:er tog AMD till rekord (633,91 USD 2 okt) och över 1 000 mdr USD i börsvärde. Nvidia nådde rekord 5 oktober och Micron fick höjd riktkurs efter en beat-and-raise-rapport; svagare jobbdata dämpade dessutom förväntningarna på en räntehöjning i oktober.",
    "sources": [
     {
-     "t": "Stock market today: S&P 500, Nasdaq hit record highs as Nvidia, AMD lead tech higher – Yahoo Finance",
-     "u": "https://finance.yahoo.com/markets/live/stock-market-today-tuesday-october-6-dow-sp-500-nasdaq-080526166.html"
+     "t": "AMD stock closes at a record $633.91 as its Nvidia challenge gets real",
+     "u": "https://startupfortune.com/amd-stock-closes-at-a-record-63391-as-its-nvidia-challenge-gets-real/"
     },
     {
-     "t": "Semiconductor Stocks Rally as S&P 500 Hits Record Highs – KuCoin",
-     "u": "https://www.kucoin.com/news/flash/semiconductor-stocks-rally-as-s-p-500-hits-record-highs"
+     "t": "INTC, AMD, MU, SNDK, SOXX: Chips, Memory Stocks Slip Premarket After Sharp October Rally",
+     "u": "https://finance.yahoo.com/markets/stocks/articles/intc-amd-mu-sndk-soxx-091251918.html"
     }
    ]
   },
   {
    "name": "Hårdvara & nätverk",
    "heat": "Het",
-   "now": "32 aktier med median +6 % på en månad, +5 % senaste veckan och +8 % på tre månader; 91 % ligger över 200W och mediankursen är 82 % över snittet. Everpure (+48 %), Ciena (+38 %), HPE (+36 %) och Lumentum (+29 %) leder, och vinstrevideringarna är tydligt positiva (median +0,5 %, Ciena och Dell över +20 %). Hexagon och Trimble ligger däremot i Fire Sale.",
-   "outlook": "Bedömning, inte löfte: efterfrågan på AI-servrar, optik och lagring ser fortsatt stark ut inför rapporterna under oktober–november, vilket kan hålla trenden vid liv. Men de flesta ledarna ligger 150–400 % över 200W, så det finns lite marginal för besvikelser på marginaler eller orderingång.",
-   "why": "Investeringarna i AI-datacenter breddas från chip till servrar, nätverk och optik, och HPE och Dell har rapporterat rekordnivåer för AI-servrar. Breddningen av hårdvaruköpen har fått hela kedjan att stiga.",
+   "now": "Median +4,9 % senaste månaden och +7,9 % på tre månader; 93 % av 30 bolag ligger över 200W-snittet med median +85 % och 18 i Very Expensive. Optiskt och nätverk leder (CIEN +31 %, HPE +29 %, LITE +14 %), medan lagring tappar (WDC −15 %, STX −11 %).",
+   "outlook": "Bedömning, inte löfte: efterfrågan från hyperscalers på optik och nätverk ser fortsatt stark ut, men värderingarna är långt över 200W och rörelsen är känslig för räntor och för hyperscalernas capex-besked i rapporterna i slutet av oktober. Lagringsbolagens rekyl kan vara en tidig signal om vinsthemtagning i de mest uppdrivna AI-aktierna.",
+   "why": "AI-datacenter kräver mer bandbredd mellan acceleratorer, vilket driver order på optiska system och switchar. Nokias vd sa i veckan att kunderna kunde bygga datacenter ungefär dubbelt så snabbt om inte utbudet begränsade, och Ciena har tidigare i år rapporterat kraftigt ökad hyperscaler-efterfrågan.",
    "sources": [
     {
-     "t": "Hewlett Packard Enterprise rallies 9% as AI server stocks surge on broadening hardware bid – Crypto Briefing",
-     "u": "https://cryptobriefing.com/hpe-rallies-ai-server-stocks-surge/"
+     "t": "Chips, Memory Stocks Slip Premarket After Sharp October Rally (Yahoo Finance)",
+     "u": "https://finance.yahoo.com/markets/stocks/articles/intc-amd-mu-sndk-soxx-091251918.html"
     },
     {
-     "t": "HPE stock soars 36% as AI server boom fuels record quarter – Invezz",
-     "u": "https://invezz.com/au/news/2026/06/02/hpe-stock-soars-36percent-as-ai-server-boom-fuels-record-quarter-outlook-raised/"
+     "t": "Ciena Surges on Hyperscaler Data-Center Demand",
+     "u": "https://letsdatascience.com/news/ciena-surges-on-hyperscaler-data-center-demand-5ab2e001"
     }
    ]
   },
   {
    "name": "Mjukvara",
    "heat": "Neutral",
-   "now": "Medianavkastningen på en månad är ±0 % för 39 aktier, men spridningen är extrem: säkerhet och infrastruktur som CrowdStrike, Datadog, Palo Alto och Zscaler är upp 25–31 %, medan applikationsbolag som FICO, Gen Digital, Paychex, Salesforce, Intuit och Adobe faller 11–26 %. Bara 56 % ligger över 200W och mediankursen är 9 % över (Very Cheap). Här finns flest Lower Risk-kandidater: Adobe, Salesforce, Workday och Intuit uppfyller alla krav och ligger i Fire Sale.",
-   "outlook": "Bedömning, inte löfte: rapporterna i november–december (Intuit, Salesforce, Adobe) blir avgörande för om AI-oron stämmer. Om bolagen visar stabil tillväxt och kan ta betalt för AI-funktioner kan de låga multiplarna (forward P/E 8–14 för flera) locka tillbaka kapital; fortsätter rotationen mot AI-infrastruktur kan applikationsbolagen ligga kvar lågt länge.",
-   "why": "Marknaden fruktar att AI-agenter ska ersätta licensbaserad applikationsmjukvara ('SaaSpocalypse'), medan bolag som säljer säkerhet och infrastruktur till AI-utbyggnaden gynnas. För Adobe förstärks oron av ledningsbyten.",
+   "now": "Medianen döljer en kraftig splittring: +2,7 % senaste månaden och +10,6 % på tre månader, men bara 58 % av 39 bolag ligger över 200W (median +8 %) och 16 är i Fire Sale. Säkerhet och infrastruktur stiger (PTC +45 %, ZS +32 %, DDOG +29 %), medan applikationsbolag faller (FICO −27 %, GEN −25 %, ORCL −12 %). Här finns flest Lower Risk-kandidater: ADBE, CRM, WDAY, INTU och ADSK.",
+   "outlook": "Bedömning, inte löfte: så länge marknaden prisar in att AI-agenter urholkar licensmodellerna kan Fire Sale-zonerna bestå, men flera bolag har samtidigt stigande vinstprognoser och låga multiplar. Rapporterna i november–december (CRM 2 dec, ADBE 9 dec) och tecken på att AI-funktioner faktiskt monetariseras är det som kan vända trenden; fortsatta prognossänkningar som i Intuit vore en varningssignal.",
+   "why": "Oron för att generativ AI ska ersätta traditionell applikationsmjukvara har pressat sektorn hela året, och J.P. Morgan har kallat utförsäljningen 'broken logic'. Intuit föll till 52-veckorslägsta 7 oktober efter kraftigt sänkta prognoser, medan bolag som säljer säkerhet och infrastruktur för AI gynnas.",
    "sources": [
     {
-     "t": "AI disruption continues, not just software – Schwab Network",
-     "u": "https://schwabnetwork.com/articles/ai-disruption-continues-not-just-software"
+     "t": "J.P. Morgan Research Says: 'Broken Logic' Is Driving This Software Stock Sell-Off",
+     "u": "https://finance.yahoo.com/news/j-p-morgan-research-says-110500776.html"
     },
     {
-     "t": "Have software stocks reached an extreme washout yet? – Yahoo Finance",
-     "u": "https://finance.yahoo.com/news/have-software-stocks-reached-an-extreme-washout-yet-141914857.html"
+     "t": "Software stocks slide as AI disruption fears return to Wall Street",
+     "u": "https://winninghabits.beehiiv.com/p/software-stocks-slide-as-ai-disruption-fears-return-to-wall-street"
     },
     {
-     "t": "The SaaSpocalypse: AI Comes for Software Stocks – Ainslie",
-     "u": "https://ainsliebullion.com.au/News-Resources/Article/The-SaaSpocalypse-AI-Comes-for-Software-Stocks/ID/9101"
+     "t": "Why Did TTD, INTU, LCID Stocks Fall To 52-Week Lows Today?",
+     "u": "https://news.google.com/rss/articles/CBMiswFBVV95cUxPaVNNakJJakZFVXVPTWY3OTNVY3llX3o2TG94YmIzdUo3RTdzQ3ZMX2NyNjlZdVFvR0xMNGtfT3BObjZpdG9EMmF2SmdJdkR4T3ZFakg2S08zcmVnM21hNTFfR2VEQU4tZS00YmU2MkJrZUl4TE5hMG5idEFsQnRZNndlVWNmalRZcHVmbU9LelZsNl9Td1ZGUTZ0eXd5a21TV0s5VDBKUjdnS3FuWjN6Z1F6WQ?oc=5"
     }
    ]
   },
   {
    "name": "Försvar & flyg",
-   "heat": "Sval",
-   "now": "15 aktier med median −7 % på en månad och −12 % på tre månader, den svagaste tremånadersutvecklingen bland temana. 67 % ligger fortfarande över 200W men medianen är bara 7 % över (Very Cheap); Lockheed, L3Harris, TransDigm och Huntington Ingalls är Very Cheap och Northrop, Textron, Boeing och Axon Fire Sale. Axon (−19 %), Howmet och Boeing (−11 %) faller mest, medan Saab (+6 %) och Rocket Lab går mot strömmen.",
-   "outlook": "Bedömning, inte löfte: rapporterna i slutet av oktober (Lockheed, RTX, Northrop, GD) och budgetbesked i USA blir avgörande. Orderböckerna är rekordstora, så stabila prognoser kan räcka för en vändning från Very Cheap-nivåer; ytterligare geopolitisk avspänning kan dock pressa riskpremien vidare.",
-   "why": "Rapporter om att Hormuzsundet öppnas igen sänkte oljan och minskade den geopolitiska premien i försvarsaktierna, och sektorn har även tyngts av oro för budgetprioriteringar. Försvarsaktierna har gått sämre än väntat trots konflikten i Mellanöstern.",
-   "sources": [
-    {
-     "t": "Defense Stocks Fall While Oil Slides on Hormuz Reopening Report – 24/7 Wall St.",
-     "u": "https://247wallst.com/investing/2026/09/22/defense-stocks-fall-while-oil-slides-on-hormuz-reopening-report-lockheed-martin-and-rtx-drop-3-boeing-dips/"
-    },
-    {
-     "t": "Defense Stocks Stand Down: Why NOC, LMT, RTX & Others Lag – Schwab Network",
-     "u": "https://cms.schwabnetwork.com/video/defense-stocks-stand-down-why-noc-lmt-rtx-others-lag-amid-u-s-iran-war"
-    }
-   ]
-  },
-  {
-   "name": "IT-tjänster",
    "heat": "Kallast",
-   "now": "Svagast av alla teman på en månad med median −8 % för 9 aktier; bara 11 % handlas över 200W och mediankursen ligger 16 % under snittet (Fire Sale). FIS (−19 %), Jack Henry (−13 %), Leidos (−12 %) och CDW (−11 %) faller mest, medan Accenture (+4 %) stabiliserats. Median forward P/E är bara 11.",
-   "outlook": "Bedömning, inte löfte: värderingarna är redan låga och vinstprognoserna sänks inte nämnvärt (median ±0 %), så rapporterna i oktober kan räcka för en teknisk studs om efterfrågan på AI-konsulting syns i orderingången. Ett trendbrott kräver dock bevis på att AI ökar snarare än minskar uppdragsvolymerna.",
-   "why": "Sedan Accenture sänkte prognosen i juni har marknaden prisat in att generativ AI pressar timbaserade konsult- och outsourcinguppdrag. Den oron har spridit sig till betalnings- och bankmjukvara som FIS och Jack Henry.",
+   "now": "Svagaste temat: median −8,4 % senaste månaden och −15,3 % på tre månader. 71 % av 15 bolag ligger fortfarande över 200W, men medianen är bara +5 % och fyra är i Fire Sale (bl.a. AXON −20 %, BA −11 %); RTX och HII −9 %. Saab (+3 %) och Rocket Lab (+9 %) går mot strömmen.",
+   "outlook": "Bedömning, inte löfte: rapporterna från de stora amerikanska försvarsbolagen kring 20–25 oktober och besked om budget och orderingång blir avgörande. En fortsatt avspänning kring Iran/Hormuz kan hålla riskpremien nere, medan förnyad eskalering eller starka orderböcker snabbt kan vända sentimentet; Very Cheap-lägen i TDG och HII är värda att följa.",
+   "why": "Försvarsaktierna har tappat riskpremie sedan rapporter om att Iran erbjudit att öppna Hormuzsundet igen, vilket sänkte förväntningarna på långvarigt höga ammunitionsbeställningar. Lockheed och RTX föll 3 % den 22 september och utförsäljningen hade då redan pågått en månad.",
    "sources": [
     {
-     "t": "IT services stocks fall after Accenture cuts guidance – Investing.com",
-     "u": "https://www.investing.com/news/stock-market-news/it-services-stocks-fall-after-accenture-cuts-guidance-capgemini-drops-8-4749447"
+     "t": "Defense Stocks Fall While Oil Slides on Hormuz Reopening Report",
+     "u": "https://247wallst.com/investing/2026/09/22/defense-stocks-fall-while-oil-slides-on-hormuz-reopening-report-lockheed-martin-and-rtx-drop-3/"
     },
     {
-     "t": "Wall Street just sold off these IT services stocks on AI fears – The Globe and Mail",
-     "u": "https://www.theglobeandmail.com/investing/markets/stocks/IBM/pressreleases/2572570/wall-street-just-sold-off-these-it-services-stocks-on-ai-fears-is-the-sell-off-overdone/"
+     "t": "Defense Stocks Stand Down: Why NOC, LMT, RTX & Others Lag Amid U.S.-Iran War",
+     "u": "https://cms.schwabnetwork.com/video/defense-stocks-stand-down-why-noc-lmt-rtx-others-lag-amid-u-s-iran-war"
     }
    ]
   }
