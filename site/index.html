@@ -183,6 +183,9 @@ ol.best li{align-items:center}
 @media (max-width:640px){.owt th:nth-child(3),.owt td:nth-child(3),.owt th:nth-child(6),.owt td:nth-child(6){display:none}.owt td,.owt th{padding-left:6px;padding-right:6px}}
 ul.flowl{list-style:none;margin:0;padding:0;display:grid;gap:4px}ul.flowl li{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:5px 0;border-bottom:1px solid var(--line)}
 .inssel{font:inherit;font-size:13.5px;font-weight:600;padding:6px 8px;border-radius:7px;border:1px solid var(--line-strong);background:var(--card);color:var(--ink)}
+.privbtn{border:1px solid var(--line-strong);background:var(--card);color:var(--muted);border-radius:8px;width:36px;height:36px;display:grid;place-items:center;cursor:pointer;flex:0 0 auto}.privbtn:hover{color:var(--ink);border-color:var(--accent)}.privbtn[aria-pressed="true"]{color:var(--accent)}
+.krh{letter-spacing:.06em;color:var(--muted)}
+@media (max-width:760px){.privbtn{order:2;margin-left:auto;width:34px;height:34px}}
 /* nedtryckta */
 .dnbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--sunk)}
 @media (min-width:701px){.dnbar{position:sticky;top:var(--hh,58px);z-index:5}}
@@ -615,6 +618,7 @@ ul.tips li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;font-si
       <input id="q" type="search" placeholder="Sök aktie, t.ex. SoFi, NVDA eller Atlas Copco" autocomplete="off" aria-label="Sök aktie" aria-controls="dd">
       <div class="dd" id="dd" role="listbox" hidden></div>
     </div>
+    <button type="button" id="privBtn" class="privbtn" aria-pressed="true" title="Visa eller dölj belopp i kr"></button>
     <nav class="main">
       <a href="#/" data-nav="start">Start</a>
       <a href="#/mina" data-nav="mina">Mina aktier</a>
@@ -831,6 +835,7 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v)
 let lim=store.get("ft3-lim",null); if(!lim||!lim.ftp||!lim.lrhr||!lim.zones)lim=JSON.parse(JSON.stringify(DEF));
 if(!lim.gold)lim.gold=JSON.parse(JSON.stringify(DEF.gold));
 const ui=Object.assign({strat:"ftp",filter:"all",zones:[],sort:"score",dir:-1,radar:"lrhr",tf:"D",range:"3Y",bands:true,stab:"analys",showExcl:false},store.get("ft4-ui",{}));
+const hideKr=()=>ui.hideKr!==false;
 let watch=store.get("ft3-watch",["SOFI"]);
 let U=null,rows=[],bySym={},detailCache={},chart=null,chartSym=null;
 const saveUi=()=>store.set("ft4-ui",ui), saveLim=()=>store.set("ft3-lim",lim), saveWatch=()=>store.set("ft3-watch",watch);
@@ -971,6 +976,10 @@ function renderMenu(){const m=$("sitemenu");if(!m)return;const h=location.hash||
 function openMenu(){renderMenu();$("sitemenu").hidden=false;$("menuBg").hidden=false;$("menuBtn").setAttribute("aria-expanded","true");document.body.style.overflow="hidden";const f=$("sitemenu").querySelector("a.mi.on,a.mi");if(f)f.focus({preventScroll:true})}
 function closeMenu(){$("sitemenu").hidden=true;$("menuBg").hidden=true;$("menuBtn").setAttribute("aria-expanded","false");document.body.style.overflow=""}
 $("menuBtn").addEventListener("click",()=>$("sitemenu").hidden?openMenu():closeMenu());
+function setPrivBtn(){const b=$("privBtn");if(!b)return;const h=hideKr();b.innerHTML=h?'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.5 10.5 0 0 1 12 5c6 0 9.5 7 9.5 7a17 17 0 0 1-3.2 4.1M6.6 6.6A17 17 0 0 0 2.5 12S6 19 12 19a9.7 9.7 0 0 0 4.4-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>':'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+  b.setAttribute("aria-pressed",h);b.setAttribute("aria-label",h?"Visa belopp i kr":"Dölj belopp i kr");b.title=h?"Belopp i kr är dolda. Tryck för att visa":"Tryck för att dölja belopp i kr"}
+$("privBtn").addEventListener("click",()=>{ui.hideKr=!hideKr();saveUi();setPrivBtn();route()});
+setPrivBtn();
 $("menuBg").addEventListener("click",closeMenu);
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("sitemenu").hidden)closeMenu()});
 
@@ -1800,8 +1809,10 @@ async function ensureFx(){
     FXB=out;store.set("ft5-fx",out);return true;
   }catch(e){return false}
 }
-const kr=(x,dp=0)=>nn(x)?f(x,dp)+" kr":"–";
-const krS=x=>!nn(x)?"–":Math.abs(x)<0.5?"0 kr":(x>0?"+":"−")+f(Math.abs(x),0)+" kr";
+// sekretessläge: kronbelopp för dina innehav döljs (standard), procent och kurser syns. Ögat i sidhuvudet växlar.
+const KRH='<span class="krh" title="Dolt. Tryck på ögat uppe till höger för att visa">•••• kr</span>';
+const kr=(x,dp=0)=>!nn(x)?"–":hideKr()?KRH:f(x,dp)+" kr";
+const krS=x=>!nn(x)?"–":hideKr()?KRH:Math.abs(x)<0.5?"0 kr":(x>0?"+":"−")+f(Math.abs(x),0)+" kr";
 function posCalc(p){
   const d=bySym[p.ticker]||{},fx=fxOf(d.currency||p.cur),price=d.price;
   const value=nn(price)&&fx?p.qty*price*fx:null;
@@ -3706,7 +3717,7 @@ async function preTrade(d){
         <tr><td>Bara ${esc(d.ticker)}</td><td></td><td class="r n small">svängn. ${f(S.vol*100,0)} % · beta ${f(S.beta,2)} · fall ${pct(S.mdd*100,0)}</td></tr>
       </tbody></table></div></div>
       <div><div class="tw"><table class="crit"><thead><tr><th>Om börsen faller</th><th class="r">Förlust i kr</th><th class="r">Av ditt kapital</th></tr></thead><tbody>
-        ${stress.map(([m,l,p])=>`<tr><td>S&amp;P 500 −${m} %</td><td class="r n down">−${f(l,0)} kr</td><td class="r n ${p>=50?"no":p>=25?"":""}"><b>${pct(-p,0)}</b></td></tr>`).join("")}
+        ${stress.map(([m,l,p])=>`<tr><td>S&amp;P 500 −${m} %</td><td class="r n down">${hideKr()?KRH:`−${f(l,0)} kr`}</td><td class="r n ${p>=50?"no":p>=25?"":""}"><b>${pct(-p,0)}</b></td></tr>`).join("")}
       </tbody></table></div>
       <p class="small" style="margin-top:6px;line-height:1.5">Portfölj ${kr(V1)}${lev>1?`, varav ${kr(eq)} eget kapital och ${kr(loan)} lån`:""} med beta ${f(A.beta,2)}. ${nn(mcMkt)?`<b>Margin call</b> om portföljen faller ${f(mcFall*100,0)} %, ungefär när börsen faller <b>${f(mcMkt*100,0)} %</b>.`:"Utan hävstång finns ingen risk för margin call."}</p></div>
     </div>
