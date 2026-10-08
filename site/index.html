@@ -152,6 +152,15 @@ ol.best li{align-items:center}
 .aistep{flex:0 0 auto;display:grid;gap:2px;justify-items:start;border:1px solid var(--line-strong);border-left:4px solid var(--pc);background:var(--card);color:var(--ink);font:inherit;border-radius:9px;padding:7px 10px;cursor:pointer;min-width:104px;text-align:left}
 .aistep:hover{border-color:var(--pc)}.aistep span{font-weight:650;font-size:13px;white-space:nowrap}.aistep small{font-size:11px;color:var(--pc);font-weight:650;white-space:nowrap}.aistep .ain{font-family:var(--mono);font-size:10.5px;color:var(--muted);font-weight:500}
 .aiarr{align-self:center;color:var(--faint)}
+.aihere{display:grid;grid-template-columns:auto auto auto;gap:8px 14px;align-items:center;justify-content:start;margin-top:12px;padding:14px;border:1px solid var(--accent);border-radius:12px;background:color-mix(in srgb,var(--accent) 8%,var(--card))}
+.aihere p{grid-column:1/-1;line-height:1.6;max-width:90ch}
+.aihn{display:grid;gap:2px}.aihn b{font-size:17px}.aihn small{color:var(--muted);font-size:12px}
+.aipin{font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--accent)}.aipin.nx{color:var(--warn)}
+.aiharr{font-size:22px;color:var(--faint)}
+.aistep.isnow{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 14px color-mix(in srgb,var(--accent) 35%,transparent)}
+.aistep.isnext{border-style:dashed;border-color:var(--warn)}
+.aistep em{font-style:normal;font-weight:800;letter-spacing:.04em}.tagnow{color:var(--accent)}.tagnext{color:var(--warn)}
+@media (max-width:640px){.aihere{grid-template-columns:1fr}.aiharr{display:none}}
 .tlg{display:grid;gap:6px;margin-top:6px}
 .tlrow{display:grid;grid-template-columns:210px minmax(0,1fr);gap:10px;align-items:center}
 .tll{display:grid;line-height:1.25}.tll b{font-size:13px}
@@ -3022,7 +3031,16 @@ async function pageAI(){
   const hot=T.filter(t=>ph(t)==="hot"),ris=T.filter(t=>ph(t)==="rising"),coo=T.filter(t=>ph(t)==="cooling");
   const story=`${hot.length?`Hetast i AI-kedjan: <b>${hot.map(t=>esc(t.short)).join(", ")}</b>. `:""}${ris.length?`Pengar börjar rotera <b>in i ${ris.map(t=>esc(t.short)).join(", ")}</b>. `:""}${coo.length?`Svalnar: <b>${coo.map(t=>esc(t.short)).join(", ")}</b>.`:""}`;
   // kedjan som flöde
-  const chain=`<div class="aichain">${T.map((t,k)=>`${k?'<span class="aiarr">→</span>':""}<button class="aistep" data-go-th="${t.id}" style="--pc:${t.x?PH[t.x.phase][3]:"var(--line-strong)"}"><span class="ain">${k+1}</span><span>${t.icon} ${esc(t.short)}</span>${t.x?`<small>${PH[t.x.phase][0]} ${PH[t.x.phase][1]}</small>`:`<small class="muted">–</small>`}</button>`).join("")}</div>`;
+  const TL=AIJ.timeline||[],stOf=id=>{for(const k of ["now","next","later","done"])if(TL.some(x=>x.status===k&&x.ids.includes(id)))return k;return null};
+  const nowTh=T.filter(t=>stOf(t.id)==="now"),nextTh=T.filter(t=>stOf(t.id)==="next");
+  const here=`<div class="aihere">
+      <div class="aihn"><span class="aipin">📍 VI ÄR HÄR</span><b>${nowTh.map(t=>`${t.icon} ${esc(t.short)}`).join(" och ")||"–"}</b><small>${esc(AIJ.timelineDate||"")}</small></div>
+      <span class="aiharr">→</span>
+      <div class="aihn"><span class="aipin nx">⏭ NÄST</span><b>${nextTh.map(t=>`${t.icon} ${esc(t.short)}`).join(", ")||"–"}</b><small>6–18 månader</small></div>
+      <p>${esc((AIJ.analysis||[])[0]||"")}</p>
+      <p class="small muted">${esc((AIJ.analysis||[])[1]||"")} <a href="#ai-tl" data-goid="ai-tl">Se tidslinjen med årtal ↓</a></p>
+    </div>`;
+  const chain=`<div class="aichain">${T.map((t,k)=>`${k?'<span class="aiarr">→</span>':""}<button class="aistep${stOf(t.id)==="now"?" isnow":stOf(t.id)==="next"?" isnext":""}" data-go-th="${t.id}" style="--pc:${t.x?PH[t.x.phase][3]:"var(--line-strong)"}"><span class="ain">${k+1}${stOf(t.id)==="now"?' · <em class="tagnow">VI ÄR HÄR</em>':stOf(t.id)==="next"?' · <em class="tagnext">NÄST</em>':""}</span><span>${t.icon} ${esc(t.short)}</span>${t.x?`<small>${PH[t.x.phase][0]} ${PH[t.x.phase][1]}</small>`:`<small class="muted">–</small>`}</button>`).join("")}</div>`;
   // AI-portfölj: bästa bolaget per flaskhals, viktat efter temats läge
   const P=T.map(t=>({t,d:t.best.find(d=>(d.mcapB||0)>=5)||t.best[0]})).filter(x=>x.d&&oppOf(x.d));
   const wr=P.map(x=>PHW[ph(x.t)]||1),ws=wr.reduce((a,b)=>a+b,0);P.forEach((x,i)=>x.w=wr[i]/ws*100);
@@ -3050,6 +3068,7 @@ async function pageAI(){
       </div></div></section>`};
   $("app").innerHTML=`<section class="card"><div class="bd">
       <h1 style="font-size:20px">AI-kedjan: flaskhalsarna i ordning${ib("aiInfo")}</h1>
+      ${here}
       ${levelGuide("ai")}
       <p style="margin-top:6px;line-height:1.6">${story}</p>
       ${chain}
@@ -3064,6 +3083,7 @@ async function pageAI(){
   const setA=(c,on)=>{ui.aiExp=ui.aiExp||{};ui.aiExp[c.dataset.th]=on;saveUi();c.classList.toggle("closed",!on);const b=c.querySelector(".rotfold");b.textContent=on?"Dölj ▲":"Visa mer ▼";b.setAttribute("aria-expanded",on)};
   document.querySelectorAll(".aic .roth").forEach(h=>h.addEventListener("click",e=>{if(e.target.closest("a,.ib")&&!e.target.closest(".rotfold"))return;const c=h.closest(".aic");setA(c,c.classList.contains("closed"))}));
   document.querySelectorAll("[data-go-th]").forEach(b=>b.addEventListener("click",e=>{e.preventDefault();const c=$("ai-"+b.dataset.goTh);if(!c)return;if(c.classList.contains("closed"))setA(c,true);c.scrollIntoView({behavior:"smooth",block:"start"})}));
+  document.querySelectorAll("[data-goid]").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();const el=$(a.dataset.goid);if(el)el.scrollIntoView({behavior:"smooth",block:"start"})}));
   $("aiAll").addEventListener("click",()=>{const cs=[...document.querySelectorAll(".aic")],to=cs.some(c=>c.classList.contains("closed"));cs.forEach(c=>setA(c,to));$("aiAll").textContent=to?"Fäll ihop alla ▲":"Visa alla teman ▼"});
 }
 
