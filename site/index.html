@@ -186,6 +186,19 @@ ul.flowl{list-style:none;margin:0;padding:0;display:grid;gap:4px}ul.flowl li{dis
 .privbtn{border:1px solid var(--line-strong);background:var(--card);color:var(--muted);border-radius:8px;width:36px;height:36px;display:grid;place-items:center;cursor:pointer;flex:0 0 auto}.privbtn:hover{color:var(--ink);border-color:var(--accent)}.privbtn[aria-pressed="true"]{color:var(--accent)}
 .krh{letter-spacing:.06em;color:var(--muted)}
 @media (max-width:760px){.privbtn{order:2;margin-left:auto;width:34px;height:34px}}
+details.lvl{border:1px solid var(--line);border-radius:10px;background:var(--sunk);padding:8px 12px;margin-top:10px}
+details.lvl>summary{cursor:pointer;font-weight:650;font-size:13.5px;list-style:none}details.lvl>summary::-webkit-details-marker{display:none}
+details.lvl>summary::before{content:"▸ ";color:var(--muted)}details.lvl[open]>summary::before{content:"▾ "}
+.lvlg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.lvlb{display:grid;gap:3px;align-content:start;padding:10px;border:1px solid var(--line-strong);border-radius:9px;background:var(--card);color:var(--ink);position:relative}
+a.lvlb:hover{text-decoration:none;border-color:var(--accent)}
+.lvlb.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.lvlb b{font-size:15px}.lvlb small{color:var(--muted);font-size:11.5px}.lvlb span:not(.lvln){font-size:12.5px;line-height:1.45;color:var(--muted)}
+.lvlb em{font-style:normal;font-size:12px;color:var(--ink);background:var(--sunk);border-radius:6px;padding:2px 6px;justify-self:start}
+.lvlb i{font-style:normal;font-size:11.5px;font-weight:700;color:var(--accent)}
+.lvln{position:absolute;top:8px;right:10px;font-family:var(--mono);font-size:12px;color:var(--faint)}
+.mtag{color:var(--muted);border-bottom:1px dotted var(--line-strong)}a.mtag:hover{color:var(--accent);text-decoration:none}
+@media (max-width:760px){.lvlg{grid-template-columns:1fr 1fr}}
 /* nedtryckta */
 .dnbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--sunk)}
 @media (min-width:701px){.dnbar{position:sticky;top:var(--hh,58px);z-index:5}}
@@ -612,7 +625,7 @@ ul.tips li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;font-si
 <body>
 <header class="top">
   <div class="wrap">
-    <div class="brand"><button type="button" id="menuBtn" class="menubtn" aria-label="Öppna menyn" aria-expanded="false" aria-controls="sitemenu"><i></i></button><a href="#/" class="brandl"><img src="logo.png" alt="" width="28" height="28">Full Throttle</a></div>
+    <div class="brand"><button type="button" id="menuBtn" class="menubtn" aria-label="Öppna menyn" aria-expanded="false" aria-controls="sitemenu"><i></i></button><a href="#/" class="brandl">Full Throttle</a></div>
     <div class="search" role="search">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <input id="q" type="search" placeholder="Sök aktie, t.ex. SoFi, NVDA eller Atlas Copco" autocomplete="off" aria-label="Sök aktie" aria-controls="dd">
@@ -622,8 +635,8 @@ ul.tips li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;font-si
     <nav class="main">
       <a href="#/" data-nav="start">Start</a>
       <a href="#/mina" data-nav="mina">Mina aktier</a>
-      <a href="#/branscher" data-nav="branscher">Branscher</a>
-      <a href="#/rotation" data-nav="rotation">Sektorrotation</a>
+      <a href="#/rotation" data-nav="rotation">Sektorer</a>
+      <a href="#/branscher" data-nav="branscher">Teman</a>
       <a href="#/ai" data-nav="ai">AI-kedjan</a>
       <a href="#/innehav/port" data-nav="port">Innehav</a>
       <a href="#/screener" data-nav="screener">Screener</a>
@@ -730,7 +743,7 @@ const GL={
   recMean:["Analytikernas betyg","Snitt av alla rekommendationer på en skala 1–5: 1 = starkt köp, 3 = behåll, 5 = sälj."],
   analysts:["Analytikerna","Sammanställning av bankernas och analyshusens rekommendationer och riktkurser, via Yahoo Finance."],
   dnInfo:["Nedtryckta kvalitetsbolag","Fall från toppen = hur långt kursen ligger under sin högsta kurs (all-time high, räknat på kurshistorik sedan 2010). Tjänar pengar = positiv nettomarginal och positivt fritt kassaflöde. Växer = omsättningen ökade senaste året. Ett stort fall i ett bolag som fortfarande är lönsamt och växer kan vara ett köpläge, men kolla alltid varför det föll: ibland vet marknaden något som siffrorna bakåt inte visar än."],
-  rotInfo:["Sektorrotation","Pengar flyttar mellan sektorer i cykler. Varje sektor mäts med två tal: styrka = hur mycket bättre eller sämre den gått än S&P 500 senaste kvartalet, och fart = om styrkan ökar eller minskar senaste 4 veckorna. Fart som vänder upp i en svag sektor (🚀 På väg upp) är ofta första tecknet på att pengar börjar rotera in, innan sektorn syns bland de hetaste. Samma idé som ett Relative Rotation Graph (RRG)."],
+  rotInfo:["Sektorer och rotation","Pengar flyttar mellan sektorer i cykler. Varje sektor mäts med två tal: styrka = hur mycket bättre eller sämre den gått än S&P 500 senaste kvartalet, och fart = om styrkan ökar eller minskar senaste 4 veckorna. Fart som vänder upp i en svag sektor (🚀 På väg upp) är ofta första tecknet på att pengar börjar rotera in, innan sektorn syns bland de hetaste. Samma idé som ett Relative Rotation Graph (RRG)."],
   ownBreak:["Ägarfördelning","Hur aktierna är fördelade: institutioner (fonder, pensionsbolag, banker), insiders (ledning och styrelse) och allmänheten (privatpersoner och övriga). Hög institutionell ägarandel betyder att professionella har granskat bolaget, men också att kursen kan röra sig mycket när de säljer. Hög insiderandel betyder att ledningen har eget kapital i bolaget. Snittet är snittet i branschen."],
   instData:["Institutionsägande och förändring","Andel: hur stor del av aktierna fonder, pensionsbolag och banker äger, från Yahoo Finance. Hämtas varje natt, men Yahoo uppdaterar själva siffran ungefär en gång i månaden. Förändring (USA): nettoköp eller nettoförsäljning senaste kvartalet i procent av institutionernas innehav, från 13F-rapporterna via Nasdaq. Institutionerna rapporterar en gång per kvartal och har 45 dagar på sig, så Q2 (april–juni) blir komplett i mitten av augusti. ▲ över +0,25 % = köper, ▼ under −0,25 % = säljer. 'Förra kv.' = ägd andel enligt 13F kvartalet innan (visas när vi har två kvartal sparade). Svenska bolag har ingen 13F: där visas ändringen i Yahoos andel sedan ett tidigare datum när den finns. Över 100 % kan förekomma i 13F eftersom aktier som lånats ut räknas hos flera."],
   aiInfo:["AI-kedjan","AI kräver en hel kedja: chip, tillverkning, minne, nätverk, servrar, kyla, elnät, el, råvaror, datacenter, molnjättar och mjukvara. Pengarna flyttar längs kedjan när flaskhalsarna skiftar: först GPU:er, sedan minne och nätverk, nu allt mer el och elnät. Varje steg visar sitt läge (som i Sektorrotation) och bolagen rangordnade efter Bäst läge."],
@@ -956,7 +969,7 @@ document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement.t
 
 /* ============ meny för hela sidan ============ */
 const MENU=[["Idag",[["#/","start","🏠","Start","Det som kräver beslut idag: sälj, risk, köplägen"],["#/mina","mina","⭐","Mina aktier","Aktierna du följer med läge och nyckeltal"]]],
-  ["Hitta aktier",[["#/fallna","fallna","📉","Nedtryckta","Kvalitetsbolag långt under toppen, med bear case"],["#/screener","screener","🔎","Screener","Filtrera på dina strategier och 200W-zoner"],["#/branscher","branscher","🏭","Branscher","Teman, bäst läge per bransch och Jordi Visser"],["#/rotation","rotation","🔄","Sektorrotation","Var pengarna är och vart de är på väg"],["#/ai","ai","🧠","AI-kedjan","AI-flaskhalsarna i ordning, bästa bolagen och en AI-portfölj"]]],
+  ["Hitta aktier",[["#/fallna","fallna","📉","Nedtryckta","Kvalitetsbolag långt under toppen, med bear case"],["#/screener","screener","🔎","Screener","Filtrera på dina strategier och 200W-zoner"],["#/rotation","rotation","🔄","Sektorer","De 11 stora delarna av börsen: var pengarna roterar"],["#/branscher","branscher","🏭","Teman","Smalare grupper som Halvledare och Mjukvara: hetast, bäst läge, Visser"],["#/ai","ai","🧠","AI-kedjan","AI-flaskhalsarna i ordning, bästa bolagen och en AI-portfölj"]]],
   ["Mina pengar",[["#/innehav/swing","swing","⚡","Live swing","Dina swingar med stop, mål och läge"],["#/innehav/port","port","💼","Portfölj","Långsiktiga innehav och larm"],["#/innehav/analys","analys","📊","Portföljanalys","Risk, Sharpe och tips för bättre portfölj"]]],
   ["Strategi",[["#/strategier","strategier","🧭","Strategi och backtest","Dina strategier, Diamant och backtest utan facit"]]]];
 function renderMenu(){const m=$("sitemenu");if(!m)return;const h=location.hash||"#/";
@@ -1297,7 +1310,7 @@ function pageStock(t){
     <div class="sh">
       <div style="min-width:0">
         <h1>${esc(d.longName||d.name)}</h1>
-        <div class="meta">${esc(d.ticker)} · ${esc(d.exch||"")} · ${esc(d.sector||"")}${d.industry&&d.industry!=="ETF"?" · "+esc(d.industry):""}</div>
+        <div class="meta">${esc(d.ticker)} · ${esc(d.exch||"")}${d.sector?` · <a href="#/rotation" class="mtag" title="Sektor: en av börsens 11 stora delar">Sektor: ${esc(d.sector)}</a>`:""}${themeOf(d)&&themeOf(d)!==d.sector?` · <a href="#/branscher" class="mtag" title="Tema: vår grupp av branscher som hör ihop">Tema: ${esc(themeOf(d))}</a>`:""}${d.industry&&d.industry!=="ETF"?` · <span class="mtag" title="Bransch: Yahoos detaljerade indelning, bolaget jämförs med snittet här">Bransch: ${esc(d.industry)}</span>`:""}</div>
         <div class="price"><span class="p n">${px(d.price)}</span><span class="muted">${esc(d.currency||"")}</span><span class="ch n ${cls(d.chg)}">${pct(d.chg)}</span><span class="ch n ${cls(d.chg)}" style="font-weight:500">${nn(d.price)&&nn(d.prevClose)?(d.price-d.prevClose>0?"+":"−")+px(Math.abs(d.price-d.prevClose)):""}</span><span class="ts">Uppdaterad ${esc(rel(U.quotesAt||U.updatedAt))} · ca 15–30 min fördröjning</span></div>
         ${headKpis(d)}
         <div class="chips">${LEAD[d.ticker]===1?`<span class="pill pass">Branschledare</span>`:""}${d.type==="EQUITY"||!d.type?`${vChip(valView(d))}${ib("valVerdict")} ${sChip(sentView(d))}${ib("sentiment")} `:""}${zchip(d)}${ib("zones")} ${sigB(d)} ${d.excluded&&d.type==="EQUITY"?`<span class="pill">Sektor utesluten i strategierna</span>`:""} ${days!=null&&days>=0?`<span class="pill" style="${days<=14?"color:var(--warn);background:var(--warn-soft);border-color:transparent":""}">Rapport ${esc(d.nextEarnings)}${days<=14?` · om ${days} d`:""}</span>`:""}</div>
@@ -2862,6 +2875,18 @@ const oppWhy=(o,n=3)=>o?o.why.slice(0,n).map(w=>`<span class="ow">${esc(w)}</spa
 const bestOf=list=>list.filter(d=>oppOf(d)).sort((a,b)=>oppOf(b).s-oppOf(a).s);
 function bestList(list,n=3){const B=bestOf(list).slice(0,n);return B.length?`<ol class="lead best">${B.map((d,j)=>{const o=oppOf(d);return `<li data-go="${esc(d.ticker)}"><span style="display:flex;gap:8px;align-items:center;min-width:0">${oppB(o)}<span style="min-width:0"><b class="tk">${esc(d.ticker)}</b> <span class="muted small">${esc(d.name)}</span><span class="owl">${oppWhy(o)}</span></span></span><span class="small" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><span class="small muted" style="text-align:right">Inst. ${instCell(d,1)}</span><span class="n muted">${mcap(d.mcapB)}</span>${zchip(d)}${sigB(d)}</span></li>`}).join("")}</ol>`:`<p class="small muted">Inga bolag med tillräcklig data.</p>`}
 
+/* ============ hur bolagen är grupperade: sektor, tema, bransch, AI-kedjan ============ */
+function levelGuide(cur){const ex=bySym.NVDA||rows.find(d=>d.industry),et=ex?themeOf(ex):null,open=ui.lvlOpen!=null?ui.lvlOpen:innerWidth>760;
+  const L=[["sector","#/rotation","Sektor","11 st, bredast","Börsen delad i 11 stora delar, t.ex. Teknik, Finans, Energi. Visar åt vilket håll de stora pengarna roterar.",ex&&ex.sector],
+    ["theme","#/branscher","Tema","ca 20 st, våra grupper","Branscher som hör ihop, sammanslagna till ett investeringstema, t.ex. Halvledare, Mjukvara, Kraft & el. Här ser du vad som är hett just nu och bäst läge.",et],
+    ["ind",null,"Bransch","ca 80 st, smalast","Yahoos detaljerade indelning, t.ex. Semiconductors. Syns inne i varje sektor, i varje tema och på aktiesidan. Bolagen jämförs med snittet i sin bransch.",ex&&ex.industry],
+    ["ai","#/ai","AI-kedjan","12 flaskhalsar","Går tvärs över sektorerna: bolag som behövs för AI, från chip till el, i den ordning AI behöver dem.",null]];
+  return `<details class="lvl"${open?" open":""} data-lvl><summary>Sektor, tema, bransch: vad är skillnaden?</summary>
+    <div class="lvlg">${L.map(([k,href,t,n,txt,eg],i)=>`<${href&&k!==cur?`a href="${href}"`:"div"} class="lvlb${k===cur?" on":""}">${k!=="ai"?`<span class="lvln">${i+1}</span>`:`<span class="lvln">⟂</span>`}<b>${t}</b><small class="n">${n}</small><span>${txt}</span>${eg?`<em>${ex.ticker}: ${esc(eg)}</em>`:""}${k===cur?`<i>Du är här</i>`:href?`<i>Gå dit →</i>`:""}</${href&&k!==cur?"a":"div"}>`).join("")}</div>
+    <p class="small muted" style="margin-top:6px">Från bredast till smalast: sektor → tema → bransch → bolag. Exempel: ${ex?`${esc(ex.ticker)} ligger i sektorn ${esc(ex.sector||"–")}, temat ${esc(et||"–")} och branschen ${esc(ex.industry||"–")}.`:""}</p>
+  </details>`}
+document.addEventListener("toggle",e=>{if(e.target.matches&&e.target.matches("details[data-lvl]")){ui.lvlOpen=e.target.open;saveUi()}},true);
+
 /* ============ SEKTORROTATION ============ */
 let SECT=null;
 async function getSect(){if(SECT)return SECT;try{const r=await fetch("data/sectors.json?v="+encodeURIComponent(U.updatedAt||""));if(r.ok)SECT=await r.json()}catch(e){}return SECT}
@@ -2902,7 +2927,7 @@ function rrgSvg(S,names){
 function spark(idx,spy,w=120,h=30){const n=Math.min(52,idx.length),a=idx.slice(-n),b=spy.slice(-n),rel=a.map((v,i)=>v/a[0]/(b[i]/b[0])*100),mn=Math.min(...rel),mx=Math.max(...rel),Y=v=>h-2-(v-mn)/((mx-mn)||1)*(h-4);
   const up=rel[rel.length-1]>=rel[0];return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><line x1="0" x2="${w}" y1="${Y(100).toFixed(1)}" y2="${Y(100).toFixed(1)}" stroke="var(--line)" stroke-dasharray="3 3"/><path d="${rel.map((v,i)=>`${i?"L":"M"}${(i/(n-1)*w).toFixed(1)},${Y(v).toFixed(1)}`).join("")}" fill="none" stroke="${up?"var(--up)":"var(--down)"}" stroke-width="1.6"/></svg>`}
 async function pageRotation(){
-  document.title="Sektorrotation · Full Throttle";
+  document.title="Sektorer · Full Throttle";
   if(!SECT)$("app").innerHTML=`<div class="skel">Laddar sektordata…</div>`;
   const S=await getSect();if(!location.hash.startsWith("#/rotation"))return;
   if(!S||!S.sectors){$("app").innerHTML=`<section class="card"><div class="bd"><p class="muted">Sektordatan räknas i nattkörningen och visas här efteråt.</p></div></section>`;return}
@@ -2935,7 +2960,8 @@ async function pageRotation(){
       ${open?`<div class="tw" style="margin-top:8px"><table class="crit"><thead><tr><th>Bransch</th><th>Läge</th><th class="r">Styrka</th><th class="r">Fart</th><th>Mot S&amp;P 500, 1 år</th><th>Bäst läge</th></tr></thead><tbody>${inds.map(([k,v])=>{const big3=bestOf(rows.filter(d=>d.industry===k)).slice(0,3).map(d=>({d}));return `<tr><td>${esc(k)} <span class="small muted">${v.n}</span></td><td>${phChip(v.phase,1)}</td><td class="r n ${cls(v.rrg.at(-1)[0])}">${pct(v.rrg.at(-1)[0],1)}</td><td class="r n ${cls(v.rrg.at(-1)[1])}">${pct(v.rrg.at(-1)[1],1)}</td><td>${spark(v.idx,S.spy,90,22)}</td><td class="small">${big3.map(o=>`<a href="${link(o.d.ticker)}" class="tk">${esc(o.d.ticker)}</a> <span class="muted">${oppOf(o.d).s}</span>`).join(", ")}</td></tr>`}).join("")}</tbody></table></div>`:""}`:""}
     </div></div></section>`};
   $("app").innerHTML=`<section class="card"><div class="bd">
-      <h1 style="font-size:20px">Sektorrotation${ib("rotInfo")}</h1>
+      <h1 style="font-size:20px">Sektorer: var roterar pengarna?${ib("rotInfo")}</h1>
+      ${levelGuide("sector")}
       <p style="margin-top:6px;line-height:1.6">${story}</p>
       <div style="margin-top:12px">${rrgSvg(S.sectors,names)}</div>
       <p class="small muted" style="margin-top:4px">Sektorerna rör sig medurs: 🚀 På väg upp → 🔥 Hett → ↘ Svalnar → ❄ Kallt. Svansen visar vägen de senaste 5 veckorna, stora pricken är nu. Håll muspekaren över en sektor för siffrorna.</p>
@@ -3024,6 +3050,7 @@ async function pageAI(){
       </div></div></section>`};
   $("app").innerHTML=`<section class="card"><div class="bd">
       <h1 style="font-size:20px">AI-kedjan: flaskhalsarna i ordning${ib("aiInfo")}</h1>
+      ${levelGuide("ai")}
       <p style="margin-top:6px;line-height:1.6">${story}</p>
       ${chain}
       <p class="small muted" style="margin-top:8px">Från chip till mjukvara, i den ordning en AI-modell behöver dem. Färgen visar temats läge: 🔥 hett, 🚀 på väg upp, ↘ svalnar, ❄ kallt. Tryck på ett steg för att gå dit.</p>
@@ -3032,7 +3059,7 @@ async function pageAI(){
     ${port}
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0 10px"><h2 style="font-size:16px">Flaskhalsarna, bolag för bolag</h2><button class="more" id="aiAll" type="button" style="margin:0">${T.every(t=>exp[t.id])?"Fäll ihop alla ▲":"Visa alla teman ▼"}</button></div>
     ${T.map(card).join("")}
-    <p class="small muted" style="margin-top:10px">Läget per tema räknas som i Sektorrotation: likaviktat index av temats bolag mot S&amp;P 500 (styrka senaste kvartalet, fart senaste 4 veckorna). Uppdaterad ${esc((S&&S.asOf)||"")}.</p>`;
+    <p class="small muted" style="margin-top:10px">Läget per tema räknas som på sidan Sektorer: likaviktat index av temats bolag mot S&amp;P 500 (styrka senaste kvartalet, fart senaste 4 veckorna). Uppdaterad ${esc((S&&S.asOf)||"")}.</p>`;
   bindRows($("app"));
   const setA=(c,on)=>{ui.aiExp=ui.aiExp||{};ui.aiExp[c.dataset.th]=on;saveUi();c.classList.toggle("closed",!on);const b=c.querySelector(".rotfold");b.textContent=on?"Dölj ▲":"Visa mer ▼";b.setAttribute("aria-expanded",on)};
   document.querySelectorAll(".aic .roth").forEach(h=>h.addEventListener("click",e=>{if(e.target.closest("a,.ib")&&!e.target.closest(".rotfold"))return;const c=h.closest(".aic");setA(c,c.classList.contains("closed"))}));
@@ -3056,7 +3083,7 @@ function sectors(big){
 }
 let openSec=null;
 function pageSectors(){
-  document.title="Branscher · Full Throttle";
+  document.title="Teman · Full Throttle";
   const S=sectors(!!ui.secBig),I=INSIKT,ind=I&&I.industry,V=I&&I.visser;
   const hot=S.filter(s=>nn(s.mom)&&s.mom>0).slice(0,4);
   const nextN=new Set((ind&&ind.next)||[]);
@@ -3091,8 +3118,9 @@ function pageSectors(){
       ${(I.avoidPicks||[]).length?`<div style="padding:12px 16px;border-top:1px solid var(--line)"><h4 class="qh" style="margin-top:0">Visser är försiktig med</h4>${I.avoidPicks.map(a=>{const d=bySym[a.ticker];return `<p class="small" style="margin-top:4px"><a href="${link(a.ticker)}"><b class="tk">${esc(a.ticker)}</b></a> ${d?zchip(d):""} ${esc(a.why)}</p>`}).join("")}</div>`:""}
       <p class="small muted" style="padding:0 16px 12px">Tolkning av offentliga intervjuer och sammanfattningar, inte Vissers egna köpråd och inte investeringsrådgivning.</p></div></section>`:""}`:"";
   $("app").innerHTML=`
-  <div class="hero"><h1>Branscher</h1><label class="chk"><input type="checkbox" id="secBig" ${ui.secBig?"checked":""}> Bara stora bolag (≥ 50 md $)</label></div>
-  ${subnav([["b-ana","Analys"],["b-now","Hetast och nästa"]].concat(V?[["b-vis","Jordi Visser"]]:[]).concat([["b-all","Alla branscher"]]))}
+  <div class="hero"><h1>Teman</h1><label class="chk"><input type="checkbox" id="secBig" ${ui.secBig?"checked":""}> Bara stora bolag (≥ 50 md $)</label></div>
+  ${subnav([["b-ana","Analys"],["b-now","Hetast och nästa"]].concat(V?[["b-vis","Jordi Visser"]]:[]).concat([["b-all","Alla teman"]]))}
+  <div style="margin-top:10px">${levelGuide("theme")}</div>
   <div style="height:12px"></div>
   ${ind?`<section class="card story" id="b-ana"><div class="bd"><div class="small muted" style="margin-bottom:6px;font-weight:600;letter-spacing:.05em;text-transform:uppercase">Claudes branschanalys ${esc(I.date||"")}</div><p class="lead">${esc(ind.headline)}</p>${ind.text.slice(0,1).map(t=>`<p style="margin-top:10px;font-size:14px;line-height:1.6;max-width:85ch">${esc(t)}</p>`).join("")}${ind.text.length>1?`<details class="xs"><summary>Läs hela analysen <span class="muted">(${ind.text.length-1} stycken till)</span></summary>${ind.text.slice(1).map(t=>`<p style="margin-top:10px;font-size:14px;line-height:1.6;max-width:85ch">${esc(t)}</p>`).join("")}</details>`:""}</div></section>`:""}
   <div class="grid" id="b-now" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));margin-top:16px">
@@ -3101,14 +3129,14 @@ function pageSectors(){
     <section class="card"><div class="hd"><h2>❄️ Svalnar</h2></div><div class="bd"><ul class="slist">${cool.map(s=>mini(s,"Uppe på 3 månader men faller senaste månaden")).join("")||'<li class="muted">Inga just nu.</li>'}</ul></div></section>
   </div>
   ${vis}
-  <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><h2 class="sect" id="b-all">Alla branscher <span class="sub" style="font-weight:400">sorterade efter värme</span></h2><button class="more" id="secAll" type="button" style="margin:0">${S.every(x=>(ui.secExp||{})[x.name])?"Fäll ihop alla ▲":"Visa alla branscher ▼"}</button></div>
+  <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><h2 class="sect" id="b-all">Alla teman <span class="sub" style="font-weight:400">sorterade efter värme</span></h2><button class="more" id="secAll" type="button" style="margin:0">${S.every(x=>(ui.secExp||{})[x.name])?"Fäll ihop alla ▲":"Visa alla teman ▼"}</button></div>
   <div class="fgrid" style="grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr))">${S.map(card).join("")}</div>
-  <p class="small muted" style="margin-top:12px">Branscherna bygger på sidans ~600 aktier. Dominerar = störst omsättning (börsvärde / P/S). Värme = 1 vecka 20 %, 1 månad 50 %, 3 månader 30 % (median).</p>`;
+  <p class="small muted" style="margin-top:12px">Temana bygger på sidans ~600 aktier. Varje tema är en grupp av branscher. Dominerar = störst omsättning (börsvärde / P/S). Värme = 1 vecka 20 %, 1 månad 50 %, 3 månader 30 % (median).</p>`;
   $("secBig").addEventListener("change",e=>{ui.secBig=e.target.checked;saveUi();pageSectors()});
   $("app").querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click",()=>{openSec=openSec===b.dataset.open?null:b.dataset.open;pageSectors()}));
   const setSec=(c,on)=>{ui.secExp=ui.secExp||{};ui.secExp[c.dataset.secn]=on;saveUi();c.classList.toggle("closed",!on);const b=c.querySelector(".secfold");b.textContent=on?"Dölj ▲":"Visa mer ▼";b.setAttribute("aria-expanded",on)};
   $("app").querySelectorAll(".seccard .sech").forEach(h=>h.addEventListener("click",e=>{if(e.target.closest("a,.ib")&&!e.target.closest(".secfold"))return;const c=h.closest(".seccard");setSec(c,c.classList.contains("closed"))}));
-  $("secAll").addEventListener("click",()=>{const cs=[...document.querySelectorAll(".seccard")],to=cs.some(c=>c.classList.contains("closed"));cs.forEach(c=>setSec(c,to));$("secAll").textContent=to?"Fäll ihop alla ▲":"Visa alla branscher ▼"});
+  $("secAll").addEventListener("click",()=>{const cs=[...document.querySelectorAll(".seccard")],to=cs.some(c=>c.classList.contains("closed"));cs.forEach(c=>setSec(c,to));$("secAll").textContent=to?"Fäll ihop alla ▲":"Visa alla teman ▼"});
   $("app").querySelectorAll("li[data-sec]").forEach(li=>li.addEventListener("click",()=>{const el=$("sec-"+li.dataset.sec.replace(/\W/g,""));if(el){if(el.classList.contains("closed"))setSec(el,true);el.scrollIntoView({behavior:"smooth",block:"start"})}}));
   bindRows($("app"));
 }
