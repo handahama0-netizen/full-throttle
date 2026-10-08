@@ -427,6 +427,7 @@ def fundamentals(tk: str, extras: bool = True):
     earn_dates = call(lambda: t.get_earnings_dates(limit=80)) if ex else None
     ins_tx = call(lambda: t.insider_transactions) if ex and not tk.endswith(".ST") else None
     inst_h = call(lambda: t.institutional_holders) if ex else None
+    mf_h = call(lambda: t.mutualfund_holders) if ex else None
     news = (call(lambda: t.news) or []) if ex else []
     if eq and not news:  # Yahoos nyhets-API ger ofta tomt till GitHubs servrar, ta RSS istället
         news = rss_news(tk, info.get("shortName") or info.get("longName") or tk)
@@ -514,6 +515,7 @@ def fundamentals(tk: str, extras: bool = True):
     detail["revq0"] = safe(lambda: rev_estimate_q(rev_est, next_earn)) if ex else None
     detail["ins"] = safe(lambda: insiders(ins_tx)) if ins_tx is not None else None
     detail["holders"] = safe(lambda: holders(inst_h)) if inst_h is not None else None
+    detail["funds"] = safe(lambda: holders(mf_h)) if mf_h is not None else None
     detail["news"] = parse_news(news) or None
     _state["news" if detail["news"] else "nonews"] += 1
     raw = {"fcf": first(row(cf, "Free Cash Flow")), "sbc": first(row(cf, "Stock Based Compensation")),
@@ -944,7 +946,7 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
             if old:
                 rec = {k: v for k, v in old.items() if k not in ("price", "prevClose", "chg", "ma200w", "dist200w", "zone", "signals", "stale")}
                 old_det = load_json(prev / "data" / "t" / fname(t), {})
-                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att", "epsq", "sec", "ins", "holders", "own", "inst", "instHist", "fq", "fa", "revq")}
+                det = {k: old_det.get(k) for k in ("about", "web", "emp", "country", "city", "finCur", "fin", "recs", "ud", "est", "news", "val", "att", "epsq", "sec", "ins", "holders", "funds", "own", "inst", "instHist", "fq", "fa", "revq")}
             else:
                 rec = {"ticker": t, "name": t, "type": "EQUITY", "currency": "SEK" if t.endswith(".ST") else "USD",
                        "sector": "Övrigt", "excluded": True}
@@ -982,6 +984,8 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
             det["own"] = merge_own(_old.get("own"), rec, today)
             if det.get("holders") is None and _old.get("holders"):
                 det["holders"] = _old["holders"]
+            if det.get("funds") is None and _old.get("funds"):
+                det["funds"] = _old["funds"]
             det["inst"] = instd.get(t) or _old.get("inst")
             det["instHist"] = INST.merge_hist(_old.get("instHist"), instd.get(t))
             if det.get("inst"):
