@@ -122,3 +122,5 @@ NVT
 SMR
 IREN
 APLD
+# Olja (Brent) för hävstångsprodukterna på olja
+BNO

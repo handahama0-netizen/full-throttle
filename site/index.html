@@ -208,6 +208,15 @@ a.lvlb:hover{text-decoration:none;border-color:var(--accent)}
 .lvln{position:absolute;top:8px;right:10px;font-family:var(--mono);font-size:12px;color:var(--faint)}
 .mtag{color:var(--muted);border-bottom:1px dotted var(--line-strong)}a.mtag:hover{color:var(--accent);text-decoration:none}
 @media (max-width:760px){.lvlg{grid-template-columns:1fr 1fr}}
+.lsall{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 12px;background:var(--sunk);border-radius:9px}
+.lsall input[type=range],.lss input[type=range]{accent-color:var(--accent);flex:1;min-width:140px}
+.lsv{min-width:52px;text-align:right;font-weight:700}
+.lstot{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}.lstot>div{background:var(--sunk);border-radius:8px;padding:8px 10px;display:grid}.lstot b{font-size:18px}
+.lsrows{display:grid;gap:4px}
+.lsr{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:8px 14px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.lsn{display:grid;gap:2px}.lss{display:flex;gap:8px;align-items:center}.lsres{display:grid;justify-items:end;gap:1px}
+.lslev input{width:56px;font:inherit;font-size:12px;padding:1px 4px;border:1px solid var(--line-strong);border-radius:5px;background:var(--card);color:var(--ink)}
+@media (max-width:700px){.lsr{grid-template-columns:1fr}.lsres{justify-items:start}.lstot{grid-template-columns:1fr 1fr}}
 /* nedtryckta */
 .dnbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--sunk)}
 @media (min-width:701px){.dnbar{position:sticky;top:var(--hh,58px);z-index:5}}
@@ -759,6 +768,7 @@ const GL={
   aiTl:["Var är vi i AI-utbyggnaden?","AI-utbyggnaden har flyttat genom flaskhalsar: först GPU:er (2023), sedan paketering och nätverk (2024–2025), nu minne och kyla, och framåt el, elnät och ny elproduktion. Staplarna visar när varje fas uppskattas vara som mest akut, och den gröna linjen är idag. Bredvid varje fas står sidans live-läge för temat (från kursdatan), så att du kan se om pengarna redan börjat rotera dit. Årtalen är Claudes uppskattning utifrån branschkällor och uppdateras när läget ändras."],
   aiPort:["AI-portfölj","Ett förslag på hur man kan äga hela AI-kedjan: det bolag med högst Bäst läge-poäng i varje flaskhals (minst 5 md $ i börsvärde). Vikten är lika för alla teman men justeras efter läget: heta och teman på väg upp 1,25, svalnande 0,75, kalla 0,5. Räknas om varje gång sidan öppnas med dagens data."],
   insInfo:["Insikter","Bolag som klarar minst en av de strategier du kryssar i, och alla krav du kryssar i. Nya = bolaget gick in i ett köpläge (Diamant, Guld, Swing eller Rea) senaste 7 dagarna. Smart money ökar = institutionerna nettoköpte senaste kvartalet (13F) eller deras andel har ökat. P/E och P/E framåt jämförs med snittet i bolagets bransch. Siffran bredvid varje val visar hur många bolag som blir kvar med det valet. Valen sparas."],
+  levSim:["Simulator för hävstångsprodukter","Dra i reglaget för att se vad dina mini futures och turbos blir värda om den underliggande aktien (eller oljan) går upp eller ner. Med 5x hävstång blir +4 % i aktien ungefär +20 % i produkten, och −20 % i aktien slår ut produkten (värdet går mot noll). Reglaget högst upp flyttar alla på en gång, reglagen per rad flyttar en i taget. Hävstången står bredvid varje produkt och kan ändras."],
   oppInfo:["Bäst läge","En poäng 0–100 för hur bra köpläge bolaget har just nu jämfört med andra i samma bransch: P/E framåt mot branschens median (20 %), PEG (15 %), sammanvägd värdering med DCF och riktkurser (15 %), avstånd till 200W-snittet (20 %), hur mycket institutionerna äger och om de köper (15 %) och kvalitet (15 %). Avdrag: förlust 40 %, negativt kassaflöde 15 %, kurs mer än 60 % över 200W 15 % och mer än 100 % över 25 %. Störst är något annat: det är bara omsättning."],
   dnBear:["Bear case","Bear case är det pessimistiska värdet på aktien, i procent mot dagens kurs. Från kassaflödesvärderingen (DCF, halverad tillväxt och högre ränta) när den finns, annars analytikernas lägsta riktkurs. Bear case ≥ −10 % betyder att även i ett dåligt scenario faller aktien högst 10 %. Över 0 % = aktien är billigare än även det pessimistiska värdet. Förväntat väger bear 25 %, bas 50 % och bull 25 %, samma som på aktiesidan."],
   dn52:["Läge i 52 veckor","Var kursen ligger mellan årets lägsta (0 %) och högsta (100 %) kurs. Nära 0 % = aktien handlas nära årets botten."],
@@ -1835,7 +1845,21 @@ async function ensureFx(){
 const KRH='<span class="krh" title="Dolt. Tryck på ögat uppe till höger för att visa">•••• kr</span>';
 const kr=(x,dp=0)=>!nn(x)?"–":hideKr()?KRH:f(x,dp)+" kr";
 const krS=x=>!nn(x)?"–":hideKr()?KRH:Math.abs(x)<0.5?"0 kr":(x>0?"+":"−")+f(Math.abs(x),0)+" kr";
+// hävstångsprodukter (mini futures, turbos): värdet följer den underliggande gånger hävstången
+const levOf=p=>{const o=(ui.levOv||{})[p.name||p.id];return nn(o)?o:p.lev};
+function u0Of(p,d){if(nn(p.u0))return p.u0;const k="ft-u0-"+(p.name||p.id),m=store.get(k,null);if(nn(m))return m;if(nn(d.price)){store.set(k,d.price);return d.price}return null}
+const levVal=(p,L,u0,px)=>nn(px)&&nn(u0)&&u0>0?p.value*Math.max(0,1+L*p.dir*(px/u0-1)):p.value;
+const koPx=(p,L,u0)=>nn(u0)?u0*(1-1/(L*p.dir)):null;
+function posCalcLev(p){
+  const d=bySym[p.ticker]||{},L=levOf(p),u0=u0Of(p,d),price=d.price,value=levVal(p,L,u0,price);
+  const invested=p.value/(1+(p.ret||0)/100),pl=value-invested,plPct=invested?pl/invested*100:null;
+  const today=nn(price)&&nn(d.prevClose)&&nn(u0)?value-levVal(p,L,u0,d.prevClose):null;
+  const ko=koPx(p,L,u0),koDist=nn(ko)&&nn(price)?(ko/price-1)*100:null,flags=[];
+  if(value<=0)flags.push(["Utslagen?","no"]);else if(nn(koDist)&&Math.abs(koDist)<10)flags.push([`${f(Math.abs(koDist),0)} % till utslag`,"no"]);
+  if(d.nextEarnings){const dd=Math.round((new Date(d.nextEarnings)-Date.now())/864e5);if(dd>=0&&dd<=7)flags.push([`Rapport om ${dd} d`,"warn"])}
+  return{d,fx:1,price,value,invested,pl,plPct,today,days:null,flags,lev:L,u0,ko,koDist}}
 function posCalc(p){
+  if(p.kind==="lev")return posCalcLev(p);
   const d=bySym[p.ticker]||{},fx=fxOf(d.currency||p.cur),price=d.price;
   const value=nn(price)&&fx?p.qty*price*fx:null;
   const invested=nn(p.sek)?p.sek:(fx?p.qty*p.price*fx:null);
@@ -1903,7 +1927,7 @@ function pageHoldings(listKey,addTicker){
   const t=posTotals(list);
   const rowsH=list.map(p=>{const c=posCalc(p),d=c.d;return `<tr class="go" data-t="${esc(p.ticker)}">
       <td class="l stick">${co(d.ticker?d:{ticker:p.ticker,name:"saknas i listan"})}</td>
-      <td class="n">${f(p.qty,p.qty%1?2:0)}</td><td class="n">${px(p.price)}</td><td class="n">${px(c.price)}</td>${chgCell(d)}
+      ${p.kind==="lev"?`<td class="n small">${f(c.lev,1)}x ${p.dir>0?"lång":"kort"}</td><td class="l small" style="white-space:normal;min-width:140px">${esc(p.name)}</td>`:`<td class="n">${f(p.qty,p.qty%1?2:0)}</td><td class="n">${px(p.price)}</td>`}<td class="n">${px(c.price)}</td>${chgCell(d)}
       <td class="n">${kr(c.invested)}</td><td class="n">${kr(c.value)}</td><td class="n ${cls(c.pl)}">${krS(c.pl)}</td><td class="n ${cls(c.plPct)}">${pct(c.plPct,1)}</td>
       <td class="l">${zchip(d)}</td><td class="l">${sigB(d)||'<span class="faint">–</span>'}</td>
       <td class="n">${c.days??"–"}</td><td class="n small">${nn(p.stop)?px(p.stop):"–"} / ${nn(p.target)?px(p.target):"–"}</td>
@@ -1913,6 +1937,7 @@ function pageHoldings(listKey,addTicker){
   $("app").innerHTML=`
   <div class="hero"><h1>${L==="swing"?"Live swing":"Portfölj"}</h1><div class="seg" id="hseg"><button data-l="swing" aria-pressed="${L==="swing"}">Swingar</button><button data-l="port" aria-pressed="${L==="port"}">Portfölj</button><button data-l="analys">Analys</button></div></div>
   <section class="card"><div class="bd">${tiles(t)}</div></section>
+  ${levSimCard(list)}
   ${riskCard(list)}
   ${alarmCard()}
   <section class="card" style="margin-top:16px"><div class="hd"><h2>${F.id?"Ändra":"Lägg till"} ${L==="swing"?"swing":"innehav"}</h2><span class="sub">Ange antal eller belopp i kronor, det andra räknas ut</span></div>
@@ -1931,7 +1956,7 @@ function pageHoldings(listKey,addTicker){
     <div class="bd flush">${list.length?`<div class="tw"><table><thead><tr><th class="l stick">Aktie</th><th>Antal</th><th>Köpkurs</th><th>Kurs${ib("price")}</th><th>Idag</th><th>Insats${ib("invested")}</th><th>Värde${ib("value")}</th><th>Resultat${ib("pl")}</th><th>%</th><th class="l">200W${ib("zones")}</th><th class="l">Signal</th><th>Dagar${ib("held")}</th><th>Stop / mål${ib("stopTarget")}</th><th class="l">Varningar</th><th></th></tr></thead><tbody>${rowsH}</tbody></table></div>`:`<p class="empty">Inga ${L==="swing"?"swingar":"innehav"} än. Lägg till med formuläret ovan, eller via knappen + Swing på en aktie.</p>`}</div>
     <div class="bd" id="h-io" hidden></div></section>
   <p class="small muted" style="margin-top:10px">Positioner du lägger in här sparas i den här webbläsaren (Flytta till annan enhet för mobilen). Positioner som Claude lagt in på din begäran syns på alla enheter. Be Claude i chatten, t.ex. "lägg till 200 SOFI à 15,20 med stop 13". Belopp i kronor räknas med dagens valutakurs från Yahoo Finance.</p>`;
-  document.querySelectorAll("#hseg button").forEach(b=>b.addEventListener("click",()=>{hForm=null;location.hash="#/innehav/"+b.dataset.l}));bindAlarm();
+  document.querySelectorAll("#hseg button").forEach(b=>b.addEventListener("click",()=>{hForm=null;location.hash="#/innehav/"+b.dataset.l}));bindAlarm();bindLevSim();
   // formulär
   const tk=$("h-tk"),dd2=$("h-dd"),pr=$("h-price"),qt=$("h-qty"),sk=$("h-sek"),msg=$("h-msg");
   const val=el=>{const v=parseFloat(String(el.value).replace(/\s/g,"").replace(",","."));return isNaN(v)?null:v};
@@ -3823,6 +3848,29 @@ function ownTab(d,det){
     <p class="small muted" style="margin-top:8px">Andelar och största ägare: Yahoo Finance (institutionernas egna rapporter, uppdateras av Yahoo ungefär månadsvis). Kvartalsflöden: 13F via Nasdaq, bara USA. Aktier = andel × antal aktier (börsvärde / kurs). Värde enligt senaste rapport.</p>
   </div>`}
 function bindOwnTab(b){b.querySelectorAll("[data-more]").forEach(x=>x.addEventListener("click",()=>{const t=$(x.dataset.more);const on=x.dataset.on!=="1";t.querySelectorAll(".more5").forEach(r=>r.hidden=!on);x.dataset.on=on?"1":"0";x.textContent=on?"Visa färre ↑":`Visa alla ${t.querySelectorAll("tbody tr").length} ↓`}))}
+/* ---- simulator för hävstångsprodukter: dra i den underliggande och se värdet ---- */
+function levSimCard(list){const P=list.filter(p=>p.kind==="lev");if(!P.length)return"";
+  const S=ui.levSim||{},all=nn(S._all)?S._all:0;
+  const rowsS=P.map((p,i)=>{const c=posCalc(p),d=c.d,mv=nn(S[p.name])?S[p.name]:all,L=c.lev,px0=c.price??c.u0;
+    const pxN=nn(px0)?px0*(1+mv/100):null,vN=nn(pxN)?levVal(p,L,c.u0,pxN):null,dv=nn(vN)?vN-c.value:null;
+    return `<div class="lsr" data-i="${i}">
+      <div class="lsn"><b>${esc(p.name)}</b><span class="small muted">${esc(p.ticker)} ${nn(px0)?px(px0):"–"} ${esc(d.currency||"")} · <label class="lslev">Hävstång <input type="number" step="0.1" min="0.5" max="50" value="${L}" data-lev="${esc(p.name)}"> x</label> ${p.dir>0?"lång":"kort"}${p.levNote&&!nn((ui.levOv||{})[p.name])?` <span class="pill" style="font-size:10px;padding:0 5px" title="${p.levNote==="gissning"?"Okänd: fyll i hävstången från produktsidan hos Nordnet":"Uppskattad från dagens rörelse: produktens procent delat med den underliggandes"}">${esc(p.levNote)}</span>`:""}</span></div>
+      <div class="lss"><input type="range" min="-40" max="40" step="1" value="${mv}" data-mv="${esc(p.name)}" aria-label="Rörelse i ${esc(p.ticker)}"><span class="n lsv ${cls(mv)}">${mv>0?"+":""}${mv} %</span></div>
+      <div class="lsres"><span class="n"><b>${kr(vN)}</b></span><span class="n small ${cls(dv)}">${krS(dv)} · ${nn(dv)&&c.value?pct(dv/c.value*100,0):"–"}</span><span class="small muted">${nn(c.ko)?`Utslag vid ${px(c.ko)} (${pct(c.koDist,0)})`:"Utslag okänt"}</span></div>
+    </div>`}).join("");
+  const tot0=P.reduce((a,p)=>a+posCalc(p).value,0),totN=P.reduce((a,p)=>{const c=posCalc(p),mv=nn(S[p.name])?S[p.name]:all,px0=c.price??c.u0;return a+(nn(px0)?levVal(p,c.lev,c.u0,px0*(1+mv/100)):c.value)},0);
+  return `<section class="card" id="levsim" style="margin-top:16px"><div class="hd"><h2>Simulera: om den underliggande rör sig${ib("levSim")}</h2></div><div class="bd">
+    <div class="lsall"><b>Alla underliggande samtidigt</b><input type="range" min="-30" max="30" step="1" value="${all}" id="lsAll"><span class="n lsv ${cls(all)}">${all>0?"+":""}${all} %</span><button class="more" id="lsReset" type="button" style="margin:0">Nollställ</button></div>
+    <div class="lstot"><div><span class="sub">Värde nu</span><b class="n">${kr(tot0)}</b></div><div><span class="sub">Simulerat värde</span><b class="n">${kr(totN)}</b></div><div><span class="sub">Förändring</span><b class="n ${cls(totN-tot0)}">${krS(totN-tot0)}</b><span class="small ${cls(totN-tot0)}">${tot0?pct((totN-tot0)/tot0*100,1):""}</span></div></div>
+    <div class="lsrows">${rowsS}</div>
+    <p class="small muted" style="margin-top:8px">Värde ≈ värdet när produkten lades in × (1 + hävstång × rörelsen i den underliggande sedan dess). Kort (short) går upp när den underliggande går ner. Hävstången ändras när kursen rör sig, valutan (USD/SEK) och avgifter ingår inte, och utslaget (stop loss) sker i verkligheten lite före beräknad nivå. Kontrollera hävstång och stop loss-nivå på produktsidan hos Nordnet och skriv in rätt hävstång ovan.</p>
+  </div></section>`}
+function bindLevSim(){const c=$("levsim");if(!c)return;const S=ui.levSim=ui.levSim||{};
+  const re=()=>{saveUi();const y=scrollY;c.outerHTML=levSimCard(allPos().filter(p=>p.list==="swing"));bindLevSim();scrollTo(0,y)};
+  const a=$("lsAll");a.addEventListener("input",()=>{c.querySelector(".lsall .lsv").textContent=(a.value>0?"+":"")+a.value+" %"});a.addEventListener("change",()=>{S._all=+a.value;Object.keys(S).forEach(k=>{if(k!=="_all")delete S[k]});re()});
+  c.querySelectorAll("[data-mv]").forEach(r=>{r.addEventListener("input",()=>{r.nextElementSibling.textContent=(r.value>0?"+":"")+r.value+" %"});r.addEventListener("change",()=>{S[r.dataset.mv]=+r.value;re()})});
+  c.querySelectorAll("[data-lev]").forEach(i=>i.addEventListener("change",()=>{const v=+String(i.value).replace(",",".");ui.levOv=ui.levOv||{};if(v>0)ui.levOv[i.dataset.lev]=v;re()}));
+  $("lsReset").addEventListener("click",()=>{ui.levSim={};re()})}
 /* ---- avsnitten ---- */
 function qSec(id,n,q,a,body,next){return `<section class="qa" id="${id}"><div class="qhd"><span class="qn">${n}</span><div><h2>${q}</h2><p class="ans">${a}</p></div></div>${body?`<div class="qbody">${body}</div>`:""}${next?`<button class="nextq" data-to2="${next[0]}">Nästa: ${next[1]} ↓</button>`:""}</section>`}
 function chaptersA(d,det){
@@ -3971,7 +4019,7 @@ async function load(){
     INSIKT=ins&&ins.visser?ins:null;
     REPO_MINE=(mi&&Array.isArray(mi.tickers)?mi.tickers:[]).map(t=>String(t).trim().toUpperCase()).filter(Boolean);
     FOCUS=fo&&fo.picks?fo:null;
-    repoPos=(rp&&Array.isArray(rp.positions)?rp.positions:[]).filter(p=>p&&p.ticker&&p.qty).map((p,i)=>({...p,id:"repo"+i,src:"repo",list:p.list==="port"?"port":"swing",ticker:String(p.ticker).toUpperCase()}));
+    repoPos=(rp&&Array.isArray(rp.positions)?rp.positions:[]).filter(p=>p&&p.ticker&&(p.qty||p.kind==="lev")).map((p,i)=>({...p,id:"repo"+i,src:"repo",list:p.list==="port"?"port":"swing",ticker:String(p.ticker).toUpperCase()}));
     // behåll laddad detaljdata på öppen aktie
     const h=location.hash;if(h.startsWith("#/aktie/")){const t=decodeURIComponent(h.slice(8));if(detailCache[t]&&bySym[t])bySym[t]._det=detailCache[t]}
     const ae=document.activeElement;
