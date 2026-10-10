@@ -187,7 +187,17 @@ def yahoo_all(old, full, log=print):
 
 def fed_rss(log=print):
     """Feds penningpolitiska pressmeddelanden: räntebesked, protokoll och liknande. Nyast först."""
-    txt = _get(FED_RSS, timeout=20)
+    import requests
+    txt = None
+    try:  # Fed blockerar ibland robot-huvuden, så hämta som en vanlig webbläsare
+        r = requests.get(FED_RSS, timeout=20, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+                                                        "Accept": "application/rss+xml, application/xml, text/xml, */*"})
+        if r.ok:
+            txt = r.content.decode("utf-8", "ignore").lstrip("\ufeff")
+        else:
+            log("makro: Fed RSS svarade", r.status_code)
+    except Exception as e:  # noqa: BLE001
+        log("makro: Fed RSS fel", e)
     if not txt:
         return []
     try:
