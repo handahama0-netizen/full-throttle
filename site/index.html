@@ -416,6 +416,16 @@ tr.slhl td{background:var(--accent-soft)}
 .hchip{display:inline-flex;gap:6px;align-items:center;padding:7px 10px;border-radius:10px;background:var(--sunk);border:1px solid var(--line);color:var(--ink);font-size:13px;text-decoration:none!important}.hchip:hover{border-color:var(--accent)}.hchip .z{font-size:10.5px}
 .hatt ul{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px}.hatt li{padding:7px 10px;border-radius:9px;background:var(--sunk);border-left:3px solid var(--warn);font-size:13.5px}.hatt li.no{border-left-color:var(--down)}
 .hsec{font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:22px 2px 6px}
+/* hur det gått med strategin på aktien */
+.hverd{display:inline-block;padding:7px 12px;border-radius:10px;font-weight:650;font-size:14.5px;line-height:1.4}
+.hverd.pos{background:var(--up-soft);color:var(--up)}.hverd.mid{background:var(--warn-soft);color:var(--warn)}.hverd.neg{background:var(--down-soft);color:var(--down)}
+.hresg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.hres{display:grid;gap:2px;padding:10px 12px;border-radius:12px;background:var(--sunk);border:1px solid var(--line)}
+.hres.hl{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--sunk))}
+.hres b{font-size:20px}.hres small{font-size:11.5px;color:var(--muted)}
+@media (max-width:640px){.hresg{grid-template-columns:1fr}.hres{grid-template-columns:auto 1fr;column-gap:10px;align-items:baseline}.hres .sub{grid-column:1/-1}}
+.hchart text{font-size:11px;fill:var(--muted)}
+.htr{display:grid;gap:4px;margin-top:8px}.htr>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:7px 10px;border-radius:8px;background:var(--sunk)}.htr small{color:var(--muted);font-size:11.5px}
 /* nedtryckta */
 .dnbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--sunk)}
 @media (min-width:701px){.dnbar{position:sticky;top:var(--hh,58px);z-index:5}}
@@ -1534,7 +1544,7 @@ async function getDetail(t){
   if(!r.ok)throw new Error("HTTP "+r.status);
   return detailCache[t]=await r.json();
 }
-function pageStock(t){
+function pageStock(t){getBT();
   const d=bySym[t]||bySym[t.toUpperCase()];
   if(!d){$("app").innerHTML=`<div class="card"><div class="bd"><h1 style="font-size:18px">Hittar inte ${esc(t)}</h1><p class="muted" style="margin-top:6px">Aktien finns inte i listan på ${rows.length} aktier. Lägg till Yahoo-symbolen i <span class="n">config/egna.txt</span> i repot så kommer den med vid nästa uppdatering. <a href="https://www.tradingview.com/symbols/${encodeURIComponent(t)}/" target="_blank" rel="noopener">Öppna i TradingView ↗</a></p></div></div>`;return}
   document.title=`${d.name} (${d.ticker}) · Full Throttle`;
@@ -3719,20 +3729,41 @@ function btSum(tr){if(!tr.length)return null;const win=tr.filter(x=>x.r>0).lengt
 function histChapter(d,det){
   if(!det)return{a:"Laddar kurshistoriken…",b:""};
   const B=btStock(det);if(!B)return{a:"För kort kurshistorik: 200W-snittet behöver minst fyra år.",b:""};
-  const S=btSum(B.smart),O=btSum(B.orig),yr=dayToISO(B.from).slice(0,4);
-  const works=X=>X&&X.win/X.n>=0.6&&(X.tot>0)&&(X.mdd>B.bhdd+5||nn(X.cagr)&&nn(B.bhc)&&X.cagr>=B.bhc-2);
-  const verdict=X=>!X?"inga affärer":!works(X)?(X.tot>0?"fungerade delvis":"fungerade inte"):nn(X.cagr)&&nn(B.bhc)&&X.cagr<B.bhc-2?"fungerade, lägre risk men mindre avkastning än köp och behåll":"fungerade";
-  const a=`<b>⚡ Smart ${verdict(S)}</b>${S?`: ${S.n} ${S.n===1?"affär":"affärer"} sedan ${yr}, ${S.win} vinnande, ${nn(S.cagr)?pct(S.cagr,1)+" per år":pct(S.tot,0)} (värsta nedgång ${pct(S.mdd,0)})`:`: inga köplägen sedan ${yr}`}. Köp och behåll: ${nn(B.bhc)?pct(B.bhc,1)+" per år":pct(B.bh*100,0)} (värsta ${pct(B.bhdd,0)}).`;
-  const row=(nm,desc,X,hl)=>`<tr style="${hl?"background:var(--accent-soft)":""}"><td><b>${nm}</b><span class="subv">${desc}</span></td><td class="r n">${X?`${X.win} av ${X.n}`:"–"}</td><td class="r n ${cls(X&&X.cagr)}">${X&&nn(X.cagr)?pct(X.cagr,1):"–"}</td><td class="r n down">${X?pct(X.mdd,0):"–"}</td><td class="r n">${verdict(X)}</td></tr>`;
-  const tr=B.smart.slice().reverse().slice(0,8);
+  const S=btSum(B.smart),O=btSum(B.orig),yr=dayToISO(B.from).slice(0,4),base=10000;
+  const end=X=>X?base*(1+X.tot/100):base,bhEnd=base*(1+B.bh),tk=esc(d.ticker);
+  const kr0=v=>f(Math.round(v/100)*100,0)+" kr";
+  // ett enkelt omdöme: bättre, sämre eller tryggare än att bara äga aktien
+  const sEnd=end(S),safer=S&&S.mdd>B.bhdd+8;
+  const [vk,vt]=!S?["mid",`Smart hittade inget köpläge i ${tk} sedan ${yr}.`]
+    :sEnd>=bhEnd*0.95&&safer?["pos",`Smart fungerade bra: ungefär lika mycket eller mer än att äga aktien, med mycket mindre nedgång.`]
+    :sEnd>=bhEnd*0.95?["pos",`Smart slog eller matchade att äga aktien.`]
+    :S.tot>0&&safer?["mid",`Smart gav mindre än att äga aktien, men med mycket mindre risk.`]
+    :S.tot>0?["mid",`Smart gav vinst, men mindre än att bara äga aktien.`]:["neg",`Smart fungerade inte på ${tk}: förlust totalt.`];
+  const a=`<span class="hverd ${vk}">${vk==="pos"?"✓":vk==="neg"?"✕":"≈"} ${esc(vt)}</span>`;
+  const tile=(nm,sub,v,X,hl)=>`<div class="hres${hl?" hl":""}"><span class="sub">${nm}</span><b class="n">${kr0(v)}</b><small class="n ${cls(v-base)}">${pct((v/base-1)*100,0)}${X&&nn(X.cagr)?` · ${pct(X.cagr,1)}/år`:""}</small><small>Värsta nedgång <span class="n down">${pct(X?X.mdd:B.bhdd,0)}</span></small><small>${sub}</small></div>`;
+  // diagram: kursen, 200W och var Smart köpte och sålde
+  const W=det.w,c=W.c,t=W.t,i0=t.indexOf(B.from),n=c.length;let chart="";
+  if(i0>=200){const pre=[0];c.forEach(x=>pre.push(pre[pre.length-1]+x));const ma=i=>(pre[i+1]-pre[i-199])/200;
+    const nar=innerWidth<640,VW=nar?380:680,VH=nar?190:220,P=nar?34:44,X=i=>P+(i-i0)/(n-1-i0)*(VW-P-8);
+    let lo=Infinity,hi=0;for(let i=i0;i<n;i++){lo=Math.min(lo,c[i],ma(i));hi=Math.max(hi,c[i],ma(i))}
+    const Y=v=>8+(Math.log(hi)-Math.log(v))/(Math.log(hi)-Math.log(lo)||1)*(VH-30);
+    const idx=d0=>{let k=t.indexOf(d0);return k<0?i0:k};
+    let g="";B.smart.forEach(x=>{const a0=idx(x.in),a1=idx(x.out);g+=`<rect x="${X(a0)}" y="6" width="${Math.max(2,X(a1)-X(a0))}" height="${VH-26}" fill="${x.r>0?"var(--up)":"var(--down)"}" opacity=".13"/>`});
+    for(let y=+yr+1;y<=new Date().getFullYear();y+=nar?3:2){const k=t.findIndex(v=>v>=Date.UTC(y,0,1)/864e5);if(k>i0)g+=`<text x="${X(k)}" y="${VH-6}" text-anchor="middle">${y}</text>`}
+    const line=(fn,stroke,w,dash)=>{let s="";for(let i=i0;i<n;i+=nar?2:1)s+=`${X(i).toFixed(1)},${Y(fn(i)).toFixed(1)} `;return `<polyline points="${s}" fill="none" stroke="${stroke}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:""}/>`};
+    g+=line(i=>ma(i)*1.2,"var(--z-cheap)",1,"2 3")+line(ma,"var(--z-fire)",1.4,"5 3")+line(i=>c[i],"var(--ink)",1.6);
+    B.smart.forEach(x=>{const a0=idx(x.in),a1=idx(x.out);g+=`<path d="M${X(a0)} ${Math.min(VH-30,Y(c[a0])+12)} l-5 8 h10 z" fill="var(--up)"/>`;if(x.done)g+=`<path d="M${X(a1)} ${Math.max(16,Y(c[a1])-12)} l-5 -8 h10 z" fill="var(--down)"/>`});
+    [lo,hi].forEach(v=>{g+=`<text x="${P-5}" y="${Y(v)+4}" text-anchor="end">${px(v)}</text>`});
+    chart=`<svg class="ff hchart" viewBox="0 0 ${VW} ${VH}" role="img" aria-label="Kursen med Smarts köp och sälj">${g}</svg>
+      <div class="lg"><span><i style="background:var(--up);border-radius:0;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid var(--up);background:none"></i>Köp</span><span><i style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid var(--down);background:none;border-radius:0"></i>Sälj</span><span><i style="background:var(--up);opacity:.35;border-radius:2px"></i>Ägd med vinst</span><span><i style="background:var(--z-fire);height:2px;border-radius:0"></i>200W</span><span><i style="background:var(--z-cheap);height:2px;border-radius:0"></i>Cheap (köpzon under)</span></div>`}
+  const tr=B.smart.slice().reverse();
   const b=`<section class="card"><div class="bd">
-    <div class="tw"><table class="crit bt"><thead><tr><th>Regel</th><th class="r">Vinnande</th><th class="r">Per år</th><th class="r">Värsta nedgång</th><th class="r">Fungerar?</th></tr></thead><tbody>
-      ${row("⚡ Smart","Köpzon + uppvecka, sälj Expensive, följ-med-stop 15 %, stop −20 %",S,1)}
-      ${row("200W original","Köp under Cheap, sälj vid Expensive",O)}
-      <tr><td><b>Köp och behåll</b><span class="subv">Från ${dayToISO(B.from)}</span></td><td class="r n">–</td><td class="r n ${cls(B.bhc)}">${nn(B.bhc)?pct(B.bhc,1):"–"}</td><td class="r n down">${pct(B.bhdd,0)}</td><td></td></tr>
-    </tbody></table></div>
-    ${tr.length?`<details class="mdet" style="margin-top:10px"><summary>Smart-affärerna på ${esc(d.ticker)}</summary><div class="tw" style="margin-top:8px"><table class="crit"><thead><tr><th>Köp</th><th>Sälj</th><th class="r">Resultat</th><th class="r">Värsta fall</th></tr></thead><tbody>${tr.map(x=>`<tr><td class="n">${dayToISO(x.in)}</td><td class="n">${x.done?dayToISO(x.out):"<i>öppen</i>"}</td><td class="r n ${cls(x.r)}">${pct(x.r*100,0)}</td><td class="r n down">${pct(x.dd*100,0)}</td></tr>`).join("")}</tbody></table></div></details>`:""}
-    <p class="small muted" style="margin-top:8px">Bara pris-reglerna testade på den här aktien, veckokurser sedan ${dayToISO(B.from)}. Utanför affärerna ligger pengarna i kontanter.</p>
+    <p class="small muted" style="margin-bottom:8px">Om du hade satt in <b>10 000 kr</b> i ${tk} ${esc(dayToISO(B.from))} och följt reglerna:</p>
+    <div class="hresg">${tile("⚡ Smart","köpzon + uppvecka, sälj Expensive eller stop",sEnd,S,1)}${tile("200W original","köp Cheap, sälj Expensive",end(O),O)}${tile("Bara äga aktien","köp och behåll",bhEnd,null)}</div>
+    ${chart?`<div style="margin-top:14px">${chart}</div>`:""}
+    ${tr.length?`<details class="mdet" style="margin-top:12px"><summary>Smarts ${tr.length} affärer i ${tk}${S?` · ${S.win} av ${S.n} med vinst`:""}</summary><div class="htr">${tr.map(x=>`<div><span class="n">${dayToISO(x.in)} → ${x.done?dayToISO(x.out):"äger fortfarande"}</span><b class="n ${cls(x.r)}">${pct(x.r*100,0)}</b><small class="n">värsta under affären ${pct(x.dd*100,0)}</small></div>`).join("")}</div></details>`:""}
+    ${S&&sEnd<bhEnd?`<p class="small" style="margin-top:10px"><b>Varför mindre än att äga aktien?</b> Mellan affärerna ligger pengarna stilla i kontanter. I en portfölj flyttar Smart i stället pengarna till nästa köpläge i en annan aktie, och det är där fördelen kommer: ${BT&&BT.slots&&BT.slots.smart?`${pct(BT.slots.smart.cagr,1)} per år mot S&P 500:s ${pct(BT.slots.spy.cagr,1)}`:"se Strategi"}. Det enskilda testet visar framför allt hur stora nedgångarna blev.</p>`:""}
+    <p class="small muted" style="margin-top:10px">Bara köp- och säljreglerna mot 200W, testade på ${tk}s veckokurser. Mellan affärerna ligger pengarna i kontanter. Courtage och skatt ingår inte. Historiken är ingen garanti.</p>
   </div></section>`;
   return{a,b};
 }
@@ -3753,7 +3784,7 @@ function chapters(d,det){
   const g=d._pg||(d._pg=peerGroup(d));
   const Q=[
     ["q-strat","Uppfyller den min strategi?",`<span class="yn ${v.k}">${yes(v.k)}</span> ${esc(v.t)}`,stratCard(d).replace('style="margin-top:16px"',"").replace(/<p class="sv">[\s\S]*?<\/p>/,"")],
-    ["q-hist","Fungerar ⚡ Smart på den här aktien?",H.a,H.b],
+    ["q-hist","Hur hade det gått med din strategi på den här aktien?",H.a,H.b],
     ["q-val","Är den billig eller dyr?",iv&&nn(d.price)?(iv.v>=d.price?`Billig: ${f((1-d.price/iv.v)*100,0)} % under ${iv.src==="dcf"?"beräknat värde":"analytikernas riktkurs"} (${money(iv.v,d.currency)}).`:`Dyr: ${f((d.price/iv.v-1)*100,0)} % över ${iv.src==="dcf"?"beräknat värde":"analytikernas riktkurs"} (${money(iv.v,d.currency)}).`)+` Sammanvägt: ${vChip(valView(d))}`:`Sammanvägt: ${vChip(valView(d))}`,`<div class="sgrid" style="margin-top:0">${ivCard(d,det)}<section class="card"><div class="hd"><h2>Vad drar åt vilket håll?${ib("valVerdict")}</h2></div><div class="bd">${partsH(valView(d).parts)}</div></section></div>`],
     ["q-eps","Växer vinsten, och följer kursen med?",(()=>{if(!det)return"Laddar…";const q=epsQuarters(det);const g1=d.earnGrowth1y,r12=d.r252;return nn(g1)?`Vinsten per aktie ${g1>=0?"växte":"minskade"} ${f(Math.abs(g1),0)} % senaste året${nn(r12)?`, kursen gick ${pct(r12*100,0)}`:""}. ${nn(r12)?(Math.abs(r12*100-g1)<15?"Kursen har följt vinsten.":r12*100<g1?"Kursen har inte hängt med, aktien har blivit billigare.":"Kursen har sprungit ifrån vinsten."):""}`:q.length?"Se vinsten per kvartal nedan.":"Vinsthistorik saknas."})(),`<div class="sgrid" style="margin-top:0">${epsCard(d,det)}${qualCard(d)}</div><h3 class="sub3">Så har bolaget utvecklats</h3>${finCards(d,det)}`],
     ["q-ind","Vem dominerar branschen?",ir?`${esc(d.name)} är nr ${ir.rank} av ${ir.n} i ${esc(ir.label)} (sammanvägt).${LEAD[d.ticker]===1?" Störst i branschen efter omsättning.":""}`:"Ingen jämförbar bransch.",giantsCard(d).replace('style="margin-top:16px"',"")],
@@ -4159,7 +4190,7 @@ function chaptersA(d,det){
   if(eq)parts.push(qSec("q-thesis",1,"Vad är bolaget, och vad är tesen?",`Vad bolaget gör, vad som gör det starkt eller svagt, och tre utfall: bull, bas och bear.`,profileCard(d,det)+`<div style="height:14px"></div>`+casesCard(d,det),["q-strat","Passar den min strategi?"]));
   if(!eq)parts.push(`<div style="margin-top:16px">${profileCard(d,det)}</div>`);
   parts.push(qSec("q-strat",eq?2:1,"Passar den min strategi?",`<span class="yn ${v.k}">${yes(v.k)}</span> ${esc(v.t)}`,
-    stratCard(d).replace('style="margin-top:16px"',"").replace(/<p class="sv">[\s\S]*?<\/p>/,"")+`<div id="q-hist" style="margin-top:16px"><h3 class="sub3" style="margin-bottom:4px">Fungerar ⚡ Smart på ${esc(d.ticker)}? Backtest från 2015</h3><p class="ans" style="margin-bottom:10px">${H.a}</p>${H.b}</div>`+(eq?`<div id="q-buy" style="margin-top:16px"><h3 class="sub3" style="margin-bottom:4px">Om du köper: vad händer med din portfölj?</h3><section class="card"><div class="bd" id="preTrade"><p class="muted small">Räknar…</p></div></section></div>`:""),
+    stratCard(d).replace('style="margin-top:16px"',"").replace(/<p class="sv">[\s\S]*?<\/p>/,"")+`<div id="q-hist" style="margin-top:16px"><h3 class="sub3" style="margin-bottom:6px">Hur hade det gått med din strategi på ${esc(d.ticker)}?</h3><p style="margin-bottom:10px">${H.a}</p>${H.b}</div>`+(eq?`<div id="q-buy" style="margin-top:16px"><h3 class="sub3" style="margin-bottom:4px">Om du köper: vad händer med din portfölj?</h3><section class="card"><div class="bd" id="preTrade"><p class="muted small">Räknar…</p></div></section></div>`:""),
     eq?["q-biz","Hur går affären?"]:["q-price","Vad kostar den?"]));
   if(eq)parts.push(qSec("q-biz",3,"Hur går affären?",(()=>{const g1=d.revGrowth1y,e1=d.earnGrowth1y;return `${nn(g1)?`Omsättningen ${g1>=0?"växte":"minskade"} ${f(Math.abs(g1),0)} % senaste året`:"Omsättning okänd"}${nn(e1)?`, vinsten per aktie ${e1>=0?"växte":"minskade"} ${f(Math.abs(e1),0)} %`:""}. ${ir?`Nr ${ir.rank} av ${ir.n} i ${esc(ir.label)}.`:""}${earnAns(d,det)}`})(),
     `<section class="card"><div class="bd" id="dashBox">${finDash(d,det)}</div></section>
