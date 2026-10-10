@@ -19,7 +19,7 @@ import shutil
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -1234,6 +1234,70 @@ def macro_expect(focus):
     return out
 
 
+def macro_sens(out, log=print):
+    """Hur varje aktie har rört sig när räntan, oljan och dollarn rört sig: veckodata senaste 3 åren.
+
+    Totalt samband (inte rensat för börsen), alltså det man faktiskt har upplevt som ägare.
+    r = % per +0,25 procentenheter i 10-årsräntan, o = % per +10 % i oljepriset (WTI),
+    u = % per +5 % i dollarindex (DXY). rc/oc/uc = korrelation, så att svaga samband kan märkas."""
+    m = load_json(out / "data" / "macro.json", {}) or {}
+    S = m.get("s") or {}
+    u = load_json(out / "data" / "universe.json", {}) or {}
+    if not u.get("rows") or not S.get("y10"):
+        return
+
+    def wk(d):
+        y, w, _ = (date(1970, 1, 1) + timedelta(days=d) if isinstance(d, int) else datetime.strptime(d[:10], "%Y-%m-%d").date()).isocalendar()
+        return (y, w)
+    fac = {}
+    for k in ("y10", "oil", "dxy"):
+        ser = S.get(k) or {}
+        fac[k] = {wk(d): v for d, v in zip(ser.get("d") or [], ser.get("v") or []) if v is not None}
+
+    def beta(xs, ys):
+        n = len(xs)
+        if n < 52:
+            return None, None
+        mx, my = sum(xs) / n, sum(ys) / n
+        vx = sum((x - mx) ** 2 for x in xs) / n
+        vy = sum((y - my) ** 2 for y in ys) / n
+        if vx <= 0 or vy <= 0:
+            return None, None
+        cv = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / n
+        return cv / vx, cv / (vx * vy) ** 0.5
+    n_ok = 0
+    for r in u["rows"]:
+        det = load_json(out / "data" / "t" / fname(r["ticker"]), {}) or {}
+        w = det.get("w") or {}
+        pts = [(wk(t), c) for t, c in zip(w.get("t") or [], w.get("c") or []) if c][-160:]
+        if len(pts) < 60:
+            continue
+        res = {}
+        for k, scale, kind in (("y10", 0.25, "diff"), ("oil", 0.10, "pct"), ("dxy", 0.05, "pct")):
+            F = fac.get(k) or {}
+            xs, ys = [], []
+            for (k0, c0), (k1, c1) in zip(pts, pts[1:]):
+                a, b = F.get(k0), F.get(k1)
+                if a is None or b is None or not c0:
+                    continue
+                x = (b - a) if kind == "diff" else (b / a - 1 if a else None)
+                if x is None:
+                    continue
+                xs.append(x)
+                ys.append(c1 / c0 - 1)
+            bt, cr = beta(xs, ys)
+            if bt is not None:
+                key = {"y10": "r", "oil": "o", "dxy": "u"}[k]
+                res[key] = round(bt * scale * 100, 2)
+                res[key + "c"] = round(cr, 2)
+        if res:
+            r["mx"] = res
+            n_ok += 1
+    u["mxAt"] = datetime.now(timezone.utc).date().isoformat()
+    write_json(out / "data" / "universe.json", u)
+    log(f"makrokänslighet för {n_ok} aktier")
+
+
 def write_status(out):
     """Liten fil som sidan läser varje minut: när datan senast uppdaterades och senaste makronytt."""
     u = load_json(out / "data" / "universe.json", {}) or {}
@@ -1327,6 +1391,12 @@ def main():
                 send_ntfy(f"Makro: {r['name']}", r.get("text") or r["name"], SITE + "#/story/makro", "bar_chart")
         except Exception as e:  # noqa: BLE001
             log("makro fel", e)
+        try:  # aktiernas känslighet för ränta, olja och dollar: en gång per dag räcker
+            uu = load_json(out / "data" / "universe.json", {}) or {}
+            if a.mode == "full" or uu.get("mxAt") != datetime.now(timezone.utc).date().isoformat():
+                macro_sens(out, log)
+        except Exception as e:  # noqa: BLE001
+            log("makrokänslighet fel", e)
         write_status(out)
     copy_site(out)
     return 0

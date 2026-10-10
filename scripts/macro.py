@@ -46,6 +46,7 @@ FRED = [
 YAHOO = [
     ("vix", "^VIX", "VIX (rädsloindex)", "punkter"),
     ("dxy", "DX-Y.NYB", "Dollarindex (DXY)", "index"),
+    ("usdsek", "SEK=X", "Dollarn i kronor (USD/SEK)", "kr"),
     ("oil", "CL=F", "Olja (WTI)", "USD/fat"),
     ("gold", "GC=F", "Guld", "USD/uns"),
     ("copper", "HG=F", "Koppar", "USD/pund"),
