@@ -130,7 +130,7 @@ main{padding-block:18px 48px}
 .pill.pass{background:var(--up-soft);color:var(--up);border-color:transparent}
 .pill.near{background:var(--warn-soft);color:var(--warn);border-color:transparent}
 .sig{font-size:10.5px;font-weight:750;padding:2px 6px;border-radius:4px;letter-spacing:.04em;white-space:nowrap}
-.sig.guld{background:#b8860b;color:#fff} .sig.diamant{background:linear-gradient(135deg,#2b6cb0,#7f5af0);color:#fff} .sig.swing{background:var(--z-cheap);color:var(--card)} .sig.rea{background:var(--z-vcheap);color:var(--card)}
+.sig.smart{background:linear-gradient(135deg,#2c8a17,#5fd13a);color:#061005} .sig.guld{background:#b8860b;color:#fff} .sig.diamant{background:linear-gradient(135deg,#2b6cb0,#7f5af0);color:#fff} .sig.swing{background:var(--z-cheap);color:var(--card)} .sig.rea{background:var(--z-vcheap);color:var(--card)}
 
 .ptools{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}.ptools .fld{display:grid;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}.ptools input{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line-strong);border-radius:7px;background:var(--card);color:var(--ink);width:130px}
 .dec{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;margin-top:14px}
@@ -350,6 +350,36 @@ a.lvlb:hover{text-decoration:none;border-color:var(--accent)}
 .stri span{border-radius:50%;background:var(--card);border:3px solid var(--bg);display:grid;place-items:center;font-size:27px}
 .stry b{font-size:12px;font-weight:650;line-height:1.2;text-align:center}.stry small{font-size:10.5px;color:var(--muted);white-space:nowrap}
 .stry:hover .stri{filter:brightness(1.1)}.stry:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:12px}
+/* strategisidan */
+.mdet{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-top:8px;background:var(--card)}
+.mdet>summary{cursor:pointer;font-weight:650;font-size:14.5px;list-style:none;display:flex;justify-content:space-between;gap:8px}
+.mdet>summary::-webkit-details-marker{display:none}.mdet>summary::after{content:"▾";color:var(--muted)}.mdet[open]>summary::after{content:"▴"}
+.slbest{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 7%,var(--card)),var(--card))}
+.slrules{margin:0;padding-left:22px;display:grid;gap:6px;font-size:14.5px;line-height:1.5}
+.slnow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.slnow>div{background:var(--sunk);border-radius:10px;padding:10px 12px}
+@media (max-width:640px){.slnow{grid-template-columns:1fr}}
+tr.slhl td{background:var(--accent-soft)}
+.slc text{font-size:11px;fill:var(--muted)}
+/* live och datakällor */
+.livedot{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:650;color:var(--muted);padding:5px 9px;border-radius:999px;border:1px solid var(--line);white-space:nowrap;text-decoration:none!important}
+.livedot i{width:8px;height:8px;border-radius:50%;background:var(--faint)}
+.livedot.on i{background:var(--up);box-shadow:0 0 0 0 color-mix(in srgb,var(--up) 60%,transparent);animation:livep 2s infinite}.livedot.on{color:var(--ink)}
+.livedot.old i{background:var(--warn)}
+@keyframes livep{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--up) 55%,transparent)}70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){.livedot.on i{animation:none}}
+@media (max-width:760px){.livedot{order:2;margin-left:auto;padding:4px 8px}.livedot+.privbtn{margin-left:0}}
+.popsrc{margin-top:8px!important;padding-top:6px;border-top:1px solid var(--line);font-size:11.5px}
+.relcard{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 14px;border-radius:12px;border:1px solid color-mix(in srgb,var(--warn) 45%,var(--line));background:var(--warn-soft);color:var(--ink);margin-bottom:12px;text-decoration:none!important}
+.rti{font-size:22px}
+#relToast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:70;width:min(560px,calc(100vw - 24px));display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;align-items:start;padding:12px 14px;border-radius:14px;background:var(--card);border:1px solid var(--warn);box-shadow:0 12px 40px rgb(0 0 0 / .35)}
+#relToast p{font-size:13px;color:var(--muted);margin-top:2px}#relToast .rta{grid-column:2;display:flex;gap:6px;margin-top:6px}
+@media (max-width:760px){#relToast{bottom:calc(76px + env(safe-area-inset-bottom,0px))}}
+.dlive{display:flex;gap:8px;align-items:center;margin:12px 0;padding:10px 12px;border-radius:10px;background:var(--sunk);font-size:13.5px}.dlive .livedot{border:0;padding:0}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.dsrc{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:4px;background:var(--card)}.dsh{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.strel{list-style:none;margin:0;padding:0;display:grid;gap:8px}.strel li{display:grid;gap:2px;padding:10px 12px;border-radius:10px;background:var(--sunk);border-left:3px solid var(--line-strong)}.strel li.new{border-left-color:var(--warn)}.strel span{font-size:14px}
+/* insikter: enkel vy som standard */
+#insT:not(.all) th:nth-child(4),#insT:not(.all) td:nth-child(4),#insT:not(.all) th:nth-child(5),#insT:not(.all) td:nth-child(5),#insT:not(.all) th:nth-child(7),#insT:not(.all) td:nth-child(7),#insT:not(.all) th:nth-child(10),#insT:not(.all) td:nth-child(10),#insT:not(.all) th:nth-child(11),#insT:not(.all) td:nth-child(11){display:none}
 /* nedtryckta */
 .dnbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--sunk)}
 @media (min-width:701px){.dnbar{position:sticky;top:var(--hh,58px);z-index:5}}
@@ -782,6 +812,7 @@ ul.tips li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;font-si
       <input id="q" type="search" placeholder="Sök aktie, t.ex. NVDA eller SoFi" autocomplete="off" aria-label="Sök aktie" aria-controls="dd">
       <div class="dd" id="dd" role="listbox" hidden></div>
     </div>
+    <a href="#/data" id="liveDot" class="livedot off" title="Data och källor"><i></i><span></span></a>
     <button type="button" id="privBtn" class="privbtn" aria-pressed="true" title="Visa eller dölj belopp i kr"></button>
     <nav class="main">
       <a href="#/" data-nav="start">Start</a>
@@ -865,7 +896,7 @@ const REC={strong_buy:"Starkt köp",buy:"Köp",hold:"Behåll",underperform:"Unde
 const UDA={up:"Uppgradering",down:"Nedgradering",main:"Bekräftar",reit:"Upprepar",init:"Ny bevakning"};
 /* ============ ordlista för info-knappar ============ */
 const GL={
-  price:["Kurs","Senaste betalkurs i aktiens handelsvaluta. Uppdateras ungefär var 30:e minut under börsdagen, med 15–30 minuters fördröjning."],
+  price:["Kurs","Senaste betalkurs i aktiens handelsvaluta. Uppdateras var 10:e minut under börsdagen, med ungefär 15 minuters fördröjning från börsen."],
   chg:["Idag","Kursförändring sedan gårdagens stängning, i procent."],
   ma200w:["200-veckorssnitt (200W)","Genomsnittlig stängningskurs de senaste 200 veckorna, knappt fyra år. Visar aktiens långsiktiga trend. Kvalitetsbolag har historiskt sällan handlats långt under sitt 200W-snitt."],
   zones:["200W-zoner","Hur långt över 200-veckorssnittet kursen ligger. Fire Sale = under snittet. Very Cheap = 0–10 % över. Cheap = 10–20 %. Fair Value = 20–30 %. Expensive = 30–40 %. Very Expensive = över 40 %. Samma logik som din indikator Universal Value Zones."],
@@ -909,6 +940,7 @@ const GL={
   aiTl:["Var är vi i AI-utbyggnaden?","AI-utbyggnaden har flyttat genom flaskhalsar: först GPU:er (2023), sedan paketering och nätverk (2024–2025), nu minne och kyla, och framåt el, elnät och ny elproduktion. Staplarna visar när varje fas uppskattas vara som mest akut, och den gröna linjen är idag. Bredvid varje fas står sidans live-läge för temat (från kursdatan), så att du kan se om pengarna redan börjat rotera dit. Årtalen är Claudes uppskattning utifrån branschkällor och uppdateras när läget ändras."],
   aiPort:["AI-portfölj","Ett förslag på hur man kan äga hela AI-kedjan: det bolag med högst Bäst läge-poäng i varje flaskhals (minst 5 md $ i börsvärde). Vikten är lika för alla teman men justeras efter läget: heta och teman på väg upp 1,25, svalnande 0,75, kalla 0,5. Räknas om varje gång sidan öppnas med dagens data."],
   insInfo:["Insikter","Bolag som klarar minst en av de strategier du kryssar i, och alla krav du kryssar i. Nya = bolaget gick in i ett köpläge (Diamant, Guld, Swing eller Rea) senaste 7 dagarna. Smart money ökar = institutionerna nettoköpte senaste kvartalet (13F) eller deras andel har ökat. P/E och P/E framåt jämförs med snittet i bolagets bransch. Siffran bredvid varje val visar hur många bolag som blir kvar med det valet. Valen sparas."],
+  slotInfo:["Strategierna jämförda","Varje strategi körs som en portfölj med högst 10 aktier samtidigt (10 % i varje), resten i kontanter. Urvalet görs vecka för vecka med det som gick att veta då. Per år = genomsnittlig årlig avkastning. Värsta nedgång = största fallet från en topp till en botten. Sharpe = avkastning över räntan delat med svängningarna: högre är bättre, över 0,7 är bra. 1,5x = samma strategi med 50 % lånade pengar till 5 % ränta."],
   levSim:["Simulator för hävstångsprodukter","Dra i reglaget för att se vad dina mini futures och turbos blir värda om den underliggande aktien (eller oljan) går upp eller ner. Med 5x hävstång blir +4 % i aktien ungefär +20 % i produkten, och −20 % i aktien slår ut produkten (värdet går mot noll). Reglaget högst upp flyttar alla på en gång, reglagen per rad flyttar en i taget. Hävstången står bredvid varje produkt och kan ändras."],
   oppInfo:["Bäst läge","En poäng 0–100 för hur bra köpläge bolaget har just nu jämfört med andra i samma bransch: P/E framåt mot branschens median (20 %), PEG (15 %), sammanvägd värdering med DCF och riktkurser (15 %), avstånd till 200W-snittet (20 %), hur mycket institutionerna äger och om de köper (15 %) och kvalitet (15 %). Avdrag: förlust 40 %, negativt kassaflöde 15 %, kurs mer än 60 % över 200W 15 % och mer än 100 % över 25 %. Störst är något annat: det är bara omsättning."],
   dnBear:["Bear case","Bear case är det pessimistiska värdet på aktien, i procent mot dagens kurs. Från kassaflödesvärderingen (DCF, halverad tillväxt och högre ränta) när den finns, annars analytikernas lägsta riktkurs. Bear case ≥ −10 % betyder att även i ett dåligt scenario faller aktien högst 10 %. Över 0 % = aktien är billigare än även det pessimistiska värdet. Förväntat väger bear 25 %, bas 50 % och bull 25 %, samma som på aktiesidan."],
@@ -988,7 +1020,7 @@ const GL={
 function ib(k){const g=GL[k];if(!g)return"";return `<button type="button" class="ib" data-i="${k}" aria-label="Vad är ${esc(g[0])}?">i</button>`}
 function showPop(btn){
   const g=GL[btn.dataset.i];if(!g)return;const p=$("pop");
-  p.innerHTML=`<b>${esc(g[0])}</b><p>${esc(g[1])}</p>`;p.hidden=false;
+  p.innerHTML=`<b>${esc(g[0])}</b><p>${esc(g[1])}</p>${srcLine(btn.dataset.i)}`;p.hidden=false;
   const r=btn.getBoundingClientRect(),w=Math.min(320,innerWidth-24);p.style.width=w+"px";
   let x=Math.min(Math.max(12,r.left-w/2+r.width/2),innerWidth-w-12),y=r.bottom+8;
   if(y+p.offsetHeight>innerHeight-8)y=Math.max(8,r.top-p.offsetHeight-8);
@@ -1074,6 +1106,10 @@ function classify(d){
     if(d.res.ftp.status==="pass"&&d.dist200w<lim.zones.rea)d.sig.push("rea");
     if(d.res.gold.status==="pass"&&d.dist200w<lim.zones.swing)d.sig.unshift("guld");
     if(d.res.lrhr.status==="pass"&&d.dist200w<0)d.sig.unshift("diamant");
+    // Smart: LRHR eller Guld i köpzonen, och senaste hela veckan steg efter en nedvecka (botten bekräftad)
+    const w=d.w3,ok=(d.res.lrhr.status==="pass"||d.res.gold.status==="pass")&&d.dist200w<lim.zones.swing;
+    d.turn=Array.isArray(w)&&w.length===3&&w[2]>w[1]&&w[1]<w[0];
+    if(ok&&d.turn)d.sig.unshift("smart");else if(ok)d.smartWait=1;
   }
   d.flag=nn(d.peg)&&d.peg>0&&d.peg<0.2;
 }
@@ -1085,7 +1121,7 @@ function dropTo(d,p){const t=level(d,p);return nn(t)&&nn(d.price)&&d.price>t?(1-
 
 /* ============ små komponenter ============ */
 function zchip(d,dist=true){if(!d.z)return `<span class="z z-none">200W saknas</span>`;return `<span class="z z-${d.z}">${ZNAME[d.z]}${dist?` <span class="n" style="font-size:11.5px">${pct(d.dist200w,1)}</span>`:""}</span>`}
-const SIGN={diamant:"💎 DIAMANT",guld:"GULD",swing:"SWING",rea:"REA"};
+const SIGN={smart:"⚡ SMART",diamant:"💎 DIAMANT",guld:"GULD",swing:"SWING",rea:"REA"};
 const sigB=d=>(d.sig||[]).map(s=>`<span class="sig ${s}">${SIGN[s]||s}</span>`).join(" ");
 const co=d=>`<span class="co"><span class="tk">${esc(d.ticker)}</span><span class="nm">${esc(d.name)}</span></span>`;
 const chgCell=d=>`<td class="n ${cls(d.chg)}">${pct(d.chg)}</td>`;
@@ -1131,7 +1167,7 @@ document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement.t
 const MENU=[["Stories",[["#/story/dag","story","📰","Dagens recap","Börsen, nyheterna, smart money och dina innehav"],["#/story/fokus","story","🎯","Claudes fokus","Dagens idéer, teman och dina swingar"],["#/story/vecka","story","📅","Veckan","Veckans vinnare, nyheter och nästa vecka"],["#/story/makro","story","🌍","Makro","Fed, inflation, jobb, räntor och oro"]]],["Idag",[["#/","start","🏠","Start","Det som kräver beslut idag: sälj, risk, köplägen"],["#/mina","mina","⭐","Mina aktier","Aktierna du följer med läge och nyckeltal"]]],
   ["Hitta aktier",[["#/fallna","fallna","📉","Nedtryckta","Kvalitetsbolag långt under toppen, med bear case"],["#/screener","screener","🔎","Screener","Filtrera på dina strategier och 200W-zoner"],["#/rotation","rotation","🔄","Sektorer","De 11 stora delarna av börsen: var pengarna roterar"],["#/branscher","branscher","🏭","Teman","Smalare grupper som Halvledare och Mjukvara: hetast, bäst läge, Visser"],["#/ai","ai","🧠","AI-kedjan","AI-flaskhalsarna i ordning, bästa bolagen och en AI-portfölj"]]],
   ["Mina pengar",[["#/innehav/swing","swing","⚡","Live swing","Dina swingar med stop, mål och läge"],["#/innehav/port","port","💼","Portfölj","Långsiktiga innehav och larm"],["#/innehav/analys","analys","📊","Portföljanalys","Risk, Sharpe och tips för bättre portfölj"]]],
-  ["Strategi",[["#/strategier","strategier","🧭","Strategi och backtest","Dina strategier, Diamant och backtest utan facit"]]]];
+  ["Strategi och data",[["#/strategier","strategier","🧭","Strategi och backtest","⚡ Smart, dina strategier och backtest utan facit"],["#/data","data","📡","Data och källor","Var siffrorna kommer ifrån, när de uppdaterades och larm"]]]];
 function renderMenu(){const m=$("sitemenu");if(!m)return;const h=location.hash||"#/";
   const cur=h.startsWith("#/aktie")?"":h.startsWith("#/innehav/analys")?"analys":h.startsWith("#/innehav/port")?"port":h.startsWith("#/innehav")?"swing":(h.slice(2).split("/")[0]||"start");
   const secs=[...document.querySelectorAll("#app .snav [data-to]")].map(b=>[b.dataset.to,b.textContent.trim()]);
@@ -1175,6 +1211,7 @@ function route(){
   if(page==="innehav"&&parts[1]==="analys")return pageAnalysis();
   if(page==="innehav")return pageHoldings(parts[1]||"swing",parts[2]==="add"?decodeURIComponent(parts[3]||""):null);
   if(page==="strategier")return pageMethod();
+  if(page==="data")return pageData();
   if(page==="story"){pageStart();history.replaceState(history.state,"","#/");if(DECKS[parts[1]])openDeckId(parts[1]);return}
   return pageStart();
 }
@@ -1182,7 +1219,7 @@ addEventListener("hashchange",()=>{const st=history.state;NAV=true;try{route()}f
   const y=st&&st.y;if(y){scrollTo(0,y);setTimeout(()=>scrollTo(0,y),350);setTimeout(()=>scrollTo(0,y),1200)}else scrollTo(0,0)});
 
 /* ============ INSIKTER PÅ STARTSIDAN: bolag som klarar dina strategier och dina nyckeltalskrav ============ */
-const INS_S=[["diamant","💎 Diamant"],["gold","Guld"],["lrhr","LRHR"],["ftp","FT+"],["ft","FT"]];
+const INS_S=[["smart","⚡ Smart"],["diamant","💎 Diamant"],["gold","Guld"],["lrhr","LRHR"],["ftp","FT+"],["ft","FT"]];
 const INS_C=[
   ["profit","Gör vinst",d=>nn(d.netMargin)?d.netMargin>0:(nn(d.pe)&&d.pe>0)],
   ["rev","Omsättningen växer",d=>nn(d.revGrowth1y)&&d.revGrowth1y>0],
@@ -1195,7 +1232,7 @@ const INS_C=[
 function insUi(){if(!ui.ins||ui.ins._v!==1)ui.ins={_v:1,strat:INS_S.map(x=>x[0]),crit:["profit","rev"],sec:"",newOnly:false,sort:"opp"};return ui.ins}
 function insNew(){const t=new Date(),c=new Date(t.getTime()-7*864e5).toISOString().slice(0,10),m=new Map();(U.events||[]).filter(e=>e.type==="in"&&e.date>=c).forEach(e=>{if(!m.has(e.ticker))m.set(e.ticker,e)});return m}
 function insBase(F,skip){return rows.filter(d=>(!d.type||d.type==="EQUITY")&&d.res&&
-  (skip==="strat"||!F.strat.length||F.strat.some(k=>k==="diamant"?d.sig.includes("diamant"):d.res[k]&&d.res[k].status==="pass")))}
+  (skip==="strat"||!F.strat.length||F.strat.some(k=>k==="diamant"||k==="smart"?d.sig.includes(k):d.res[k]&&d.res[k].status==="pass")))}
 function insightsCard(){
   const F=insUi(),NEW=insNew(),base=insBase(F),secs=[...new Set(rows.filter(d=>(!d.type||d.type==="EQUITY")&&d.sector&&d.sector!=="Övrigt").map(d=>d.sector))].sort((a,b)=>a.localeCompare(b,"sv"));
   const crit=INS_C.filter(c=>F.crit.includes(c[0]));
@@ -1210,7 +1247,7 @@ function insightsCard(){
     return `<tr class="go" data-t="${esc(d.ticker)}">
       <td class="l">${NEW.has(d.ticker)?`<span class="pill pass" style="font-size:10.5px;padding:0 6px;margin-right:4px" title="Nytt läge ${esc(NEW.get(d.ticker).date)}">NY</span>`:""}${co(d)}</td>
       <td class="r">${oppB(oppOf(d))||"–"}</td>
-      <td class="l">${INS_S.filter(([k])=>k==="diamant"?d.sig.includes("diamant"):d.res[k]&&d.res[k].status==="pass").map(([,n])=>`<span class="spill pass" style="font-size:11px;padding:1px 6px">${n}</span>`).join(" ")}</td>
+      <td class="l">${INS_S.filter(([k])=>k==="diamant"||k==="smart"?d.sig.includes(k):d.res[k]&&d.res[k].status==="pass").map(([,n])=>`<span class="spill pass" style="font-size:11px;padding:1px 6px">${n}</span>`).join(" ")}</td>
       <td class="l small">${esc(d.sector||"–")}</td>
       <td class="r n"><span class="${ok("pe")?"t-good":""}">${nn(d.pe)&&d.pe>0?f(d.pe,1):"–"}</span>${snitt(d,"pe",v=>f(v,1))}</td>
       <td class="r n"><span class="${ok("fpe")?"t-good":""}">${nn(d.fwdPe)&&d.fwdPe>0?f(d.fwdPe,1):"–"}</span>${snitt(d,"fwdPe",v=>f(v,1))}</td>
@@ -1229,7 +1266,8 @@ function insightsCard(){
         <label class="dnsort">Sortera <select id="insSort"><option value="opp" ${F.sort==="opp"?"selected":""}>Bäst läge</option><option value="new" ${F.sort==="new"?"selected":""}>Nya först</option><option value="mc" ${F.sort==="mc"?"selected":""}>Börsvärde</option></select></label></div>
     </div>
     <div class="bd" style="padding-bottom:6px"><p style="font-size:14.5px"><b class="n" style="font-size:18px">${L.length}</b> bolag klarar ${F.strat.length?"minst en av dina valda strategier":"alla bolag"}${crit.length?` och ${crit.length===1?"kravet":`alla ${crit.length} kraven`}`:""}${F.sec?` i ${esc(F.sec)}`:""}.</p></div>
-    <div class="tw"><table class="dnt" id="insT"><thead><tr><th class="l">Bolag</th><th class="r">Bäst läge</th><th class="l">Strategi</th><th class="l">Sektor</th><th class="r">P/E</th><th class="r">P/E fr.</th><th class="r">PEG</th><th class="l">Värdering</th><th class="r">Smart money</th><th class="r">Vinstmarg.</th><th class="r">Oms 1 år</th><th class="l">200W</th></tr></thead>
+    <div class="bd" style="padding:6px 16px 0;display:flex;justify-content:flex-end"><button class="more" id="insCols" type="button" style="margin:0">${ui.insCols?"Färre kolumner":"Alla nyckeltal (P/E, PEG, marginal, tillväxt, sektor)"}</button></div>
+    <div class="tw"><table class="dnt ${ui.insCols?"all":""}" id="insT"><thead><tr><th class="l">Bolag</th><th class="r">Bäst läge</th><th class="l">Strategi</th><th class="l">Sektor</th><th class="r">P/E</th><th class="r">P/E fr.</th><th class="r">PEG</th><th class="l">Värdering</th><th class="r">Smart money</th><th class="r">Vinstmarg.</th><th class="r">Oms 1 år</th><th class="l">200W</th></tr></thead>
       <tbody>${L.length?L.slice(0,ui.insAll?500:15).map(td).join(""):`<tr><td colspan="12"><div class="empty" style="padding:22px;text-align:center"><b>Inga bolag klarar alla krav just nu.</b><br><span class="muted">Bocka ur ett krav eller välj fler strategier. Siffran bredvid varje krav visar hur många som klarar det tillsammans med de andra.</span></div></td></tr>`}</tbody></table></div>
     ${L.length>15?`<div class="bd" style="padding-top:8px"><button class="more" id="insMore" type="button" style="margin:0">${ui.insAll?"Visa färre ↑":`Visa alla ${L.length} ↓`}</button></div>`:""}
   </section>`}
@@ -1240,6 +1278,7 @@ function bindInsights(){const F=insUi(),re=()=>{saveUi();const c=$("s-ins");if(c
   const nw=$("insNew");if(nw)nw.addEventListener("change",()=>{F.newOnly=nw.checked;re()});
   const so=$("insSort");if(so)so.addEventListener("change",()=>{F.sort=so.value;re()});
   const mo=$("insMore");if(mo)mo.addEventListener("click",()=>{ui.insAll=!ui.insAll;re()});
+  const ic=$("insCols");if(ic)ic.addEventListener("click",()=>{ui.insCols=!ui.insCols;re()});
   bindRows($("s-ins"))}
 
 /* ============ START ============ */
@@ -1255,6 +1294,7 @@ function pageStart(){
   const sigTable=(list,empty,extra)=>list.length?`<div class="tw"><table><thead><tr><th class="l">Aktie</th><th>Kurs</th><th>Idag</th><th class="l">200W</th><th>${extra[0]}</th></tr></thead><tbody>${list.map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="n">${money(d.price,d.currency)}</td>${chgCell(d)}<td class="l">${zchip(d)}</td><td class="n">${extra[1](d)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">${empty}</p>`;
   $("app").innerHTML=`
   ${storyRow()}
+  ${relCard()}
   ${subnav([["s-today","Idag"],["s-ins","Insikter"]].concat(FOCUS?[["s-focus","Claudes fokus"]]:[]).concat([["xThemes","Teman"]]))}
   <div style="height:12px"></div>
   ${todayCard()}
@@ -1300,8 +1340,8 @@ const fromAth=d=>nn(d.ath)&&nn(d.price)&&d.ath>0?(d.price/d.ath-1)*100:null;
 const isProf=d=>(nn(d.netMargin)?d.netMargin>0:nn(d.pe)&&d.pe>0)&&(!nn(d.fcfMargin)||d.fcfMargin>0);
 const isGrow=d=>nn(d.revGrowth1y)&&d.revGrowth1y>0;
 const qualOf=d=>d.fx&&nn(d.fx.Q)?d.fx.Q:d.qScore;
-const DNS=[["diamant","💎 Diamant"],["gold","Guld"],["lrhr","LRHR"],["ftp","FT+"],["ft","FT"]];
-const dnPass=(d,k)=>k==="diamant"?d.sig.includes("diamant"):d.res[k]&&d.res[k].status==="pass";
+const DNS=[["smart","⚡ Smart"],["diamant","💎 Diamant"],["gold","Guld"],["lrhr","LRHR"],["ftp","FT+"],["ft","FT"]];
+const dnPass=(d,k)=>k==="diamant"||k==="smart"?d.sig.includes(k):d.res[k]&&d.res[k].status==="pass";
 // bear/bas/bull som på aktiesidan: kassaflödesvärdering (DCF) i första hand, annars analytikernas lägsta/snitt/högsta riktkurs
 // DCF som ger mer än 3 gånger eller under en femtedel av kursen är oftast fel indata (engångsposter, valuta): använd analytikerna då
 const dcfSane=(base,price)=>nn(base)&&base>0&&(!nn(price)||(base<price*3&&base>price*0.2));
@@ -1915,14 +1955,14 @@ function scrCounts(){
   $("reset").hidden=!ch;$("critSum").textContent=`${STRATS[s].name}: ${STRATS[s].crit.length} krav`+(ch?" · ändrade":"");
 }
 function scrBase(){return rows.filter(d=>ui.showExcl||!d.excluded)}
-const SFKf=()=>["diamant",...SORDER],sfName=k=>k==="diamant"?"💎 Diamant":STRATS[k].name;
-function sfOk(d,k){if(k==="diamant")return d.sig.includes("diamant")||(ui.sfNear&&d.res.lrhr.status!=="excl"&&d.res.lrhr.status!=="out"&&nn(d.dist200w)&&d.dist200w<10);const st=d.res[k]&&d.res[k].status;return st==="pass"||(ui.sfNear&&st==="near")}
+const SFKf=()=>["smart","diamant",...SORDER],sfName=k=>k==="smart"?"⚡ Smart":k==="diamant"?"💎 Diamant":STRATS[k].name;
+function sfOk(d,k){if(k==="smart")return d.sig.includes("smart")||(ui.sfNear&&!!d.smartWait);if(k==="diamant")return d.sig.includes("diamant")||(ui.sfNear&&d.res.lrhr.status!=="excl"&&d.res.lrhr.status!=="out"&&nn(d.dist200w)&&d.dist200w<10);const st=d.res[k]&&d.res[k].status;return st==="pass"||(ui.sfNear&&st==="near")}
 function sfSel(){return SFKf().filter(k=>(ui.sf||{})[k])}
 function scrFilter(){
   const base=scrBase(),sel=sfSel();ui.sf=ui.sf||{};
-  $("sfStrat").innerHTML=SFKf().map(k=>{const n=base.filter(d=>sfOk(d,k)).length;return `<label class="sfk${ui.sf[k]?" on":""}" title="${k==="diamant"?"Low Risk, High Reward och under 200W (Fire Sale)":""}"><input type="checkbox" data-k="${k}" ${ui.sf[k]?"checked":""}> ${esc(sfName(k))} <span class="c">${n}</span></label>`}).join("");
+  $("sfStrat").innerHTML=SFKf().map(k=>{const n=base.filter(d=>sfOk(d,k)).length;return `<label class="sfk${ui.sf[k]?" on":""}" title="${k==="diamant"?"Low Risk, High Reward och under 200W (Fire Sale)":k==="smart"?"LRHR eller Guld i köpzonen och senaste veckan vände upp. Bäst i backtestet utan facit":""}"><input type="checkbox" data-k="${k}" ${ui.sf[k]?"checked":""}> ${esc(sfName(k))} <span class="c">${n}</span></label>`}).join("");
   $("sfStrat").querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{ui.sf[i.dataset.k]=i.checked;
-    if(i.checked&&!ui.sf[ui.strat]){ui.strat=i.dataset.k==="diamant"?"lrhr":i.dataset.k;if(!["ticker","chg","status","dist200w","score","quant","miss"].includes(ui.sort))ui.sort="score";saveUi();pageScreener();return}
+    if(i.checked&&!ui.sf[ui.strat]){ui.strat=i.dataset.k==="diamant"||i.dataset.k==="smart"?"lrhr":i.dataset.k;if(!["ticker","chg","status","dist200w","score","quant","miss"].includes(ui.sort))ui.sort="score";saveUi();pageScreener();return}
     saveUi();scrFilter();scrTable()}));
   const zc={};base.forEach(d=>{if(d.z)zc[d.z]=(zc[d.z]||0)+1});
   $("zf").innerHTML=ZONES.map(([z,nm])=>`<label class="sfk z-${z}${ui.zones.includes(z)?" on":""}"><input type="checkbox" data-z="${z}" ${ui.zones.includes(z)?"checked":""}> ${nm} <span class="c">${zc[z]||0}</span></label>`).join("");
@@ -2850,10 +2890,10 @@ function todayCard(){
   });
   new Set([...held.keys(),...mine]).forEach(tk=>{const d=bySym[tk];if(!d||!d.nextEarnings)return;const dd=Math.round((new Date(d.nextEarnings)-Date.now())/864e5);
     if(dd>=0&&dd<=14)it("risk",{t:tk,ic:"📅",col:"var(--warn)",txt:`<b>${esc(tk)}</b> rapporterar ${dd===0?"idag":dd===1?"i morgon":`om ${dd} dagar`} (${esc(d.nextEarnings)})`,act:held.has(tk)?"Minska hävstången före?":"Vänta med köp till efter?",right:""})});
-  rows.filter(d=>d.sig.includes("diamant")||d.sig.includes("guld")).sort((a,b)=>(b.sig.includes("diamant")-a.sig.includes("diamant"))||(b.mcapB||0)-(a.mcapB||0)).forEach(d=>{
-    const k=d.sig.includes("diamant")?"diamant":"guld",isNew=newSig.has(d.ticker+"|"+k)||newSig.has(d.ticker+"|guld");
+  rows.filter(d=>d.sig.includes("smart")||d.sig.includes("diamant")||d.sig.includes("guld")).sort((a,b)=>(b.sig.includes("smart")-a.sig.includes("smart"))||(b.sig.includes("diamant")-a.sig.includes("diamant"))||(b.mcapB||0)-(a.mcapB||0)).forEach(d=>{
+    const k=d.sig.includes("smart")?"smart":d.sig.includes("diamant")?"diamant":"guld",isNew=newSig.has(d.ticker+"|"+k)||newSig.has(d.ticker+"|guld");
     if(held.has(d.ticker))return;
-    it("buy",{t:d.ticker,ic:k==="diamant"?"💎":"🥇",col:"var(--accent)",txt:`${isNew?'<span class="pill pass" style="font-size:10.5px;padding:0 6px">NY</span> ':""}<b>${esc(d.ticker)}</b> ${esc(d.name)} i ${k==="diamant"?"Diamant":"Guld"}-läge`,act:"Läs aktien, köp?",right:zchip(d),n:isNew})});
+    it("buy",{t:d.ticker,ic:k==="smart"?"⚡":k==="diamant"?"💎":"🥇",col:"var(--accent)",txt:`${isNew?'<span class="pill pass" style="font-size:10.5px;padding:0 6px">NY</span> ':""}<b>${esc(d.ticker)}</b> ${esc(d.name)} i ${k==="smart"?"Smart":k==="diamant"?"Diamant":"Guld"}-läge`,act:"Läs aktien, köp?",right:zchip(d),n:isNew})});
   G.buy.sort((a,b)=>(b.n?1:0)-(a.n?1:0));
   rows.filter(d=>!d.sig.length&&!held.has(d.ticker)&&(d.res.gold.status==="pass"||d.res.lrhr.status==="pass")&&nn(d.dist200w)).map(d=>({d,drop:dropTo(d,lim.zones.swing)})).filter(x=>x.drop>0&&x.drop<=6).sort((a,b)=>a.drop-b.drop).slice(0,5)
     .forEach(({d,drop})=>it("watch",{t:d.ticker,ic:"👀",col:"var(--z-cheap)",txt:`<b>${esc(d.ticker)}</b> klarar ${d.res.gold.status==="pass"?"Guld":"LRHR"} och är ${f(drop,1)} % från köpzonen`,act:`Köpzon under ${money(level(d,lim.zones.swing),d.currency)}`,right:""}));
@@ -2881,8 +2921,11 @@ function plan(d,entryPrice){
 function stratVerdict(d){
   const R=d.res,pass=SORDER.filter(k=>R[k]&&R[k].status==="pass"),near=SORDER.filter(k=>R[k]&&R[k].status==="near");
   if(d.excluded)return{k:"mid",t:"ETF:er och fonder bedöms inte i strategierna. 200W-zonerna gäller ändå."};
+  if(d.sig.includes("smart"))return{k:"gold",t:`⚡ Smart-läge: klarar ${d.res.lrhr.status==="pass"?"Low Risk, High Reward":"Guld"}, ligger i köpzonen mot 200W och senaste veckan vände upp. Reglerna: sälj vid Expensive, följ-med-stop 15 % under högsta kursen när du ligger på plus, stop −20 %.`};
   if(d.sig.includes("diamant"))return{k:"gold",t:"💎 Diamantläge: klarar Low Risk, High Reward och ligger under 200W-snittet (Fire Sale). Se backtestet nedan för hur det har fungerat på just den här aktien."};
-  if(d.sig.includes("guld"))return{k:"gold",t:"Guldläge: ett stort, stabilt kvalitetsbolag i köpzonen mot 200W."};
+  const sw=d.smartWait?" ⚡ Smart väntar på en uppvecka: köp när en hel vecka stänger högre än veckan innan (botten bekräftad).":"";
+  if(d.sig.includes("guld"))return{k:"gold",t:"Guldläge: ett stort, stabilt kvalitetsbolag i köpzonen mot 200W."+sw};
+  if(d.smartWait)return{k:"pos",t:`Klarar ${pass.map(k=>STRATS[k].name).join(" och ")} och ligger i köpzonen mot 200W (${ZNAME[d.z]}).`+sw};
   if(d.sig.length)return{k:"pos",t:`Köpläge: klarar ${pass.map(k=>STRATS[k].name).join(" och ")} och ligger i köpzonen.`};
   if(pass.length&&nn(d.dist200w)&&d.dist200w<lim.zones.swing)return{k:"pos",t:`Klarar ${pass.map(k=>STRATS[k].name).join(" och ")} och ligger i köpzonen mot 200W (${ZNAME[d.z]}).`};
   if(pass.length){const lv=level(d,lim.zones.swing);return{k:"wait",t:`Klarar ${pass.map(k=>STRATS[k].name).join(" och ")}, men priset är för högt. Köpzon under ${money(lv,d.currency)}, ${f(dropTo(d,lim.zones.swing),0)} % ner.`}}
@@ -2966,6 +3009,42 @@ function giantsCard(d){
 /* ---- backtest ---- */
 let BT=null;
 async function getBT(){if(BT)return BT;try{const r=await fetch("data/backtest.json?v="+encodeURIComponent(U.updatedAt||""));if(r.ok)BT=await r.json()}catch(e){}return BT}
+/* ---- strategijämförelsen överst på strategisidan: portfölj med max 10 aktier, utan facit ---- */
+const SLOT_ORDER=[["smart","⚡ Smart","LRHR eller Guld + vändning + stopp"],["lrhr_plus","LRHR förbättrad","dina regler + vändning + stopp"],["lrhr_orig","LRHR original","köp Cheap, sälj Expensive"],["diamant","💎 Diamant","köp under 200W"],["gold_orig","Guld original","köp Cheap, sälj Expensive"],["spy","S&P 500","köp och behåll"]];
+function slotCurve(S){const L=[["smart","var(--accent)",2.6],["lrhr_orig","var(--z-exp)",1.6],["spy","var(--muted)",1.8]].filter(([k])=>S[k]&&S[k].curve&&S[k].curve.length>2);if(!L.length)return"";
+  const all=L.flatMap(([k])=>S[k].curve.map(p=>p[1])),lo=Math.log(Math.min(...all)),hi=Math.log(Math.max(...all)),t0=S[L[0][0]].curve[0][0],t1=S[L[0][0]].curve.at(-1)[0];
+  const W=innerWidth<640?380:640,H=innerWidth<640?200:220,P=30,X=t=>P+(t-t0)/(t1-t0)*(W-P-8),Y=v=>8+(hi-Math.log(v))/(hi-lo||1)*(H-34);
+  let g="";for(let y=new Date(t0*864e5).getUTCFullYear()+1;y<=new Date(t1*864e5).getUTCFullYear();y+=2){const t=Date.UTC(y,0,1)/864e5;g+=`<line x1="${X(t)}" x2="${X(t)}" y1="8" y2="${H-26}" stroke="var(--line)"/><text x="${X(t)}" y="${H-10}" text-anchor="middle">${y}</text>`}
+  [1,2,4,8].filter(v=>Math.log(v)>=lo-0.01&&Math.log(v)<=hi+0.01).forEach(v=>{g+=`<line x1="${P}" x2="${W-8}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-dasharray="3 3"/><text x="${P-6}" y="${Y(v)+4}" text-anchor="end">${v}x</text>`});
+  L.slice().reverse().forEach(([k,c,w])=>{g+=`<polyline fill="none" stroke="${c}" stroke-width="${w}" stroke-linejoin="round" points="${S[k].curve.map(p=>`${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" ")}"/>`});
+  return `<svg class="ff slc" viewBox="0 0 ${W} ${H}" role="img" aria-label="Hur 1 krona växte">${g}</svg><div class="lg">${L.map(([k,c])=>`<span><i style="background:${c};border-radius:2px"></i>${esc((SLOT_ORDER.find(x=>x[0]===k)||[])[1]||k)}: 1 kr blev ${f(S[k].curve.at(-1)[1],1)} kr</span>`).join("")}</div>`}
+function slotSection(){const S=BT&&BT.slots;if(!S||!S.smart)return `<p class="muted small">Jämförelsen räknas i nästa datakörning.</p>`;
+  const sm=S.smart,sp=S.spy,yrs=Object.keys(sp.years||{});
+  const rowsH=SLOT_ORDER.filter(([k])=>S[k]).map(([k,nm,sub])=>{const x=S[k];return `<tr class="${k==="smart"?"slhl":""}"><td class="l"><b>${nm}</b><span class="subv">${sub}</span></td><td class="r n ${cls(x.cagr)}">${pct(x.cagr,1)}</td><td class="r n down">${pct(x.maxdd,0)}</td><td class="r n">${f(x.sharpe,2)}</td><td class="r n ${cls((x.years||{})["2022"])}">${pct((x.years||{})["2022"],0)}</td><td class="r n ${cls(x.cagr15)}">${pct(x.cagr15,1)}</td><td class="r n down">${pct(x.maxdd15,0)}</td></tr>`}).join("");
+  const now=rows.filter(d=>d.sig.includes("smart")).sort((a,b)=>a.dist200w-b.dist200w),wait=rows.filter(d=>d.smartWait).sort((a,b)=>a.dist200w-b.dist200w);
+  const better=sm.sharpe>sp.sharpe&&sm.cagr>sp.cagr;
+  return `<section class="card slbest"><div class="bd">
+    <div class="small" style="font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)">Bäst i testet utan facit</div>
+    <h2 style="font-size:22px;margin:4px 0 6px">⚡ Smart: ${pct(sm.cagr,1)} per år, värsta nedgång ${pct(sm.maxdd,0)}</h2>
+    <p>Mot S&amp;P 500:s ${pct(sp.cagr,1)} per år och ${pct(sp.maxdd,0)}. ${better?`Högre avkastning med ungefär samma risk (Sharpe ${f(sm.sharpe,2)} mot ${f(sp.sharpe,2)}), och nästan noll i de dåliga åren: 2018 ${pct(sm.years["2018"],0)} och 2022 ${pct(sm.years["2022"],0)} när börsen föll ${pct(sp.years["2018"],0)} och ${pct(sp.years["2022"],0)}.`:"Testet visar ingen tydlig fördel mot index just nu."}</p>
+    <h3 class="sub3" style="margin:14px 0 6px">Reglerna</h3>
+    <ol class="slrules">
+      <li><b>Bra bolag.</b> Klarar Low Risk, High Reward eller Guld.</li>
+      <li><b>Billigt.</b> Kursen ligger i köpzonen: under Cheap, högst 20 % över 200W.</li>
+      <li><b>Vänta på vändningen.</b> Köp först när en hel vecka stänger högre än veckan innan, efter en nedvecka. Det enskilt viktigaste: utan den regeln blev värsta nedgången ${pct((S.lrhr_orig||{}).maxdd,0)} i stället för ${pct(sm.maxdd,0)}.</li>
+      <li><b>Sprid riskerna.</b> Max 10 aktier, cirka 10 % i varje.</li>
+      <li><b>Sälj</b> vid Expensive (40 % över 200W), eller med följ-med-stop 15 % under högsta kursen när du ligger på plus, eller stop −20 % från köpet.</li>
+    </ol>
+    <p class="small muted" style="margin-top:6px">Hävstång: med 1,5x blev det ${pct(sm.cagr15,1)} per år men ${pct(sm.maxdd15,0)} i värsta fall. 2x gav ungefär −59 %. Inget marknadsfilter: att bara köpa när börsen går upp gjorde resultatet sämre, eftersom de bästa köpen kom när börsen föll.</p>
+    <div class="slnow"><div><b>Smart-läge nu</b> <span class="n">${now.length}</span>${now.length?`<div class="sttks">${now.slice(0,12).map(d=>`<a href="${link(d.ticker)}" class="sttk"><b class="tk">${esc(d.ticker)}</b> <span class="z z-${d.z}" style="font-size:10.5px">${ZNAME[d.z]}</span></a>`).join("")}</div>`:`<p class="small muted">Inga just nu.</p>`}</div>
+      <div><b>Väntar på vändning</b> <span class="n">${wait.length}</span>${wait.length?`<div class="sttks">${wait.slice(0,12).map(d=>`<a href="${link(d.ticker)}" class="sttk"><b class="tk">${esc(d.ticker)}</b> <span class="z z-${d.z}" style="font-size:10.5px">${ZNAME[d.z]}</span></a>`).join("")}</div>`:`<p class="small muted">Inga just nu.</p>`}</div></div>
+  </div></section>
+  <section class="card" style="margin-top:14px"><div class="hd"><h2>Alla strategier jämförda${ib("slotInfo")}</h2><span class="sub">Portfölj med max 10 aktier, ${esc(BT.from||"2015")} till idag</span></div><div class="bd">
+    <div class="tw"><table class="crit"><thead><tr><th class="l">Strategi</th><th class="r">Per år</th><th class="r">Värsta nedgång</th><th class="r">Sharpe</th><th class="r">2022</th><th class="r">1,5x per år</th><th class="r">1,5x värsta</th></tr></thead><tbody>${rowsH}</tbody></table></div>
+    <h3 class="sub3" style="margin:16px 0 4px">Så växte 1 krona</h3>${slotCurve(S)}
+    <details class="mdet" style="margin-top:12px"><summary>År för år</summary><div class="tw" style="margin-top:8px"><table class="crit"><thead><tr><th class="l">År</th>${SLOT_ORDER.filter(([k])=>S[k]).map(([,nm])=>`<th class="r">${nm}</th>`).join("")}</tr></thead><tbody>${yrs.map(y=>`<tr><td class="l n">${y}</td>${SLOT_ORDER.filter(([k])=>S[k]).map(([k])=>{const v=(S[k].years||{})[y];return `<td class="r n ${cls(v)}">${pct(v,0)}</td>`}).join("")}</tr>`).join("")}</tbody></table></div></details>
+    <p class="small muted" style="margin-top:10px"><b>Ärligt om testet.</b> Urvalet görs vecka för vecka med det som gick att veta då (rapporterad vinst, kurs, börsvärde, beta), inte med dagens nyckeltal. Reglerna valdes på åren 2015–2020 (Sharpe ${f(sm.sharpeTrain,2)} mot index ${f(sp.sharpeTrain,2)}) och testades sedan på 2021 till idag (Sharpe ${f(sm.sharpeTest,2)} mot ${f(sp.sharpeTest,2)}). Aktierna är dagens ${rows.length} bolag, så bolag som gått i konkurs saknas (överlevnadsbias), och courtage 0,1 % per affär ingår. Historiken är ingen garanti.</p>
+  </div></section>`}
 function btSection(){
   if(!BT)return `<p class="muted">Backtestet körs i nattkörningen och visas här efteråt.</p>`;
   const G=[["gold","Guld"],["lrhr","Low Risk, High Reward"],["mega","Megabolag ≥ 200 md $"],["all","Alla aktier"]],RR=[["orig","Original","Köp under Cheap, sälj vid Expensive"],["fairstop","Förbättrad","Köp under Cheap, sälj vid Fair Value eller −20 % stop"],["stop","Original + stop","Sälj vid Expensive eller −20 %"],["deep","Djupare köp","Köp under Very Cheap"],["fire","Bara Fire Sale","Köp under 200W, sälj vid Expensive"],["firefair","Fire Sale → Fair","Köp under 200W, sälj vid Fair Value"]];
@@ -4209,7 +4288,7 @@ function storyCards(d,det){
   // 10. Passar den min strategi?
   { const v=stratVerdict(d),o=eq?oppOf(d):null,H=det?histChapter(d,det):null;
     const tone=v.k==="gold"||v.k==="pos"?"pos":v.k==="wait"||v.k==="near"?"mid":"neg";
-    const short=d.sig.includes("diamant")?"💎 Diamant":d.sig.includes("guld")?"Guldläge":v.k==="pos"?"Köpläge":v.k==="wait"?"Vänta på priset":v.k==="near"?"Nära":"Passar inte";
+    const short=d.sig.includes("smart")?"⚡ Smart":d.sig.includes("diamant")?"💎 Diamant":d.sig.includes("guld")?"Guldläge":v.k==="pos"?"Köpläge":v.k==="wait"?"Vänta på priset":v.k==="near"?"Nära":"Passar inte";
     const pill=k=>{const r=d.res[k];if(!r)return"";const s=r.status;return `<span class="spill ${s}">${s==="pass"?"✓":s==="near"?"≈":"✕"} ${esc(STRATS[k].name)}</span>`};
     C.push({k:"strat",topic:"Din strategi",q:"Passar den min strategi?",tone,short,verdict:short,
       lead:`<p>${esc(v.t)}</p>${H&&eq?`<p class="small">${H.a}</p>`:""}`,
@@ -4371,6 +4450,10 @@ function weekDeck(){const W=INSIKT&&INSIKT.week||{},C=[],M=MACRO&&MACRO.s||{};
 
 /* ---- 4. makro ---- */
 function macroDeck(){const M=MACRO&&MACRO.s||{},X=FOCUS&&FOCUS.macro||{},C=[];
+  { const L=((MACRO&&MACRO.releases)||[]).slice(0,8);
+    if(L.length){const r0=L[0],fresh=r0.at&&(Date.now()-new Date(r0.at))<24*36e5,tone=r0.vs==="över"&&["cpi","core","pce","ppi"].includes(r0.key)?"neg":r0.vs==="under"&&["cpi","core","pce","ppi"].includes(r0.key)?"pos":"info";
+      C.push({topic:"Senaste nytt",q:"Vad har släppts?",tone,verdict:`${fresh?"NYTT: ":""}${r0.name}`,
+        lead:`<ul class="strel">${L.map(r=>`<li class="${r.at&&(Date.now()-new Date(r.at))<24*36e5?"new":""}"><span class="small muted">${esc(agoTxt(r.at))}</span><b>${esc(r.name)}</b><span>${esc(r.text||"")}</span>${r.url?` <a href="${esc(r.url)}" target="_blank" rel="noopener" class="small">Läs hos Fed ↗</a>`:""}</li>`).join("")}</ul><p class="small muted">Sidan kollar FRED och Federal Reserve var 10:e minut när USA släpper statistik (kl. 14–18 svensk tid). Du får samma nyheter som notis i appen ntfy.</p>`})}}
   const d3=(s,days)=>nn(mLast(s))&&nn(mAt(s,days))?mLast(s)-mAt(s,days):null;
   // Fed
   { const fr=M.fed,c6=d3(fr,182),tone=!nn(c6)?"info":c6>0.1?"neg":c6<-0.1?"pos":"mid";
@@ -4470,14 +4553,14 @@ function pageMethod(){
   document.title="Strategier · Full Throttle";
   $("app").innerHTML=`<section class="card"><div class="bd"><div class="prose">
     <h1 style="font-size:20px">Strategi och backtest</h1>
-    <h2>Guld: din kombinerade strategi</h2>
-    <p><b>Guld</b> = 200W-köpzonen + ett stort, stabilt och dominerande kvalitetsbolag. Byggd för swingar med hävstång, där bolaget måste tåla en dålig period.</p>
+    <p class="muted" style="margin-top:-4px">Vilken strategi har fungerat bäst, och exakt hur den följs. Detaljerna ligger hopfällda längst ner.</p>
+    <div id="slotBox"><p class="muted">Laddar jämförelsen…</p></div>
+    <h2 style="margin-top:6px">Mer om strategierna</h2>
+    <details class="mdet"><summary>Guld: din kombinerade strategi</summary><div class="prose" style="margin-top:10px"><p><b>Guld</b> = 200W-köpzonen + ett stort, stabilt och dominerande kvalitetsbolag. Byggd för swingar med hävstång, där bolaget måste tåla en dålig period.</p>
     <ul><li><b>Storlek:</b> börsvärde ≥ 200 md $ (megabolag), eller störst/näst störst i sin bransch efter omsättning och ≥ 50 md $.</li><li><b>Stabilitet:</b> beta ≤ 1,3.</li><li><b>Kvalitet:</b> ROIC eller ROE ≥ 15 %, FCF-marginal ≥ 10 %, omsättningen växer ≥ 3 %, skulden under kontroll (D/E under 1,5).</li><li><b>Pris:</b> under Cheap (högst 20 % över 200W), som Swing-läge.</li></ul>
-    <p>Varför inte bara Low Risk, High Reward? Dess krav på PEG under 1 släpper nästan aldrig igenom megabolagen, så i backtestet fanns bara en handfull LRHR-bolag. Guld mäter kvaliteten med avkastning på kapitalet och kassaflöde i stället och kräver storlek och låg beta.</p>
-    <h2>Backtest</h2>
-    <div id="btBox"><p class="muted">Laddar backtest…</p></div>
-    <h2>Strategierna i detalj</h2>
-    <div class="tw"><table class="crit"><thead><tr><th>Krav</th><th>Full Throttle</th><th>Full Throttle+</th><th>Low Risk, High Reward</th></tr></thead><tbody>
+    <p>Varför inte bara Low Risk, High Reward? Dess krav på PEG under 1 släpper nästan aldrig igenom megabolagen, så i backtestet fanns bara en handfull LRHR-bolag. Guld mäter kvaliteten med avkastning på kapitalet och kassaflöde i stället och kräver storlek och låg beta.</p></div></details>
+    <details class="mdet"><summary>Backtest i detalj: alla regler och urval</summary><div class="prose" style="margin-top:10px"><div id="btBox"><p class="muted">Laddar backtest…</p></div></div></details>
+    <details class="mdet"><summary>Strategierna i detalj</summary><div class="prose" style="margin-top:10px"><div class="tw"><table class="crit"><thead><tr><th>Krav</th><th>Full Throttle</th><th>Full Throttle+</th><th>Low Risk, High Reward</th></tr></thead><tbody>
       <tr><td>Omsättning 5 år</td><td>&gt; 100 % (≈ 14,9 %/år)</td><td>≥ 15 %/år</td><td>&gt; 50 % (≈ 8,45 %/år)</td></tr>
       <tr><td>Omsättning 1 år</td><td>&gt; 20 %</td><td>≥ 20 %</td><td>&gt; 5 %</td></tr>
       <tr><td>Vinst per aktie 1 år</td><td>–</td><td>–</td><td>&gt; 5 %</td></tr>
@@ -4490,19 +4573,13 @@ function pageMethod(){
       <tr><td>Utspädning per år</td><td>–</td><td>≤ 5 %</td><td>–</td></tr>
       <tr><td>Börsvärde</td><td>–</td><td>≥ 2 md $</td><td>≥ 10 md $</td></tr>
       <tr><td>Sektorer</td><td colspan="3">Alla sektorer ingår: strategierna gäller vilket bolag som helst, inte bara teknik. Bara ETF:er och fonder bedöms inte</td></tr>
-    </tbody></table></div>
-    <h2>200-veckorszoner</h2>
-    <p>Samma logik som din indikator Universal Value Zones. Kursen jämförs med 200-veckors glidande medelvärde. På dagsdiagrammet räknas snittet som 199 hela veckor plus dagens kurs, precis som <span class="n">request.security</span> i TradingView.</p>
-    <p style="display:flex;flex-wrap:wrap;gap:6px"><span class="z z-fire">Fire Sale: under 200W</span><span class="z z-vcheap">Very Cheap: 0–10 %</span><span class="z z-cheap">Cheap: 10–20 %</span><span class="z z-fair">Fair Value: 20–30 %</span><span class="z z-exp">Expensive: 30–40 %</span><span class="z z-vexp">Very Expensive: över 40 %</span></p>
-    <h2>Kombinerade signaler</h2>
-    <ul><li><span class="sig swing">SWING</span> Klarar Low Risk, High Reward och ligger under Cheap.</li><li><span class="sig rea">REA</span> Klarar Full Throttle+ och ligger under Fair Value.</li></ul>
-    <p>Nya signaler skickas som mejl via en issue i GitHub-repot.</p>
-    <h2>Poäng</h2>
-    <p><b>Tillväxtpoäng</b> (Full Throttle): tillväxt 30, kvalitet 25, värdering 25, balansräkning 20. <b>Kvalitetspoäng</b> (Low Risk, High Reward): ROE 25, PEG 25, FCF-marginal 15, låg skuld 15, vinsttillväxt 10, omsättningstillväxt 10.</p>
-    <h2>Data</h2>
-    <p>Yahoo Finance. Nyckeltal och analytiker uppdateras varje natt efter USA-börsens stängning, kurser ungefär var 30:e minut under börsdagen. 5-årstillväxt = årlig tillväxt mellan äldsta och senaste helår. Tillväxt 1 år = senaste 12 månader mot 12 månader innan. Börsvärde omräknat till USD. Siffror kan skilja något mot andra sajter.</p>
-    <h2>Datakällor</h2>
-    <div class="tw"><table class="crit"><thead><tr><th>Data</th><th>Källa</th><th>Uppdateras</th></tr></thead><tbody>
+    </tbody></table></div></div></details>
+    <details class="mdet"><summary>200-veckorszoner</summary><div class="prose" style="margin-top:10px"><p>Samma logik som din indikator Universal Value Zones. Kursen jämförs med 200-veckors glidande medelvärde. På dagsdiagrammet räknas snittet som 199 hela veckor plus dagens kurs, precis som <span class="n">request.security</span> i TradingView.</p>
+    <p style="display:flex;flex-wrap:wrap;gap:6px"><span class="z z-fire">Fire Sale: under 200W</span><span class="z z-vcheap">Very Cheap: 0–10 %</span><span class="z z-cheap">Cheap: 10–20 %</span><span class="z z-fair">Fair Value: 20–30 %</span><span class="z z-exp">Expensive: 30–40 %</span><span class="z z-vexp">Very Expensive: över 40 %</span></p></div></details>
+    <details class="mdet"><summary>Kombinerade signaler</summary><div class="prose" style="margin-top:10px"><ul><li><span class="sig swing">SWING</span> Klarar Low Risk, High Reward och ligger under Cheap.</li><li><span class="sig rea">REA</span> Klarar Full Throttle+ och ligger under Fair Value.</li></ul>
+    <p>Nya signaler skickas som mejl via en issue i GitHub-repot.</p></div></details>
+    <details class="mdet"><summary>Poäng</summary><div class="prose" style="margin-top:10px"><p><b>Tillväxtpoäng</b> (Full Throttle): tillväxt 30, kvalitet 25, värdering 25, balansräkning 20. <b>Kvalitetspoäng</b> (Low Risk, High Reward): ROE 25, PEG 25, FCF-marginal 15, låg skuld 15, vinsttillväxt 10, omsättningstillväxt 10.</p></div></details>
+    <details class="mdet"><summary>Datakällor</summary><div class="prose" style="margin-top:10px"><div class="tw"><table class="crit"><thead><tr><th>Data</th><th>Källa</th><th>Uppdateras</th></tr></thead><tbody>
       <tr><td>Kurser (dag och vecka, 10 år), volym</td><td>Yahoo Finance via biblioteket yfinance</td><td>Var 30:e min under börsdagen, ca 15–30 min fördröjning</td></tr>
       <tr><td>Index och sektorer för kursattribution</td><td>Yahoo Finance: SPY (S&amp;P 500), ^OMX (OMX Stockholm 30), sektor-ETF:er XLK, XLV, XLY m.fl.</td><td>Varje natt</td></tr>
       <tr><td>Räntan i värderingen</td><td>Yahoo Finance: ^TNX (amerikansk 10-årsränta). Svenska och europeiska bolag: 2,5 %.</td><td>Varje natt</td></tr>
@@ -4514,15 +4591,13 @@ function pageMethod(){
       <tr><td>Analysbrev (om påslaget)</td><td>Claude Sonnet 5.5 (Anthropic) med webbsök, källor anges i varje brev</td><td>Varje vecka, eller vid stor kursrörelse</td></tr>
       <tr><td>S&amp;P 500- och Nasdaq-100-listorna</td><td>Wikipedia</td><td>Varje natt</td></tr>
       <tr><td>200W, zoner, signaler, kursattribution, DCF, omvänd DCF, Graham, poäng</td><td>Beräknas av sidan själv, formler ovan och på varje aktie</td><td>Med datan</td></tr>
-    </tbody></table></div>
-    <h2>Värderingsmetoder</h2>
-    <ul>
+    </tbody></table></div></div></details>
+    <details class="mdet"><summary>Värderingsmetoder</summary><div class="prose" style="margin-top:10px"><ul>
       <li><b>DCF:</b> ägarkassaflöde (fritt kassaflöde minus aktiebaserade löner) växer med prognostillväxten år 1–5, trappas ner till 2,5 % år 6–10, sedan evig tillväxt 2,5 %. Diskonteras med 10-årsränta + beta × 5 %. Nettokassa läggs till. Bear och bull ändrar tillväxt och avkastningskrav.</li>
       <li><b>Omvänd DCF:</b> vilken tillväxt år 1–5 som dagens börsvärde förutsätter. Högre än prognosen = högt ställda förväntningar.</li>
       <li><b>Graham:</b> EPS framåt × (8,5 + 2 × tillväxt) × 4,4 / obligationsränta.</li>
-    </ul>
-    <h2>Quant-modellen</h2>
-    <p>Varje aktie rankas mot alla andra aktier på sidan i sex faktorer, på samma sätt som kvantfonder bygger faktorportföljer. Varje mått görs om till en percentil (0–100), måtten inom en faktor snittas och rankas om, så att 50 alltid är mitten av universumet.</p>
+    </ul></div></details>
+    <details class="mdet"><summary>Quant-modellen</summary><div class="prose" style="margin-top:10px"><p>Varje aktie rankas mot alla andra aktier på sidan i sex faktorer, på samma sätt som kvantfonder bygger faktorportföljer. Varje mått görs om till en percentil (0–100), måtten inom en faktor snittas och rankas om, så att 50 alltid är mitten av universumet.</p>
     <ul>
       <li><b>Value:</b> vinstavkastning framåt (1 / P/E framåt), fritt kassaflöde mot börsvärde (FCF-marginal / P/S), EBITDA mot EV och 1 / PEG.</li>
       <li><b>Growth:</b> omsättning 1 år, omsättning per år 3–5 år, vinst per aktie 1 år.</li>
@@ -4531,16 +4606,88 @@ function pageMethod(){
       <li><b>Revisions:</b> hur vinstprognosen ändrats senaste 30 dagarna och analytikernas snittbetyg.</li>
       <li><b>Low risk:</b> låg beta, låg volatilitet och litet största fall senaste året.</li>
     </ul>
-    <p><b>Quant-poäng</b> = vägt snitt (Value, Growth, Quality, Momentum ×1, Revisions och Low risk ×0,5), omrankat till 0–100. Kräver minst tre faktorer.</p>
-    <h2>Värdering och sentiment</h2>
-    <p><b>Värdering</b> väger ihop DCF-värdet, analytikernas riktkurs (minus 10 % för analytikernas optimism), P/E framåt mot branschmedianen, PEG, avståndet till 200W och Value-faktorn. Varje del ger −100 till +100. Över +25 = Undervärderad, under −25 = Övervärderad.</p>
-    <p><b>Sentiment</b> väger ihop analytikernas betyg, prognosändringar 30 dagar, momentum 12–1 månader, kursen 3 månader, trenden (kurs mot 50- och 200-dagarssnitt) och blankningen. Över +15 = Bullish, under −15 = Bearish. Alla delar och deras vikt syns när du öppnar en rad under Mina aktier eller i Quant-profilen på aktiesidan.</p>
-    <h2>Kursattribution och överreaktion</h2>
-    <p>Aktiens avkastning delas upp i <b>marknad</b> (beta × index), <b>sektor</b> (sektor-ETF minus index) och <b>bolagsspecifikt</b> (resten). Den bolagsspecifika delen jämförs med aktiens normala svängningar (σ). Är fallet ovanligt stort (över 1,5 σ) men analytikernas vinstprognoser oförändrade bedöms det som en möjlig överreaktion. Sänks prognoserna samtidigt är fallet fundamentalt motiverat. Domineras rörelsen av marknad eller sektor bedöms den som makro/sektor.</p>
-    <p class="muted">Diagram: TradingView Lightweight Charts. Detta är ett analysverktyg, inte investeringsrådgivning.</p>
+    <p><b>Quant-poäng</b> = vägt snitt (Value, Growth, Quality, Momentum ×1, Revisions och Low risk ×0,5), omrankat till 0–100. Kräver minst tre faktorer.</p></div></details>
+    <details class="mdet"><summary>Värdering och sentiment</summary><div class="prose" style="margin-top:10px"><p><b>Värdering</b> väger ihop DCF-värdet, analytikernas riktkurs (minus 10 % för analytikernas optimism), P/E framåt mot branschmedianen, PEG, avståndet till 200W och Value-faktorn. Varje del ger −100 till +100. Över +25 = Undervärderad, under −25 = Övervärderad.</p>
+    <p><b>Sentiment</b> väger ihop analytikernas betyg, prognosändringar 30 dagar, momentum 12–1 månader, kursen 3 månader, trenden (kurs mot 50- och 200-dagarssnitt) och blankningen. Över +15 = Bullish, under −15 = Bearish. Alla delar och deras vikt syns när du öppnar en rad under Mina aktier eller i Quant-profilen på aktiesidan.</p></div></details>
+    <details class="mdet"><summary>Kursattribution och överreaktion</summary><div class="prose" style="margin-top:10px"><p>Aktiens avkastning delas upp i <b>marknad</b> (beta × index), <b>sektor</b> (sektor-ETF minus index) och <b>bolagsspecifikt</b> (resten). Den bolagsspecifika delen jämförs med aktiens normala svängningar (σ). Är fallet ovanligt stort (över 1,5 σ) men analytikernas vinstprognoser oförändrade bedöms det som en möjlig överreaktion. Sänks prognoserna samtidigt är fallet fundamentalt motiverat. Domineras rörelsen av marknad eller sektor bedöms den som makro/sektor.</p>
+    <p class="muted">Diagram: TradingView Lightweight Charts. Detta är ett analysverktyg, inte investeringsrådgivning.</p></div></details>
   </div></div></section>`;
-  getBT().then(()=>{const el=$("btBox");if(el){el.innerHTML=btSection();bindRows(el)}});
+  getBT().then(()=>{const el=$("btBox");if(el){el.innerHTML=btSection();bindRows(el)}const sb=$("slotBox");if(sb){sb.innerHTML=slotSection();bindRows(sb)}});
 }
+
+/* ============ DATA: var siffrorna kommer ifrån, när de uppdaterades, och live-uppdatering ============ */
+let STATUS=null;
+const SRCS={
+  q:["Kurser","Yahoo Finance","Var 10:e minut under börsdagen (ca 15 min fördröjning från börsen)",()=>U&&U.quotesAt],
+  f:["Nyckeltal ur rapporterna","Yahoo Finance (bolagens rapporter), för USA även SEC EDGAR (10-K)","Varje natt efter USA-börsens stängning",()=>U&&U.updatedAt],
+  a:["Analytiker och prognoser","Yahoo Finance (sammanställning av bankernas prognoser)","Varje natt",()=>U&&U.updatedAt],
+  i:["Ägare och institutioner","Nasdaq (13F-rapporter till SEC) och Yahoo Finance","13F kommer kvartalsvis med upp till 45 dagars fördröjning, hämtas varje natt",()=>U&&U.updatedAt],
+  c:["Beräknat av sidan","Räknas från kurserna och nyckeltalen med formlerna under Strategi och backtest","Varje gång datan uppdateras",()=>U&&(U.quotesAt||U.updatedAt)],
+  m:["Makro","FRED (Federal Reserve Bank of St. Louis), Federal Reserve och Yahoo Finance","Statistik: var 10:e minut kl. 14–18 svensk tid när USA släpper siffror, annars var 6:e timme. VIX, dollar och råvaror: var 10:e minut",()=>(STATUS&&STATUS.macroAt)||(MACRO&&MACRO.updatedAt)],
+  b:["Backtest","Beräknas av sidan på veckokurser sedan 2010","Varje natt",()=>BT&&BT.asOf?BT.asOf+"T22:00:00Z":U&&U.updatedAt]};
+const GLSRC={price:"q",chg:"q",hilo:"q",fromAth:"q",p52:"q",vol:"q",
+  revCagr:"f",revGrowth1y:"f",earnGrowth1y:"f",roe:"f",roic:"f",grossMargin:"f",opMargin:"f",netMargin:"f",fcfMargin:"f",de:"f",peg:"f",pe:"f",fwdPe:"f",ps:"f",pb:"f",evEbitda:"f",divYield:"f",beta:"f",mcap:"f",shareChange:"f",eps:"f",shortPct:"f",secData:"f",mc:"f",rev:"f",fcf:"f",
+  targetMean:"a",upside:"a",recMean:"a",analysts:"a",epsRev:"a",estimates:"a",surprise:"a",earnBeat:"a",nextEarnings:"a",
+  instPct:"i",insPct:"i",instFlow:"i",holders:"i",ownBreak:"i",instData:"i",insiders:"i",inst:"i",ins:"i",
+  btAnn:"b",btLev:"b",slotInfo:"b",ruleFair:"b",ruleStop:"b"};
+const agoTxt=iso=>{if(!iso)return"okänt";const m=Math.round((Date.now()-new Date(iso))/6e4);if(m<1)return"just nu";if(m<60)return`${m} min sedan`;const h=Math.round(m/60);if(h<24)return`${h} tim sedan`;return new Date(iso).toLocaleDateString("sv-SE",{weekday:"short",day:"numeric",month:"short"})+" "+new Date(iso).toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit"})};
+const srcLine=k=>{const s=SRCS[GLSRC[k]||"c"];return `<p class="popsrc">Källa: ${esc(s[1])}. ${esc(s[2])}. Senast: ${esc(agoTxt(s[3]()))}.</p>`};
+// börsen öppen ungefär: vardag 9–22 svensk tid (Stockholm 9–17.30, USA 15.30–22)
+function mktOpen(){const n=new Date(),d=n.getUTCDay(),h=n.getUTCHours()+n.getUTCMinutes()/60;return d>0&&d<6&&h>=7&&h<21}
+function liveState(){const q=(STATUS&&STATUS.quotesAt)||(U&&U.quotesAt),age=q?(Date.now()-new Date(q))/6e4:1e9;
+  if(!mktOpen())return["off","Stängt",`Börsen är stängd. Kurserna uppdaterades ${agoTxt(q)}.`];
+  if(age<=25)return["on",age<1?"Nu":`${Math.round(age)} min`,`Live: kurserna uppdaterades ${agoTxt(q)}. Nästa uppdatering inom ca 10 minuter.`];
+  return["old",`${Math.round(age)} min`,`Kurserna uppdaterades ${agoTxt(q)}. Uppdateringen är försenad (GitHub kör ibland senare än planerat).`]}
+function renderLive(){const b=$("liveDot");if(!b)return;const [k,t,tip]=liveState();b.className="livedot "+k;b.innerHTML=`<i></i><span>${esc(t)}</span>`;b.title=tip+" Tryck för alla datakällor.";b.setAttribute("aria-label",tip)}
+// nytt sedan sist: kurser, nyckeltal eller makrostatistik. Hämta bara det som ändrats.
+async function pollStatus(){if(document.visibilityState!=="visible")return;
+  try{const r=await fetch("data/status.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)return;const s=await r.json(),old=STATUS;STATUS=s;
+    const rel=s.release;
+    if(rel&&rel.at&&(!old||!old.release||old.release.at!==rel.at)){MACRO=null;_macroP=null;const seen=store.get("ft-relSeen","");if(seen!==rel.at&&(Date.now()-new Date(rel.at))<36*36e5)showRelease(rel)}
+    const changed=U&&(s.quotesAt!==U.quotesAt||s.updatedAt!==U.updatedAt);
+    const ae=document.activeElement,busy=ST||(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))||location.hash.startsWith("#/aktie/");
+    if(changed&&!busy)load();
+  }catch(e){}finally{renderLive()}}
+function showRelease(rel){if(!location.hash||location.hash==="#/"){const r=$("strow");if(r&&!document.querySelector(".relcard"))r.insertAdjacentHTML("afterend",relCard());return} // startsidan visar kortet i stället
+  let t=$("relToast");if(!t){t=document.createElement("div");t.id="relToast";t.setAttribute("role","status");document.body.appendChild(t)}
+  t.innerHTML=`<span class="rti">🔔</span><div><b>${esc(rel.name||"Makro")}</b><p>${esc(rel.text||"")}</p></div><div class="rta"><a class="btn primary" href="#/story/makro">Öppna</a><button class="btn" type="button" aria-label="Stäng">×</button></div>`;
+  t.hidden=false;const close=()=>{t.hidden=true;store.set("ft-relSeen",rel.at)};t.querySelector("button").addEventListener("click",close);t.querySelector("a").addEventListener("click",close)}
+setInterval(pollStatus,60*1000);setInterval(renderLive,30*1000);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")pollStatus()});
+// senaste makronytt som kort på startsidan (de senaste 24 timmarna)
+function relCard(){const r=STATUS&&STATUS.release;if(!r||!r.at||(Date.now()-new Date(r.at))>24*36e5)return"";
+  return `<a class="relcard" href="#/story/makro"><span class="rti">🔔</span><span><b>${esc(r.name)}</b> <span class="small muted">${esc(agoTxt(r.at))}</span><span class="subv">${esc(r.text||"")}</span></span><span class="more">Makro →</span></a>`}
+/* ---- sidan Data och källor ---- */
+function pageData(){document.title="Data och källor · Full Throttle";
+  const st=(k,extra)=>{const s=SRCS[k];return `<div class="dsrc"><div class="dsh"><b>${esc(s[0])}</b><span class="n small">${esc(agoTxt(s[3]()))}</span></div><p class="small">${esc(s[1])}</p><p class="small muted">${esc(s[2])}${extra?". "+extra:""}</p></div>`};
+  const [k,t,tip]=liveState(),rel=STATUS&&STATUS.release,topic="ft-9eec454e5f68";
+  $("app").innerHTML=`<section class="card"><div class="bd">
+    <h1 style="font-size:20px">Data och källor</h1>
+    <p class="muted" style="margin-top:2px">Var varje siffra kommer ifrån och när den senast uppdaterades.</p>
+    <div class="dlive ${k}"><span class="livedot ${k}"><i></i></span><span>${esc(tip)}</span></div>
+    <div class="dgrid">${st("q")}${st("f")}${st("a")}${st("i")}${st("m",rel?`Senaste nytt: ${esc(rel.name)} (${esc(agoTxt(rel.at))})`:"")}${st("c")}${st("b")}
+      <div class="dsrc"><div class="dsh"><b>Claudes analyser</b><span class="n small">${esc(FOCUS?FOCUS.date+" "+(FOCUS.time||""):"–")}</span></div><p class="small">Claude (Anthropic) med webbsök. Källor anges i varje story och analys.</p><p class="small muted">Claudes fokus, dagens recap och makro: vardagar kl. 08.22. Veckan, Jordi Visser, AI-kedjan och bolagsprofiler: söndagar kl. 17.48.</p></div></div>
+    <h2 style="font-size:16px;margin:18px 0 6px">Larm till mobilen</h2>
+    <p class="small">Installera appen <b>ntfy</b> (gratis, inget konto) och prenumerera på <a href="https://ntfy.sh/${topic}" target="_blank" rel="noopener" class="n">${topic}</a>. Du får notis direkt när:</p>
+    <ul class="stlist" style="margin-top:6px"><li>ny statistik släpps: KPI, kärn-KPI, PCE, PPI, jobbrapporten, arbetslösheten, nyanmälda arbetslösa, detaljhandeln, konsumentförtroendet, med förra värdet och förväntan när den finns</li><li>Fed fattar räntebeslut eller släpper protokollet (FOMC minutes)</li><li>en aktie får ⚡ Smart-, 💎 Diamant- eller Guld-läge</li><li>ett innehav närmar sig stop, når Fair Value eller Expensive, rapporterar inom 7 dagar eller institutionerna börjar sälja</li></ul>
+    <h2 style="font-size:16px;margin:18px 0 6px">Varför inte helt i realtid?</h2>
+    <p class="small muted">Börskurser i realtid kräver betald licens från börserna. Gratiskällorna ligger ungefär 15 minuter efter, och sidan hämtar nytt var 10:e minut under börsdagen (GitHub kan ibland köra några minuter sent). Sidan kollar själv varje minut om det finns ny data och uppdateras då utan att du behöver ladda om. Makrostatistik från USA kommer kl. 14.30 eller 16.00 svensk tid och syns här inom ungefär 10–20 minuter. För realtidskurser när du handlar: använd Nordnet.</p>
+    <details class="mdet" style="margin-top:14px"><summary>Alla källor i detalj</summary><div class="prose" style="margin-top:10px">${DATA_TABLE}</div></details>
+  </div></section>`}
+const DATA_TABLE=`<div class="tw"><table class="crit"><thead><tr><th>Data</th><th>Källa</th><th>Uppdateras</th></tr></thead><tbody>
+  <tr><td>Kurser (dag och vecka sedan 2010), volym</td><td>Yahoo Finance via yfinance</td><td>Var 10:e min under börsdagen, ca 15 min fördröjning</td></tr>
+  <tr><td>Index och sektorer</td><td>Yahoo Finance: SPY, QQQ, ^OMX och sektor-ETF:er</td><td>Var 10:e min / varje natt</td></tr>
+  <tr><td>Omsättning, resultat, kassaflöde, balansräkning, marginaler</td><td>Yahoo Finance (bolagens rapporter)</td><td>Varje natt</td></tr>
+  <tr><td>Officiella årssiffror (USA)</td><td>SEC EDGAR, bolagens 10-K</td><td>Varje natt</td></tr>
+  <tr><td>Analytiker, riktkurser, vinstprognoser, rapportutfall</td><td>Yahoo Finance (bankernas konsensus)</td><td>Varje natt</td></tr>
+  <tr><td>Institutioner och fonder</td><td>Nasdaq (13F) och Yahoo Finance</td><td>13F kvartalsvis, hämtas varje natt</td></tr>
+  <tr><td>Insiderköp och -sälj</td><td>Yahoo Finance (SEC Form 4)</td><td>Varje natt</td></tr>
+  <tr><td>Räntor, KPI, PCE, PPI, jobb, arbetslöshet, kreditspread</td><td>FRED, Federal Reserve Bank of St. Louis</td><td>Var 10:e min kl. 14–18 svensk tid, annars var 6:e timme</td></tr>
+  <tr><td>Räntebesked och protokoll</td><td>Federal Reserve (RSS för pressmeddelanden)</td><td>Var 10:e min</td></tr>
+  <tr><td>VIX, dollarindex, olja, guld, koppar</td><td>Yahoo Finance</td><td>Var 10:e min</td></tr>
+  <tr><td>Nyheter</td><td>Yahoo Finance och Google News (RSS)</td><td>Varje natt, och i Claudes stories varje vardag</td></tr>
+  <tr><td>S&amp;P 500- och Nasdaq-100-listorna</td><td>Wikipedia</td><td>Varje natt</td></tr>
+  <tr><td>200W, zoner, signaler, Smart, DCF, poäng, backtest</td><td>Beräknas av sidan själv</td><td>Med datan</td></tr>
+</tbody></table></div>`;
 
 /* ============ data ============ */
 async function load(){
@@ -4565,13 +4712,16 @@ async function load(){
     const h=location.hash;if(h.startsWith("#/aktie/")){const t=decodeURIComponent(h.slice(8));if(detailCache[t]&&bySym[t])bySym[t]._det=detailCache[t]}
     const ae=document.activeElement;
     if(!(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)))route();
+    renderLive();
     ensureFx().then(ch=>{if(ch&&/^#\/(innehav|$)|^#?$/.test(location.hash||"#/")){const a=document.activeElement;if(!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)))route()}});
   }catch(e){
     $("app").innerHTML=`<div class="card"><div class="bd"><h1 style="font-size:18px">Ingen data än</h1><p class="muted" style="margin-top:6px">${location.protocol==="file:"?"Öppna sidan via webbadressen, inte som fil.":"Datan skapas när uppdateringen har körts första gången (GitHub → Actions → Bygg och uppdatera → Run workflow)."}</p></div></div>`;
   }
 }
 load();
-setInterval(()=>{if(document.visibilityState==="visible"&&!location.hash.startsWith("#/aktie/"))load()},5*60*1000);
+// sidan kollar status.json varje minut (pollStatus). Finns den inte än: hämta allt var 5:e minut som förut.
+setInterval(()=>{if(!STATUS&&document.visibilityState==="visible"&&!location.hash.startsWith("#/aktie/"))load()},5*60*1000);
+pollStatus();
 })();
 </script>
 </body>

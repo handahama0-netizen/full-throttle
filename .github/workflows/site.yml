@@ -3,7 +3,7 @@ name: Bygg och uppdatera
 on:
   schedule:
     - cron: "15 22 * * 1-5"      # varje natt: allt (nyckeltal, analytiker, 200W)
-    - cron: "*/30 7-21 * * 1-5"  # under börsdagen: kurser var 30:e minut
+    - cron: "*/10 7-21 * * 1-5"  # under börsdagen: kurser, makro och larm var 10:e minut
   workflow_dispatch:
     inputs:
       mode:

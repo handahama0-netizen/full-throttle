@@ -334,6 +334,150 @@ def stats(trades, bench_cagr):
     }
 
 
+# ---------------- portfölj med platser: så som man faktiskt handlar ----------------
+# Max K aktier samtidigt med lika vikt (10 % var vid K = 10), resten kontanter. Urvalet görs utan facit
+# (point-in-time) varje vecka. Köp sker vid veckans stängning när reglerna uppfylls, de djupast rabatterade först.
+
+SLOT_K = 10
+TRAIN_END = (date(2021, 1, 1) - date(1970, 1, 1)).days
+SLOTS = {
+    "smart": {"name": "Smart: LRHR eller Guld, köp i köpzonen (under Cheap) efter en uppvecka, sälj vid Expensive, "
+                      "följ-med-stop 15 % när du ligger på plus och stop −20 %",
+              "groups": ("lrhr_pit", "gold_pit"), "entry": 20, "exit": 40, "trail": 0.15, "stop": 0.20, "turn": True},
+    "lrhr_plus": {"name": "LRHR förbättrad: samma regler som Smart men bara LRHR",
+                  "groups": ("lrhr_pit",), "entry": 20, "exit": 40, "trail": 0.15, "stop": 0.20, "turn": True},
+    "lrhr_orig": {"name": "LRHR original: köp under Cheap, sälj vid Expensive",
+                  "groups": ("lrhr_pit",), "entry": 20, "exit": 40, "trail": None, "stop": None, "turn": False},
+    "diamant": {"name": "Diamant: LRHR, köp under 200W, sälj vid Expensive",
+                "groups": ("lrhr_pit",), "entry": 0, "exit": 40, "trail": None, "stop": None, "turn": False},
+    "gold_orig": {"name": "Guld original: köp under Cheap, sälj vid Expensive",
+                  "groups": ("gold_pit",), "entry": 20, "exit": 40, "trail": None, "stop": None, "turn": False},
+}
+
+
+def _stock_frames(rows, data, masks):
+    out = {}
+    for r in rows:
+        t = r["ticker"]
+        if not any(t in masks.get(g, {}) for g in masks):
+            continue
+        pts = series(load(data / "t" / fname(t)))
+        if len(pts) < MA + 10:
+            continue
+        closes = [c for _, c in pts]
+        pre = [0.0]
+        for c in closes:
+            pre.append(pre[-1] + c)
+        dist = [None] * len(pts)
+        for i in range(MA, len(pts)):
+            dist[i] = (closes[i] / ((pre[i + 1] - pre[i + 1 - MA]) / MA) - 1) * 100
+        out[t] = {"day": {d: i for i, (d, _) in enumerate(pts)}, "c": closes, "dist": dist}
+    return out
+
+
+def slots(cfg, frames, masks, spy, K=SLOT_K):
+    days = [d for d, _ in spy]
+    n = len(days)
+    start = max(MA + 1, next((i for i, d in enumerate(days) if d >= START), MA + 1))
+    groups = cfg["groups"]
+    pos, w_prev, wk, ser, trades, wins = {}, [], [], [], 0, 0
+    for i in range(start, n):
+        d, dp = days[i], days[i - 1]
+        r = 0.0
+        for t in w_prev:
+            F = frames[t]
+            a, b = F["day"].get(dp), F["day"].get(d)
+            if a is not None and b is not None:
+                r += (F["c"][b] / F["c"][a] - 1) / K
+        cost = 0.0
+        for t in list(pos):
+            F, p = frames[t], pos[t]
+            j = F["day"].get(d)
+            if j is None or F["dist"][j] is None:
+                continue
+            c = F["c"][j]
+            p["peak"] = max(p["peak"], c)
+            ret = c / p["p"] - 1
+            out = F["dist"][j] >= cfg["exit"]
+            if cfg["trail"] is not None and ret > 0 and c <= p["peak"] * (1 - cfg["trail"]):
+                out = True
+            if cfg["stop"] is not None and ret <= -cfg["stop"]:
+                out = True
+            if out:
+                trades += 1
+                wins += ret > 0
+                cost += COST / K
+                del pos[t]
+        if len(pos) < K:
+            cand = []
+            for t, F in frames.items():
+                if t in pos:
+                    continue
+                j = F["day"].get(d)
+                if j is None or j < 2 or F["dist"][j] is None or F["dist"][j] >= cfg["entry"]:
+                    continue
+                if not any(t in masks[g] and masks[g][t][j] for g in groups):
+                    continue
+                c = F["c"]
+                if cfg["turn"] and not (c[j] > c[j - 1] and c[j - 1] < c[j - 2]):
+                    continue
+                cand.append((F["dist"][j], t, c[j]))
+            cand.sort()
+            for _, t, c in cand[:K - len(pos)]:
+                pos[t] = {"p": c, "peak": c}
+                cost += COST / K
+        w_prev = list(pos)
+        wk.append(r - cost)
+        ser.append((d, r - cost))
+    return _perf(ser, trades, wins)
+
+
+def _perf(ser, trades=None, wins=None):
+    def sh(a):
+        if len(a) < 20:
+            return None
+        m = sum(a) / len(a)
+        sd = (sum((x - m) ** 2 for x in a) / len(a)) ** 0.5
+        return round((m * 52 - 0.03) / (sd * 52 ** 0.5), 2) if sd else None
+
+    def run_eq(rs):
+        e, pk, dd, curve = 1.0, 1.0, 0.0, []
+        for k, x in enumerate(rs):
+            e *= max(0.0, 1 + x)
+            pk = max(pk, e)
+            dd = min(dd, e / pk - 1)
+            curve.append(e)
+        return e, dd, curve
+    rs = [x for _, x in ser]
+    yrs = len(rs) / 52
+    e, dd, curve = run_eq(rs)
+    lev = [1.5 * x - 0.5 * FIN_COST / 52 for x in rs]
+    e15, dd15, _ = run_eq(lev)
+    by = {}
+    for d, x in ser:
+        y = (date(1970, 1, 1) + timedelta(days=d)).year
+        by[y] = by.get(y, 1.0) * (1 + x)
+    tr = [x for d, x in ser if d < TRAIN_END]
+    te = [x for d, x in ser if d >= TRAIN_END]
+    out = {"cagr": round((e ** (1 / yrs) - 1) * 100, 1), "maxdd": round(dd * 100, 1), "sharpe": sh(rs),
+           "sharpeTrain": sh(tr), "sharpeTest": sh(te),
+           "cagr15": round((e15 ** (1 / yrs) - 1) * 100, 1) if e15 > 0 else -100.0, "maxdd15": round(dd15 * 100, 1),
+           "years": {str(y): round((v - 1) * 100, 1) for y, v in sorted(by.items())},
+           "curve": [[ser[k][0], round(curve[k], 4)] for k in range(0, len(ser), 4)] + [[ser[-1][0], round(curve[-1], 4)]]}
+    if trades is not None:
+        out["trades"] = trades
+        out["win"] = round(wins / trades * 100, 1) if trades else None
+    return out
+
+
+def run_slots(rows, data, masks, spy):
+    frames = _stock_frames(rows, data, masks)
+    res = {k: dict(name=v["name"], **slots(v, frames, masks, spy)) for k, v in SLOTS.items()}
+    s0 = max(MA + 1, next((i for i, (d, _) in enumerate(spy) if d >= START), MA + 1))
+    res["spy"] = dict(name="S&P 500 (köp och behåll)", **_perf([(spy[i][0], spy[i][1] / spy[i - 1][1] - 1) for i in range(s0, len(spy))]))
+    return res
+
+
 def run(data: Path):
     u = load(data / "universe.json", {})
     rows = [r for r in u.get("rows", []) if r.get("type", "EQUITY") == "EQUITY"]
@@ -390,6 +534,10 @@ def run(data: Path):
     for gk in ("lrhr", "gold", "mega", "lrhr_pit", "gold_pit", "mega_pit"):
         for rk in ("orig", "fire", "firefair", "fairstop"):
             out["port"][f"{gk}|{rk}"] = portfolio(groups[gk][1], rk, data, spy, masks.get(gk))
+    try:
+        out["slots"] = run_slots(rows, data, masks, spy)
+    except Exception as e:  # noqa: BLE001
+        print("platsportfölj fel", e)
     out["method"] = {"cost": COST, "mcRatio": MC_RATIO, "lev": LEV, "finCost": FIN_COST,
                      "pit": "Urval med det som var känt varje vecka: rapporterad vinst per kvartal, kurs, börsvärde och beta."}
     # bästa regeln per urval (median årstakt, kräver minst 10 affärer)
@@ -417,6 +565,8 @@ def main():
     print("Guld:", res["groups"]["gold"]["tickers"])
     for k, v in res["port"].items():
         print("PORT", k, v)
+    for k, v in (res.get("slots") or {}).items():
+        print("SLOTS", k, {x: v[x] for x in ("cagr", "maxdd", "sharpe", "sharpeTrain", "sharpeTest", "cagr15", "maxdd15", "trades", "win") if x in v})
 
 
 if __name__ == "__main__":

@@ -194,6 +194,11 @@ def signals(d):
             out.append("swing")
         if passes_ftp(d) and dist < 30:
             out.append("rea")
+        # Smart: LRHR eller Guld i köpzonen, och senaste hela veckan steg efter en nedvecka (botten bekräftad)
+        w3 = d.get("w3") or []
+        turn = len(w3) == 3 and all(w3) and w3[2] > w3[1] < w3[0]
+        if (passes_lrhr(d) or d.get("goldQ")) and dist < 20 and turn:
+            out.append("smart")
     return out
 
 
@@ -954,6 +959,9 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
                 det = {}
         wk = weekly(df)
         closes = [num(v) for v in wk["Close"]]
+        # de tre senaste HELA veckorna (veckan som pågår räknas inte), för Smart-signalens vändning
+        # (UTC-datum: nattkörningen 22.15 UTC på fredag räknar fredagens vecka som klar, torsdag gör det inte)
+        done = closes if len(wk) and wk.index[-1].date().isoformat() <= datetime.now(timezone.utc).date().isoformat() else closes[:-1]
         price = num(df["Close"].iloc[-1])
         prev_close = num(df["Close"].iloc[-2]) if len(df) > 1 else None
         ma = ma_from_weekly(closes, price)
@@ -961,7 +969,8 @@ def run_full(prev: Path, out: Path, limit: int | None = None):
         rec.update({"price": sig(price, 6), "prevClose": sig(prev_close, 6),
                     "chg": rnd((price / prev_close - 1) * 100) if price and prev_close else None,
                     "ma200w": sig(ma, 6) if ma else None, "dist200w": rnd(dist), "zone": zone_of(dist),
-                    "asOf": today, "stale": False})
+                    "asOf": today, "stale": False,
+                    "w3": [sig(x, 6) for x in done[-3:]] if len(done) >= 3 else None})
         rec.update(safe(lambda: momentum(df), {}))
         hi = df["High"].dropna()
         if len(hi):  # högsta kurs sedan 2010 (så långt kurshistoriken går) = all-time high för nästan alla bolag
@@ -1181,9 +1190,60 @@ def watch_alerts(rows, prev, today, full):
     return out
 
 
-SIG_LABEL = {"diamant": "💎 Diamant (Low Risk, High Reward + under 200W)", "guld": "🥇 Guld (stort, stabilt kvalitetsbolag + 200W)",
+SIG_LABEL = {"smart": "⚡ Smart (LRHR eller Guld i köpzonen, vänder upp)", "diamant": "💎 Diamant (Low Risk, High Reward + under 200W)", "guld": "🥇 Guld (stort, stabilt kvalitetsbolag + 200W)",
              "swing": "Swing-läge (Low Risk, High Reward + 200W)", "rea": "Tillväxt på rea (Full Throttle+ + 200W)"}
 SITE = "https://handahama0-netizen.github.io/full-throttle/"
+
+
+def ntfy_topic():
+    for line in read_list(SRC / "config" / "larm.txt"):
+        if line.lower().startswith("ntfy:"):
+            return line.split(":", 1)[1].strip().lower()
+    return None
+
+
+def send_ntfy(title, msg, click=None, tags="chart_with_upwards_trend"):
+    """Notis till mobilen via ntfy.sh (ämnet står i config/larm.txt)."""
+    topic = ntfy_topic()
+    if not topic:
+        return
+    import requests
+    try:  # JSON-varianten klarar å, ä, ö och emoji i rubriken
+        body = {"topic": topic, "title": title, "message": msg, "tags": [t for t in tags.split(",") if t]}
+        if click:
+            body["click"] = click
+        requests.post("https://ntfy.sh/", json=body, timeout=15)
+    except Exception as e:  # noqa: BLE001
+        log("ntfy misslyckades", e)
+
+
+def macro_expect(focus):
+    """Förväntningar (konsensus) som Claude skrivit in i kalendern: {"key": "cpi", "exp": 3.0}. Närmaste datum vinner."""
+    out, today = {}, datetime.now(timezone.utc).date()
+    best = {}
+    for e in ((focus.get("macro") or {}).get("calendar") or []):
+        k, x, d = e.get("key"), e.get("exp"), e.get("date")
+        if not k or not isinstance(x, (int, float)) or not d:
+            continue
+        try:
+            dd = abs((datetime.strptime(d[:10], "%Y-%m-%d").date() - today).days)
+        except ValueError:
+            continue
+        if dd <= 4 and (k not in best or dd < best[k]):
+            best[k], out[k] = dd, float(x)
+    return out
+
+
+def write_status(out):
+    """Liten fil som sidan läser varje minut: när datan senast uppdaterades och senaste makronytt."""
+    u = load_json(out / "data" / "universe.json", {}) or {}
+    m = load_json(out / "data" / "macro.json", {}) or {}
+    f = load_json(SRC / "site" / "focus.json", {}) or {}
+    rel = (m.get("releases") or [None])[0]
+    write_json(out / "data" / "status.json", {
+        "builtAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "quotesAt": u.get("quotesAt"),
+        "updatedAt": u.get("updatedAt"), "asOf": u.get("asOf"), "macroAt": m.get("updatedAt"), "fredAt": m.get("fredAt"),
+        "release": rel, "focus": (f.get("date") or "") + (" " + f["time"] if f.get("time") else "")})
 
 
 def write_alerts(alerts, today):
@@ -1201,19 +1261,8 @@ def write_alerts(alerts, today):
         lines.append(f"- {txt} [Öppna]({SITE}#/aktie/{d['ticker']})")
         push.append((d["ticker"], txt))
     p.write_text("\n".join(lines + ["", f"Öppna sidan: {SITE}"]), encoding="utf-8")
-    topic = None
-    for line in read_list(SRC / "config" / "larm.txt"):
-        if line.lower().startswith("NTFY:".lower()):
-            topic = line.split(":", 1)[1].strip().lower()
-    if not topic:
-        return
-    import requests
     for tk, txt in push[:15]:
-        try:
-            requests.post(f"https://ntfy.sh/{topic}", data=txt.encode("utf-8"), timeout=15,
-                          headers={"Title": f"Full Throttle: {tk}", "Click": f"{SITE}#/aktie/{tk}", "Tags": "chart_with_upwards_trend"})
-        except Exception as e:  # noqa: BLE001
-            log("ntfy misslyckades", e)
+        send_ntfy(f"Full Throttle: {tk}", txt, f"{SITE}#/aktie/{tk}")
 
 
 def main():
@@ -1270,12 +1319,15 @@ def main():
         try:  # makro (Fed, räntor, inflation, jobb, VIX, råvaror): FRED en gång per dag, marknadsdata varje körning
             import macro
             old = load_json(out / "data" / "macro.json", {}) or load_json(prev / "data" / "macro.json", {})
-            today = datetime.now(timezone.utc).date().isoformat()
-            m = macro.run(old, fred=a.mode == "full" or old.get("fredAt") != today, log=log)
+            m, new = macro.run(old, mode=a.mode, expect=macro_expect(load_json(SRC / "site" / "focus.json", {}) or {}), log=log)
             if m:
                 write_json(out / "data" / "macro.json", m)
+            for r in new[:6]:  # ny statistik eller nytt från Fed: notis till mobilen direkt
+                log("makro: nytt", r.get("text"))
+                send_ntfy(f"Makro: {r['name']}", r.get("text") or r["name"], SITE + "#/story/makro", "bar_chart")
         except Exception as e:  # noqa: BLE001
             log("makro fel", e)
+        write_status(out)
     copy_site(out)
     return 0
 
