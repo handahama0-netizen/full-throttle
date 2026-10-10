@@ -820,7 +820,7 @@ const STRATS={
 };
 const ZONES=[["fire","Fire Sale"],["vcheap","Very Cheap"],["cheap","Cheap"],["fair","Fair Value"],["exp","Expensive"],["vexp","Very Expensive"]];
 const ZNAME=Object.fromEntries(ZONES);
-const STL={pass:"Klarar",near:"Nära",out:"Utanför",excl:"Utesluten sektor"};
+const STL={pass:"Klarar",near:"Nära",out:"Utanför",excl:"Bedöms inte (ETF)"};
 const ORD={pass:0,near:1,out:2,excl:3};
 const REC={strong_buy:"Starkt köp",buy:"Köp",hold:"Behåll",underperform:"Underprestera",sell:"Sälj",none:"–"};
 const UDA={up:"Uppgradering",down:"Nedgradering",main:"Bekräftar",reit:"Upprepar",init:"Ny bevakning"};
@@ -834,7 +834,7 @@ const GL={
   swing:["Swing-läge","Aktien klarar Low Risk, High Reward och ligger under Cheap-gränsen mot 200W. Ett kvalitetsbolag som handlas nära sitt långa snitt, där risken nedåt historiskt varit mindre."],
   rea:["Tillväxt på rea","Aktien klarar Full Throttle+ och ligger under Fair Value mot 200W. Ett snabbväxande bolag som för en gångs skull inte är dyrt."],
   strategies:["Strategierna","GULD = 200W + stort, stabilt kvalitetsbolag (megabolag eller branschledare, beta ≤ 1,3). FT = Full Throttle (Hello Stocks original). FT+ = Full Throttle med lägre risk. LRHR = Low Risk, High Reward. ✓ klarar alla krav, ≈ missar ett krav, ✕ missar fler."],
-  status:["Status","Klarar = uppfyller alla krav i vald strategi. Nära = missar exakt ett krav. Utanför = missar fler. Utesluten sektor = finans, råvaror, energi, kraftbolag och fastigheter ingår inte."],
+  status:["Status","Klarar = uppfyller alla krav i vald strategi. Nära = missar exakt ett krav. Utanför = missar fler. Alla sektorer ingår, strategierna gäller oavsett vad bolaget gör. Bara ETF:er och fonder bedöms inte."],
   score:["Poäng","0–100. Tillväxtpoäng (Full Throttle): tillväxt 30, kvalitet 25, värdering 25, balansräkning 20. Kvalitetspoäng (Low Risk, High Reward): ROE 25, PEG 25, FCF-marginal 15, låg skuld 15, vinsttillväxt 10, omsättningstillväxt 10. Används för att rangordna, inte som köpsignal."],
   miss:["Missar","Vilka krav i vald strategi aktien inte klarar."],
   revCagr:["Omsättningstillväxt 5 år","Genomsnittlig årlig ökning av omsättningen mellan äldsta och senaste helåret som Yahoo har (oftast 3–4 år). Full Throttle kräver över 100 % totalt på 5 år, vilket är ungefär 15 % per år."],
@@ -1018,7 +1018,7 @@ function computeLeaders(){
   LEAD={};Object.values(by).forEach(l=>{l.sort((a,b)=>b[0]-a[0]);l.slice(0,2).forEach(([,t],i)=>LEAD[t]=i+1)});
 }
 function classify(d){
-  d.res={};
+  d.res={};d.excluded=!!d.type&&d.type!=="EQUITY"; // inga sektorer utesluts, bara ETF:er och fonder
   const ret=Math.max(nn(d.roic)?d.roic:-99,nn(d.roe)?d.roe:-99);d.gRet=ret>-99?ret:null;
   d.gBig=(d.mcapB||0)>=200||(LEAD[d.ticker]&&(d.mcapB||0)>=50)?1:0;
   d.gDebt=(!d.negEquity&&nn(d.de)&&d.de<1.5)||(d.negEquity&&(d.roic||0)>=20)?1:0;
@@ -1435,7 +1435,7 @@ function pageStock(t){
         <div class="meta">${esc(d.ticker)} · ${esc(d.exch||"")}${d.sector?` · <a href="#/rotation" class="mtag" title="Sektor: en av börsens 11 stora delar">Sektor: ${esc(d.sector)}</a>`:""}${themeOf(d)&&themeOf(d)!==d.sector?` · <a href="#/branscher" class="mtag" title="Tema: vår grupp av branscher som hör ihop">Tema: ${esc(themeOf(d))}</a>`:""}${d.industry&&d.industry!=="ETF"?` · <span class="mtag" title="Bransch: Yahoos detaljerade indelning, bolaget jämförs med snittet här">Bransch: ${esc(d.industry)}</span>`:""}</div>
         <div class="price"><span class="p n">${px(d.price)}</span><span class="muted">${esc(d.currency||"")}</span><span class="ch n ${cls(d.chg)}">${pct(d.chg)}</span><span class="ch n ${cls(d.chg)}" style="font-weight:500">${nn(d.price)&&nn(d.prevClose)?(d.price-d.prevClose>0?"+":"−")+px(Math.abs(d.price-d.prevClose)):""}</span><span class="ts">Uppdaterad ${esc(rel(U.quotesAt||U.updatedAt))} · ca 15–30 min fördröjning</span></div>
         ${headKpis(d)}
-        <div class="chips">${LEAD[d.ticker]===1?`<span class="pill pass">Branschledare</span>`:""}${d.type==="EQUITY"||!d.type?`${vChip(valView(d))}${ib("valVerdict")} ${sChip(sentView(d))}${ib("sentiment")} `:""}${zchip(d)}${ib("zones")} ${sigB(d)} ${d.excluded&&d.type==="EQUITY"?`<span class="pill">Sektor utesluten i strategierna</span>`:""} ${days!=null&&days>=0?`<span class="pill" style="${days<=14?"color:var(--warn);background:var(--warn-soft);border-color:transparent":""}">Rapport ${esc(d.nextEarnings)}${days<=14?` · om ${days} d`:""}</span>`:""}</div>
+        <div class="chips">${LEAD[d.ticker]===1?`<span class="pill pass">Branschledare</span>`:""}${d.type==="EQUITY"||!d.type?`${vChip(valView(d))}${ib("valVerdict")} ${sChip(sentView(d))}${ib("sentiment")} `:""}${zchip(d)}${ib("zones")} ${sigB(d)} ${days!=null&&days>=0?`<span class="pill" style="${days<=14?"color:var(--warn);background:var(--warn-soft);border-color:transparent":""}">Rapport ${esc(d.nextEarnings)}${days<=14?` · om ${days} d`:""}</span>`:""}</div>
       </div>
       <div class="acts">
         <button class="btn primary" id="storyBtn" type="button" title="Bolaget förklarat i ${!d.type||d.type==="EQUITY"?10:3} frågor, i rätt ordning">▶ Story</button>
@@ -1659,7 +1659,7 @@ function renderStab(d){
     const cell=(s,k)=>{const c=STRATS[s].crit.find(c=>c.k===k);if(!c)return `<td class="r faint">–</td>`;if(d.excluded)return `<td class="r faint">–</td>`;const ok=test(c,d,lim[s][k]);return `<td class="r ${ok?"ok":"no"}">${ok?"✓":"✕"} <span class="faint n" style="font-size:11.5px">${c.op} ${f(+lim[s][k],k==="pegMax"||k==="deMax"?1:0)}</span></td>`};
     const card=k=>{const r=d.res[k];return `<div class="sc"><span class="small muted">${esc(STRATS[k].name)}</span><b class="${r.status==="pass"?"ok":r.status==="near"?"":""}" style="${r.status==="near"?"color:var(--warn)":r.status==="pass"?"":"color:var(--muted)"}">${STL[r.status]}${r.status==="near"?": missar "+esc(shortName(k,r.miss[0])):""}</b><span class="small muted">Poäng ${scoreOf(d,k)??"–"} av 100</span></div>`};
     b.innerHTML=`<div class="scards" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">${card("gold")}${card("lrhr")}${card("ftp")}${card("ft")}</div>
-      ${d.excluded?`<p class="small muted" style="margin-bottom:10px">${d.type!=="EQUITY"?"ETF:er och fonder bedöms inte i strategierna.":`Sektorn ${esc(d.sector)} är utesluten i alla strategierna (finans, råvaror, energi, kraftbolag och fastigheter). 200W-zonerna gäller ändå.`}</p>`:""}
+      ${d.excluded?`<p class="small muted" style="margin-bottom:10px">ETF:er och fonder bedöms inte i strategierna. 200W-zonerna gäller ändå.</p>`:""}
       <div class="tw"><table class="crit"><thead><tr><th>Krav</th><th class="r">Värde</th><th class="r">Guld</th><th class="r">LRHR</th><th class="r">FT+</th><th class="r">FT</th></tr></thead><tbody>
       ${keys.map(k=>`<tr><td>${esc(nm(k))}${ib(CK[k])}</td><td class="r n">${critVal(k,d)}</td>${cell("gold",k)}${cell("lrhr",k)}${cell("ftp",k)}${cell("ft",k)}</tr>`).join("")}
       <tr><td>200W-zon${ib("zones")}</td><td class="r">${zchip(d)}</td><td class="r small" colspan="4">${d.sig.length?sigB(d):`<span class="faint">Signal kräver strategi + ${d.res.lrhr.status==="pass"?"under Cheap":"köpzon"}</span>`}</td></tr>
@@ -1838,7 +1838,7 @@ function pageScreener(){
         <label class="chk"><input type="checkbox" id="sfNear" ${ui.sfNear?"checked":""}> Räkna med Nära (missar ett krav)</label></div>
       <div class="sfrow"><b>200W-zon</b>${ib("zones")}<div class="sfc" id="zf"></div><label class="chk"><input type="checkbox" id="sfSig" ${ui.sfSig?"checked":""}> Bara köpläge (signal)</label></div>
       <div class="sfrow"><b>Storlek</b><div class="seg" id="sfSize">${[[0,"Alla"],[10,"≥ 10 md $"],[50,"≥ 50 md $"],[200,"Mega ≥ 200 md $"]].map(([v,l])=>`<button data-v="${v}" aria-pressed="${(ui.sfSize||0)===v}">${l}</button>`).join("")}</div>
-        <input id="sfQ" class="sfq" placeholder="Sök i listan" value="${esc(ui.sfQ||"")}"><label class="chk"><input type="checkbox" id="exclChk" ${ui.showExcl?"checked":""}> Visa uteslutna sektorer</label></div>
+        <input id="sfQ" class="sfq" placeholder="Sök i listan" value="${esc(ui.sfQ||"")}"><label class="chk"><input type="checkbox" id="exclChk" ${ui.showExcl?"checked":""}> Visa ETF:er</label></div>
       <div class="sfrow sfres"><span id="cnt" class="sfcnt"></span><span id="sfSum" class="small muted"></span><span style="flex:1"></span><button class="btn sm" id="sfClear">Rensa filter</button><button class="btn sm" id="csv">Ladda ner CSV</button></div>
     </div>
     <div class="tools"><span class="sub">Kolumner och gränser för</span><div class="seg" id="stratSeg">${Object.entries(STRATS).map(([k,s])=>`<button data-s="${k}" aria-pressed="${ui.strat===k}">${esc(s.name)}</button>`).join("")}</div></div>
@@ -2839,7 +2839,7 @@ function plan(d,entryPrice){
 }
 function stratVerdict(d){
   const R=d.res,pass=SORDER.filter(k=>R[k]&&R[k].status==="pass"),near=SORDER.filter(k=>R[k]&&R[k].status==="near");
-  if(d.excluded)return{k:"mid",t:d.type&&d.type!=="EQUITY"?"ETF:er bedöms inte i strategierna.":`Sektorn ${d.sector} är utesluten i strategierna. 200W-zonerna gäller ändå.`};
+  if(d.excluded)return{k:"mid",t:"ETF:er och fonder bedöms inte i strategierna. 200W-zonerna gäller ändå."};
   if(d.sig.includes("diamant"))return{k:"gold",t:"💎 Diamantläge: klarar Low Risk, High Reward och ligger under 200W-snittet (Fire Sale). Se backtestet nedan för hur det har fungerat på just den här aktien."};
   if(d.sig.includes("guld"))return{k:"gold",t:"Guldläge: ett stort, stabilt kvalitetsbolag i köpzonen mot 200W."};
   if(d.sig.length)return{k:"pos",t:`Köpläge: klarar ${pass.map(k=>STRATS[k].name).join(" och ")} och ligger i köpzonen.`};
@@ -4246,7 +4246,7 @@ function pageMethod(){
       <tr><td>Bruttomarginal</td><td>–</td><td>≥ 35 %</td><td>–</td></tr>
       <tr><td>Utspädning per år</td><td>–</td><td>≤ 5 %</td><td>–</td></tr>
       <tr><td>Börsvärde</td><td>–</td><td>≥ 2 md $</td><td>≥ 10 md $</td></tr>
-      <tr><td>Sektorer</td><td colspan="3">Finans, råvaror, energi, kraftbolag och fastigheter är uteslutna i alla tre</td></tr>
+      <tr><td>Sektorer</td><td colspan="3">Alla sektorer ingår: strategierna gäller vilket bolag som helst, inte bara teknik. Bara ETF:er och fonder bedöms inte</td></tr>
     </tbody></table></div>
     <h2>200-veckorszoner</h2>
     <p>Samma logik som din indikator Universal Value Zones. Kursen jämförs med 200-veckors glidande medelvärde. På dagsdiagrammet räknas snittet som 199 hela veckor plus dagens kurs, precis som <span class="n">request.security</span> i TradingView.</p>

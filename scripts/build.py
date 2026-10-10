@@ -41,7 +41,8 @@ SECTOR_SV = {
     "Financial Services": "Finans", "Basic Materials": "Råvaror", "Energy": "Energi",
     "Utilities": "Kraftbolag", "Real Estate": "Fastigheter",
 }
-EXCLUDED = {"Finans", "Råvaror", "Energi", "Kraftbolag", "Fastigheter"}
+# Inga sektorer utesluts: strategierna gäller alla aktier, oavsett sektor. Bara ETF:er och fonder bedöms inte.
+EXCLUDED = set()
 ZONES = [(0, "fire", "Fire Sale"), (10, "vcheap", "Very Cheap"), (20, "cheap", "Cheap"),
          (30, "fair", "Fair Value"), (40, "exp", "Expensive"), (float("inf"), "vexp", "Very Expensive")]
 LRHR_CAGR = (1.5 ** (1 / 5) - 1) * 100

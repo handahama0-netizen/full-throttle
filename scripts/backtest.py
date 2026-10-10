@@ -339,7 +339,7 @@ def run(data: Path):
     rows = [r for r in u.get("rows", []) if r.get("type", "EQUITY") == "EQUITY"]
     lead = leaders(rows)
     groups = {
-        "all": ("Alla aktier (utom uteslutna sektorer)", [r for r in rows if not r.get("excluded")]),
+        "all": ("Alla aktier", [r for r in rows if not r.get("excluded")]),
         "lrhr": ("Low Risk, High Reward (dagens nyckeltal)", [r for r in rows if lrhr(r)]),
         "mega": ("Megabolag ≥ 200 mdr $", [r for r in rows if mega(r)]),
         "gold": ("Guld: mega eller branschledare, beta ≤ 1,3, ROIC/ROE ≥ 15 %, FCF ≥ 10 %, växer", [r for r in rows if gold_quality(r, lead)]),
