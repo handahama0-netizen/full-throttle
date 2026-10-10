@@ -390,6 +390,17 @@ tr.slhl td{background:var(--accent-soft)}
 .mxl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
 .stwhat{font-size:16px;font-weight:550}
 .styours{margin-top:12px;padding:8px 12px;border-radius:9px;background:var(--accent-soft);font-size:14px}
+/* fear & greed */
+.fngcard{margin-bottom:12px}.fngcard .bd{padding:12px 14px}
+.fngrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fng{display:grid;justify-items:center;text-align:center;padding:6px 4px;border-radius:12px;background:var(--sunk)}
+.fngt{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.02em}
+.fngs{width:100%;max-width:170px;height:auto;margin-top:2px}
+.fngv{display:grid;margin-top:-6px}.fngv b{font-size:26px;line-height:1.1}.fngv span{font-size:13px;font-weight:700}
+.fngh{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px}.fngh b{color:var(--ink)}
+.fngtip{margin-top:10px;padding:8px 10px;border-radius:8px;background:var(--accent-soft)}
+.fngd{margin-top:8px}.fngd summary{cursor:pointer}
+.fngp{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px}.fngp li{display:flex;justify-content:space-between;gap:8px}
 /* nedtryckta */
 .dnbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--sunk)}
 @media (min-width:701px){.dnbar{position:sticky;top:var(--hh,58px);z-index:5}}
@@ -1306,6 +1317,7 @@ function pageStart(){
   $("app").innerHTML=`
   ${storyRow()}
   ${relCard()}
+  ${fngCard()}
   ${subnav([["s-today","Idag"],["s-ins","Insikter"]].concat(FOCUS?[["s-focus","Claudes fokus"]]:[]).concat([["xThemes","Teman"]]))}
   <div style="height:12px"></div>
   ${todayCard()}
@@ -1314,7 +1326,7 @@ function pageStart(){
   <details class="xsec" id="s-focus"><summary>Claudes fokus <span class="sub">dagens analys</span></summary><div style="margin-top:12px">${focusCard()}</div></details>
   <details class="xsec" id="xThemes"><summary>Teman just nu <span class="sub">${(()=>{const T=themesCache().filter(t=>nn(t.mom));return T.length?`hetast ${esc(T[0].name)}, kallast ${esc(T[T.length-1].name)}`:""})()}</span></summary><div style="margin-top:12px">${themesCard()}</div></details>
   <p class="small muted" style="margin-top:14px">${rows.length} aktier · nyckeltal per ${esc(U.asOf||"–")} · kurser ${esc(rel(U.quotesAt||U.updatedAt))}</p>`;
-  bindRows($("app"));bindStars($("app"));bindThemes();bindInsights();bindStoryRow();
+  bindRows($("app"));bindStars($("app"));bindThemes();bindInsights();bindStoryRow();fillFng();
   ["xThemes","s-focus"].forEach(id=>{const el=$(id);if(!el)return;if(ui["open_"+id])el.open=true;el.addEventListener("toggle",()=>{ui["open_"+id]=el.open;saveUi()})});
 }
 function xs(d){const v=clamp(d,-40,250);return v<=60?(v+40)/100*0.72:0.72+Math.log(1+(v-60)/40)/Math.log(1+190/40)*0.28}
@@ -4511,7 +4523,7 @@ function macroDeck(){const M=MACRO&&MACRO.s||{},X=FOCUS&&FOCUS.macro||{},C=[];
   { const v=mLast(M.vix),h=mLast(M.hy),tone=!nn(v)?"info":v>25||h>4.5?"neg":v<16?"pos":"mid";
     C.push({topic:"Oro",q:"Hur rädd är marknaden?",tone,verdict:!nn(v)?"Rädsla och kreditrisk":v>30?"Panik":v>25?"Hög oro":v<16?"Lugnt, nästan sorglöst":"Normal oro",
       lead:`<p>${!nn(v)?"":v>25?"VIX över 25 betyder att marknaden betalar mycket för skydd. Historiskt har sådana lägen ofta gett bra köptillfällen i stabila bolag, men med hävstång är svängningarna farliga.":v<16?"VIX under 16 betyder lugn. Det är bra för kurserna, men skyddet är billigt och överraskningar slår hårdare.":"Oron ligger på normala nivåer."}</p>${X.risks?`<h4>Vad kan ändra bilden</h4><p>${esc(X.risks)}</p>`:""}`,vis:stSpark(M.vix,fN,104),
-      facts:[M.vix&&stFact("VIX",fN(v),"under 16 lugnt, över 25 oro",tone),M.hy&&stFact("Kreditspread",fP(h),"högriskobligationer mot statsobligationer, över 4,5 % är stress",h>4.5?"neg":h<3.5?"pos":"mid")].filter(Boolean),after:mxStoryBlock("m")})}
+      facts:[MACRO&&MACRO.fng&&MACRO.fng.stock&&stFact("Fear & Greed aktier",f(MACRO.fng.stock.v,0),FNG_SV[MACRO.fng.stock.r||fngR(MACRO.fng.stock.v)]||"",MACRO.fng.stock.v<45?"neg":MACRO.fng.stock.v>55?"pos":"mid"),MACRO&&MACRO.fng&&MACRO.fng.crypto&&stFact("Fear & Greed krypto",f(MACRO.fng.crypto.v,0),FNG_SV[MACRO.fng.crypto.r||fngR(MACRO.fng.crypto.v)]||"",MACRO.fng.crypto.v<45?"neg":MACRO.fng.crypto.v>55?"pos":"mid"),M.vix&&stFact("VIX",fN(v),"under 16 lugnt, över 25 oro",tone),M.hy&&stFact("Kreditspread",fP(h),"högriskobligationer mot statsobligationer, över 4,5 % är stress",h>4.5?"neg":h<3.5?"pos":"mid")].filter(Boolean),after:mxStoryBlock("m")})}
   // råvaror
   if(M.oil||M.gold||M.copper){const o=M.oil,d=nn(mLast(o))&&nn(mAt(o,92))?(mLast(o)/mAt(o,92)-1)*100:null,cu=M.copper,dc=cu&&nn(mAt(cu,92))?(mLast(cu)/mAt(cu,92)-1)*100:null,g=M.gold,dg=g&&nn(mAt(g,365))?(mLast(g)/mAt(g,365)-1)*100:null;
     C.push({topic:"Råvaror",q:"Vad säger råvarorna?",tone:nn(d)&&d>15?"neg":"info",verdict:nn(d)?`Oljan ${pct(d,0)} på 3 mån`:"Olja, guld och koppar",
@@ -4595,6 +4607,35 @@ function mxStoryBlock(k){const R=portMx();const s=MXS.find(x=>x.k===k),x=R.sum[k
   return `<div class="mxs"><h4>Så påverkar det dina aktier</h4>${R.P.length&&x&&nn(x.pct)?`<p>Om <b>${esc(s.l.toLowerCase())}</b> rör sig din portfölj ungefär <b class="${cls(x.pct)}">${pct(x.pct,1)}</b> (${krS(x.kr)}), med hävstången inräknad.</p>`:""}
     ${worst.length?`<div class="mxl"><span class="small muted">Mest utsatta</span>${worst.map(d=>`<a href="${link(d.ticker)}" class="sttk"><b class="tk">${esc(d.ticker)}</b> <span class="n ${cls(mxEff(d,k))}">${pct(mxEff(d,k),1)}</span></a>`).join("")}</div>`:""}
     ${best.length?`<div class="mxl"><span class="small muted">Gynnas</span>${best.map(d=>`<a href="${link(d.ticker)}" class="sttk"><b class="tk">${esc(d.ticker)}</b> <span class="n up">${pct(mxEff(d,k),1)}</span></a>`).join("")}</div>`:""}</div>`}
+
+/* ============ FEAR & GREED: aktier (CNN) och krypto (alternative.me) ============ */
+const FNG_SV={"extreme fear":"Extrem rädsla","fear":"Rädsla","neutral":"Neutral","greed":"Girighet","extreme greed":"Extrem girighet"};
+const fngR=v=>v<25?"extreme fear":v<45?"fear":v<=55?"neutral":v<=75?"greed":"extreme greed";
+const fngCol=v=>v<25?"var(--down)":v<45?"var(--z-exp)":v<=55?"var(--z-fair)":v<=75?"#8fd16a":"var(--up)";
+let FNGC=null; // krypto direkt från alternative.me om datakörningen inte hunnit hämta den
+function fngLive(){if(FNGC||(MACRO&&MACRO.fng&&MACRO.fng.crypto))return Promise.resolve();
+  return fetch("https://api.alternative.me/fng/?limit=31").then(r=>r.ok?r.json():null).then(j=>{const D=(j&&j.data)||[];if(!D.length)return;const at=k=>D[k]?+D[k].value:null;
+    FNGC={v:+D[0].value,r:String(D[0].value_classification||"").toLowerCase(),prev:at(1),w:at(7),m:at(30),src:"Crypto Fear & Greed Index (alternative.me)",url:"https://alternative.me/crypto/fear-and-greed-index/"}}).catch(()=>{})}
+function fngGauge(x,title){if(!x||!nn(x.v))return `<div class="fng"><div class="fngt">${title}</div><p class="small muted" style="margin-top:20px">Hämtas i nästa datakörning.</p></div>`;
+  const v=clamp(x.v,0,100),r=x.r||fngR(v),a=Math.PI*(1-v/100),cx=60,cy=58,R=46,nx=cx+Math.cos(a)*(R-6),ny=cy-Math.sin(a)*(R-6);
+  const arc=(v0,v1,c)=>{const a0=Math.PI*(1-v0/100),a1=Math.PI*(1-v1/100);return `<path d="M${cx+Math.cos(a0)*R} ${cy-Math.sin(a0)*R} A${R} ${R} 0 0 1 ${cx+Math.cos(a1)*R} ${cy-Math.sin(a1)*R}" stroke="${c}" stroke-width="10" fill="none"/>`};
+  const ch=(lbl,o)=>nn(o)?`<span>${lbl} <b class="n">${f(o,0)}</b></span>`:"";
+  return `<div class="fng"><div class="fngt">${title}</div>
+    <svg viewBox="0 0 120 66" class="fngs" role="img" aria-label="${esc(title)}: ${f(v,0)}, ${esc(FNG_SV[r]||r)}">${arc(0,25,"var(--down)")}${arc(25.6,45,"var(--z-exp)")}${arc(45.6,55,"var(--z-fair)")}${arc(55.6,75,"#8fd16a")}${arc(75.6,100,"var(--up)")}
+      <line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="var(--ink)" stroke-width="2.6" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="4" fill="var(--ink)"/></svg>
+    <div class="fngv"><b class="n" style="color:${fngCol(v)}">${f(v,0)}</b><span style="color:${fngCol(v)}">${esc(FNG_SV[r]||r)}</span></div>
+    <div class="fngh small muted">${ch("Igår",x.prev)}${ch("1 v",x.w)}${ch("1 mån",x.m)}</div></div>`}
+function fngCard(){const F=(MACRO&&MACRO.fng)||{},st=F.stock,cr=F.crypto||FNGC;
+  const tip=st&&nn(st.v)?(st.v<25?"Extrem rädsla på börsen: historiskt har det gett bra köplägen i stabila bolag nära 200W. Köp när andra är rädda.":st.v>75?"Extrem girighet: marknaden är het. Var försiktig med ny hävstång och följ dina stopp.":""):"";
+  return `<section class="card fngcard" id="fngBox"><div class="bd">
+    <div class="fngrow">${fngGauge(st,"Fear &amp; Greed: aktier")}${fngGauge(cr,"Fear &amp; Greed: krypto")}</div>
+    ${tip?`<p class="small fngtip">${tip}</p>`:""}
+    <details class="fngd"><summary class="small muted">Vad mäter det? ${st&&st.own?"· egen beräkning":""}</summary><div class="small" style="margin-top:6px">
+      <p class="muted">0 = extrem rädsla, 100 = extrem girighet. Aktieindexet väger ihop ${st&&st.parts&&st.parts.length?st.parts.length:"sju"} mätare:</p>
+      ${st&&(st.parts||[]).length?`<ul class="fngp">${st.parts.map(p=>`<li><span>${esc(p.n)}</span><b class="n" style="color:${fngCol(p.v)}">${f(p.v,0)}</b></li>`).join("")}</ul>`:""}
+      <p class="muted" style="margin-top:6px">Källor: ${st?`<a href="${esc(st.url||"https://edition.cnn.com/markets/fear-and-greed")}" target="_blank" rel="noopener">${esc(st.src||"CNN")}</a>`:"CNN"} och ${cr?`<a href="${esc(cr.url||"https://alternative.me/crypto/fear-and-greed-index/")}" target="_blank" rel="noopener">${esc(cr.src||"alternative.me")}</a>`:"alternative.me"}. Aktier uppdateras var 10:e minut under börsdagen, krypto en gång per dygn. Du får en notis när något av dem går in i extrem rädsla eller extrem girighet.</p></div></details>
+  </div></section>`}
+function fillFng(){Promise.all([getMacro(),fngLive()]).then(()=>{const b=$("fngBox");if(b)b.outerHTML=fngCard()})}
 
 /* ---- bolagsprofil ---- */
 let BOLAG={};
@@ -4740,7 +4781,7 @@ function pageData(){document.title="Data och källor · Full Throttle";
       <div class="dsrc"><div class="dsh"><b>Claudes analyser</b><span class="n small">${esc(FOCUS?FOCUS.date+" "+(FOCUS.time||""):"–")}</span></div><p class="small">Claude (Anthropic) med webbsök. Källor anges i varje story och analys.</p><p class="small muted">Claudes fokus, dagens recap och makro: vardagar kl. 08.22. Veckan, Jordi Visser, AI-kedjan och bolagsprofiler: söndagar kl. 17.48.</p></div></div>
     <h2 style="font-size:16px;margin:18px 0 6px">Larm till mobilen</h2>
     <p class="small">Installera appen <b>ntfy</b> (gratis, inget konto) och prenumerera på <a href="https://ntfy.sh/${topic}" target="_blank" rel="noopener" class="n">${topic}</a>. Du får notis direkt när:</p>
-    <ul class="stlist" style="margin-top:6px"><li>ny statistik släpps: KPI, kärn-KPI, PCE, PPI, jobbrapporten, arbetslösheten, nyanmälda arbetslösa, detaljhandeln, konsumentförtroendet, med förra värdet och förväntan när den finns</li><li>Fed fattar räntebeslut eller släpper protokollet (FOMC minutes)</li><li>en aktie får ⚡ Smart-, 💎 Diamant- eller Guld-läge</li><li>ett innehav närmar sig stop, når Fair Value eller Expensive, rapporterar inom 7 dagar eller institutionerna börjar sälja</li></ul>
+    <ul class="stlist" style="margin-top:6px"><li>ny statistik släpps: KPI, kärn-KPI, PCE, PPI, jobbrapporten, arbetslösheten, nyanmälda arbetslösa, detaljhandeln, konsumentförtroendet, med förra värdet och förväntan när den finns</li><li>Fed fattar räntebeslut eller släpper protokollet (FOMC minutes)</li><li>Fear &amp; Greed för aktier eller krypto går in i extrem rädsla (under 25) eller extrem girighet (över 75)</li><li>en aktie får ⚡ Smart-, 💎 Diamant- eller Guld-läge</li><li>ett innehav närmar sig stop, når Fair Value eller Expensive, rapporterar inom 7 dagar eller institutionerna börjar sälja</li></ul>
     <h2 style="font-size:16px;margin:18px 0 6px">Varför inte helt i realtid?</h2>
     <p class="small muted">Börskurser i realtid kräver betald licens från börserna. Gratiskällorna ligger ungefär 15 minuter efter, och sidan hämtar nytt var 10:e minut under börsdagen (GitHub kan ibland köra några minuter sent). Sidan kollar själv varje minut om det finns ny data och uppdateras då utan att du behöver ladda om. Makrostatistik från USA kommer kl. 14.30 eller 16.00 svensk tid och syns här inom ungefär 10–20 minuter. För realtidskurser när du handlar: använd Nordnet.</p>
     <details class="mdet" style="margin-top:14px"><summary>Alla källor i detalj</summary><div class="prose" style="margin-top:10px">${DATA_TABLE}</div></details>
@@ -4755,6 +4796,7 @@ const DATA_TABLE=`<div class="tw"><table class="crit"><thead><tr><th>Data</th><t
   <tr><td>Insiderköp och -sälj</td><td>Yahoo Finance (SEC Form 4)</td><td>Varje natt</td></tr>
   <tr><td>Räntor, KPI, PCE, PPI, jobb, arbetslöshet, kreditspread</td><td>FRED, Federal Reserve Bank of St. Louis</td><td>Var 10:e min kl. 14–18 svensk tid, annars var 6:e timme</td></tr>
   <tr><td>Räntebesked och protokoll</td><td>Federal Reserve (RSS för pressmeddelanden)</td><td>Var 10:e min</td></tr>
+  <tr><td>Fear &amp; Greed, aktier och krypto</td><td>CNN Fear &amp; Greed Index (egen beräkning av VIX, kreditspread, fart och bredd om CNN inte svarar) och alternative.me för krypto</td><td>Aktier var 10:e min, krypto en gång per dygn</td></tr>
   <tr><td>VIX, dollarindex, olja, guld, koppar</td><td>Yahoo Finance</td><td>Var 10:e min</td></tr>
   <tr><td>Nyheter</td><td>Yahoo Finance och Google News (RSS)</td><td>Varje natt, och i Claudes stories varje vardag</td></tr>
   <tr><td>S&amp;P 500- och Nasdaq-100-listorna</td><td>Wikipedia</td><td>Varje natt</td></tr>

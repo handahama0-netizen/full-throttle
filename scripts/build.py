@@ -1383,12 +1383,15 @@ def main():
         try:  # makro (Fed, räntor, inflation, jobb, VIX, råvaror): FRED en gång per dag, marknadsdata varje körning
             import macro
             old = load_json(out / "data" / "macro.json", {}) or load_json(prev / "data" / "macro.json", {})
-            m, new = macro.run(old, mode=a.mode, expect=macro_expect(load_json(SRC / "site" / "focus.json", {}) or {}), log=log)
+            uu = load_json(out / "data" / "universe.json", {}) or {}
+            eq = [r for r in uu.get("rows") or [] if r.get("type", "EQUITY") == "EQUITY" and r.get("price") and r.get("sma200")]
+            breadth = sum(1 for r in eq if r["price"] > r["sma200"]) / len(eq) * 100 if eq else None
+            m, new = macro.run(old, mode=a.mode, expect=macro_expect(load_json(SRC / "site" / "focus.json", {}) or {}), log=log, breadth=breadth)
             if m:
                 write_json(out / "data" / "macro.json", m)
             for r in new[:6]:  # ny statistik eller nytt från Fed: notis till mobilen direkt
                 log("makro: nytt", r.get("text"))
-                send_ntfy(f"Makro: {r['name']}", r.get("text") or r["name"], SITE + "#/story/makro", "bar_chart")
+                send_ntfy(r["name"] if r.get("key", "").startswith("fng") else f"Makro: {r['name']}", r.get("text") or r["name"], SITE + ("#/" if r.get("key", "").startswith("fng") else "#/story/makro"), "bar_chart")
         except Exception as e:  # noqa: BLE001
             log("makro fel", e)
         try:  # aktiernas känslighet för ränta, olja och dollar: en gång per dag räcker

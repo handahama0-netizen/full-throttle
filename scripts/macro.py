@@ -50,6 +50,7 @@ YAHOO = [
     ("oil", "CL=F", "Olja (WTI)", "USD/fat"),
     ("gold", "GC=F", "Guld", "USD/uns"),
     ("copper", "HG=F", "Koppar", "USD/pund"),
+    ("spx", "^GSPC", "S&P 500", "punkter"),
 ]
 # namn i notiserna
 REL = {"cpi": "KPI (inflation USA)", "core": "Kärn-KPI (USA)", "pce": "Kärn-PCE (Feds inflationsmått)", "ppi": "Producentpriser (PPI)",
@@ -279,12 +280,135 @@ def detect(old_s, new_s, expect, now_iso, log=print):
     return rel
 
 
+# ---------------- Fear & Greed ----------------
+CNN_URL = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
+CRYPTO_URL = "https://api.alternative.me/fng/?limit=400&format=json"
+CNN_PARTS = [("market_momentum_sp500", "Börsens fart (S&P 500 mot 125-dagarssnittet)"), ("stock_price_strength", "Nya toppar mot nya bottnar"),
+             ("stock_price_breadth", "Bredd (volym i stigande mot fallande aktier)"), ("put_call_options", "Put/call-optioner"),
+             ("market_volatility_vix", "Volatilitet (VIX)"), ("safe_haven_demand", "Efterfrågan på säkra tillgångar"), ("junk_bond_demand", "Efterfrågan på högriskobligationer")]
+
+
+def fng_rating(v):
+    return None if v is None else "extreme fear" if v < 25 else "fear" if v < 45 else "neutral" if v <= 55 else "greed" if v <= 75 else "extreme greed"
+
+
+def _weekly_hist(pts):
+    """[(iso, v)] dagligen -> en punkt per vecka senaste året."""
+    out, last = [], None
+    for d, v in pts:
+        wk = datetime.strptime(d, "%Y-%m-%d").isocalendar()[:2]
+        if wk == last:
+            out[-1] = [d, v]
+        else:
+            out.append([d, v])
+            last = wk
+    return out[-53:]
+
+
+def fng_cnn(log=print):
+    import requests
+    h = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+         "Accept": "application/json, text/plain, */*", "Referer": "https://www.cnn.com/", "Origin": "https://www.cnn.com"}
+    try:
+        r = requests.get(CNN_URL, headers=h, timeout=20)
+        if not r.ok:
+            log("Fear & Greed: CNN svarade", r.status_code)
+            return None
+        j = r.json()
+        fg = j.get("fear_and_greed") or {}
+        if fg.get("score") is None:
+            return None
+        rd = lambda x: round(float(x), 1) if x is not None else None  # noqa: E731
+        hist = []
+        for p in ((j.get("fear_and_greed_historical") or {}).get("data") or []):
+            try:
+                hist.append((datetime.fromtimestamp(p["x"] / 1000, timezone.utc).date().isoformat(), rd(p["y"])))
+            except Exception:  # noqa: BLE001
+                continue
+        parts = [{"n": n, "v": rd((j.get(k) or {}).get("score")), "r": (j.get(k) or {}).get("rating")} for k, n in CNN_PARTS if (j.get(k) or {}).get("score") is not None]
+        return {"v": rd(fg["score"]), "r": fg.get("rating") or fng_rating(fg["score"]), "prev": rd(fg.get("previous_close")), "w": rd(fg.get("previous_1_week")),
+                "m": rd(fg.get("previous_1_month")), "y": rd(fg.get("previous_1_year")), "hist": _weekly_hist(sorted(hist)), "parts": parts,
+                "src": "CNN Fear & Greed Index", "url": "https://edition.cnn.com/markets/fear-and-greed"}
+    except Exception as e:  # noqa: BLE001
+        log("Fear & Greed: CNN fel", e)
+        return None
+
+
+def fng_proxy(s, breadth):
+    """Om CNN inte svarar: egen beräkning i samma anda (0 = extrem rädsla, 100 = extrem girighet)."""
+    parts = []
+
+    def pctl(ser, invert=False):
+        v = [x for x in (ser or {}).get("v", [])[-52:] if x is not None]
+        if len(v) < 20:
+            return None
+        last = v[-1]
+        p = sum(1 for x in v if x <= last) / len(v) * 100
+        return round(100 - p if invert else p, 1)
+    vix = pctl(s.get("vix"), invert=True)
+    if vix is not None:
+        parts.append({"n": "Volatilitet (VIX) mot senaste året", "v": vix, "r": fng_rating(vix)})
+    hy = pctl(s.get("hy"), invert=True)
+    if hy is not None:
+        parts.append({"n": "Kreditspread, högriskobligationer", "v": hy, "r": fng_rating(hy)})
+    spx = (s.get("spx") or {}).get("v") or []
+    if len(spx) >= 27:
+        ma = sum(spx[-26:]) / 26
+        mom = max(0.0, min(100.0, 50 + (spx[-1] / ma - 1) * 100 / 8 * 50))
+        parts.append({"n": "Börsens fart (S&P 500 mot 26-veckorssnittet)", "v": round(mom, 1), "r": fng_rating(mom)})
+    if breadth is not None:
+        b = max(0.0, min(100.0, (breadth - 30) / 50 * 100))
+        parts.append({"n": f"Bredd: {breadth:.0f} % av aktierna över 200-dagarssnittet", "v": round(b, 1), "r": fng_rating(b)})
+    if len(parts) < 2:
+        return None
+    v = round(sum(p["v"] for p in parts) / len(parts), 1)
+    return {"v": v, "r": fng_rating(v), "parts": parts, "src": "Egen beräkning (CNN svarade inte)", "own": True}
+
+
+def fng_crypto(log=print):
+    import requests
+    try:
+        r = requests.get(CRYPTO_URL, timeout=20, headers={"User-Agent": "Mozilla/5.0 (full-throttle)"})
+        if not r.ok:
+            return None
+        data = (r.json() or {}).get("data") or []
+        pts = [((datetime.fromtimestamp(int(x["timestamp"]), timezone.utc).date().isoformat()), float(x["value"])) for x in data if x.get("value")]
+        if not pts:
+            return None
+        v = pts[0][1]  # nyast först
+        at = lambda k: pts[k][1] if len(pts) > k else None  # noqa: E731
+        return {"v": v, "r": (data[0].get("value_classification") or fng_rating(v)).lower(), "prev": at(1), "w": at(7), "m": at(30), "y": at(365),
+                "hist": _weekly_hist(sorted(pts)), "src": "Crypto Fear & Greed Index (alternative.me)", "url": "https://alternative.me/crypto/fear-and-greed-index/"}
+    except Exception as e:  # noqa: BLE001
+        log("Fear & Greed: krypto fel", e)
+        return None
+
+
+FNG_SV = {"extreme fear": "Extrem rädsla", "fear": "Rädsla", "neutral": "Neutral", "greed": "Girighet", "extreme greed": "Extrem girighet"}
+
+
+def fng_alerts(old, new, now_iso):
+    """Notis när ett index går in i extrem rädsla (under 25) eller extrem girighet (över 75)."""
+    out = []
+    for k, nm in (("stock", "Fear & Greed (aktier)"), ("crypto", "Fear & Greed (krypto)")):
+        a, b = (old or {}).get(k), (new or {}).get(k)
+        if not a or not b or a.get("v") is None or b.get("v") is None:
+            continue
+        za = "ef" if a["v"] < 25 else "eg" if a["v"] > 75 else ""
+        zb = "ef" if b["v"] < 25 else "eg" if b["v"] > 75 else ""
+        if zb and zb != za:
+            txt = (f"{nm} är nu {b['v']:.0f}: {'extrem rädsla' if zb == 'ef' else 'extrem girighet'}. "
+                   + ("Historiskt har extrem rädsla gett bra köplägen i stabila bolag nära 200W." if zb == "ef" else "Var försiktig med ny hävstång när marknaden är girig."))
+            out.append({"key": "fng_" + k, "name": f"{nm}: {'extrem rädsla' if zb == 'ef' else 'extrem girighet'}", "at": now_iso, "text": txt, "src": b.get("src")})
+    return out
+
+
 def in_release_window(now):
     """USA släpper det mesta kl. 8.30 och 10.00 New York-tid: 12.30–15.00 UTC beroende på sommartid."""
     return now.weekday() < 5 and 12 <= now.hour < 16
 
 
-def run(prev: dict | None = None, mode: str = "quotes", expect: dict | None = None, log=print):
+def run(prev: dict | None = None, mode: str = "quotes", expect: dict | None = None, log=print, breadth=None):
     """Hämtar och returnerar (macro, nya_releaser). Saknas en serie behålls den från förra körningen."""
     prev = prev or {}
     old = prev.get("s") or {}
@@ -318,6 +442,12 @@ def run(prev: dict | None = None, mode: str = "quotes", expect: dict | None = No
                                 "url": x["u"], "src": "Federal Reserve", "text": fed_sv(x["t"]) + ". " + x["t"]})
         seen = (links + (seen or []))[:40]
         fed = items[:8]
+    # Fear & Greed: aktier (CNN, annars egen beräkning) och krypto. Behåll förra värdet om källan inte svarar.
+    fng_old = prev.get("fng") or {}
+    stock = fng_cnn(log) or fng_proxy(s, breadth) or fng_old.get("stock")
+    crypto = fng_crypto(log) or fng_old.get("crypto")
+    fng = {"stock": stock, "crypto": crypto, "at": now_iso}
+    new += fng_alerts(fng_old, fng, now_iso)
     releases = (new + (prev.get("releases") or []))[:40]
     return {"asOf": now.date().isoformat(), "updatedAt": now_iso, "fredAt": fred_at, "s": s,
-            "releases": releases, "fed": fed, "fedSeen": seen}, new
+            "releases": releases, "fed": fed, "fedSeen": seen, "fng": fng}, new
