@@ -1,0 +1,302 @@
+{
+ "_info": "AI-kedjan: flaskhalsarna i den ordning en AI-modell behöver dem, från chip till mjukvara. Används av sidan AI-kedjan och scripts/sectors.py (läge per tema).",
+ "themes": [
+  {
+   "id": "compute",
+   "name": "Beräkning: GPU och AI-chip",
+   "short": "Chip",
+   "icon": "🧠",
+   "why": "Varje AI-modell tränas och körs på acceleratorer. GPU:er och egna AI-chip (ASIC) är den första flaskhalsen och där mest pengar läggs.",
+   "t": [
+    "NVDA",
+    "AMD",
+    "AVGO",
+    "MRVL",
+    "ARM",
+    "QCOM",
+    "INTC"
+   ]
+  },
+  {
+   "id": "fab",
+   "name": "Tillverkning och chipdesign",
+   "short": "Tillverkning",
+   "icon": "🏭",
+   "why": "Bara TSMC kan tillverka de mest avancerade chipen i stor skala, och bara ASML gör EUV-maskinerna. Utrustning och designmjukvara (EDA) krävs för varje ny chipgeneration.",
+   "t": [
+    "TSM",
+    "ASML",
+    "AMAT",
+    "LRCX",
+    "KLAC",
+    "TER",
+    "CDNS",
+    "SNPS"
+   ]
+  },
+  {
+   "id": "memory",
+   "name": "Minne: HBM och lagring",
+   "short": "Minne",
+   "icon": "💾",
+   "why": "AI-chip behöver snabbt HBM-minne precis bredvid processorn. Brist på minne begränsar hur många acceleratorer som kan levereras, och AI-agenter lagrar och läser enorma mängder data.",
+   "t": [
+    "MU",
+    "SNDK",
+    "WDC",
+    "STX"
+   ]
+  },
+  {
+   "id": "network",
+   "name": "Nätverk och optik",
+   "short": "Nätverk",
+   "icon": "🔗",
+   "why": "Tusentals GPU:er måste kopplas ihop som en enda dator. Switchar, optiska transceivers och kablar blir flaskhals när klustren växer.",
+   "t": [
+    "ANET",
+    "CSCO",
+    "CIEN",
+    "COHR",
+    "LITE",
+    "CRDO",
+    "ALAB",
+    "GLW",
+    "APH"
+   ]
+  },
+  {
+   "id": "servers",
+   "name": "Servrar och rack",
+   "short": "Servrar",
+   "icon": "🖥️",
+   "why": "Chipen byggs in i servrar och rack som levereras till datacenter. Volymerna är stora men marginalerna lägre.",
+   "t": [
+    "DELL",
+    "SMCI",
+    "HPE"
+   ]
+  },
+  {
+   "id": "cooling",
+   "name": "Kyla och ström i datacenter",
+   "short": "Kyla",
+   "icon": "❄️",
+   "why": "AI-rack drar 5–10 gånger mer el än vanliga servrar och måste vätskekylas. Kylsystem och strömförsörjning inne i datacentret blir flaskhals.",
+   "t": [
+    "VRT",
+    "MPWR",
+    "NVT",
+    "JCI",
+    "TT",
+    "CARR"
+   ]
+  },
+  {
+   "id": "grid",
+   "name": "Elnät och elbyggare",
+   "short": "Elnät",
+   "icon": "⚡",
+   "why": "Nya datacenter behöver nätanslutning, transformatorer och ställverk. Väntetiderna är flera år, så de som bygger och utrustar elnätet har stark prissättning.",
+   "t": [
+    "GEV",
+    "ETN",
+    "PWR",
+    "HUBB",
+    "ABB.ST",
+    "EME",
+    "FIX"
+   ]
+  },
+  {
+   "id": "power",
+   "name": "Elproduktion och kärnkraft",
+   "short": "Kraft",
+   "icon": "🔋",
+   "why": "Den största långsiktiga flaskhalsen: el. Kärnkraft och gas med långa avtal med molnjättarna, plus nya tekniker som bränsleceller och små reaktorer.",
+   "t": [
+    "CEG",
+    "VST",
+    "NRG",
+    "TLN",
+    "NEE",
+    "SO",
+    "DUK",
+    "BE",
+    "OKLO",
+    "SMR"
+   ]
+  },
+  {
+   "id": "materials",
+   "name": "Råvaror: koppar och uran",
+   "short": "Råvaror",
+   "icon": "⛏️",
+   "why": "Datacenter och elnät kräver mycket koppar, och kärnkraften kräver uran. Utbudet växer långsamt.",
+   "t": [
+    "FCX",
+    "SCCO",
+    "CCJ"
+   ]
+  },
+  {
+   "id": "dc",
+   "name": "Datacenter och AI-moln",
+   "short": "Datacenter",
+   "icon": "🏢",
+   "why": "De som äger byggnaderna, elen och kapaciteten och hyr ut beräkningskraft: datacenterfastigheter och nya AI-moln (neoclouds).",
+   "t": [
+    "EQIX",
+    "DLR",
+    "ORCL",
+    "CRWV",
+    "NBIS",
+    "IREN",
+    "APLD"
+   ]
+  },
+  {
+   "id": "hyper",
+   "name": "Molnjättar (hyperscalers)",
+   "short": "Molnjättar",
+   "icon": "☁️",
+   "why": "De största köparna av allt ovan. De investerar hundratals miljarder dollar per år och tjänar pengar på moln, annonser och AI-tjänster.",
+   "t": [
+    "MSFT",
+    "GOOGL",
+    "AMZN",
+    "META"
+   ]
+  },
+  {
+   "id": "software",
+   "name": "AI-mjukvara och tjänster",
+   "short": "Mjukvara",
+   "icon": "🤖",
+   "why": "Sista ledet: bolag som säljer AI till företag. Här avgörs om investeringarna betalar sig, men AI kan också hota gamla mjukvarumodeller.",
+   "t": [
+    "PLTR",
+    "NOW",
+    "CRM",
+    "SNOW",
+    "IBM"
+   ]
+  }
+ ],
+ "timelineDate": "2026-10",
+ "timeline": [
+  {
+   "from": 2023,
+   "to": 2024.5,
+   "ids": [
+    "compute"
+   ],
+   "status": "done",
+   "title": "GPU-bristen",
+   "text": "ChatGPT-chocken. Alla ville ha Nvidias H100 och leveranstiderna var upp till ett år. Pengarna gick först till chipen."
+  },
+  {
+   "from": 2024,
+   "to": 2025.8,
+   "ids": [
+    "fab",
+    "network"
+   ],
+   "status": "done",
+   "title": "Paketering och nätverk",
+   "text": "TSMC:s avancerade paketering (CoWoS) och nätverken mellan GPU:erna blev flaskhalsen när klustren växte till tiotusentals chip."
+  },
+  {
+   "from": 2025.3,
+   "to": 2027.6,
+   "ids": [
+    "memory"
+   ],
+   "status": "now",
+   "title": "Minnet (HBM och DRAM)",
+   "text": "Den akuta bristen just nu. HBM-minnet sitter bredvid varje AI-chip och är enligt branschen slutsålt till 2027. Minnespriserna har stigit kraftigt."
+  },
+  {
+   "from": 2025.8,
+   "to": 2028.3,
+   "ids": [
+    "cooling",
+    "servers"
+   ],
+   "status": "now",
+   "title": "Kyla och strömtäthet i racken",
+   "text": "Ett rack går från cirka 30 kW (2023) till flera hundra kW (Rubin, 2027). Luftkylning räcker inte, så vätskekyla och strömförsörjning inne i datacentret måste byggas om."
+  },
+  {
+   "from": 2026.3,
+   "to": 2029.8,
+   "ids": [
+    "grid",
+    "power"
+   ],
+   "status": "next",
+   "title": "El och elnät",
+   "text": "Nästa stora flaskhals och den långsammaste. Nya nätanslutningar tar 2–3 år och transformatorer har lång leveranstid. Gartner räknar med att 40 % av AI-datacentren är begränsade av el 2027."
+  },
+  {
+   "from": 2027,
+   "to": 2031,
+   "ids": [
+    "power",
+    "materials"
+   ],
+   "status": "later",
+   "title": "Ny elproduktion och råvaror",
+   "text": "När nätet byggs ut krävs ny produktion: gas, kärnkraft (förlängda reaktorer först, små modulära reaktorer från cirka 2030), plus koppar och uran där utbudet växer långsamt."
+  },
+  {
+   "from": 2026.6,
+   "to": 2029.5,
+   "ids": [
+    "dc",
+    "hyper"
+   ],
+   "status": "next",
+   "title": "Inferens och AI-agenter",
+   "text": "Användningen (inferens) växer snabbare än träningen när agenter jobbar dygnet runt. Det gynnar de som äger kapacitet och el: AI-moln, datacenter och molnjättarna."
+  },
+  {
+   "from": 2028,
+   "to": 2031.5,
+   "ids": [
+    "software"
+   ],
+   "status": "later",
+   "title": "Mjukvara och avkastning",
+   "text": "Frågan blir om investeringarna betalar sig. Vinnarna i mjukvara är de som tjänar pengar på agenter; de vars produkt AI kan ersätta riskerar att förlora."
+  }
+ ],
+ "analysis": [
+  "Var vi är (oktober 2026): bristen har flyttat från chipen till minnet. Det är den akuta flaskhalsen, medan el och elnät är den långsamma flaskhalsen som tar över. Både branschkällor och kursdatan pekar dit.",
+  "Nästa steg, 6–18 månader (2027): el, elnät, kyla och strömförsörjning i datacentren. Här ligger ofta stora, stabila bolag med långa orderböcker, vilket passar din strategi bättre än dyra chipbolag.",
+  "Längre fram, 2028–2030: ny elproduktion (kärnkraft och gas) och råvaror (koppar, uran). Sist kommer mjukvara och tjänster, när det avgörs om AI-investeringarna ger avkastning.",
+  "Risk: om minnes- och chipbristen löser sig snabbare än väntat kan priserna vända tvärt, som i tidigare minnescykler. Och om molnjättarna drar ner investeringarna drabbas hela kedjan, först de dyraste leden."
+ ],
+ "sources": [
+  {
+   "t": "Bordier: The next AI bottleneck (juli 2026)",
+   "u": "https://www.bordier.com/wp-content/uploads/2026/07/Bordier-July-2026-The-next-AI-bottleneck.pdf"
+  },
+  {
+   "t": "WisdomTree: What Nvidia's August 2026 print tells us",
+   "u": "https://www.wisdomtree.com/us/insights/blog/what-nvidia-s-august-2026-print-actually-tells-us-about-the-ai-buildout/pdf"
+  },
+  {
+   "t": "Bloomberg Law: OpenAI ser minnesbrist som flaskhals",
+   "u": "https://news.bloomberglaw.com/artificial-intelligence/openais-lightcap-sees-memory-shortage-as-bottleneck-risk-for-ai"
+  },
+  {
+   "t": "Spheron: AI data center power constraints 2026",
+   "u": "https://www.spheron.network/blog/ai-data-center-power-constraints-2026/"
+  },
+  {
+   "t": "Microchip USA: komponentbrist bortom GPU:er 2026",
+   "u": "https://www.microchipusa.com/industry-news/ai-hardware-shortage-beyond-gpus"
+  }
+ ]
+}
