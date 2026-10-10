@@ -72,7 +72,8 @@ p{margin:0}
 #sitemenu a.ms{display:block;padding:6px 8px 6px 44px;border-radius:8px;color:var(--ink);font-size:13.5px}#sitemenu a.ms:hover{background:var(--hover);text-decoration:none}
 .brand i{width:22px;height:22px;border-radius:6px;background:transparent;display:inline-block;position:relative}
 .brand i::after{content:"";position:absolute;left:5px;right:5px;bottom:6px;height:2px;background:var(--ink);box-shadow:0 -5px 0 var(--ink),0 -10px 0 var(--ink);opacity:.9;width:16px;left:3px;bottom:5px}
-.search{position:relative;flex:1;max-width:520px}
+.search{position:relative;flex:1;max-width:520px;min-width:170px}
+@media (min-width:761px){nav.main{min-width:0;overflow-x:auto;scrollbar-width:none}nav.main::-webkit-scrollbar{display:none}}
 .search input{width:100%;height:38px;border:1px solid var(--line-strong);border-radius:8px;background:var(--sunk);padding:0 12px 0 36px;font-size:14px}
 .search input:focus{background:var(--card);border-color:var(--accent);outline:none}
 .search svg{position:absolute;left:11px;top:11px;width:16px;height:16px;stroke:var(--muted)}
@@ -323,6 +324,32 @@ a.lvlb:hover{text-decoration:none;border-color:var(--accent)}
 .strev .stni{color:var(--z-vcheap);font-size:11.5px}.strev .stni.down{color:var(--down)}
 .stlg{display:inline-flex;align-items:center;gap:4px;margin-right:8px}.stlg i{width:10px;height:10px;border-radius:2px;display:inline-block}.stlg i.rv{background:var(--accent)}.stlg i.ni{background:var(--z-vcheap)}
 @media (max-width:640px){.strev{gap:5px}.strev b{font-size:10.5px}.strev .stni{font-size:10px}.strev .small{font-size:10.5px}}
+/* stories: nyheter och makro */
+.sthn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stsrc{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6}.stsrc a{color:var(--muted);text-decoration:underline}
+.sttks{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.sttk{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--sunk);border-radius:8px;padding:5px 9px;font-size:12.5px;color:var(--ink)}.sttk:hover{border-color:var(--accent);text-decoration:none}
+.stcal{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.stcal li{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.stcal li.past{opacity:.6}.stcd{font-size:12px;font-weight:700;color:var(--accent);padding-top:2px}.stcd::first-letter{text-transform:uppercase}
+.stev{padding:10px 12px;border-radius:10px;background:var(--sunk);border-left:3px solid var(--line-strong);margin-bottom:8px}.stev.t-pos{border-left-color:var(--up)}.stev.t-neg{border-left-color:var(--down)}.stev.t-mid{border-left-color:var(--warn)}
+.stev p{margin-top:4px;font-size:14.5px}
+.stimp{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:650}.stimp i{width:7px;height:7px;border-radius:50%;background:var(--faint)}
+.stimp.t-pos{color:var(--up)}.stimp.t-neg{color:var(--down)}.stimp.t-mid{color:var(--warn)}
+.stnote{margin-top:10px;padding:8px 10px;border:1px dashed var(--line-strong);border-radius:8px}
+.stsp{display:grid;gap:4px}.stsph{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted)}.stsph b{color:var(--ink);font-size:16px}
+.stsp svg{width:100%;height:70px;display:block}
+.stspf{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.sthold{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px;margin-top:10px}
+.sthold a{display:flex;justify-content:space-between;gap:6px;align-items:center;padding:7px 10px;border-radius:8px;background:var(--sunk);border:1px solid var(--line);color:var(--ink);font-size:13px}.sthold a:hover{border-color:var(--accent);text-decoration:none}
+.strow{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px 2px 12px;margin-bottom:4px}
+.strow::-webkit-scrollbar{display:none}
+.stry{flex:none;display:grid;justify-items:center;gap:3px;border:0;background:none;color:var(--ink);font:inherit;cursor:pointer;width:80px;padding:0}
+.stri{width:66px;height:66px;border-radius:50%;padding:3px;background:var(--line-strong);display:grid}
+.stry.new .stri{background:conic-gradient(from 210deg,var(--accent),#b6f59d,var(--accent),#2c8a17,var(--accent))}
+.stri span{border-radius:50%;background:var(--card);border:3px solid var(--bg);display:grid;place-items:center;font-size:27px}
+.stry b{font-size:12px;font-weight:650;line-height:1.2;text-align:center}.stry small{font-size:10.5px;color:var(--muted);white-space:nowrap}
+.stry:hover .stri{filter:brightness(1.1)}.stry:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:12px}
 /* nedtryckta */
 .dnbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--sunk)}
 @media (min-width:701px){.dnbar{position:sticky;top:var(--hh,58px);z-index:5}}
@@ -1101,7 +1128,7 @@ document.addEventListener("click",e=>{if(!e.target.closest(".search"))dd.hidden=
 document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement.tagName!=="INPUT"){e.preventDefault();q.focus()}});
 
 /* ============ meny för hela sidan ============ */
-const MENU=[["Idag",[["#/","start","🏠","Start","Det som kräver beslut idag: sälj, risk, köplägen"],["#/mina","mina","⭐","Mina aktier","Aktierna du följer med läge och nyckeltal"]]],
+const MENU=[["Stories",[["#/story/dag","story","📰","Dagens recap","Börsen, nyheterna, smart money och dina innehav"],["#/story/fokus","story","🎯","Claudes fokus","Dagens idéer, teman och dina swingar"],["#/story/vecka","story","📅","Veckan","Veckans vinnare, nyheter och nästa vecka"],["#/story/makro","story","🌍","Makro","Fed, inflation, jobb, räntor och oro"]]],["Idag",[["#/","start","🏠","Start","Det som kräver beslut idag: sälj, risk, köplägen"],["#/mina","mina","⭐","Mina aktier","Aktierna du följer med läge och nyckeltal"]]],
   ["Hitta aktier",[["#/fallna","fallna","📉","Nedtryckta","Kvalitetsbolag långt under toppen, med bear case"],["#/screener","screener","🔎","Screener","Filtrera på dina strategier och 200W-zoner"],["#/rotation","rotation","🔄","Sektorer","De 11 stora delarna av börsen: var pengarna roterar"],["#/branscher","branscher","🏭","Teman","Smalare grupper som Halvledare och Mjukvara: hetast, bäst läge, Visser"],["#/ai","ai","🧠","AI-kedjan","AI-flaskhalsarna i ordning, bästa bolagen och en AI-portfölj"]]],
   ["Mina pengar",[["#/innehav/swing","swing","⚡","Live swing","Dina swingar med stop, mål och läge"],["#/innehav/port","port","💼","Portfölj","Långsiktiga innehav och larm"],["#/innehav/analys","analys","📊","Portföljanalys","Risk, Sharpe och tips för bättre portfölj"]]],
   ["Strategi",[["#/strategier","strategier","🧭","Strategi och backtest","Dina strategier, Diamant och backtest utan facit"]]]];
@@ -1148,6 +1175,7 @@ function route(){
   if(page==="innehav"&&parts[1]==="analys")return pageAnalysis();
   if(page==="innehav")return pageHoldings(parts[1]||"swing",parts[2]==="add"?decodeURIComponent(parts[3]||""):null);
   if(page==="strategier")return pageMethod();
+  if(page==="story"){pageStart();history.replaceState(history.state,"","#/");if(DECKS[parts[1]])openDeckId(parts[1]);return}
   return pageStart();
 }
 addEventListener("hashchange",()=>{const st=history.state;NAV=true;try{route()}finally{NAV=false}
@@ -1226,6 +1254,7 @@ function pageStart(){
   const ev=(U.events||[]).filter(e=>bySym[e.ticker]).slice(0,25);
   const sigTable=(list,empty,extra)=>list.length?`<div class="tw"><table><thead><tr><th class="l">Aktie</th><th>Kurs</th><th>Idag</th><th class="l">200W</th><th>${extra[0]}</th></tr></thead><tbody>${list.map(d=>`<tr class="go" data-t="${esc(d.ticker)}"><td class="l">${co(d)}</td><td class="n">${money(d.price,d.currency)}</td>${chgCell(d)}<td class="l">${zchip(d)}</td><td class="n">${extra[1](d)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">${empty}</p>`;
   $("app").innerHTML=`
+  ${storyRow()}
   ${subnav([["s-today","Idag"],["s-ins","Insikter"]].concat(FOCUS?[["s-focus","Claudes fokus"]]:[]).concat([["xThemes","Teman"]]))}
   <div style="height:12px"></div>
   ${todayCard()}
@@ -1234,7 +1263,7 @@ function pageStart(){
   <details class="xsec" id="s-focus"><summary>Claudes fokus <span class="sub">dagens analys</span></summary><div style="margin-top:12px">${focusCard()}</div></details>
   <details class="xsec" id="xThemes"><summary>Teman just nu <span class="sub">${(()=>{const T=themesCache().filter(t=>nn(t.mom));return T.length?`hetast ${esc(T[0].name)}, kallast ${esc(T[T.length-1].name)}`:""})()}</span></summary><div style="margin-top:12px">${themesCard()}</div></details>
   <p class="small muted" style="margin-top:14px">${rows.length} aktier · nyckeltal per ${esc(U.asOf||"–")} · kurser ${esc(rel(U.quotesAt||U.updatedAt))}</p>`;
-  bindRows($("app"));bindStars($("app"));bindThemes();bindInsights();
+  bindRows($("app"));bindStars($("app"));bindThemes();bindInsights();bindStoryRow();
   ["xThemes","s-focus"].forEach(id=>{const el=$(id);if(!el)return;if(ui["open_"+id])el.open=true;el.addEventListener("toggle",()=>{ui["open_"+id]=el.open;saveUi()})});
 }
 function xs(d){const v=clamp(d,-40,250);return v<=60?(v+40)/100*0.72:0.72+Math.log(1+(v-60)/40)/Math.log(1+190/40)*0.28}
@@ -1495,7 +1524,7 @@ function pageStock(t){
   getDetail(d.ticker).then(det=>{if(location.hash!==link(d.ticker)&&decodeURIComponent(location.hash)!==decodeURIComponent(link(d.ticker)))return;d._det=det;
       $("chapA").innerHTML=chaptersA(d,det);$("valBox").innerHTML=valBlock(d,det);$("priceAns").innerHTML=priceAns(d,det);$("chapB").innerHTML=chaptersB(d,det);
       bindDrill(d);bindChap(d);bindRows($("chapA"));bindRows($("chapB"));bindOwn();bindDash(d);bindEarn(d);preTrade(d);mountSubnav();foldQA();
-      const ss=$("stStrip");if(ss){ss.innerHTML=storyStrip(d,det);bindStoryStrip(d)}if(ST&&ST.d===d)stGo(ST.i,true);
+      const ss=$("stStrip");if(ss){ss.innerHTML=storyStrip(d,det);bindStoryStrip(d)}if(ST&&ST.deck&&ST.deck.key==="stock:"+d.ticker)stGo(ST.i,true);
       drawChart(d);renderStab(d)})
     .catch(()=>{const m=$("chartMsg");if(m)m.textContent="Kunde inte ladda kursdata för den här aktien."});
 }
@@ -4194,33 +4223,42 @@ function storyCards(d,det){
 function storyStrip(d,det){const C=storyCards(d,det);
   return `<div class="ststrip" role="list" aria-label="Story i korthet"><button class="stplay" data-st="0" type="button">▶ Story <small>${C.length} frågor</small></button>${C.map((c,i)=>`<button class="stch t-${c.tone}" data-st="${i}" type="button" role="listitem" title="${esc(c.q)}"><i></i><span>${esc(c.topic)}</span><b>${esc(c.short)}</b></button>`).join("")}</div>`}
 function bindStoryStrip(d){const s=$("stStrip");if(!s)return;s.querySelectorAll("[data-st]").forEach(b=>b.addEventListener("click",()=>openStory(d,+b.dataset.st)))}
+/* ---- story-spelaren: samma spelare för aktier, dagens recap, Claudes fokus, veckan och makro ----
+   deck = {key, label, head(), cards(), kicker(i,N,c), sumTitle(N), sumHtml(), bindSum(E), bind(E)} */
 let ST=null;
-function openStory(d,i){
+function stockDeck(d){return{key:"stock:"+d.ticker,label:`Story om ${d.name}`,
+  head:()=>`<b class="tk">${esc(d.ticker)}</b><span class="muted small sthn">${esc(d.name)} · ${money(d.price,d.currency)} <span class="${cls(d.chg)}">${pct(d.chg)}</span></span>`,
+  cards:()=>storyCards(d,d._det),kicker:(i,N,c)=>`Fråga ${i+1} av ${N} · ${esc(c.topic)}`,sumTitle:N=>`${esc(d.name)} i ${N} frågor`,
+  sumHtml:()=>`<div class="stacts"><button class="btn${inMine(d.ticker)?" on":""}" id="stMine" type="button">${inMine(d.ticker)?"★ I Mina aktier":"☆ Lägg i Mina aktier"}</button><a class="btn" href="#/innehav/swing/add/${encodeURIComponent(d.ticker)}">+ Swing</a><button class="btn" id="stAll" type="button">Läs allt på sidan</button></div>
+      <p class="small muted" style="margin-top:12px">Grönt = bra, gult = blandat, rött = svagt, jämfört med branschens snitt och dina strategier. Inget köp- eller säljråd.</p>`,
+  bindSum:E=>{const al=E.querySelector("#stAll");if(al)al.addEventListener("click",()=>{closeStory();setTimeout(()=>{const b=$("foldAll");if(b&&/Visa/.test(b.textContent))b.click();goTo("q-thesis")},60)});
+    const mi=E.querySelector("#stMine");if(mi)mi.addEventListener("click",()=>{const on=inMine(d.ticker);on?removeMine(d.ticker):addMine(d.ticker);mi.className="btn"+(on?"":" on");mi.textContent=on?"☆ Lägg i Mina aktier":"★ I Mina aktier";const w=$("wbtn");if(w){w.className="btn"+(on?"":" on");w.textContent=on?"☆ Mina aktier":"★ I Mina aktier"}})},
+  bind:E=>bindStFin(E,d._det)}}
+function openStory(d,i){openDeck(stockDeck(d),i)}
+function openDeck(deck,i){
   if(!ST){const el=document.createElement("div");el.id="story";el.className="story";el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");document.body.appendChild(el);
     el.addEventListener("click",e=>{if(e.target===el)closeStory()});
     let x0=null,y0=null;el.addEventListener("touchstart",e=>{const t=e.touches[0];x0=t.clientX;y0=t.clientY},{passive:true});
     el.addEventListener("touchend",e=>{if(x0==null)return;const t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;x0=null;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)stGo(ST.i+(dx<0?1:-1))},{passive:true});
-    ST={el,i:0,d:null,ret:null};history.pushState({story:1,y:scrollY},"")}
-  ST.d=d;ST.ret=ST.ret||document.activeElement;ST.el.hidden=false;document.body.style.overflow="hidden";stGo(i||0,true)}
-function closeStory(fromPop){if(!ST)return;const r=ST.ret;ST.el.remove();ST=null;document.body.style.overflow="";if(!fromPop&&history.state&&history.state.story)history.back();if(r&&r.focus)r.focus({preventScroll:true})}
+    ST={el,i:0,deck:null,ret:document.activeElement};history.pushState({story:1,y:scrollY},"")}
+  ST.deck=deck;ST.el.hidden=false;document.body.style.overflow="hidden";stGo(i||0,true)}
+function closeStory(fromPop){if(!ST)return;const r=ST.ret;ST.el.remove();ST=null;document.body.style.overflow="";if(!fromPop&&history.state&&history.state.story)history.back();if(r&&r.focus&&document.body.contains(r))r.focus({preventScroll:true});if($("strow"))renderStoryRow()}
 addEventListener("popstate",()=>{if(ST)closeStory(true)});
 document.addEventListener("keydown",e=>{if(!ST)return;if(e.key==="Escape")closeStory();else if(e.key==="ArrowRight")stGo(ST.i+1);else if(e.key==="ArrowLeft")stGo(ST.i-1)});
-function stGo(i,first){if(!ST)return;const d=ST.d,C=storyCards(d,d._det),N=C.length+1;i=clamp(i,0,N-1);const dir=i>=ST.i?1:-1;ST.i=i;
+function stGo(i,first){if(!ST)return;const D=ST.deck,C=D.cards(),N=C.length+1;i=clamp(i,0,N-1);const dir=i>=ST.i?1:-1;ST.i=i;
   const sum=i===N-1,c=C[i];
-  const facts=c&&c.facts.length?`<div class="stfacts">${c.facts.map(x=>`<div class="t-${x.t}"><span class="sub">${x.l}</span><b class="n">${x.v}</b>${x.s?`<small>${x.s}</small>`:""}</div>`).join("")}</div>`:"";
-  const body=sum?`<div class="stk">Sammanfattning</div><h2 class="stq">${esc(d.name)} i ${C.length} frågor</h2>
-      <ol class="stsum">${C.map((x,j)=>`<li><button type="button" data-go="${j}" class="t-${x.tone}"><i></i><span>${esc(x.q)}</span><b>${esc(x.verdict)}</b></button></li>`).join("")}</ol>
-      <div class="stacts"><button class="btn${inMine(d.ticker)?" on":""}" id="stMine" type="button">${inMine(d.ticker)?"★ I Mina aktier":"☆ Lägg i Mina aktier"}</button><a class="btn" href="#/innehav/swing/add/${encodeURIComponent(d.ticker)}" id="stSwing">+ Swing</a><button class="btn" id="stAll" type="button">Läs allt på sidan</button></div>
-      <p class="small muted" style="margin-top:12px">Grönt = bra, gult = blandat, rött = svagt, jämfört med branschens snitt och dina strategier. Inget köp- eller säljråd.</p>`
-    :`<div class="stk">Fråga ${i+1} av ${C.length} · ${esc(c.topic)}</div><h2 class="stq">${esc(c.q)}</h2>
-      ${c.tone!=="info"?`<div class="stv t-${c.tone}"><i></i>${esc(c.verdict)}</div>`:`<div class="stv t-info">${esc(c.verdict)}</div>`}
-      <div class="stlead">${c.lead}</div>${c.vis?`<div class="stvis">${c.vis}${c.visNote?`<p class="small muted" style="margin-top:4px">${c.visNote}</p>`:""}</div>`:""}${facts}
-      <button class="more stmore" type="button" data-sec="${c.more}">Visa detaljerna på sidan ↓</button>`;
+  const facts=c&&(c.facts||[]).length?`<div class="stfacts">${c.facts.map(x=>`<div class="t-${x.t}"><span class="sub">${x.l}</span><b class="n">${x.v}</b>${x.s?`<small>${x.s}</small>`:""}</div>`).join("")}</div>`:"";
+  const more=c&&c.more?`<button class="more stmore" type="button" data-sec="${c.more}">Visa detaljerna på sidan ↓</button>`:c&&c.href?`<a class="more stmore" href="${c.href}">${esc(c.hrefLabel||"Öppna")} →</a>`:"";
+  const body=sum?`<div class="stk">Sammanfattning</div><h2 class="stq">${D.sumTitle(C.length)}</h2>
+      <ol class="stsum">${C.map((x,j)=>`<li><button type="button" data-go="${j}" class="t-${x.tone}"><i></i><span>${esc(x.q)}</span><b>${esc(x.verdict||"")}</b></button></li>`).join("")}</ol>${D.sumHtml?D.sumHtml():""}`
+    :`<div class="stk">${D.kicker?D.kicker(i,C.length,c):`${i+1} av ${C.length} · ${esc(c.topic)}`}</div><h2 class="stq">${esc(c.q)}</h2>
+      ${c.verdict?`<div class="stv t-${c.tone}">${c.tone!=="info"?"<i></i>":""}${esc(c.verdict)}</div>`:""}
+      <div class="stlead">${c.lead||""}</div>${c.vis?`<div class="stvis">${c.vis}${c.visNote?`<p class="small muted" style="margin-top:4px">${c.visNote}</p>`:""}</div>`:""}${facts}${c.after||""}${more}`;
   const nx=sum?null:i+1<C.length?C[i+1].q:"Sammanfattning";
-  ST.el.setAttribute("aria-label",`Story om ${d.name}`);
+  ST.el.setAttribute("aria-label",D.label);
   ST.el.innerHTML=`<div class="stbox">
     <div class="stprog">${Array.from({length:N},(_,j)=>`<button type="button" class="${j<i?"done":j===i?"on":""}" data-go="${j}" aria-label="${j<C.length?esc(C[j].q):"Sammanfattning"}"></button>`).join("")}</div>
-    <div class="sttop"><b class="tk">${esc(d.ticker)}</b><span class="muted small" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.name)} · ${money(d.price,d.currency)} <span class="${cls(d.chg)}">${pct(d.chg)}</span></span><button class="stx" type="button" aria-label="Stäng story">×</button></div>
+    <div class="sttop">${D.head()}<button class="stx" type="button" aria-label="Stäng story">×</button></div>
     <div class="stbody${first?"":dir>0?" in-r":" in-l"}" aria-live="polite">${body}</div>
     <div class="stnav"><button class="btn" type="button" id="stPrev" ${i===0?"disabled":""}>‹ Tillbaka</button>${nx?`<button class="btn primary" type="button" id="stNext">Nästa: ${esc(nx)} ›</button>`:`<button class="btn primary" type="button" id="stDone">Klar</button>`}</div>
   </div>`;
@@ -4229,14 +4267,179 @@ function stGo(i,first){if(!ST)return;const d=ST.d,C=storyCards(d,d._det),N=C.len
   const p=E.querySelector("#stPrev");if(p)p.addEventListener("click",()=>stGo(ST.i-1));
   const n=E.querySelector("#stNext");if(n)n.addEventListener("click",()=>stGo(ST.i+1));
   const dn=E.querySelector("#stDone");if(dn)dn.addEventListener("click",()=>closeStory());
-  const m=E.querySelector(".stmore");if(m)m.addEventListener("click",()=>{const id=m.dataset.sec;closeStory();setTimeout(()=>goTo(id),60)});
-  const al=E.querySelector("#stAll");if(al)al.addEventListener("click",()=>{closeStory();setTimeout(()=>{const b=$("foldAll");if(b&&/Visa/.test(b.textContent))b.click();goTo("q-thesis")},60)});
-  const mi=E.querySelector("#stMine");if(mi)mi.addEventListener("click",()=>{const on=inMine(d.ticker);on?removeMine(d.ticker):addMine(d.ticker);mi.className="btn"+(on?"":" on");mi.textContent=on?"☆ Lägg i Mina aktier":"★ I Mina aktier";const w=$("wbtn");if(w){w.className="btn"+(on?"":" on");w.textContent=on?"☆ Mina aktier":"★ I Mina aktier"}});
-  const sw=E.querySelector("#stSwing");if(sw)sw.addEventListener("click",()=>{if(ST){ST.el.remove();ST=null;document.body.style.overflow=""}});
-  bindStFin(E,d._det);
+  const m=E.querySelector("button.stmore");if(m)m.addEventListener("click",()=>{const id=m.dataset.sec;closeStory();setTimeout(()=>goTo(id),60)});
+  if(sum&&D.bindSum)D.bindSum(E);if(D.bind)D.bind(E);
   E.querySelector(".stbody").scrollTop=0;
   const fo=E.querySelector("#stNext")||E.querySelector("#stDone");if(fo)fo.focus({preventScroll:true});
 }
+
+/* ---- byggstenar för nyhets- och makrostories ---- */
+let MACRO=null,_macroP=null;
+function getMacro(){if(MACRO)return Promise.resolve(MACRO);if(!_macroP)_macroP=fetch("data/macro.json?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null).then(j=>(MACRO=j&&j.s?j:null));return _macroP}
+const IMP={positiv:["pos","Positivt för börsen"],negativ:["neg","Negativt för börsen"],neutral:["mid","Neutralt"],blandad:["mid","Blandat"]};
+const impOf=x=>IMP[String(x||"").toLowerCase()]||["info",""];
+const srcHtml=S=>(S||[]).filter(s=>s&&/^https?:/.test(s.u||"")).length?`<p class="stsrc">Källor: ${S.filter(s=>s&&/^https?:/.test(s.u||"")).slice(0,4).map(s=>`<a href="${esc(s.u)}" target="_blank" rel="noopener">${esc(String(s.t||s.u).slice(0,70))}</a>`).join(" · ")}</p>`:"";
+const tkChips=T=>(T||[]).filter(t=>bySym[t]).length?`<div class="sttks">${T.filter(t=>bySym[t]).map(t=>{const d=bySym[t];return `<a href="${link(t)}" class="sttk"><b class="tk">${esc(t)}</b> <span class="n ${cls(d.chg)}">${pct(d.chg,1)}</span>${d.z?` <span class="z z-${d.z}" style="font-size:10.5px">${ZNAME[d.z]}</span>`:""}</a>`}).join("")}</div>`:"";
+const dayDiff=s=>s?Math.round((new Date(s+"T12:00:00")-new Date(new Date().toISOString().slice(0,10)+"T12:00:00"))/864e5):null;
+const dayLbl=s=>{const n=dayDiff(s);if(n==null)return"";if(n===0)return"idag";if(n===1)return"i morgon";if(n===-1)return"i går";const d=new Date(s+"T12:00:00");return d.toLocaleDateString("sv-SE",{weekday:"short",day:"numeric",month:"short"})};
+const calList=L=>L.length?`<ul class="stcal">${L.map(e=>`<li class="${nn(dayDiff(e.date))&&dayDiff(e.date)<0?"past":""}"><span class="stcd">${esc(dayLbl(e.date))}</span><span><b>${esc(e.name)}</b>${e.what?`<span class="subv">${esc(e.what)}</span>`:""}${e.why?`<span class="subv">${esc(e.why)}</span>`:""}</span></li>`).join("")}</ul>`:"";
+const noClaude=w=>`<p class="small muted stnote">Claude skriver ${w} varje vardag kl. 08.20. Den här delen fylls i vid nästa körning.</p>`;
+// liten linje över en makroserie
+function stSpark(s,fmt,n){if(!s||!(s.v||[]).length)return"";const v=s.v.slice(-(n||s.v.length)),d=s.d.slice(-(n||s.d.length));if(v.length<2)return"";
+  const lo=Math.min(...v),hi=Math.max(...v),R=hi-lo||1,W=300,H=64,X=i=>i/(v.length-1)*W,Y=x=>H-4-(x-lo)/R*(H-8);
+  const pts=v.map((x,i)=>`${X(i).toFixed(1)},${Y(x).toFixed(1)}`).join(" ");
+  const up=v[v.length-1]>=v[0];
+  return `<div class="stsp"><div class="stsph"><span>${esc(s.n)}</span><b class="n">${fmt(v[v.length-1])}</b></div><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2" vector-effect="non-scaling-stroke"/><circle cx="${X(v.length-1)}" cy="${Y(v[v.length-1])}" r="3.5" fill="var(--accent)"/></svg><div class="stspf small muted"><span>${esc(String(d[0]).slice(0,7))} · ${fmt(v[0])}</span><span>lägst ${fmt(lo)} · högst ${fmt(hi)}</span></div></div>`}
+// senaste värdet och värdet för en viss tid sedan
+function mAt(s,daysAgo){if(!s||!(s.v||[]).length)return null;const t=new Date(s.d[s.d.length-1]).getTime()-daysAgo*864e5;let j=0;for(let i=0;i<s.d.length;i++)if(new Date(s.d[i]).getTime()<=t)j=i;return s.v[j]}
+const mLast=s=>s&&(s.v||[]).length?s.v[s.v.length-1]:null;
+const mDate=s=>s&&(s.d||[]).length?s.d[s.d.length-1]:"";
+const fP=x=>f(x,2," %"),fP1=x=>f(x,1," %"),fN=x=>f(x,1),fK=x=>f(x,0)+" k";
+
+/* ---- 1. dagens recap ---- */
+function dayDeck(){const F=FOCUS||{},Rc=F.recap||{},M=MACRO&&MACRO.s||{},C=[];
+  const ch=rows.filter(d=>nn(d.chg)&&!d.stale),up=ch.filter(d=>d.chg>0).length,br=ch.length?up/ch.length*100:null;
+  const ix=[["SPY","S&P 500"],["QQQ","Nasdaq-100"],["^OMX","OMXS30"]].filter(([t])=>bySym[t]&&nn(bySym[t].chg));
+  const spy=bySym.SPY&&bySym.SPY.chg,tone=!nn(spy)?"mid":spy>0.3?"pos":spy<-0.3?"neg":"mid";
+  const T=themesCache().filter(t=>t.m.some(d=>nn(d.chg))).map(t=>({n:t.name,c:med(t.m.map(d=>d.chg))})).filter(t=>nn(t.c)).sort((a,b)=>b.c-a.c);
+  C.push({topic:"Börsen",q:"Hur gick börsen?",tone,verdict:!nn(spy)?"Okänt":spy>0.3?"Uppgång":spy<-0.3?"Nedgång":"Lugn dag",
+    lead:`${Rc.headline?`<p><b>${esc(Rc.headline)}</b></p>`:""}${F.market?`<p>${esc(F.market)}</p>`:""}<p class="small muted">${nn(br)?`${f(br,0)} % av sidans ${ch.length} aktier steg. `:""}${T.length>=4?`Starkast idag: ${T.slice(0,2).map(t=>`<b>${esc(t.n)}</b> ${pct(t.c,1)}`).join(", ")}. Svagast: ${T.slice(-2).reverse().map(t=>`<b>${esc(t.n)}</b> ${pct(t.c,1)}`).join(", ")}.`:""}</p>`,
+    facts:ix.map(([t,n])=>stFact(n,pct(bySym[t].chg,1),money(bySym[t].price,bySym[t].currency),bySym[t].chg>0?"pos":bySym[t].chg<0?"neg":"mid"))
+      .concat(M.vix?[stFact("VIX (oro)",fN(mLast(M.vix)),mLast(M.vix)>25?"hög oro":mLast(M.vix)<16?"lugnt":"normalt",mLast(M.vix)>25?"neg":mLast(M.vix)<16?"pos":"mid")]:[])
+      .concat(M.y10?[stFact("10-årsräntan",fP(mLast(M.y10)),`${mLast(M.y10)>=mAt(M.y10,7)?"+":"−"}${f(Math.abs(mLast(M.y10)-mAt(M.y10,7))*100,0)} punkter på en vecka`,"info")]:[])});
+  (Rc.news||[]).slice(0,5).forEach(n=>{const [t,l]=impOf(n.impact);C.push({topic:"Nyhet",q:n.t,tone:t,verdict:l,lead:`<p>${esc(n.text||"")}</p>`,after:tkChips(n.tickers)+srcHtml(n.sources)})});
+  if((Rc.events||[]).length)C.push({topic:"Händelser",q:"Vad hände som rör marknaden?",tone:"info",verdict:`${Rc.events.length} viktiga ${Rc.events.length===1?"händelse":"händelser"}`,
+    lead:Rc.events.map(e=>{const [t,l]=impOf(e.impact);return `<div class="stev t-${t}"><div><b>${esc(e.name)}</b> <span class="small muted">${esc(dayLbl(e.date))}</span>${l?` <span class="stimp t-${t}"><i></i>${l}</span>`:""}</div>${e.what?`<p>${esc(e.what)}</p>`:""}${e.why?`<p class="small muted">${esc(e.why)}</p>`:""}</div>`}).join("")});
+  // smart money: Claudes text plus 13F-flödet i datan
+  const big=rows.filter(d=>(!d.type||d.type==="EQUITY")&&(d.mcapB||0)>=20&&nn(d.instNetp));
+  const buy=big.slice().sort((a,b)=>b.instNetp-a.instNetp).slice(0,5),sell=big.slice().sort((a,b)=>a.instNetp-b.instNetp).slice(0,3);
+  const SM=Rc.smart||{};
+  C.push({topic:"Smart money",q:"Vad gör smart money?",tone:"info",verdict:SM.text?"Institutioner, insiders och stora fonder":"Institutionernas senaste kvartal",
+    lead:`${SM.text?`<p>${esc(SM.text)}</p>`:""}${(SM.items||[]).length?`<ul class="stlist">${SM.items.map(x=>`<li><b>${esc(x.who||"")}</b> ${esc(x.what||"")}</li>`).join("")}</ul>`:""}
+      ${buy.length?`<h4>Mest köpt av institutioner (senaste 13F-kvartalet)</h4>${tkChips(buy.map(d=>d.ticker))}<h4>Mest sålt</h4>${tkChips(sell.map(d=>d.ticker))}<p class="small muted">13F-rapporterna kommer kvartalsvis med upp till 45 dagars fördröjning, så det här visar riktningen, inte vad som hände idag.</p>`:""}${SM.text?"":noClaude("dagens smart money-genomgång")}`,
+    after:srcHtml(SM.sources)});
+  // dina innehav
+  const P=allPos();if(P.length){const t=posTotals(P),L=P.map(p=>({p,c:posCalc(p)})).filter(x=>nn(x.c.d.chg)).sort((a,b)=>b.c.d.chg-a.c.d.chg);
+    C.push({topic:"Dina innehav",q:"Hur gick det för dina innehav?",tone:!nn(t.tod)?"mid":t.tod>0?"pos":t.tod<0?"neg":"mid",verdict:nn(t.tod)&&nn(t.val)&&t.val-t.tod>0?`${pct(t.tod/(t.val-t.tod)*100,1)} idag`:"",
+      lead:`<p>Värde <b class="n">${kr(t.val)}</b>, <b class="n ${cls(t.tod)}">${krS(t.tod)}</b> idag och <b class="n ${cls(t.pl)}">${pct(t.plPct,1)}</b> totalt.</p>${L.length?`<div class="sthold">${L.map(({p,c})=>`<a href="${link(p.ticker)}"><span><b class="tk">${esc(p.ticker)}</b>${p.kind==="lev"?` <span class="small muted">${f(c.lev,1)}x ${p.dir>0?"lång":"kort"}</span>`:""}</span><span class="n ${cls(c.d.chg)}">${pct(c.d.chg,1)}</span></a>`).join("")}</div>`:""}`,href:"#/innehav/swing",hrefLabel:"Till dina innehav"})}
+  // signaler och rapporter
+  const ev=(U.events||[]).filter(e=>e.type==="in"&&dayDiff(e.date)>=-1),evO=(U.events||[]).filter(e=>e.type==="out"&&dayDiff(e.date)>=-1);
+  const zin=(U.events||[]).filter(e=>e.type==="zone"&&dayDiff(e.date)>=-1&&["fire","vcheap","cheap"].includes(e.to)&&!["fire","vcheap","cheap"].includes(e.from)&&bySym[e.ticker]&&(bySym[e.ticker].mcapB||0)>=20);
+  C.push({topic:"Köplägen",q:"Vad är nytt i köpzonen?",tone:ev.length||zin.length?"pos":"mid",verdict:ev.length?`${ev.length} nya signaler`:zin.length?`${zin.length} nya i köpzonen`:"Inga nya köplägen",
+    lead:`${ev.length?`<h4>Nya signaler</h4>${tkChips(ev.map(e=>e.ticker))}`:""}${evO.length?`<h4>Signaler som försvann</h4>${tkChips(evO.map(e=>e.ticker))}`:""}${zin.length?`<h4>Stora bolag som gick in i köpzonen (Cheap eller lägre)</h4>${tkChips(zin.map(e=>e.ticker))}`:""}${!ev.length&&!evO.length&&!zin.length?"<p>Inga aktier gick in i eller ur dina köplägen senaste dygnet.</p>":""}`,href:"#/screener",hrefLabel:"Öppna screenern"});
+  const mine=new Set(mineList(true)),er=rows.filter(d=>d.nextEarnings&&dayDiff(d.nextEarnings)>=0&&dayDiff(d.nextEarnings)<=7&&(mine.has(d.ticker)||(d.mcapB||0)>=200)).sort((a,b)=>a.nextEarnings.localeCompare(b.nextEarnings));
+  if(er.length)C.push({topic:"Rapporter",q:"Vilka rapporterar snart?",tone:"info",verdict:`${er.length} rapporter inom en vecka`,lead:`<ul class="stcal">${er.slice(0,14).map(d=>`<li><span class="stcd">${esc(dayLbl(d.nextEarnings))}</span><span><a href="${link(d.ticker)}"><b class="tk">${esc(d.ticker)}</b></a> ${esc(d.name)}${mine.has(d.ticker)?' <span class="pill" style="font-size:10px;padding:0 5px">din</span>':""}</span></li>`).join("")}</ul><p class="small muted">Dina aktier och alla megabolag. Med hävstång: rapporter kan ge stora hopp åt båda hållen.</p>`});
+  return C}
+
+/* ---- 2. Claudes fokus ---- */
+function focusDeck(){const F=FOCUS||{},C=[];
+  C.push({topic:"Läget",q:"Hur ser marknaden ut?",tone:"info",verdict:F.date?`Skrivet ${esc(F.date)} ${esc(F.time||"")}`:"",lead:F.market?`<p>${esc(F.market)}</p>`:noClaude("Claudes fokus")});
+  (F.picks||[]).filter(x=>x.label!=="Undvik").forEach(p=>{const d=bySym[p.ticker]||{},o=d.ticker&&oppOf(d);
+    C.push({topic:p.label||"Idé",q:`${p.ticker}: ${p.title||""}`,tone:p.label==="Köpläge"?"pos":"mid",verdict:p.label||"",
+      lead:`<p>${esc(p.why||"")}</p>${p.levels?`<h4>Nivåer</h4><p class="n small">${esc(p.levels)}</p>`:""}${p.risk?`<h4>Risk</h4><p>${esc(p.risk)}</p>`:""}`,
+      facts:d.ticker?[stFact("Kurs",money(d.price,d.currency),pct(d.chg,1)+" idag",d.chg>0?"pos":d.chg<0?"neg":"mid"),stFact("200W-zon",d.z?ZNAME[d.z]:"–",nn(d.dist200w)?pct(d.dist200w,0)+" mot 200W":"",["fire","vcheap","cheap"].includes(d.z)?"pos":["exp","vexp"].includes(d.z)?"neg":"mid"),
+        stFact("PEG",d.peg>0?f(d.peg,2):"–","under 1 = billigt",!(d.peg>0)?"info":d.peg<1?"pos":d.peg<=2?"mid":"neg"),o?stFact("Bäst läge",`${o.s} av 100`,"",o.s>=65?"pos":o.s>=45?"mid":"neg"):null].filter(Boolean):[],
+      after:srcHtml(p.sources),href:d.ticker?link(p.ticker):null,hrefLabel:`Öppna ${p.ticker}`})});
+  (F.themes||[]).forEach(t=>C.push({topic:"Tema",q:t.name,tone:/Het/.test(t.heat||"")?"pos":/Sval|Kall/.test(t.heat||"")?"neg":"mid",verdict:t.heat||"",
+    lead:`<p>${esc(t.now||"")}</p>${t.why?`<h4>Varför</h4><p>${esc(t.why)}</p>`:""}${t.outlook?`<h4>Framåt (bedömning)</h4><p>${esc(t.outlook)}</p>`:""}`,after:srcHtml(t.sources),href:"#/branscher",hrefLabel:"Alla teman"}));
+  if((F.swings||[]).length)C.push({topic:"Dina swingar",q:"Hur ser dina swingar ut?",tone:F.swings.some(s=>/Varning|Stop/.test(s.label))?"neg":"info",verdict:`${F.swings.length} swingar`,
+    lead:`<ul class="stlist">${F.swings.map(s=>`<li><a href="${link(s.ticker)}"><b class="tk">${esc(s.ticker)}</b></a> <b>${esc(s.label||"")}</b>: ${esc(s.why||"")}</li>`).join("")}</ul>`,href:"#/innehav/swing",hrefLabel:"Till swingarna"});
+  return C}
+
+/* ---- 3. veckan ---- */
+function weekDeck(){const W=INSIKT&&INSIKT.week||{},C=[],M=MACRO&&MACRO.s||{};
+  const r5=t=>bySym[t]&&nn(bySym[t].r5)?bySym[t].r5*100:null,ix=[["SPY","S&P 500"],["QQQ","Nasdaq-100"],["^OMX","OMXS30"]].filter(([t])=>nn(r5(t)));
+  const ch=rows.filter(d=>nn(d.r5)),up=ch.filter(d=>d.r5>0).length,s5=r5("SPY");
+  C.push({topic:"Veckan",q:"Hur var veckan?",tone:!nn(s5)?"mid":s5>0.5?"pos":s5<-0.5?"neg":"mid",verdict:W.headline||(nn(s5)?`S&P 500 ${pct(s5,1)} på en vecka`:""),
+    lead:`${W.summary?`<p>${esc(W.summary)}</p>`:""}${(W.points||[]).length?`<ul class="stlist">${W.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}<p class="small muted">${ch.length?`${f(up/ch.length*100,0)} % av sidans aktier steg under veckan.`:""}</p>${W.summary?"":`<p class="small muted stnote">Claudes veckosammanfattning skrivs på söndagar.</p>`}`,
+    facts:ix.map(([t,n])=>stFact(n,pct(r5(t),1),"senaste veckan",r5(t)>0?"pos":r5(t)<0?"neg":"mid")).concat(M.y10?[stFact("10-årsräntan",fP(mLast(M.y10)),`för en vecka sedan ${fP(mAt(M.y10,7))}`,"info")]:[])});
+  const T=themesCache().filter(t=>nn(t.r5)).slice().sort((a,b)=>b.r5-a.r5),mine=mineList(true).map(t=>bySym[t]).filter(d=>d&&nn(d.r5)).sort((a,b)=>b.r5-a.r5);
+  if(T.length>=4)C.push({topic:"Vinnare",q:"Vart gick pengarna?",tone:"info",verdict:`Starkast: ${T[0].name}`,
+    vis:stBars(T.slice(0,4).concat(T.slice(-3)).map(t=>({l:esc(t.name),v:t.r5*100,fmt:v=>pct(v,1),c:t.r5<0?"neg":""}))),visNote:"Teman efter medianaktiens rörelse senaste veckan: fyra starkaste och tre svagaste.",
+    lead:mine.length?`<h4>Dina aktier: bäst och sämst</h4><div class="sthold">${mine.slice(0,3).concat(mine.length>5?mine.slice(-2):[]).map(d=>`<a href="${link(d.ticker)}"><b class="tk">${esc(d.ticker)}</b><span class="n ${cls(d.r5)}">${pct(d.r5*100,1)}</span></a>`).join("")}</div>`:"",href:"#/rotation",hrefLabel:"Sektorrotationen"});
+  (W.news||[]).slice(0,5).forEach(n=>{const [t,l]=impOf(n.impact);C.push({topic:"Veckans nyhet",q:n.t,tone:t,verdict:l,lead:`<p>${esc(n.text||"")}</p>`,after:tkChips(n.tickers)+srcHtml(n.sources)})});
+  if(W.smart&&(W.smart.text||(W.smart.items||[]).length))C.push({topic:"Smart money",q:"Vad gjorde smart money?",tone:"info",verdict:"Institutioner, insiders och stora investerare",
+    lead:`${W.smart.text?`<p>${esc(W.smart.text)}</p>`:""}${(W.smart.items||[]).length?`<ul class="stlist">${W.smart.items.map(x=>`<li><b>${esc(x.who||"")}</b> ${esc(x.what||"")}</li>`).join("")}</ul>`:""}`,after:srcHtml(W.smart.sources)});
+  if(W.macro)C.push({topic:"Makro",q:"Vad hände i makro?",tone:"info",verdict:"Fed, inflation och räntor",lead:`<p>${esc(W.macro)}</p>`,href:"#/story/makro",hrefLabel:"Öppna makro-storyn"});
+  const ev=(U.events||[]).filter(e=>e.type==="in"&&dayDiff(e.date)>=-7);
+  C.push({topic:"Köplägen",q:"Nya köplägen i veckan",tone:ev.length?"pos":"mid",verdict:ev.length?`${ev.length} nya signaler`:"Inga nya signaler",lead:ev.length?tkChips([...new Set(ev.map(e=>e.ticker))]):"<p>Inga nya Diamant-, Guld- eller swingsignaler den här veckan.</p>",href:"#/",hrefLabel:"Insikter på startsidan"});
+  const mineS=new Set(mineList(true)),er=rows.filter(d=>d.nextEarnings&&dayDiff(d.nextEarnings)>=0&&dayDiff(d.nextEarnings)<=9&&(mineS.has(d.ticker)||(d.mcapB||0)>=200)).sort((a,b)=>a.nextEarnings.localeCompare(b.nextEarnings));
+  const next=(W.next||[]).concat((FOCUS&&FOCUS.macro&&FOCUS.macro.calendar)||[]).filter((e,i,a)=>e&&e.date&&dayDiff(e.date)>=0&&a.findIndex(x=>x.name===e.name&&x.date===e.date)===i).sort((a,b)=>a.date.localeCompare(b.date));
+  C.push({topic:"Nästa vecka",q:"Vad händer nästa vecka?",tone:"info",verdict:`${next.length} makrohändelser, ${er.length} rapporter`,
+    lead:`${next.length?`<h4>Makro och Fed</h4>${calList(next.slice(0,10))}`:""}${er.length?`<h4>Rapporter (dina aktier och megabolag)</h4><ul class="stcal">${er.slice(0,12).map(d=>`<li><span class="stcd">${esc(dayLbl(d.nextEarnings))}</span><span><a href="${link(d.ticker)}"><b class="tk">${esc(d.ticker)}</b></a> ${esc(d.name)}</span></li>`).join("")}</ul>`:""}${!next.length&&!er.length?"<p>Inga kända händelser än.</p>":""}`});
+  return C}
+
+/* ---- 4. makro ---- */
+function macroDeck(){const M=MACRO&&MACRO.s||{},X=FOCUS&&FOCUS.macro||{},C=[];
+  const d3=(s,days)=>nn(mLast(s))&&nn(mAt(s,days))?mLast(s)-mAt(s,days):null;
+  // Fed
+  { const fr=M.fed,c6=d3(fr,182),tone=!nn(c6)?"info":c6>0.1?"neg":c6<-0.1?"pos":"mid";
+    C.push({topic:"Fed",q:"Vad gör Fed?",tone,verdict:!nn(c6)?"Styrräntan":c6>0.1?`Fed har höjt ${f(c6*100,0)} punkter på ett halvår`:c6<-0.1?`Fed har sänkt ${f(-c6*100,0)} punkter på ett halvår`:"Fed står still",
+      lead:X.fed?`<p>${esc(X.fed)}</p>`:noClaude("vad Fed och protokollen säger"),vis:stSpark(fr,fP,104),
+      facts:[fr&&stFact("Styrränta (övre)",fP(mLast(fr)),`för ett år sedan ${fP(mAt(fr,365))}`,"info"),M.y3m&&stFact("3-månadersränta",fP(mLast(M.y3m)),"visar var marknaden tror att styrräntan hamnar","info")].filter(Boolean),
+      visNote:"Höjd styrränta gör lån dyrare och pressar aktievärderingar, särskilt för bolag med vinsten långt fram."})}
+  // inflation
+  { const c=M.core,ch=d3(c,92),tone=!nn(mLast(c))?"info":mLast(c)<=2.6&&!(ch>0.2)?"pos":ch>0.15?"neg":ch<-0.15?"pos":"mid";
+    C.push({topic:"Inflation",q:"Hur är inflationen?",tone,verdict:nn(mLast(M.cpi))?`KPI ${fP1(mLast(M.cpi))}, kärna ${fP1(mLast(c))}${nn(ch)?(ch>0.1?", stiger":ch<-0.1?", faller":", oförändrad"):""}`:"Inflationen",
+      lead:X.inflation?`<p>${esc(X.inflation)}</p>`:noClaude("tolkningen av inflationen"),vis:stSpark(c||M.cpi,fP1,36),
+      facts:[M.cpi&&stFact("KPI (CPI)",fP1(mLast(M.cpi)),`${esc(mDate(M.cpi).slice(0,7))}, Fed vill ha 2 %`,mLast(M.cpi)<=2.5?"pos":mLast(M.cpi)>3.5?"neg":"mid"),c&&stFact("Kärn-KPI",fP1(mLast(c)),nn(ch)?`${ch>=0?"+":""}${f(ch,1)} på 3 mån`:"",tone),
+        M.pce&&stFact("Kärn-PCE",fP1(mLast(M.pce)),"Feds eget mått",mLast(M.pce)<=2.5?"pos":mLast(M.pce)>3.2?"neg":"mid"),M.be5&&stFact("Väntad inflation 5 år",fP(mLast(M.be5)),"vad obligationsmarknaden tror","info")].filter(Boolean),
+      visNote:"Kärninflationen (utan mat och energi) är det Fed tittar mest på. Stigande inflation betyder ofta högre räntor längre."})}
+  // jobb
+  { const u=M.unemp,du=d3(u,182),p=M.pay,p3=p&&p.v.length>=3?p.v.slice(-3).reduce((a,b)=>a+b,0)/3:null;
+    const tone=!nn(mLast(u))?"info":du>=0.3?"neg":nn(p3)&&p3>100?"pos":"mid";
+    C.push({topic:"Jobben",q:"Hur mår arbetsmarknaden?",tone,verdict:!nn(mLast(u))?"Arbetsmarknaden":du>=0.3?"Arbetsmarknaden kyls av":nn(p3)&&p3>100?"Stark arbetsmarknad":"Arbetsmarknaden saktar in",
+      lead:X.jobs?`<p>${esc(X.jobs)}</p>`:noClaude("tolkningen av arbetsmarknaden"),vis:stSpark(u,fP1,36),
+      facts:[u&&stFact("Arbetslöshet",fP1(mLast(u)),nn(du)?`${du>=0?"+":""}${f(du,1)} på ett halvår`:"",du>=0.3?"neg":du<=0?"pos":"mid"),p&&stFact("Nya jobb, snitt 3 mån",nn(p3)?f(p3,0)+" k":"–",`senast ${f(mLast(p),0)} k (${esc(mDate(p).slice(0,7))})`,nn(p3)&&p3>100?"pos":nn(p3)&&p3<50?"neg":"mid"),
+        M.claims&&stFact("Nyanmälda arbetslösa",fK(mLast(M.claims)),"per vecka, under 250 k är lågt",mLast(M.claims)<250?"pos":mLast(M.claims)>300?"neg":"mid"),M.sent&&stFact("Konsumentförtroende",fN(mLast(M.sent)),"Michigan, högre = gladare konsumenter","info")].filter(Boolean),
+      visNote:"Svagare jobb ger Fed skäl att sänka räntan, men stiger arbetslösheten snabbt brukar det betyda lågkonjunktur."})}
+  // räntor
+  { const y=M.y10,dy=d3(y,92),cv=mLast(M.curve),tone=!nn(dy)?"info":dy>0.25?"neg":dy<-0.25?"pos":"mid";
+    C.push({topic:"Räntorna",q:"Vart går räntorna?",tone,verdict:!nn(dy)?"Långa räntan":dy>0.25?"Stigande räntor pressar värderingarna":dy<-0.25?"Fallande räntor hjälper aktierna":"Räntorna står still",
+      lead:X.rates?`<p>${esc(X.rates)}</p>`:noClaude("tolkningen av räntorna"),vis:stSpark(y,fP,104),
+      facts:[y&&stFact("10-årsräntan",fP(mLast(y)),nn(dy)?`${dy>=0?"+":""}${f(dy*100,0)} punkter på 3 mån`:"",tone),M.y2&&stFact("2-årsräntan",fP(mLast(M.y2)),"följer Feds väntade styrränta","info"),
+        nn(cv)&&stFact("10 år minus 2 år",f(cv,2),cv<0?"inverterad: varnar för lågkonjunktur":"normal kurva",cv<0?"neg":"pos"),M.dxy&&stFact("Dollarn (DXY)",fN(mLast(M.dxy)),"stark dollar sänker dina USD-aktier i kronor","info")].filter(Boolean),
+      visNote:"10-årsräntan är priset på pengar för hela börsen. Stiger den blir framtida vinster mindre värda idag."})}
+  // oro
+  { const v=mLast(M.vix),h=mLast(M.hy),tone=!nn(v)?"info":v>25||h>4.5?"neg":v<16?"pos":"mid";
+    C.push({topic:"Oro",q:"Hur rädd är marknaden?",tone,verdict:!nn(v)?"Rädsla och kreditrisk":v>30?"Panik":v>25?"Hög oro":v<16?"Lugnt, nästan sorglöst":"Normal oro",
+      lead:`<p>${!nn(v)?"":v>25?"VIX över 25 betyder att marknaden betalar mycket för skydd. Historiskt har sådana lägen ofta gett bra köptillfällen i stabila bolag, men med hävstång är svängningarna farliga.":v<16?"VIX under 16 betyder lugn. Det är bra för kurserna, men skyddet är billigt och överraskningar slår hårdare.":"Oron ligger på normala nivåer."}</p>${X.risks?`<h4>Vad kan ändra bilden</h4><p>${esc(X.risks)}</p>`:""}`,vis:stSpark(M.vix,fN,104),
+      facts:[M.vix&&stFact("VIX",fN(v),"under 16 lugnt, över 25 oro",tone),M.hy&&stFact("Kreditspread",fP(h),"högriskobligationer mot statsobligationer, över 4,5 % är stress",h>4.5?"neg":h<3.5?"pos":"mid")].filter(Boolean)})}
+  // råvaror
+  if(M.oil||M.gold||M.copper){const o=M.oil,d=nn(mLast(o))&&nn(mAt(o,92))?(mLast(o)/mAt(o,92)-1)*100:null,cu=M.copper,dc=cu&&nn(mAt(cu,92))?(mLast(cu)/mAt(cu,92)-1)*100:null,g=M.gold,dg=g&&nn(mAt(g,365))?(mLast(g)/mAt(g,365)-1)*100:null;
+    C.push({topic:"Råvaror",q:"Vad säger råvarorna?",tone:nn(d)&&d>15?"neg":"info",verdict:nn(d)?`Oljan ${pct(d,0)} på 3 mån`:"Olja, guld och koppar",
+      lead:`<p>${nn(d)&&d>15?"Dyrare olja håller uppe inflationen och kan skjuta upp räntesänkningar. ":""}${nn(dc)?`Kopparn, som brukar följa industrin och elnätsbyggena, har gått ${pct(dc,0)} på tre månader. `:""}${nn(dg)?`Guldet har gått ${pct(dg,0)} på ett år.`:""}</p>`,vis:stSpark(o,v=>f(v,1)+" $",104),
+      facts:[o&&stFact("Olja (WTI)",f(mLast(o),1)+" $",nn(d)?pct(d,0)+" på 3 mån":"",nn(d)&&d>15?"neg":"info"),g&&stFact("Guld",f(mLast(g),0)+" $",nn(dg)?pct(dg,0)+" på ett år":"","info"),cu&&stFact("Koppar",f(mLast(cu),2)+" $",nn(dc)?pct(dc,0)+" på 3 mån":"","info")].filter(Boolean)})}
+  // kalender
+  const cal=(X.calendar||[]).filter(e=>e&&e.date).sort((a,b)=>a.date.localeCompare(b.date));
+  C.push({topic:"Kalendern",q:"Vad kommer härnäst?",tone:"info",verdict:cal.length?`${cal.filter(e=>dayDiff(e.date)>=0).length} kommande händelser`:"Kalendern",lead:cal.length?calList(cal):noClaude("kalendern med Fed-möten, KPI och jobbrapporter")});
+  // vad betyder det
+  { const tl=[];const fr=d3(M.fed,182),dy=d3(M.y10,92),v=mLast(M.vix);
+    if(nn(dy)&&dy>0.25)tl.push("Stigande långräntor straffar dyra tillväxtbolag mest. Bolag med starka kassaflöden och låg skuld klarar sig bättre.");
+    if(nn(fr)&&fr>0.1)tl.push("Fed höjer: håll hävstången lägre och ha marginal till stop och utslag.");
+    if(nn(fr)&&fr<-0.1)tl.push("Fed sänker: det brukar gynna aktier, särskilt bolag som drabbats av höga räntor.");
+    if(nn(v)&&v>25)tl.push("Hög VIX: köplägen i stora stabila bolag nära 200W uppstår ofta nu, men ta mindre positioner med hävstång.");
+    C.push({topic:"För dig",q:"Vad betyder det för min strategi?",tone:"info",verdict:X.headline||"Din 200W-strategi i det här läget",
+      lead:`${X.strategy?`<p>${esc(X.strategy)}</p>`:""}${tl.length?`<ul class="stlist">${tl.map(x=>`<li>${x}</li>`).join("")}</ul>`:""}${!X.strategy&&!tl.length?"<p>Inga tydliga makrosignaler just nu. Fortsätt följa 200W-zonerna och bolagens siffror.</p>":""}<p class="small muted">Analys, inte ett köp- eller säljråd.</p>`,after:srcHtml(X.sources)})}
+  return C}
+
+/* ---- story-ringarna på startsidan och #/story/<namn> ---- */
+const DECKS={
+  dag:{ic:"📰",l:"Dagens recap",sub:()=>FOCUS&&FOCUS.date?dayLbl(FOCUS.date):"idag",stamp:()=>(FOCUS?FOCUS.date+(FOCUS.time||""):"")+"|"+(U&&U.asOf),cards:dayDeck,needMacro:1},
+  fokus:{ic:"🎯",l:"Claudes fokus",sub:()=>FOCUS?`${(FOCUS.picks||[]).length} idéer`:"",stamp:()=>FOCUS?FOCUS.date+(FOCUS.time||""):"",cards:focusDeck,need:()=>!!FOCUS},
+  vecka:{ic:"📅",l:"Veckan",sub:()=>INSIKT&&INSIKT.week&&INSIKT.week.date?"v. "+isoWeek(INSIKT.week.date):"v. "+isoWeek(new Date().toISOString().slice(0,10)),stamp:()=>(INSIKT&&INSIKT.week&&INSIKT.week.date)||isoWeek(new Date().toISOString().slice(0,10)),cards:weekDeck,needMacro:1},
+  makro:{ic:"🌍",l:"Makro",sub:()=>"Fed och KPI",stamp:()=>(FOCUS&&FOCUS.date||"")+(MACRO?MACRO.asOf:""),cards:macroDeck,needMacro:1}};
+function isoWeek(s){const d=new Date(s+"T12:00:00"),t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const n=(t.getUTCDay()+6)%7;t.setUTCDate(t.getUTCDate()-n+3);const f0=new Date(Date.UTC(t.getUTCFullYear(),0,4));return 1+Math.round(((t-f0)/864e5-3+((f0.getUTCDay()+6)%7))/7)}
+const seenOf=()=>store.get("ft-seen",{});
+async function openDeckId(id,i){const K=DECKS[id];if(!K||!U)return;if(K.needMacro)await getMacro();
+  store.set("ft-seen",Object.assign(seenOf(),{[id]:K.stamp()}));
+  openDeck({key:id,label:K.l,head:()=>`<b>${K.ic} ${esc(K.l)}</b><span class="muted small sthn">${esc(K.sub())}</span>`,cards:K.cards,sumTitle:N=>`${esc(K.l)}: ${N} delar`,
+    sumHtml:()=>`<div class="stacts">${Object.entries(DECKS).filter(([k,x])=>k!==id&&(!x.need||x.need())).map(([k,x])=>`<button class="btn" type="button" data-deck="${k}">${x.ic} ${esc(x.l)}</button>`).join("")}</div><p class="small muted" style="margin-top:12px">Skrivet av Claude (AI) utifrån sidans data och nyheter. Analys, inte ett köp- eller säljråd.</p>`,
+    bindSum:E=>E.querySelectorAll("[data-deck]").forEach(b=>b.addEventListener("click",()=>openDeckId(b.dataset.deck)))},i||0)}
+function storyRow(){const S=seenOf();
+  return `<div class="strow" id="strow" role="list" aria-label="Stories">${Object.entries(DECKS).filter(([,x])=>!x.need||x.need()).map(([k,x])=>{const isNew=S[k]!==x.stamp();return `<button type="button" class="stry${isNew?" new":""}" data-deck="${k}" role="listitem" aria-label="${esc(x.l)}${isNew?", ny":""}"><span class="stri"><span>${x.ic}</span></span><b>${esc(x.l)}</b><small>${esc(x.sub())}</small></button>`}).join("")}</div>`}
+function renderStoryRow(){const r=$("strow");if(!r)return;r.outerHTML=storyRow();bindStoryRow()}
+function bindStoryRow(){const r=$("strow");if(r)r.querySelectorAll("[data-deck]").forEach(b=>b.addEventListener("click",()=>openDeckId(b.dataset.deck)))}
 
 /* ---- bolagsprofil ---- */
 let BOLAG={};

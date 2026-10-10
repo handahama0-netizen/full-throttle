@@ -1266,6 +1266,16 @@ def main():
                 write_json(out / "data" / "sectors.json", res)
         except Exception as e:  # noqa: BLE001
             log("sektorrotation fel", e)
+    if (out / "data").exists():
+        try:  # makro (Fed, räntor, inflation, jobb, VIX, råvaror): FRED en gång per dag, marknadsdata varje körning
+            import macro
+            old = load_json(out / "data" / "macro.json", {}) or load_json(prev / "data" / "macro.json", {})
+            today = datetime.now(timezone.utc).date().isoformat()
+            m = macro.run(old, fred=a.mode == "full" or old.get("fredAt") != today, log=log)
+            if m:
+                write_json(out / "data" / "macro.json", m)
+        except Exception as e:  # noqa: BLE001
+            log("makro fel", e)
     copy_site(out)
     return 0
 
