@@ -1,6 +1,6 @@
 {
  "date": "2026-10-10",
- "time": "20:15",
+ "time": "20:20",
  "market": "S&P 500 steg 0,6 % till 7 811,54 på fredagen och veckan slutade +1,2 %, Nasdaq +0,6 % i veckan och Dow +0,9 %. Den amerikanska 10-åriga räntan låg kring 5,25 % efter att ha nått omkring 5,37 % i onsdags, den högsta nivån på 24 år, medan Brent handlades runt 104 dollar. VIX föll till 14,8 trots en räntehöjande Fed och en svag jobbrapport.",
  "picks": [
   {
@@ -251,7 +251,7 @@
   }
  ],
  "recap": {
-  "headline": "Wall Street steg på fredagen och avslutade en volatil vecka på plus när oljan och räntorna stabiliserades, medan telekomaktierna rasade på SpaceX spektrumköp.",
+  "headline": "Helgsummering: Wall Street steg på fredagen och tog en veckovinst trots att Fed-protokollet pekade mot fler höjningar och långräntan nådde 24-årshögsta, medan telekom rasade på SpaceX spektrumköp.",
   "news": [
    {
     "t": "Veckovinst för index",
@@ -293,7 +293,7 @@
     ]
    },
    {
-    "t": "AI-oron kring OpenAI lättade",
+    "t": "Veckans AI-skakning kring OpenAI",
     "text": "I torsdags rapporterade FT att OpenAI:s årstakt i intäkter låg på 50 miljarder dollar, 20 miljarder under förväntan. Bloomberg rapporterade senare att OpenAI räknar med 70 miljarder i årstakt vid årsskiftet och teknik och mjukvara studsade på fredagen.",
     "impact": "positiv",
     "tickers": [
@@ -347,8 +347,8 @@
     ]
    },
    {
-    "t": "Långräntan nära 24-årshögsta",
-    "text": "Den 10-åriga räntan låg strax under 5,25 % efter att ha nått omkring 5,37 % i onsdags, den högsta nivån på 24 år. Höga räntor pressar värderingar och särskilt räntekänsliga sektorer som banker, fastigheter och småbolag.",
+    "t": "Veckan: långräntan nådde 24-årshögsta",
+    "text": "Den 10-åriga räntan nådde omkring 5,37 % i onsdags, den högsta nivån på 24 år, och föll sedan tillbaka mot 5,2–5,25 % efter en stark obligationsauktion. Höga räntor pressar värderingar och särskilt räntekänsliga sektorer som banker, fastigheter och småbolag.",
     "impact": "negativ",
     "tickers": [],
     "sources": [
@@ -364,6 +364,20 @@
    }
   ],
   "events": [
+   {
+    "date": "2026-10-07",
+    "name": "Fed-protokollet (FOMC minutes) från mötet 15–16 september",
+    "what": "Protokollet bekräftade den enhälliga höjningen till 3,75–4,00 %, den första sedan juli 2023, och de flesta ledamöter ansåg att ytterligare en höjning troligen är lämplig före årsskiftet. Svaga jobbsiffror gör tidpunkten osäker; marknaden prisade 20–25 % chans för höjning 28 oktober.",
+    "why": "Bekräftar att Fed lutar åt åtstramning trots svag arbetsmarknad, vilket höll långräntorna nära 24-årshögsta under veckan.",
+    "impact": "negativ"
+   },
+   {
+    "date": "2026-10-08",
+    "name": "Stark auktion av amerikanska statsobligationer",
+    "what": "Den 10-åriga räntan föll från omkring 5,3 % till 5,2 % och 30-åringen till 5,6 % efter en auktion som visade god efterfrågan.",
+    "why": "Lättade trycket på aktievärderingarna och bidrog till fredagens uppgång.",
+    "impact": "positiv"
+   },
    {
     "date": "2026-10-09",
     "name": "Michigan-index, konsumentförtroende (prel. oktober)",
