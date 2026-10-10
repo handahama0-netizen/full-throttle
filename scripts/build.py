@@ -183,18 +183,13 @@ def passes_lrhr(d):
 
 
 def signals(d):
+    """Köplägen som sidan larmar för: ⚡ Smart och Low Risk, High Reward i köpzonen (under Cheap mot 200W)."""
     dist = d.get("dist200w")
     out = []
     if dist is not None:
-        if passes_lrhr(d) and dist < 0:
-            out.append("diamant")
-        if d.get("goldQ") and dist < 20:
-            out.append("guld")
         if passes_lrhr(d) and dist < 20:
             out.append("swing")
-        if passes_ftp(d) and dist < 30:
-            out.append("rea")
-        # Smart: LRHR eller Guld i köpzonen, och senaste hela veckan steg efter en nedvecka (botten bekräftad)
+        # Smart: LRHR eller stort stabilt kvalitetsbolag (goldQ) i köpzonen, och senaste hela veckan steg efter en nedvecka
         w3 = d.get("w3") or []
         turn = len(w3) == 3 and all(w3) and w3[2] > w3[1] < w3[0]
         if (passes_lrhr(d) or d.get("goldQ")) and dist < 20 and turn:
@@ -1191,7 +1186,7 @@ def watch_alerts(rows, prev, today, full):
 
 
 SIG_LABEL = {"smart": "⚡ Smart (LRHR eller Guld i köpzonen, vänder upp)", "diamant": "💎 Diamant (Low Risk, High Reward + under 200W)", "guld": "🥇 Guld (stort, stabilt kvalitetsbolag + 200W)",
-             "swing": "Swing-läge (Low Risk, High Reward + 200W)", "rea": "Tillväxt på rea (Full Throttle+ + 200W)"}
+             "swing": "Low Risk, High Reward-köpläge (under Cheap mot 200W)", "rea": "Tillväxt på rea (Full Throttle+ + 200W)"}
 SITE = "https://handahama0-netizen.github.io/full-throttle/"
 
 
