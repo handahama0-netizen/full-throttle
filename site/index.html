@@ -277,6 +277,14 @@ a.lvlb:hover{text-decoration:none;border-color:var(--accent)}
 .stfacts b{font-size:17px}.stfacts small{font-size:11.5px;color:var(--muted)}
 .stfacts .t-pos b{color:var(--up)}.stfacts .t-neg b{color:var(--down)}
 .stmore{margin-top:16px}
+.t5b{justify-self:start;margin-top:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--line-strong);background:transparent;color:var(--accent,var(--ink));font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.t5b:hover{background:var(--sunk)}
+.t5{margin-top:10px;display:grid;gap:4px}.t5h{margin-bottom:2px}
+.t5r{display:grid;grid-template-columns:22px auto minmax(0,1fr) 60px 28px;gap:8px;align-items:center;padding:7px 10px;border-radius:8px;background:var(--sunk);color:var(--ink);text-decoration:none}
+.t5r:hover{outline:1px solid var(--line-strong)}.t5r.me{outline:2px solid var(--up)}
+.t5n{color:var(--muted);text-align:right}.t5nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:13px}
+.t5bar{height:6px;border-radius:3px;background:var(--line)}.t5bar i{display:block;height:100%;border-radius:3px;background:var(--up)}
+.t5s{text-align:right;font-weight:600}.t5gap{text-align:center;color:var(--muted);line-height:1}
 .stnav{display:flex;gap:8px;justify-content:space-between;padding:12px 16px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
 .stnav .btn{padding:10px 14px;font-size:14px;min-height:44px}
 .stnav .btn.primary{flex:1;justify-content:center;max-width:420px;overflow:hidden;text-overflow:ellipsis;display:block;text-align:center}
@@ -2331,6 +2339,13 @@ function industryRank(d){
   const g=peerGroup(d);const sc=peerScores(g.peers,d);const me=sc.find(x=>x.p===d);
   return d._ir=me?{rank:me.rank,n:sc.length,label:g.label,kind:g.kind}:null;
 }
+// topp 5 i branschen, efter samma sammanvägda nyckeltalspoäng som "Plats i branschen"
+function top5Btn(id){return `<button type="button" class="t5b" data-t5="${id}" aria-expanded="false">Topp 5 ▾</button>`}
+function top5List(d,id){const g=peerGroup(d),sc=peerScores(g.peers,d);if(!sc.length)return"";const me=sc.find(x=>x.p===d);
+  const row=x=>`<a class="t5r${x.p===d?" me":""}" href="${link(x.p.ticker)}"><span class="n t5n">${x.rank}</span><b class="tk">${esc(x.p.ticker)}</b><span class="t5nm">${esc(x.p.name||"")}</span><span class="t5bar"><i style="width:${Math.round(x.score*100)}%"></i></span><span class="n t5s">${Math.round(x.score*100)}</span></a>`;
+  return `<div class="t5" id="${id}" hidden><div class="small muted t5h">Topp 5 av ${sc.length} i ${esc(g.label)}. Poäng 0–100 efter tillväxt, lönsamhet, värdering och risk.</div>${sc.slice(0,5).map(row).join("")}${me&&me.rank>5?`<div class="t5gap">…</div>${row(me)}`:""}</div>`}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-t5]");if(!b)return;const el=document.getElementById(b.dataset.t5);if(!el)return;
+  el.hidden=!el.hidden;b.setAttribute("aria-expanded",String(!el.hidden));b.textContent=el.hidden?"Topp 5 ▾":"Dölj topp 5 ▴";if(!el.hidden)el.scrollIntoView({block:"nearest",behavior:"smooth"})});
 function renderPeers(d){
   const g=peerGroup(d),peers=g.peers,sc=peerScores(peers,d),me=sc.find(x=>x.p===d);
   const fmtV=(v,u)=>!nn(v)?"–":u==="r"?pct(v*100,1):u==="%"?f(v,1," %"):f(v,v>=100?0:2);
@@ -2873,7 +2888,7 @@ function qualCard(d){
   if(d.type&&d.type!=="EQUITY")return"";
   const ir=industryRank(d),fx=d.fx||{},fs=FACT.filter(([k])=>nn(fx[k])).sort((a,b)=>fx[b[0]]-fx[a[0]]);
   return `<section class="card scard"><div class="hd"><h2>Hur bra är bolaget?</h2>${drill("quant","Quant-profil")}</div><div class="bd">
-    <div class="duo"><div><span class="sub">Quant-poäng${ib("quant")}</span><b class="n">${nn(d.quant)?d.quant:"–"}<small> / 100</small></b></div><div><span class="sub">Plats i branschen${ib("industryRank")}</span><b class="n">${ir?`${ir.rank}<small> av ${ir.n}</small>`:"–"}</b>${ir?`<span class="small muted" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ir.label)}</span>`:""}</div></div>
+    <div class="duo"><div><span class="sub">Quant-poäng${ib("quant")}</span><b class="n">${nn(d.quant)?d.quant:"–"}<small> / 100</small></b></div><div><span class="sub">Plats i branschen${ib("industryRank")}</span><b class="n">${ir?`${ir.rank}<small> av ${ir.n}</small>`:"–"}</b>${ir?`<span class="small muted" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ir.label)}</span>${top5Btn("t5q")}`:""}</div></div>${ir?top5List(d,"t5q"):""}
     <div style="margin-top:12px">${fprof(fx)}</div>
     ${fs.length>=2?`<p class="small" style="margin-top:10px">Starkast i <b>${fs[0][1]}</b>${fs.length>2?` och <b>${fs[1][1]}</b>`:""}, svagast i <b>${fs[fs.length-1][1]}</b>.</p>`:""}
   </div></section>`;
@@ -4303,13 +4318,13 @@ function storyCards(d,det){
     const what=P&&P.w?esc(P.w):about?`<span lang="en">${esc(about)}</span> <span class="faint small">(bolagets egen beskrivning, på engelska)</span>`:det?"Beskrivning saknas.":"Laddar beskrivningen…";
     const facts=[stFact("Börsvärde",stMc(d)),stFact("Sektor",esc(d.sector||"–"))];
     if(d.industry&&d.industry!=="ETF")facts.push(stFact("Bransch",esc(d.industry)));
-    if(ir)facts.push(stFact("Plats i branschen",`Nr ${ir.rank} av ${ir.n}`,"efter nyckeltalen",ir.rank<=3?"pos":"info"));
+    if(ir)facts.push(Object.assign(stFact("Plats i branschen",`Nr ${ir.rank} av ${ir.n}`,"efter nyckeltalen",ir.rank<=3?"pos":"info"),{x:top5Btn("t5s")}));
     if(det&&nn(det.emp))facts.push(stFact("Anställda",f(det.emp,0)));
     if(det&&det.country)facts.push(stFact("Land",esc(det.country)));
     C.push({k:"what",topic:"Bolaget",q:eq?"Vad gör de?":"Vad är det?",tone:"info",short:eq?stSize(d):"ETF",
       verdict:eq?`${stSize(d)}${LEAD[d.ticker]===1?", störst i sin bransch":""}`:"Börshandlad fond",
       lead:`<p>${what}</p>${P&&P.m?`<h4>Det som gör dem starka</h4><ul class="stlist pro">${P.m.slice(0,3).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}`,
-      facts,more:eq?"q-thesis":"q-strat"})}
+      facts,after:ir?top5List(d,"t5s"):"",more:eq?"q-thesis":"q-strat"})}
   if(eq){
   // 2. Hur tjänar de pengar?
   { const gm=d.grossMargin,om=d.opMargin,nm=d.netMargin,fm=d.fcfMargin,aom=snittOf(d,"opMargin");
@@ -4446,7 +4461,7 @@ addEventListener("popstate",()=>{if(ST)closeStory(true)});
 document.addEventListener("keydown",e=>{if(!ST)return;if(e.key==="Escape")closeStory();else if(e.key==="ArrowRight")stGo(ST.i+1);else if(e.key==="ArrowLeft")stGo(ST.i-1)});
 function stGo(i,first){if(!ST)return;const D=ST.deck,C=D.cards(),N=C.length+1;i=clamp(i,0,N-1);const dir=i>=ST.i?1:-1;ST.i=i;
   const sum=i===N-1,c=C[i];
-  const facts=c&&(c.facts||[]).length?`<div class="stfacts">${c.facts.map(x=>`<div class="t-${x.t}"><span class="sub">${x.l}</span><b class="n">${x.v}</b>${x.s?`<small>${x.s}</small>`:""}</div>`).join("")}</div>`:"";
+  const facts=c&&(c.facts||[]).length?`<div class="stfacts">${c.facts.map(x=>`<div class="t-${x.t}"><span class="sub">${x.l}</span><b class="n">${x.v}</b>${x.s?`<small>${x.s}</small>`:""}${x.x||""}</div>`).join("")}</div>`:"";
   const more=c&&c.more?`<button class="more stmore" type="button" data-sec="${c.more}">Visa detaljerna på sidan ↓</button>`:c&&c.href?`<a class="more stmore" href="${c.href}">${esc(c.hrefLabel||"Öppna")} →</a>`:"";
   const body=sum?`<div class="stk">Sammanfattning</div><h2 class="stq">${D.sumTitle(C.length)}</h2>
       <ol class="stsum">${C.map((x,j)=>`<li><button type="button" data-go="${j}" class="t-${x.tone}"><i></i><span>${esc(x.q)}</span><b>${esc(x.verdict||"")}</b></button></li>`).join("")}</ol>${D.sumHtml?D.sumHtml():""}`
