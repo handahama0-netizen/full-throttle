@@ -277,6 +277,26 @@ a.lvlb:hover{text-decoration:none;border-color:var(--accent)}
 .stfacts b{font-size:17px}.stfacts small{font-size:11.5px;color:var(--muted)}
 .stfacts .t-pos b{color:var(--up)}.stfacts .t-neg b{color:var(--down)}
 .stmore{margin-top:16px}
+.swpage .bd{padding-bottom:14px}.swhz{display:flex;width:100%}.swhz button{flex:1;display:grid;gap:1px;text-align:center;padding:7px 6px}.swhz .c{margin:0;font-family:inherit;font-size:11px}
+.swstat{margin-top:12px;font-size:13.5px;line-height:1.5;padding:10px 12px;border-radius:10px;background:var(--sunk)}
+.swstat:empty{display:none}.swf{margin-top:10px}
+.swfg{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end;margin-top:10px}.swfg label{display:grid;gap:3px}.swfg label.sfk{display:flex;align-items:center;gap:6px}
+.swc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px;display:grid;gap:10px;min-width:0}
+.swh{display:flex;align-items:center;gap:10px;min-width:0}.swi{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-weight:700;flex:none}
+.swt{display:flex;align-items:baseline;gap:8px;min-width:0;color:var(--ink);text-decoration:none;flex:1}.swt b{font-size:17px}.swt span{color:var(--muted);font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.swhead{font-size:14.5px}
+.swnum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.swnum>div{display:grid;gap:1px;padding:8px 10px;border-radius:10px;background:var(--sunk);border-left:3px solid var(--line-strong);min-width:0}
+.swnum>div.t-pos{border-left-color:var(--up)}.swnum>div.t-neg{border-left-color:var(--down)}.swnum b{font-size:15.5px}.swnum small{font-size:11.5px;color:var(--muted)}
+@media(max-width:560px){.swnum{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.swch{width:100%;height:auto;max-height:150px;font-size:10px}
+.swwhy{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:4px 16px}
+.swc h4{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px}
+.swc ul{margin:0;padding-left:18px;display:grid;gap:3px;font-size:13.5px;line-height:1.45}
+.swrisk{padding:8px 12px;border-radius:10px;background:var(--warn-soft)}.swexit{padding:8px 12px;border-radius:10px;background:var(--accent-soft)}
+.swact{display:flex;gap:8px;flex-wrap:wrap}
+.swwarn{font-size:13px;padding:6px 10px;border-radius:8px;background:var(--warn-soft);color:var(--ink)}
+.swmore>summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--accent);list-style:none;padding:4px 0}.swmore>summary::-webkit-details-marker{display:none}
+.swmore>summary::after{content:" ▾"}.swmore[open]>summary::after{content:" ▴"}.swmb{display:grid;gap:10px;margin-top:8px}.swm{margin-top:6px}.swm>summary{padding:12px 16px}
 .t5b{justify-self:start;margin-top:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--line-strong);background:transparent;color:var(--accent,var(--ink));font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
 .t5b:hover{background:var(--sunk)}
 .t5{margin-top:10px;display:grid;gap:4px}.t5h{margin-bottom:2px}
@@ -885,6 +905,7 @@ ul.tips li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;font-si
       <a href="#/ai" data-nav="ai">AI-kedjan</a>
       <a href="#/innehav/port" data-nav="port">Innehav</a>
       <a href="#/screener" data-nav="screener">Screener</a>
+      <a href="#/swing" data-nav="swing">Swing-idéer</a>
       <a href="#/fallna" data-nav="fallna">Nedtryckta</a>
       <a href="#/strategier" data-nav="strategier">Strategi &amp; backtest</a>
     </nav>
@@ -898,7 +919,7 @@ ul.tips li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;font-si
 <nav class="bnav" aria-label="Snabbmeny">
   <a href="#/" data-nav="start"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg><span>Start</span></a>
   <a href="#/mina" data-nav="mina"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.8 5.8 6.2.9-4.5 4.4 1 6.2L12 17.4 6.5 20.3l1-6.2L3 9.7l6.2-.9Z"/></svg><span>Mina aktier</span></a>
-  <a href="#/fallna" data-nav="fallna"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6l6 6 4-4 8 8"/><path d="M21 10v6h-6"/></svg><span>Nedtryckta</span></a>
+  <a href="#/swing" data-nav="swing"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".8" fill="currentColor"/></svg><span>Swing</span></a>
   <a href="#/innehav/swing" data-nav="port"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M16 13h2"/><path d="M3 10h18"/></svg><span>Innehav</span></a>
   <button type="button" id="bnMenu" aria-label="Öppna menyn med alla sidor"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Meny</span></button>
 </nav>
@@ -959,6 +980,7 @@ const REC={strong_buy:"Starkt köp",buy:"Köp",hold:"Behåll",underperform:"Unde
 const UDA={up:"Uppgradering",down:"Nedgradering",main:"Bekräftar",reit:"Upprepar",init:"Ny bevakning"};
 /* ============ ordlista för info-knappar ============ */
 const GL={
+  swMethod:["Swing-idéer","Aktier som fallit så snabbt att de är översålda (RSI 14 under 30). Sådana fall i stora bolag har historiskt ofta studsat tillbaka inom några veckor. Varje idé har en köpkurs, ett mål där du tar vinst och ett stopp där du säljer om det går fel. Reglerna är backtestade på cirka 600 aktier. Längst ner på sidan finns detaljerna."],
   price:["Kurs","Senaste betalkurs i aktiens handelsvaluta. Uppdateras var 10:e minut under börsdagen, med ungefär 15 minuters fördröjning från börsen."],
   chg:["Idag","Kursförändring sedan gårdagens stängning, i procent."],
   ma200w:["200-veckorssnitt (200W)","Genomsnittlig stängningskurs de senaste 200 veckorna, knappt fyra år. Visar aktiens långsiktiga trend. Kvalitetsbolag har historiskt sällan handlats långt under sitt 200W-snitt."],
@@ -1226,11 +1248,11 @@ document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement.t
 
 /* ============ meny för hela sidan ============ */
 const MENU=[["Stories",[["#/story/dag","story","📰","Dagens recap","Börsen, nyheterna, smart money och dina innehav"],["#/story/fokus","story","🎯","Claudes fokus","Dagens idéer, teman och dina swingar"],["#/story/vecka","story","📅","Veckan","Veckans vinnare, nyheter och nästa vecka"],["#/story/makro","story","🌍","Makro","Fed, inflation, jobb, räntor och oro"]]],["Idag",[["#/","start","🏠","Start","Det som kräver beslut idag: sälj, risk, köplägen"],["#/mina","mina","⭐","Mina aktier","Aktierna du följer med läge och nyckeltal"]]],
-  ["Hitta aktier",[["#/fallna","fallna","📉","Nedtryckta","Kvalitetsbolag långt under toppen, med bear case"],["#/screener","screener","🔎","Screener","Filtrera på dina strategier och 200W-zoner"],["#/rotation","rotation","🔄","Sektorer","De 11 stora delarna av börsen: var pengarna roterar"],["#/branscher","branscher","🏭","Teman","Smalare grupper som Halvledare och Mjukvara: hetast, bäst läge, Visser"],["#/ai","ai","🧠","AI-kedjan","AI-flaskhalsarna i ordning, bästa bolagen och en AI-portfölj"]]],
+  ["Hitta aktier",[["#/swing","swideer","🎯","Swing-idéer","Översålda bolag att swinga, med köp, mål och stopp"],["#/fallna","fallna","📉","Nedtryckta","Kvalitetsbolag långt under toppen, med bear case"],["#/screener","screener","🔎","Screener","Filtrera på dina strategier och 200W-zoner"],["#/rotation","rotation","🔄","Sektorer","De 11 stora delarna av börsen: var pengarna roterar"],["#/branscher","branscher","🏭","Teman","Smalare grupper som Halvledare och Mjukvara: hetast, bäst läge, Visser"],["#/ai","ai","🧠","AI-kedjan","AI-flaskhalsarna i ordning, bästa bolagen och en AI-portfölj"]]],
   ["Mina pengar",[["#/innehav/swing","swing","⚡","Live swing","Dina swingar med stop, mål och läge"],["#/innehav/port","port","💼","Portfölj","Långsiktiga innehav och larm"],["#/innehav/analys","analys","📊","Portföljanalys","Risk, Sharpe och tips för bättre portfölj"]]],
   ["Strategi och data",[["#/strategier","strategier","🧭","Strategi och backtest","⚡ Smart, dina strategier och backtest utan facit"],["#/data","data","📡","Data och källor","Var siffrorna kommer ifrån, när de uppdaterades och larm"]]]];
 function renderMenu(){const m=$("sitemenu");if(!m)return;const h=location.hash||"#/";
-  const cur=h.startsWith("#/aktie")?"":h.startsWith("#/innehav/analys")?"analys":h.startsWith("#/innehav/port")?"port":h.startsWith("#/innehav")?"swing":(h.slice(2).split("/")[0]||"start");
+  const cur=h.startsWith("#/aktie")?"":h.startsWith("#/swing")?"swideer":h.startsWith("#/innehav/analys")?"analys":h.startsWith("#/innehav/port")?"port":h.startsWith("#/innehav")?"swing":(h.slice(2).split("/")[0]||"start");
   const secs=[...document.querySelectorAll("#app .snav [data-to]")].map(b=>[b.dataset.to,b.textContent.trim()]);
   const pageName=h.startsWith("#/aktie")?(document.title.split(" · ")[0]||"Aktien"):((MENU.flatMap(g=>g[1]).find(x=>x[1]===cur)||[])[3]||"");
   m.innerHTML=`<div class="mh"><b>Full Throttle</b><button class="mx" type="button" aria-label="Stäng menyn">×</button></div>
@@ -1265,6 +1287,7 @@ function route(){
   if(page==="aktie")return pageStock(decodeURIComponent(parts[1]||""));
   if(page==="screener")return pageScreener();
   if(page==="fallna")return pageDown();
+  if(page==="swing")return pageSwing();
   if(page==="mina")return pageMine();
   if(page==="branscher")return pageSectors();
   if(page==="rotation")return pageRotation();
@@ -1278,6 +1301,144 @@ function route(){
 }
 addEventListener("hashchange",()=>{const st=history.state;NAV=true;try{route()}finally{NAV=false}
   const y=st&&st.y;if(y){scrollTo(0,y);setTimeout(()=>scrollTo(0,y),350);setTimeout(()=>scrollTo(0,y),1200)}else scrollTo(0,0)});
+
+/* ============ SWING-IDÉER: översålda storbolag med köp, mål och stopp ============
+   Regeln kommer från backtestet i scripts/swing.py: köp när RSI 14 går under 30, stopp 3 ATR under köpet,
+   sälj när RSI går över 50 (max 1 månad) eller 65 (1–3 månader). 3–12 månader använder ⚡ Smart. */
+let SW=null;
+async function getSW(){if(SW)return SW;try{const r=await fetch("data/swing.json?v="+encodeURIComponent((STATUS&&STATUS.builtAt)||U.updatedAt||""));if(r.ok)SW=await r.json()}catch(e){}return SW}
+const SWH=[["k1","Max 1 mån","kort studs"],["k3","1–3 mån","längre studs"],["k12","3–12 mån","⚡ Smart"]];
+const SW_DEF={_v:1,hz:"k1",size:50,prof:true,earn:false,sec:"",n:5};
+const SW_SIZE=[[0,"Alla storlekar"],[10,"Över 10 md $"],[50,"Över 50 md $"],[200,"Över 200 md $"]];
+function swUi(){if(!ui.sw||ui.sw._v!==1)ui.sw=Object.assign({},SW_DEF);return ui.sw}
+const swDate=n=>{const t=new Date(Date.now()+n*864e5);return t.toLocaleDateString("sv-SE",{day:"numeric",month:"short"})};
+const swCal=hz=>hz==="k1"?28:hz==="k3"?87:365;  // kalenderdagar för 20 och 60 handelsdagar, och ett år
+const swEarnIn=d=>{if(!d.nextEarnings)return null;const n=Math.round((new Date(d.nextEarnings+"T12:00:00Z")-Date.now())/864e5);return n>=0?n:null};
+function swTarget(d,S,hz,entry){if(hz==="k12")return nn(d.ma200w)?d.ma200w*(1+lim.zones.b4/100):null;
+  // den lägsta av RSI-nivån och snittet (20 dagar kort, 50 dagar längre): där brukar studsen ta slut
+  const m=hz==="k1"?S.s20:Math.max(S.s50||0,S.s20||0),c=[hz==="k1"?S.p50:S.p65,m].filter(v=>nn(v)&&v>entry*1.01);
+  return c.length?Math.min(...c):entry*(1+(hz==="k1"?0.05:0.1))}
+// en idé: läge, köpkurs, mål, stopp och poäng
+function swIdea(d,hz){const S=SW&&SW.rows[d.ticker];
+  if(hz==="k12"){const smart=d.sig.includes("smart"),wait=!!d.smartWait;if(!smart&&!wait)return null;
+    const entry=d.price,tgt=swTarget(d,S||{},hz,entry),stop=entry*0.8;
+    return{d,S,hz,state:smart?"buy":"watch",entry,tgt,stop,score:(smart?100:40)-(d.dist200w||0)+(d.gBig?5:0)+swFund(d).score}}
+  if(!S||!nn(S.rsi)||!nn(S.atr))return null;
+  const buy=S.rsi<SW.rule.buy,fresh=!buy&&nn(S.ago)&&S.ago<=3&&S.rsi<40,watch=!buy&&!fresh&&S.rsi<40;
+  if(!buy&&!fresh&&!watch)return null;
+  const entry=watch&&nn(S.p30)&&S.p30<d.price?S.p30:d.price,stop=entry-SW.rule.stop*S.atr,tgt=swTarget(d,S,hz,entry);
+  const score=(buy?100:fresh?70:35)+(SW.rule.buy-S.rsi)*1.5+((d.mcapB||0)>=SW.rule.big?8:0)+swFund(d).score;
+  return{d,S,hz,state:buy?"buy":fresh?"fresh":"watch",entry,tgt,stop,score}}
+// fundamenta: poäng och meningar (bra och dåligt)
+function swFund(d){if(d._swf)return d._swf;const pro=[],con=[];let s=0;
+  const tUp=nn(d.targetMean)&&nn(d.price)&&(d.nAnalysts||0)>=3?(d.targetMean/d.price-1)*100:null;
+  if(nn(d.netMargin)&&d.netMargin>0){pro.push(`Tjänar pengar: ${f(d.netMargin,0)} % vinstmarginal${nn(d.revGrowth1y)?`, omsättningen ${d.revGrowth1y>=0?"+":"−"}${f(Math.abs(d.revGrowth1y),0)} % senaste året`:""}.`);s+=4}
+  else if(nn(d.netMargin))con.push(`Går med förlust (${f(d.netMargin,0)} % marginal). Studsar kan bli kortare.`);
+  if(nn(d.roe)&&d.roe>=15){pro.push(`Hög avkastning på eget kapital (ROE ${f(d.roe,0)} %).`);s+=2}
+  if(nn(tUp)){if(tUp>=10){pro.push(`Analytikerna (${d.nAnalysts} st) har riktkurs ${money(d.targetMean,d.currency)}, ${pct(tUp,0)} över kursen.`);s+=Math.min(tUp,40)/5}
+    else if(tUp<0)con.push(`Analytikernas riktkurs ligger under kursen (${pct(tUp,0)}).`)}
+  const v=valView(d);if(v.k==="pos"){pro.push(`Värderingen ser låg ut sammantaget (${v.label.toLowerCase()}).`);s+=3}else if(v.k==="neg")con.push(`Värderingen är hög (${v.label.toLowerCase()}), så botten kan ligga lägre.`);
+  if(d.instFlow==="bull"||(nn(d.instNetp)&&d.instNetp>0.25)){pro.push("Institutionerna (smart money) ökade senaste kvartalet.");s+=2}
+  else if(d.instFlow==="bear")con.push("Institutionerna minskade senaste kvartalet.");
+  if(nn(d.dist200w)&&d.dist200w<lim.zones.swing){pro.push(`Billig mot sin långa trend: ${pct(d.dist200w,0)} mot 200-veckorssnittet.`);s+=2}
+  if(nn(d.de)&&d.de>2)con.push(`Hög skuld (skuld/eget kapital ${f(d.de,1)}).`);
+  return d._swf={pro,con,score:s}}
+// tekniska skäl
+function swTech(I){const{d,S,hz}=I,t=[],c=[];if(hz==="k12"){
+    t.push(`Ligger ${pct(d.dist200w,0)} mot 200-veckorssnittet, ${d.dist200w<0?"under":"nära"} köpzonen för kvalitetsbolag.`);
+    if(I.state==="buy")t.push("Senaste hela veckan stängde högre än veckan innan: nedgången har vänt upp.");else c.push("Väntar på en vecka som stänger högre (vändningen) innan köp.");
+    return{t,c}}
+  t.push(`RSI 14 är <b>${f(S.rsi,0)}</b>${S.rsi<SW.rule.buy?`: översåld (under ${SW.rule.buy}). Aktien har fallit så snabbt att säljtrycket ofta är på väg att ta slut.`:I.state==="fresh"?`. Var under ${SW.rule.buy} för ${S.ago===0?"idag":S.ago===1?"1 dag sedan":S.ago+" dagar sedan"}, studsen har börjat.`:`, nära översåld. Köpläge om RSI går under ${SW.rule.buy}.`}`);
+  if(nn(S.chg5)&&S.chg5<-3)t.push(`Fallit ${f(Math.abs(S.chg5),0)} % på en vecka${nn(S.chg20)&&S.chg20<S.chg5?` och ${f(Math.abs(S.chg20),0)} % på en månad`:""}.`);
+  if(nn(S.bbl)&&d.price<S.bbl)t.push("Under nedre Bollingerbandet: långt under sitt normala intervall den senaste månaden.");
+  if(nn(S.vr)&&S.vr>=1.5)t.push(`Hög volym (${f(S.vr,1)} gånger det normala): kan vara panikförsäljning som brukar markera en botten.`);
+  if(nn(S.s200))(d.price>S.s200?t:c).push(d.price>S.s200?"Över 200-dagarssnittet: den långa upptrenden är intakt.":`Under 200-dagarssnittet (${money(S.s200,d.currency)}): trenden är fallande, så sätt stoppet strikt.`);
+  return{t,c}}
+// när ta vinst
+function swExit(I){const{d,S,hz,entry,tgt,stop}=I,cur=d.currency,L=[];
+  if(hz==="k12"){L.push(`<b>Ta vinst</b> när aktien når Expensive, ${lim.zones.b4} % över 200-veckorssnittet: ungefär <b>${money(tgt,cur)}</b> (${pct((tgt/entry-1)*100,0)}).`);
+    L.push(`<b>Lås in vinsten</b>: när du ligger på plus, sälj om kursen faller 15 % från sin högsta nivå sedan köpet.`);
+    L.push(`<b>Stopp</b>: sälj om du ligger 20 % back, runt <b>${money(stop,cur)}</b>.`);return L}
+  const ex=SW.rule.hz[hz].exit,days=SW.rule.hz[hz].max;
+  L.push(`<b>Ta vinst</b> vid ungefär <b>${money(tgt,cur)}</b> (${pct((tgt/entry-1)*100,1)}), ${hz==="k1"?"20":"50"}-dagarssnittet, eller när RSI går över ${ex}. Där brukar studsen ${hz==="k1"?"ta slut":"ha gått klart"}.`);
+  L.push(`<b>Stopp</b>: sälj om kursen går under <b>${money(stop,cur)}</b> (${pct((stop/entry-1)*100,1)}), tre gånger aktiens normala dagssvängning.`);
+  L.push(`<b>Tidsgräns</b>: sälj senast efter ${days} handelsdagar, runt <b>${swDate(swCal(hz))}</b>, även om målet inte nåtts.`);
+  return L}
+function swChart(I){const{d,S,entry,tgt,stop}=I;const c=(S&&S.c||[]).filter(nn);if(c.length<10)return"";
+  const W=320,H=120,lo=Math.min(...c,stop)*0.99,hi=Math.max(...c,tgt||0)*1.01,X=i=>2+i/(c.length-1)*(W-60),Y=v=>4+(hi-v)/(hi-lo||1)*(H-8);
+  const line=c.map((v,i)=>`${i?"L":"M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("");
+  const lvl=(v,col,lbl)=>nn(v)?`<line x1="2" x2="${W-58}" y1="${Y(v)}" y2="${Y(v)}" stroke="${col}" stroke-dasharray="4 3" stroke-width="1.2"/><text x="${W-54}" y="${Y(v)+4}" fill="${col}">${lbl}</text>`:"";
+  return `<svg class="swch" viewBox="0 0 ${W} ${H}" role="img" aria-label="Kursen senaste ${c.length} dagarna med köp, mål och stopp"><rect x="2" y="${Math.min(Y(tgt),Y(entry))}" width="${W-60}" height="${Math.abs(Y(entry)-Y(tgt))}" fill="var(--up)" opacity=".08"/><rect x="2" y="${Y(entry)}" width="${W-60}" height="${Math.abs(Y(stop)-Y(entry))}" fill="var(--down)" opacity=".07"/>
+    <path d="${line}" fill="none" stroke="var(--ink)" stroke-width="1.6"/>${lvl(tgt,"var(--up)","Mål")}${lvl(entry,"var(--muted)","Köp")}${lvl(stop,"var(--down)","Stopp")}<circle cx="${X(c.length-1)}" cy="${Y(c.at(-1))}" r="3" fill="var(--ink)"/></svg>`}
+const SW_STATE={buy:["Köpläge nu","pass"],fresh:["Köpsignal nyss","pass"],watch:["Bevaka","near"]};
+function swCard(I,i){const{d,S,hz,entry,tgt,stop}=I,F=swFund(d),T=swTech(I),cur=d.currency,rr=(tgt-entry)/(entry-stop);
+  const en=swEarnIn(d),earnWarn=nn(en)&&en<=swCal(hz);
+  const ps=SW.perStock&&SW.perStock[d.ticker]&&SW.perStock[d.ticker][hz==="k12"?"k3":hz];
+  const st=SW_STATE[I.state],gs=hz!=="k12"&&SW.stats&&SW.stats[hz],wr=gs?((d.mcapB||0)>=SW.rule.big?gs.big:gs.all||{}).win:null;
+  const head=I.state==="watch"&&hz!=="k12"?`Köp om kursen faller till ungefär <b>${money(entry,cur)}</b> (${pct((entry/d.price-1)*100,1)}), då blir RSI under ${SW.rule.buy}.`:hz==="k12"&&I.state==="watch"?"Köp när en vecka stänger högre än veckan innan.":`Köp runt dagens kurs, <b>${money(d.price,cur)}</b>.`;
+  return `<article class="swc"><div class="swh"><span class="swi n">${i+1}</span><a href="${link(d.ticker)}" class="swt"><b class="tk">${esc(d.ticker)}</b><span>${esc(d.name)}</span></a><span class="pill ${st[1]}">${st[0]}</span></div>
+    <p class="swhead">${head}</p>
+    <div class="swnum"><div><span class="sub">Köp</span><b class="n">${money(entry,cur)}</b></div><div class="t-pos"><span class="sub">Ta vinst</span><b class="n">${money(tgt,cur)}</b><small class="up">${pct((tgt/entry-1)*100,1)}</small></div><div class="t-neg"><span class="sub">Stopp</span><b class="n">${money(stop,cur)}</b><small class="down">${pct((stop/entry-1)*100,1)}</small></div>${wr?`<div><span class="sub">Vann historiskt</span><b class="n">${f(wr,0)} %</b><small>av samma läge</small></div>`:`<div><span class="sub">Vinst mot risk</span><b class="n">${nn(rr)&&rr>0?f(rr,1):"–"}</b><small>per krona risk</small></div>`}</div>
+    ${swChart(I)}
+    ${earnWarn?`<p class="swwarn">⚠ Rapport <b>${esc(d.nextEarnings)}</b>, om ${en} dagar: inom perioden.</p>`:""}
+    <details class="swmore"${i===0?" open":""}><summary>Varför, risker och när du ska ta vinst</summary><div class="swmb">
+    <div class="swwhy"><div><h4>Varför: tekniskt</h4><ul>${T.t.map(x=>`<li>${x}</li>`).join("")}</ul></div><div><h4>Varför: bolaget</h4><ul>${F.pro.slice(0,3).map(x=>`<li>${esc(x)}</li>`).join("")||"<li class=\"muted\">Inga starka fundamentala skäl, en ren teknisk studs.</li>"}</ul></div></div>
+    ${T.c.length||F.con.length||earnWarn?`<div class="swrisk"><h4>Tänk på</h4><ul>${earnWarn?`<li><b>Rapport ${esc(d.nextEarnings)}</b> (om ${en} dagar), inom perioden. Rapporter kan ge stora hopp åt båda hållen, även förbi stoppet. Sälj före eller ta en mindre position.</li>`:""}${T.c.concat(F.con).slice(0,3).map(x=>`<li>${esc(x).replace(/&lt;(\/?)b&gt;/g,"<$1b>")}</li>`).join("")}</ul></div>`:""}
+    <div class="swexit"><h4>När du ska ta vinst</h4><ul>${swExit(I).map(x=>`<li>${x}</li>`).join("")}</ul></div>
+    </div></details>
+    ${ps?`<p class="small muted swps">Samma signal i ${esc(d.ticker)} tidigare: ${ps[0]} ${ps[0]===1?"gång":"gånger"}, ${ps[1]} med vinst, snitt <span class="${cls(ps[2])}">${pct(ps[2],1)}</span> per affär.</p>`:""}
+    <div class="swact"><a class="btn" href="${link(d.ticker)}">Öppna ${esc(d.ticker)}</a><a class="btn" href="#/innehav/swing/add/${encodeURIComponent(d.ticker)}">+ Lägg som swing</a></div></article>`}
+function swList(F){const secs=new Set();const L=rows.filter(d=>(!d.type||d.type==="EQUITY")&&!d.excluded).filter(d=>{
+    if(d.sector)secs.add(d.sector);
+    if((d.mcapB||0)<F.size)return false;if(F.prof&&!(nn(d.netMargin)?d.netMargin>0:nn(d.pe)&&d.pe>0))return false;
+    if(F.sec&&d.sector!==F.sec)return false;if(F.earn){const e=swEarnIn(d);if(nn(e)&&e<=swCal(F.hz))return false}return true})
+    .map(d=>swIdea(d,F.hz)).filter(Boolean).sort((a,b)=>b.score-a.score);
+  // sprid idéerna: högst två från samma bransch
+  const per={},Ls=L.filter(x=>{const k=x.d.industry||x.d.sector||"";per[k]=(per[k]||0)+1;return per[k]<=2});
+  return{L:Ls,secs:[...secs].filter(s=>s&&s!=="Övrigt").sort((a,b)=>a.localeCompare(b,"sv"))}}
+function swStats(F){if(F.hz==="k12"){const s=BT&&BT.slots&&BT.slots.smart;return s?`⚡ Smart i backtest: <b>${pct(s.cagr,1)} per år</b>, största nedgång ${pct(s.maxdd,0)}, Sharpe ${f(s.sharpe,2)}. S&P 500: ${pct(BT.slots.spy&&BT.slots.spy.cagr,1)} per år.`:""}
+  const st=SW.stats&&SW.stats[F.hz];if(!st)return"";const s=F.size>=SW.rule.big?st.big:st.all;if(!s)return"";
+  const from=SW.btFrom?new Date(SW.btFrom*864e5).getUTCFullYear():null;
+  return `Samma regel historiskt${from?` sedan ${from}`:""}: <b>${f(s.win,0)} % av affärerna gav vinst</b>, snitt <b class="up">${pct(s.avg,1)}</b> på ${f(s.days,0)} handelsdagar (${f(s.n,0)} affärer${F.size>=SW.rule.big?", storbolag":""}). Vinsterna var i snitt ${pct(s.avgWin,1)}, förlusterna ${pct(s.avgLoss,1)}.`}
+async function pageSwing(){document.title="Swing-idéer · Full Throttle";
+  $("app").innerHTML=`<div class="skel">Laddar swing-idéerna…</div>`;await Promise.all([getSW(),getBT()]);
+  if(!location.hash.startsWith("#/swing"))return;
+  if(!SW){$("app").innerHTML=`<section class="card"><div class="bd"><h1 style="font-size:20px">Swing-idéer</h1><p class="muted" style="margin-top:6px">Idéerna räknas i nästa datakörning. Kom tillbaka om en stund.</p></div></section>`;return}
+  swRender()}
+function swRender(){const F=swUi(),{L,secs}=swList(F),top=L.slice(0,F.n),nBuy=L.filter(x=>x.state!=="watch").length;
+  const sel=(k,opts)=>`<select data-k="${k}">${opts.map(([v,l])=>`<option value="${v}" ${String(F[k])===String(v)?"selected":""}>${l}</option>`).join("")}</select>`;
+  const age=STATUS&&STATUS.quotesAt?` Kurser från ${esc(String(STATUS.quotesAt).replace("T"," ").slice(0,16))} UTC.`:"";
+  $("app").innerHTML=`<section class="card swpage"><div class="bd">
+      <h1 style="font-size:21px">Swing-idéer${ib("swMethod")}</h1>
+      <p class="muted" style="margin-top:4px">${F.hz==="k12"?"Kvalitetsbolag nära sin långa trend som har vänt upp. Behåll i månader.":"Bra bolag som fallit för snabbt (översålda). Köp rädslan, sälj studsen."} Varje idé har köp, mål och stopp.</p>
+      <div class="seg swhz" role="group" aria-label="Hur länge vill du behålla aktien?" style="margin-top:12px">${SWH.map(([k,l,s])=>`<button type="button" data-hz="${k}" aria-pressed="${F.hz===k}">${l}<span class="c">${s}</span></button>`).join("")}</div>
+      <div class="swstat">${swStats(F)}</div>
+      <details class="mdet swf"${F.size!==SW_DEF.size||F.sec||F.earn||F.prof!==SW_DEF.prof?" open":""}><summary>Filter</summary>
+        <div class="swfg"><label><span class="sub">Börsvärde</span>${sel("size",SW_SIZE)}</label>
+        <label><span class="sub">Sektor</span>${sel("sec",[["","Alla sektorer"],...secs.map(s=>[s,s])])}</label>
+        <label><span class="sub">Antal idéer</span>${sel("n",[[3,"3"],[5,"5"],[10,"10"]])}</label>
+        <label class="sfk"><input type="checkbox" data-c="prof" ${F.prof?"checked":""}> Tjänar pengar</label>
+        <label class="sfk"><input type="checkbox" data-c="earn" ${F.earn?"checked":""}> Ingen rapport under perioden</label>
+        <button class="more" type="button" id="swReset">Återställ</button></div></details>
+    </div></section>
+    <p class="small muted" style="margin:12px 2px 8px">${nBuy?`<b style="color:var(--ink)">${nBuy} ${nBuy===1?"aktie har":"aktier har"} köpläge</b> med dina filter.`:"Inga köplägen just nu med dina filter."}${top.some(x=>x.state==="watch")?" Resten är nära och värda att bevaka.":""}${age}</p>
+    ${top.length?top.map(swCard).join(""):`<section class="card"><div class="bd"><p>Inga aktier är översålda eller nära med de här filtren. Prova ett mindre börsvärde, eller kom tillbaka efter en nedgång. Det är då lägena kommer.</p></div></section>`}
+    <details class="mdet card swm"><summary>Så väljs idéerna, och vad som inte fungerade</summary><div class="bd prose">${swMethodHtml()}</div></details>
+    <p class="small muted" style="margin:12px 2px">Inte köpråd. Idéerna bygger på regler och historik, inte på nyheter. Kolla alltid varför aktien har fallit innan du köper.</p>`;
+  const A=$("app");
+  A.querySelectorAll("[data-hz]").forEach(b=>b.addEventListener("click",()=>{F.hz=b.dataset.hz;saveUi();swRender()}));
+  A.querySelectorAll(".swf select[data-k]").forEach(s=>s.addEventListener("change",()=>{const v=s.value;F[s.dataset.k]=s.dataset.k==="sec"?v:+v;saveUi();swRender()}));
+  A.querySelectorAll(".swf input[data-c]").forEach(c=>c.addEventListener("change",()=>{F[c.dataset.c]=c.checked;saveUi();swRender()}));
+  $("swReset").addEventListener("click",()=>{ui.sw=Object.assign({},SW_DEF,{hz:F.hz});saveUi();swRender()})}
+function swMethodHtml(){const st=SW.stats||{},row=(lbl,s)=>s?`<tr><td class="l">${lbl}</td><td class="r n">${f(s.n,0)}</td><td class="r n">${f(s.win,0)} %</td><td class="r n ${cls(s.avg)}">${pct(s.avg,1)}</td><td class="r n">${f(s.days,0)}</td><td class="r n down">${pct(s.worst,0)}</td></tr>`:"";
+  return `<p><b>Max 1 månad och 1–3 månader:</b> köp när RSI 14 går under ${SW.rule.buy}. RSI mäter hur snabbt kursen har stigit eller fallit de senaste 14 dagarna, från 0 till 100. Under 30 betyder att aktien är översåld. Köpet sker dagen efter signalen. Stoppet ligger tre ATR under köpet. ATR är aktiens normala dagliga svängning.</p>
+    <p><b>Sälj</b> när RSI går över 50 (kort) eller 65 (längre), eller efter 20 respektive 60 handelsdagar.</p>
+    <div class="tw"><table class="crit"><thead><tr><th class="l">Historik</th><th class="r">Affärer</th><th class="r">Med vinst</th><th class="r">Snitt</th><th class="r">Dagar</th><th class="r">Sämsta</th></tr></thead><tbody>
+      ${row("Max 1 mån, alla",st.k1&&st.k1.all)}${row("Max 1 mån, storbolag",st.k1&&st.k1.big)}${row("1–3 mån, alla",st.k3&&st.k3.all)}${row("1–3 mån, storbolag",st.k3&&st.k3.big)}</tbody></table></div>
+    <p><b>Det här fungerade inte</b> och används inte: köp vid utbrott till ny 55-dagarstopp på hög volym, köp vid rekyl till 50-dagarssnittet och korta RSI 2-dippar. De gav ungefär samma resultat som att köpa en slumpvis dag. Att bara köpa när S&P 500 ligger över sitt 200-dagarssnitt gjorde också resultatet sämre: de bästa lägena kommer när marknaden är rädd.</p>
+    <p><b>Ordningen</b> bland idéerna: köpläge först, sedan lägst RSI, sedan storbolag, lönsamhet, analytikernas uppsida, låg värdering och om institutionerna köper.</p>
+    <p><b>3–12 månader</b> använder ⚡ Smart: Low Risk, High Reward eller stort stabilt bolag, under Cheap mot 200-veckorssnittet och en vecka som stänger högre.</p>
+    <p class="small muted">Testperioden är kort (kurser sedan 2023) och mest en uppgångsmarknad. Bolagen är dagens, så de som försvunnit är inte med. Räkna med sämre resultat framåt.</p>`}
 
 /* ============ INSIKTER PÅ STARTSIDAN: bolag som klarar dina strategier och dina nyckeltalskrav ============ */
 const INS_S=[["smart","⚡ Smart"],["lrhr","Low Risk, High Reward"]];

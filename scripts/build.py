@@ -1395,6 +1395,12 @@ def main():
                 macro_sens(out, log)
         except Exception as e:  # noqa: BLE001
             log("makrokänslighet fel", e)
+        try:  # swing-idéer: RSI och kursnivåer varje körning, backtest i nattkörningen
+            import swing
+            prev_sw = load_json(out / "data" / "swing.json", {}) or load_json(prev / "data" / "swing.json", {})
+            write_json(out / "data" / "swing.json", swing.run(out / "data", with_backtest=a.mode == "full" or not prev_sw.get("stats"), prev=prev_sw, log=log))
+        except Exception as e:  # noqa: BLE001
+            log("swing fel", e)
         write_status(out)
     copy_site(out)
     return 0
