@@ -426,6 +426,15 @@ tr.slhl td{background:var(--accent-soft)}
 @media (max-width:640px){.hresg{grid-template-columns:1fr}.hres{grid-template-columns:auto 1fr;column-gap:10px;align-items:baseline}.hres .sub{grid-column:1/-1}}
 .hchart text{font-size:11px;fill:var(--muted)}
 .htr{display:grid;gap:4px;margin-top:8px}.htr>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:7px 10px;border-radius:8px;background:var(--sunk)}.htr small{color:var(--muted);font-size:11.5px}
+/* varför inte köpläge */
+.wyh{font-size:16px;font-weight:700;margin:4px 0 10px}
+.wysteps{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.wysteps li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;padding:9px 12px;border-radius:10px;background:var(--sunk);border-left:3px solid var(--line-strong)}
+.wysteps li.ok{border-left-color:var(--up)}.wysteps li.no{border-left-color:var(--down)}
+.wyi{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:13px}
+.wysteps li.ok .wyi{background:var(--up-soft);color:var(--up)}.wysteps li.no .wyi{background:var(--down-soft);color:var(--down)}
+.wysteps li div{display:grid;gap:2px}.wysteps li span{font-size:13.5px;color:var(--muted)}.wysteps li span b{color:var(--ink)}
+tr.wymiss td{background:color-mix(in srgb,var(--down) 7%,transparent)}
 /* nedtryckta */
 .dnbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--sunk)}
 @media (min-width:701px){.dnbar{position:sticky;top:var(--hh,58px);z-index:5}}
@@ -2990,9 +2999,37 @@ function stratVerdict(d){
   if(d.sig.length)return{k:"pos",t:`Köpläge: klarar ${pass.map(k=>STRATS[k].name).join(" och ")} och ligger i köpzonen.`};
   if(pass.length&&nn(d.dist200w)&&d.dist200w<lim.zones.swing)return{k:"pos",t:`Klarar ${pass.map(k=>STRATS[k].name).join(" och ")} och ligger i köpzonen mot 200W (${ZNAME[d.z]}).`};
   if(pass.length){const lv=level(d,lim.zones.swing);return{k:"wait",t:`Klarar ${pass.map(k=>STRATS[k].name).join(" och ")}, men priset är för högt. Köpzon under ${money(lv,d.currency)}, ${f(dropTo(d,lim.zones.swing),0)} % ner.`}}
-  if(near.length){const k=near[0];return{k:"near",t:`Nära ${STRATS[k].name}: missar bara ${shortName(k,R[k].miss[0]).toLowerCase()} (${critVal(R[k].miss[0],d)}).`}}
-  return{k:"mid",t:"Klarar inte dina strategier just nu."};
+  if(near.length){const k=near[0],m=R[k].miss[0],c=STRATS[k].crit.find(x=>x.k===m);return{k:"near",t:`Nära ${STRATS[k].name}: missar bara ett krav, ${WHYTXT[m]||shortName(k,m).toLowerCase()} (${c?c.nm+" ":""}${critVal(m,d)}, krav ${c?c.op+" "+f(+lim[k][m],m==="pegMax"||m==="deMax"?1:0):""}).`}}
+  {const L=STRATS.lrhr.crit.filter(c=>!test(c,d,lim.lrhr[c.k]));return{k:"mid",t:`Klarar inte Low Risk, High Reward: ${L.slice(0,3).map(c=>nn(d[c.f])||c.k==="big"?WHYTXT[c.k]||c.nm:c.nm.toLowerCase()+" saknas").join(", ")}${L.length>3?` och ${L.length-3} krav till`:""}.`}}
 }
+/* ---- varför klarar aktien inte strategin? ---- */
+const WHYTXT={cagr:"växer för långsamt över 5 år",g1:"växer för långsamt senaste året",eg1:"vinsten växer för långsamt",roe:"för låg avkastning på eget kapital",deMax:"för mycket skuld",fcf:"för lite fritt kassaflöde",pegMax:"för dyr mot tillväxten, PEG",mcap:"för litet bolag",
+  big:"inte megabolag eller branschledare",beta:"svänger för mycket, beta",ret:"för låg avkastning på kapitalet",debt:"för mycket skuld"};
+function critRows(k,d){const S=STRATS[k];return S.crit.map(c=>{const ok=test(c,d,lim[k][c.k]),v=d[c.f];
+  const val=c.de&&d.negEquity?"neg. EK":k==="gold"&&["big","ret","debt"].includes(c.k)?critVal(c.k,d):nn(v)?f(v,c.k==="pegMax"||c.k==="deMax"?2:1):"saknas";
+  const lv=lim[k][c.k],req=k==="gold"&&c.k==="big"?"mega eller ledare":k==="gold"&&c.k==="debt"?"D/E under 1,5":`${c.op} ${f(+lv,c.k==="pegMax"||c.k==="deMax"?1:0)}${c.u&&c.u!=="×"?" "+c.u:""}`;
+  return{c,ok,val,req,miss:!ok?(nn(v)||val!=="saknas"?`${WHYTXT[c.k]||c.nm} (${val}${c.u&&c.u!=="×"&&nn(v)&&!(k==="gold"&&["big","ret","debt"].includes(c.k))?" "+c.u:""}, krav ${req})`:`${c.nm.toLowerCase()} saknas i datan`):""}})}
+function whyCard(d){if(d.type&&d.type!=="EQUITY")return"";
+  const L=critRows("lrhr",d),G=critRows("gold",d),lOk=L.every(x=>x.ok),gOk=G.every(x=>x.ok),q=lOk||gOk;
+  const zone=nn(d.dist200w)&&d.dist200w<lim.zones.swing,turn=!!d.turn,smart=d.sig.includes("smart");
+  if(smart)return"";
+  const lMiss=L.filter(x=>!x.ok),gMiss=G.filter(x=>!x.ok),bq=lMiss.length<=gMiss.length;
+  const lvl=level(d,lim.zones.swing),drop=dropTo(d,lim.zones.swing);
+  const step=(ok,title,txt)=>`<li class="${ok?"ok":"no"}"><span class="wyi">${ok?"✓":"✕"}</span><div><b>${title}</b><span>${txt}</span></div></li>`;
+  const w3=d.w3||[];
+  const steps=[
+    step(q,"Bra bolag",q?(lOk?"Klarar Low Risk, High Reward.":"Klarar inte LRHR, men är ett stort, stabilt kvalitetsbolag, och det räcker för Smart."):`Low Risk, High Reward missar ${lMiss.length} krav: <b>${lMiss.map(x=>esc(x.miss)).join("; ")}</b>. Inte heller stort och stabilt nog: ${gMiss.map(x=>esc(x.miss)).join("; ")}.`),
+    step(zone,"I köpzonen (under Cheap)",zone?`Kursen ligger ${pct(d.dist200w,0)} mot 200W (${ZNAME[d.z]}).`:nn(d.dist200w)?`Kursen ligger ${pct(d.dist200w,0)} över 200W. Den behöver falla <b>${f(drop,0)} %</b> till under <b>${money(lvl,d.currency)}</b>.`:"200W saknas (för kort historik)."),
+    step(turn,"Vänder upp",turn?"Senaste hela veckan stängde högre än veckan innan, efter en nedvecka.":w3.length===3?(w3[2]<=w3[1]?"Senaste hela veckan stängde lägre. Vänta på en vecka som stänger högre.":"Veckan innan steg också, så det är ingen botten än. Vänta på en nedvecka följd av en uppvecka."):"Veckodata saknas.")];
+  const top=!q?"Bolaget klarar inte kvalitetskraven":!zone?"Bra bolag, men för dyrt just nu":"Bra bolag i köpzonen, men väntar på vändningen";
+  const tbl=rs=>`<div class="tw"><table class="crit"><thead><tr><th class="l">Krav</th><th class="r">Bolaget</th><th class="r">Krav</th><th></th></tr></thead><tbody>${rs.map(x=>`<tr class="${x.ok?"":"wymiss"}"><td class="l">${esc(x.c.nm)}</td><td class="r n ${x.ok?"ok":"no"}">${esc(x.val)}</td><td class="r n muted">${esc(x.req)}</td><td class="r">${x.ok?"✓":"✕"}</td></tr>`).join("")}</tbody></table></div>`;
+  return `<section class="card wycard" style="margin-top:14px"><div class="bd">
+    <div class="small" style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">Varför inte köpläge?</div>
+    <p class="wyh">${top}</p>
+    <ol class="wysteps">${steps.join("")}</ol>
+    <details class="mdet" style="margin-top:10px" ${lMiss.length&&lMiss.length<=3?"open":""}><summary>Low Risk, High Reward: ${lOk?"klarar alla krav":`missar ${lMiss.length} av ${L.length} krav`}</summary><div style="margin-top:8px">${tbl(L)}</div></details>
+    ${!lOk?`<details class="mdet" style="margin-top:6px"><summary>Stort, stabilt kvalitetsbolag: ${gOk?"klarar":`missar ${gMiss.length} av ${G.length}`}</summary><div style="margin-top:8px">${tbl(G)}</div></details>`:""}
+  </div></section>`}
 function stratCard(d){
   const v=stratVerdict(d),P=plan(d),own=allPos().find(p=>p.ticker===d.ticker),PO=own?plan(d,own.price):null;
   const pill=k=>{const r=d.res[k];if(!r)return"";const st=r.status;return `<span class="spill ${st}" title="${esc(STRATS[k].name)}: ${STL[st]}${r.miss.length&&st!=="excl"?" · missar "+esc(r.miss.map(m=>shortName(k,m)).join(", ")):""}">${st==="pass"?"✓":st==="near"?"≈":"✕"} ${esc(STRATS[k].name)}${st==="near"?` <small>missar ${esc(shortName(k,r.miss[0]).toLowerCase())}</small>`:""}</span>`};
@@ -4190,7 +4227,7 @@ function chaptersA(d,det){
   if(eq)parts.push(qSec("q-thesis",1,"Vad är bolaget, och vad är tesen?",`Vad bolaget gör, vad som gör det starkt eller svagt, och tre utfall: bull, bas och bear.`,profileCard(d,det)+`<div style="height:14px"></div>`+casesCard(d,det),["q-strat","Passar den min strategi?"]));
   if(!eq)parts.push(`<div style="margin-top:16px">${profileCard(d,det)}</div>`);
   parts.push(qSec("q-strat",eq?2:1,"Passar den min strategi?",`<span class="yn ${v.k}">${yes(v.k)}</span> ${esc(v.t)}`,
-    stratCard(d).replace('style="margin-top:16px"',"").replace(/<p class="sv">[\s\S]*?<\/p>/,"")+`<div id="q-hist" style="margin-top:16px"><h3 class="sub3" style="margin-bottom:6px">Hur hade det gått med din strategi på ${esc(d.ticker)}?</h3><p style="margin-bottom:10px">${H.a}</p>${H.b}</div>`+(eq?`<div id="q-buy" style="margin-top:16px"><h3 class="sub3" style="margin-bottom:4px">Om du köper: vad händer med din portfölj?</h3><section class="card"><div class="bd" id="preTrade"><p class="muted small">Räknar…</p></div></section></div>`:""),
+    stratCard(d).replace('style="margin-top:16px"',"").replace(/<p class="sv">[\s\S]*?<\/p>/,"")+whyCard(d)+`<div id="q-hist" style="margin-top:16px"><h3 class="sub3" style="margin-bottom:6px">Hur hade det gått med din strategi på ${esc(d.ticker)}?</h3><p style="margin-bottom:10px">${H.a}</p>${H.b}</div>`+(eq?`<div id="q-buy" style="margin-top:16px"><h3 class="sub3" style="margin-bottom:4px">Om du köper: vad händer med din portfölj?</h3><section class="card"><div class="bd" id="preTrade"><p class="muted small">Räknar…</p></div></section></div>`:""),
     eq?["q-biz","Hur går affären?"]:["q-price","Vad kostar den?"]));
   if(eq)parts.push(qSec("q-biz",3,"Hur går affären?",(()=>{const g1=d.revGrowth1y,e1=d.earnGrowth1y;return `${nn(g1)?`Omsättningen ${g1>=0?"växte":"minskade"} ${f(Math.abs(g1),0)} % senaste året`:"Omsättning okänd"}${nn(e1)?`, vinsten per aktie ${e1>=0?"växte":"minskade"} ${f(Math.abs(e1),0)} %`:""}. ${ir?`Nr ${ir.rank} av ${ir.n} i ${esc(ir.label)}.`:""}${earnAns(d,det)}`})(),
     `<section class="card"><div class="bd" id="dashBox">${finDash(d,det)}</div></section>
@@ -4374,6 +4411,7 @@ function storyCards(d,det){
     const pill=k=>{const r=d.res[k];if(!r)return"";const s=r.status;return `<span class="spill ${s}">${s==="pass"?"✓":s==="near"?"≈":"✕"} ${esc(STRATS[k].name)}</span>`};
     C.push({k:"strat",topic:"Din strategi",q:"Passar den min strategi?",tone,short,verdict:short,
       lead:`<p>${esc(v.t)}</p>${H&&eq?`<p class="small">${H.a}</p>`:""}`,
+      after:d.excluded?"":whyCard(d),
       vis:d.excluded?"":`<div class="stpills"><span class="spill ${d.sig.includes("smart")?"pass":d.smartWait?"near":""}">${d.sig.includes("smart")?"✓":d.smartWait?"≈":"✕"} ⚡ Smart</span>${pill("lrhr")}${zchip(d)}</div>`,
       facts:[o?stFact("Bäst läge",`${o.s} av 100`,o.why.slice(0,2).join(", "),o.s>=65?"pos":o.s>=45?"mid":"neg"):null,
         stFact("200W-zon",d.z?ZNAME[d.z]:"–",nn(d.dist200w)?pct(d.dist200w,0)+" mot 200W":"",["fire","vcheap","cheap"].includes(d.z)?"pos":["exp","vexp"].includes(d.z)?"neg":"mid"),
