@@ -143,9 +143,19 @@ def merge_hist(old, cur):
     """Kvartalshistorik: en rad per rapportkvartal, byggs på över tid."""
     h = [x for x in (old or []) if isinstance(x, dict) and x.get("q")]
     if cur and cur.get("q"):
+        def sh(k):
+            return (cur.get(k) or [None, None])[1] or 0
+
+        def top(keys, sign):
+            rows = [x for k in keys for x in (cur.get(k) or []) if isinstance(x, dict) and x.get("ch")]
+            rows.sort(key=lambda x: -sign * x["ch"])
+            return [[x.get("n"), x["ch"]] for x in rows[:3]]
         pt = {"q": cur["q"], "pct": cur.get("pct"), "n": cur.get("n"), "netp": cur.get("netp"), "breadth": cur.get("breadth"),
               "inc": (cur.get("inc") or [None])[0], "dec": (cur.get("dec") or [None])[0],
-              "new": (cur.get("new") or [None])[0], "out": (cur.get("out") or [None])[0], "verdict": cur.get("verdict")}
+              "new": (cur.get("new") or [None])[0], "out": (cur.get("out") or [None])[0], "verdict": cur.get("verdict"),
+              # aktier: totalt ägt, köpt (ökade + nya), sålt (minskade + sålde allt), netto, och de största köparna och säljarna
+              "sh": cur.get("sh"), "buy": sh("inc") + sh("new"), "sell": sh("dec") + sh("out"), "net": cur.get("net"),
+              "tb": top(("topInc", "topNew"), 1), "ts": top(("topDec", "topOut"), -1)}
         h = [x for x in h if x["q"] != pt["q"]] + [pt]
         h.sort(key=lambda x: x["q"])
     return h[-20:] or None
