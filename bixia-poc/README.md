@@ -12,6 +12,8 @@ Klickbar Proof of Concept för hur en kund kan teckna elavtal hos Bixia digitalt
 |---|---|
 | `index.html` | Översikt för presentation: mål, kundresa, skärmbilder, UX-inspiration, logik, vad som ska verifieras och förslag till användartest |
 | `prototyp.html` | Själva prototypen, anpassad för både mobil och dator |
+| `koncept.png` | Koncept ”Två frågor till ditt pris” – den enklaste vägen, liggande format |
+| `koncept-mobil.png` | Samma koncept i stående format för mobil. Källa: `koncept.html` |
 | `kundresa.png` | Kundresan på en bild, liggande format för presentationer |
 | `kundresa-mobil.png` | Samma kundresa i stående format för mobil |
 | `kundresa.html` | Källan till bilderna. Ändra här och rendera om |

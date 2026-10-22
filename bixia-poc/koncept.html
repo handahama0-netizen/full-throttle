@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teckningskoncept</title>
+<meta name="description" content="Koncept för Bixias teckningsresa: två frågor till ditt pris, en sida för att signera.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #F47B20; --orange-700: #CC4E06; --orange-800: #A8430A;
+  --peach-50: #FFF6EE; --peach-100: #FDEBDC; --peach-200: #F9D6BA;
+  --sand: #FBF6EF; --sand-200: #F3EADF; --white: #FFFFFF;
+  --ink: #231C19; --ink-2: #5E534D; --ink-3: #8A7E76; --line: #E8DDD1;
+  --green: #2F7A4D; --green-50: #EAF4EE;
+  --font: "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font-family: var(--font); color: var(--ink); background: var(--sand); -webkit-font-smoothing: antialiased; }
+.ico { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex: none; display: block; }
+
+.poster { max-width: 1920px; margin: 0 auto; padding: 44px 32px 36px;
+  background: radial-gradient(800px 380px at 100% -5%, rgba(244,123,32,.15), transparent 70%), radial-gradient(700px 340px at 0% 0%, rgba(253,235,220,.9), transparent 70%), var(--sand); }
+
+/* Rubrik */
+.brand { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.logo { color: var(--orange); font-weight: 800; font-size: 38px; letter-spacing: -.045em; line-height: 1; }
+.badge { background: var(--ink); color: #FFE3CF; font-weight: 800; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; }
+h1 { font-size: 64px; line-height: 1; letter-spacing: -.035em; margin: 0 0 14px; font-weight: 800; }
+h1 em { font-style: normal; color: var(--orange-700); }
+.lead { font-size: 22px; line-height: 1.4; color: var(--ink-2); margin: 0 0 22px; max-width: 34ch; }
+.stats { display: flex; gap: 12px; flex-wrap: wrap; }
+.stat { background: var(--white); border: 1px solid var(--line); border-radius: 18px; padding: 12px 18px; display: flex; align-items: baseline; gap: 10px; box-shadow: 0 6px 18px rgba(35,28,25,.06); }
+.stat b { font-size: 36px; line-height: 1; font-weight: 800; color: var(--orange-700); letter-spacing: -.02em; }
+.stat span { font-size: 17px; font-weight: 700; }
+
+/* Flödet */
+.flow { display: grid; gap: 0; margin-top: 34px; }
+.arrow { display: grid; place-items: center; height: 54px; color: var(--orange-700); position: relative; }
+.arrow svg { width: 30px; height: 30px; stroke-width: 2.6; }
+.arrow .lbl { position: absolute; left: calc(50% + 26px); top: 50%; transform: translateY(-50%); font-size: 15px; font-weight: 800; color: var(--orange-800); background: var(--peach-100); border-radius: 999px; padding: 4px 12px; white-space: nowrap; }
+
+.step { background: var(--white); border: 1px solid var(--line); border-radius: 26px; padding: 22px 22px 20px; box-shadow: 0 10px 28px rgba(35,28,25,.07); display: grid; gap: 14px; align-content: start; }
+.step-h { display: flex; gap: 14px; align-items: center; }
+.step-h .ic { width: 54px; height: 54px; border-radius: 16px; background: var(--peach-100); color: var(--orange-800); display: grid; place-items: center; flex: none; }
+.step-h .k { display: block; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--orange-800); }
+.step-h h2 { margin: 2px 0 0; font-size: 28px; line-height: 1.1; letter-spacing: -.015em; }
+.note { margin: 0; font-size: 17px; line-height: 1.4; color: var(--ink-2); display: flex; gap: 8px; align-items: flex-start; }
+.note .ico { width: 20px; height: 20px; color: var(--green); margin-top: 2px; }
+
+/* Abstrakta gränssnittsbitar – visar idén, inte exakt design */
+.ui { display: flex; flex-wrap: wrap; gap: 8px; }
+.f { flex: 1 1 140px; border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 16px; color: var(--ink-3); font-weight: 600; background: #FFFEFC; }
+.seg { display: flex; flex: 1 1 100%; background: var(--sand-200); border-radius: 12px; padding: 4px; gap: 4px; }
+.seg span { flex: 1; text-align: center; padding: 8px 6px; border-radius: 9px; font-weight: 800; font-size: 16px; color: var(--ink-2); }
+.seg span.on { background: var(--white); color: var(--ink); box-shadow: 0 1px 3px rgba(35,28,25,.12); }
+.tap { flex: 1 1 calc(50% - 4px); border: 2px solid var(--line); border-radius: 14px; padding: 12px; font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 8px; background: #FFFEFC; line-height: 1.2; }
+.tap .ico { width: 22px; height: 22px; color: var(--orange-800); }
+.tap.on { border-color: var(--orange); background: var(--peach-50); }
+.tap.alt { font-weight: 700; color: var(--ink-2); border-style: dashed; }
+
+.step.hero { border: 3px solid var(--orange); background: linear-gradient(180deg, var(--peach-50), var(--white) 40%); box-shadow: 0 16px 40px rgba(204,78,6,.16); }
+.step.hero .step-h .ic { background: var(--orange-700); color: #FFF; }
+.deals { display: grid; gap: 8px; }
+.deal { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; border: 2px solid var(--line); border-radius: 14px; padding: 10px 14px; background: var(--white); }
+.deal b { font-size: 17px; }
+.deal small { display: block; font-size: 13px; color: var(--ink-2); font-weight: 600; }
+.deal .p { font-weight: 800; font-size: 16px; color: var(--ink-2); white-space: nowrap; }
+.deal .p i { display: inline-block; width: 46px; height: 10px; border-radius: 6px; background: var(--sand-200); margin-right: 6px; vertical-align: middle; }
+.deal.rec { border-color: var(--orange); position: relative; }
+.deal.rec::after { content: "Passar dig"; position: absolute; top: -11px; right: 12px; background: var(--orange-700); color: #FFF; font-size: 12px; font-weight: 800; border-radius: 999px; padding: 2px 10px; }
+.opt { display: grid; gap: 8px; padding-top: 4px; }
+.opt .t { font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1.5px dashed var(--ink-3); border-radius: 999px; padding: 6px 12px; font-size: 15px; font-weight: 700; color: var(--ink-2); background: var(--white); }
+.chip.help { border-style: solid; border-color: var(--orange); color: var(--orange-800); background: var(--peach-50); }
+
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; font-size: 17px; line-height: 1.35; }
+.list li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; }
+.list li::before { content: ""; width: 11px; height: 7px; margin: 6px 0 0 3px; border-left: 2.8px solid var(--green); border-bottom: 2.8px solid var(--green); transform: rotate(-45deg); }
+.bid { display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--orange-700); color: #FFF; border-radius: 999px; padding: 12px 18px; font-weight: 800; font-size: 17px; }
+.step.done .step-h .ic { background: var(--green); color: #FFF; }
+.step.done { background: var(--green-50); border-color: #CFE6D7; }
+
+/* Nedre del */
+.lower { display: grid; gap: 18px; margin-top: 30px; }
+.panel { background: var(--white); border: 1px solid var(--line); border-radius: 24px; padding: 22px; }
+.panel h3 { margin: 0 0 14px; font-size: 24px; letter-spacing: -.01em; }
+.swap { display: grid; gap: 0; }
+.swap .row { display: grid; grid-template-columns: 1fr 34px 1fr; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: 16.5px; line-height: 1.3; }
+.swap .row:last-child { border-bottom: 0; }
+.swap .from { color: var(--ink-3); text-decoration: line-through; text-decoration-color: rgba(204,78,6,.6); text-decoration-thickness: 2px; }
+.swap .to { font-weight: 800; }
+.swap .ar { color: var(--orange-700); display: grid; place-items: center; }
+.swap .ar .ico { width: 22px; height: 22px; stroke-width: 2.4; }
+.swap .head { font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); border-bottom: 2px solid var(--line); }
+.swap .head .from { text-decoration: none; }
+.dark { background: var(--ink); color: #F3EBE4; border: 0; }
+.dark h3 { color: #FFF; }
+.learn { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; font-size: 16.5px; line-height: 1.35; }
+.learn li { display: grid; grid-template-columns: 150px 1fr; gap: 12px; align-items: baseline; }
+.learn b { color: #FFB07A; font-size: 15px; }
+.future { margin-top: 18px; padding-top: 16px; border-top: 1px solid #44392F; display: flex; gap: 12px; align-items: flex-start; font-size: 16.5px; line-height: 1.4; }
+.future .ic { width: 44px; height: 44px; border-radius: 12px; background: #3A302C; color: #FFB07A; display: grid; place-items: center; flex: none; }
+.future b { color: #FFF; display: block; }
+.foot { margin-top: 18px; font-size: 13px; color: var(--ink-3); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+/* Smal skärm */
+@media (max-width: 800px) {
+  .poster { padding: 30px 20px 26px; }
+  h1 { font-size: 50px; }
+  .lead { font-size: 19px; }
+  .stat { padding: 10px 14px; }
+  .stat b { font-size: 30px; }
+  .stat span { font-size: 15px; }
+  .step-h h2 { font-size: 25px; }
+  .swap .row { grid-template-columns: 1fr 26px 1fr; font-size: 15.5px; }
+  .learn li { grid-template-columns: 1fr; gap: 0; }
+}
+
+/* Liggande format */
+@media (min-width: 1400px) {
+  .poster { padding: 48px 56px 36px; }
+  .top { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 40px; }
+  .lead { margin-bottom: 0; max-width: 46ch; }
+  .flow { grid-template-columns: 1fr 44px 1fr 44px 1.25fr 44px 1.1fr 44px .8fr; align-items: stretch; margin-top: 36px; }
+  .arrow { height: auto; }
+  .arrow svg { transform: rotate(-90deg); }
+  .arrow .lbl { display: none; }
+  .lower { grid-template-columns: 1.15fr 1fr; }
+}
+</style>
+</head>
+<body>
+<main class="poster">
+  <header class="top">
+    <div>
+      <div class="brand"><span class="logo">bixia</span><span class="badge">Koncept</span></div>
+      <h1>Två frågor till <em>ditt pris</em></h1>
+      <p class="lead">Den enklaste vägen till ett elavtal. Kunden ser sitt pris direkt – allt annat är valfritt eller hämtas automatiskt.</p>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>2</b><span>frågor till pris</span></div>
+      <div class="stat"><b>1</b><span>sida för att signera</span></div>
+      <div class="stat"><b>0</b><span>förvalda tillägg</span></div>
+    </div>
+  </header>
+
+  <div class="flow">
+    <section class="step">
+      <div class="step-h"><span class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 1114 0C19 14.8 12 21 12 21zM12 12a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg></span><div><span class="k">Fråga 1</span><h2>Var ska du ha el?</h2></div></div>
+      <div class="ui">
+        <span class="f">Postnummer</span><span class="f">Adress</span>
+        <span class="seg"><span class="on">Byta elbolag</span><span>Flytta</span></span>
+      </div>
+      <p class="note"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Elområde och elnät hittas automatiskt. Inget anläggnings-ID.</p>
+    </section>
+
+    <div class="arrow" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="M12 4v16M6 14l6 6 6-6"/></svg></div>
+
+    <section class="step">
+      <div class="step-h"><span class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5 9.5V20h14V9.5M10 20v-5h4v5"/></svg></span><div><span class="k">Fråga 2</span><h2>Hur bor du?</h2></div></div>
+      <div class="ui">
+        <span class="tap">Lägenhet</span>
+        <span class="tap on">Hus utan elvärme</span>
+        <span class="tap">Hus med elvärme</span>
+        <span class="tap alt">Jag vet min förbrukning</span>
+      </div>
+      <p class="note"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Ett tryck. Vi uppskattar förbrukningen åt dig.</p>
+    </section>
+
+    <div class="arrow" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="M12 4v16M6 14l6 6 6-6"/></svg><span class="lbl">Priset visas direkt</span></div>
+
+    <section class="step hero">
+      <div class="step-h"><span class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8L3 12zM7.5 8.5h.01"/></svg></span><div><span class="k">Ditt pris</span><h2>Välj elavtal</h2></div></div>
+      <div class="deals">
+        <div class="deal rec"><span><b>Rörligt månadspris</b><small>Följer marknaden · ingen bindning</small></span><span class="p"><i></i>kr/mån</span></div>
+        <div class="deal"><span><b>Kvartspris</b><small>Spara när elen är billig</small></span><span class="p"><i></i>kr/mån</span></div>
+        <div class="deal"><span><b>Fast pris</b><small>Samma pris i 12 månader</small></span><span class="p"><i></i>kr/mån</span></div>
+      </div>
+      <div class="opt">
+        <span class="t">Valfritt – bara om man vill</span>
+        <div class="chips"><span class="chip">+ Elbil</span><span class="chip">Antal rum</span><span class="chip">Exakt kWh</span><span class="chip help">Osäker? Hjälp mig välja</span></div>
+      </div>
+    </section>
+
+    <div class="arrow" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="M12 4v16M6 14l6 6 6-6"/></svg></div>
+
+    <section class="step">
+      <div class="step-h"><span class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 14l2 2 4-4"/></svg></span><div><span class="k">En sida</span><h2>Bekräfta och signera</h2></div></div>
+      <ul class="list">
+        <li><span>Sammanfattning med <b>Ändra</b></span></li>
+        <li><span>Tillägg: <b>Bixia Nära</b> och <b>realtidsmätare</b> – inte förvalda</span></li>
+        <li><span>E-post och mobil. Namn och personnummer kommer från BankID</span></li>
+      </ul>
+      <span class="bid"><svg class="ico" viewBox="0 0 24 24" style="width:20px;height:20px"><path d="M6 11h12v10H6zM8.5 11V7.5a3.5 3.5 0 017 0V11"/></svg>Signera med BankID</span>
+    </section>
+
+    <div class="arrow" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="M12 4v16M6 14l6 6 6-6"/></svg></div>
+
+    <section class="step done">
+      <div class="step-h"><span class="ic"><svg class="ico" viewBox="0 0 24 24" style="stroke-width:2.6"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span><div><span class="k">Klart</span><h2>Vi sköter bytet</h2></div></div>
+      <ul class="list">
+        <li><span>Bekräftelse direkt</span></li>
+        <li><span>Vi anmäler bytet</span></li>
+        <li><span>El från startdatum – utan avbrott</span></li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="lower">
+    <section class="panel">
+      <h3>Färre frågor – så här</h3>
+      <div class="swap">
+        <div class="row head"><span class="from">I stället för</span><span></span><span>Gör vi</span></div>
+        <div class="row"><span class="from">Egen fråga om flytt eller byte</span><span class="ar"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><span class="to">Ett val i adressfrågan</span></div>
+        <div class="row"><span class="from">Frågor om boendeform, rum och uppvärmning</span><span class="ar"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><span class="to">Ett tryck: Hur bor du?</span></div>
+        <div class="row"><span class="from">Frågor om elbil och flexibel elanvändning</span><span class="ar"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><span class="to">Valfri justering vid priset</span></div>
+        <div class="row"><span class="from">Avtalsassistent som eget steg</span><span class="ar"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><span class="to">”Hjälp mig välja” vid behov</span></div>
+        <div class="row"><span class="from">Eget steg för tillägg</span><span class="ar"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><span class="to">På bekräftelsesidan</span></div>
+        <div class="row"><span class="from">Namn, personnummer, anläggnings-ID</span><span class="ar"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><span class="to">BankID och adressen</span></div>
+      </div>
+    </section>
+
+    <section class="panel dark">
+      <h3>Lärdomar från de bästa</h3>
+      <ul class="learn">
+        <li><b>Octopus Energy</b><span>Visa priset tidigt – efter adressen.</span></li>
+        <li><b>E.ON Next</b><span>Ett tryck per fråga. Uppskatta förbrukningen åt kunden.</span></li>
+        <li><b>Vattenfall</b><span>Flytt eller byte direkt – resten anpassas.</span></li>
+        <li><b>Fortum</b><span>Vägledning när kunden vill ha den.</span></li>
+        <li><b>Tibber, Greenely</b><span>Tydlig bindningstid och avgifter. Enkel självservice.</span></li>
+      </ul>
+      <div class="future">
+        <span class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/></svg></span>
+        <span><b>Nästa nivå: bara adressen</b>Om det blir möjligt att hämta kundens faktiska förbrukning med samtycke behövs inte fråga 2 alls.</span>
+      </div>
+    </section>
+  </div>
+
+  <footer class="foot"><span><b>Koncept</b> · visar idén, inte exakt design</span><span>Priser och villkor verifieras. Antalet frågor och tidsåtgång testas med kunder.</span></footer>
+</main>
+</body>
+</html>
