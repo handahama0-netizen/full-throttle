@@ -12,7 +12,10 @@ Klickbar Proof of Concept för hur en kund kan teckna elavtal hos Bixia digitalt
 |---|---|
 | `index.html` | Översikt för presentation: mål, kundresa, skärmbilder, UX-inspiration, logik, vad som ska verifieras och förslag till användartest |
 | `prototyp.html` | Själva prototypen, anpassad för både mobil och dator |
-| `skarmbilder/` | Skärmbilder från mobil och dator som används i översikten |
+| `kundresa.png` | Kundresan på en bild, liggande format för presentationer |
+| `kundresa-mobil.png` | Samma kundresa i stående format för mobil |
+| `kundresa.html` | Källan till bilderna. Ändra här och rendera om |
+| `skarmbilder/` | Skärmbilder från mobil och dator som används i översikten och kundresebilden |
 
 Adressparametrar till `prototyp.html`:
 
