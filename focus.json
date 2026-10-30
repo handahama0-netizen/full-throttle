@@ -1,0 +1,567 @@
+{
+ "date": "2026-10-30",
+ "time": "08:30",
+ "market": "S&P 500 föll 0,3 % och Nasdaq 1,4 % i går när Alphabet rasade 12,6 % på negativt kassaflöde, och efter stängning föll Amazon cirka 7 % och Intel 23 %; terminerna pekade på −0,6 % för S&P 500. 10-årsräntan ligger kring 5,0 % och marknaden prisar nästan 90 % sannolikhet för en Fed-höjning i december, medan Brent står på 115 dollar. Fear & Greed ligger på 34,6 (rädsla).",
+ "picks": [
+  {
+   "ticker": "FSLR",
+   "label": "Köpläge",
+   "title": "⚡ Smart: First Solar i Fire Sale efter rapporten",
+   "why": "First Solar har Smart-signal och ligger i Fire Sale, 9,6 % under 200W (195,65 dollar) på 176,89. Bolaget klarar alla Lower Risk-krav med ROE 18,5 % och PEG 0,31. Q3-vinsten blev 5,30 dollar per aktie mot väntade 4,64 medan försäljningen missade, och vinstprognosen för nästa år har höjts 1,0 % på 30 dagar till 23,43 dollar.",
+   "levels": "Fire Sale under 195,65 $ · Very Cheap under 215,22 $ · Cheap under 234,78 $ · 200W 195,65 $",
+   "risk": "Aktien är känslig för dollarn (−6,6 % per +5 % i dollarindex) och reaktionen på rapporten med försäljningsmissen är inte färdig.",
+   "sources": [
+    {
+     "t": "Sidans data (universe.json, macro.json)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    },
+    {
+     "t": "StockStory: First Solar misses Q3 2026 sales expectations",
+     "u": "https://news.google.com/rss/articles/CBMitgFBVV95cUxQWHRDYzlGSzVwY2Q4X1FXU2VXM19hNU1kRW5Ib0kxU0xZcWdaUWZtQ2p5a01CR08yMmk3ZjdudkZJTnJEN1RkaW8zU09QZ19sMEpxbTlnVEEyUzJTTXI2U2t5cmt3Q2I0Ui1lM2xxdVdrMmpoSGFOa1B5dktYcHdjU2lNMVJxNVJkUFNPdmIyRWxZajBNb3RPcjA1UXdaalRnSTVXbWxHbzhpbDR6SmFIQnFBdjI3Zw?oc=5"
+    }
+   ]
+  },
+  {
+   "ticker": "CRM",
+   "label": "Köpläge",
+   "title": "Salesforce strax under 200W trots ServiceNow-smällen",
+   "why": "Salesforce är Fire Sale, 3,1 % under 200W (238,18 dollar) på 230,90, och klarar alla Lower Risk-krav (ROE 19,4 %, PEG 0,86). Aktien föll 4,6 % i går när ServiceNow rasade på svagare kontraktstillväxt, men vinstprognosen är oförändrad (16,02 mot 16,01 dollar för 30 dagar sedan) med 8 höjningar mot 2 sänkningar. Fallet ser ut som en sektorrörelse snarare än bolagsspecifik.",
+   "levels": "Fire Sale under 238,18 $ · Very Cheap under 262,00 $ · Cheap under 285,81 $ · 200W 238,18 $",
+   "risk": "Om marknaden fortsätter straffa mjukvara för AI-konkurrens kan hela sektorn pressas oavsett bolagets egna siffror.",
+   "sources": [
+    {
+     "t": "Sidans data (universe.json, macro.json)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    },
+    {
+     "t": "24/7 Wall St: ServiceNow tumbles as slower contract growth overshadows AI target",
+     "u": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxQUEVpT2Q0OGNoeE9QOGlIU09mRjlwR3ZKTWJ1bnJ6U1JYTnJjUld5alJZMW9wSm1OMU5wQzRzNERsVHdEb0JXbmg4SjJuLTl4SXY1RmJEZkpMLXJ5OWNGOFBkcndvODd6VnVYNE9GVy02azBpd0VlQzFlTERvR3V2RjFxZVhXNXRDMV8xaGxGLWFUZndwQld2bmRmV1dscjQtUmhuUngtaWtxbTZPUW9pUFRUeVRCbldldlFGUmVmQW1SNWsyNEdZTTNVbUNPZ3pkOWJhMXA1S1hRX3ZtOHNoSkF2U25EcWd3bG9qdg?oc=5"
+    }
+   ]
+  },
+  {
+   "ticker": "WDAY",
+   "label": "Köpläge",
+   "title": "Workday: prognoserna höjs medan kursen ligger under 200W",
+   "why": "Workday är Fire Sale, 10,7 % under 200W (218,78 dollar) på 195,46, och klarar alla Lower Risk-krav (ROE 16,0 %, PEG 0,62). Analytikerna har höjt vinstprognosen 38 gånger på 30 dagar och bara sänkt en gång; nästa års vinst väntas 13,24 dollar mot 12,64 för 90 dagar sedan.",
+   "levels": "Fire Sale under 218,78 $ · Very Cheap under 240,65 $ · Cheap under 262,53 $ · 200W 218,78 $",
+   "risk": "Aktien föll 6,9 % på en vecka i samma mjukvaruras och flera mäklare (Keybanc, UBS) har sänkt rekommendation eller riktkurs.",
+   "sources": [
+    {
+     "t": "Sidans data (universe.json, macro.json)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    }
+   ]
+  },
+  {
+   "ticker": "CI",
+   "label": "Köpläge",
+   "title": "Cigna i Very Cheap inför rapporten 5 november",
+   "why": "Cigna är Very Cheap, 3,3 % över 200W (288,86 dollar) på 298,41, och klarar alla Lower Risk-krav (ROE 16,8 %, PEG 0,81). Vinstprognosen ligger still på 33,49 dollar, och hälsovårdssektorn nådde rekordnivå i går när Eli Lilly steg 6,4 %.",
+   "levels": "Very Cheap under 317,75 $ · Cheap under 346,64 $ · 200W 288,86 $",
+   "risk": "Rapporten 5 november kan flytta aktien kraftigt, och Cigna är känslig för dollarn (−5,9 % per +5 % i dollarindex).",
+   "sources": [
+    {
+     "t": "Sidans data (universe.json, macro.json)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    },
+    {
+     "t": "Stock Titan: Stock Market Today 29 okt 2026",
+     "u": "https://www.stocktitan.net/articles/stock-market-today-live-october-29-2026"
+    }
+   ]
+  },
+  {
+   "ticker": "ADBE",
+   "label": "Bevaka",
+   "title": "Adobe: djup Fire Sale men nedgraderingarna fortsätter",
+   "why": "Adobe ligger 39,7 % under 200W (411,59 dollar) på 248,12 och klarar alla Lower Risk-krav (ROE 61,9 %, PEG 0,60). Vinstprognosen är oförändrad på 27,51 dollar, men HSBC och Wells Fargo sänkte rekommendationen i oktober, så marknaden prisar fortfarande in en risk från AI-verktyg.",
+   "levels": "Fire Sale under 411,59 $ · Very Cheap under 452,75 $ · Cheap under 493,91 $ · 200W 411,59 $",
+   "risk": "Så länge kursen inte vänder upp på veckobasis kan fallet fortsätta trots låg värdering.",
+   "sources": [
+    {
+     "t": "Sidans data (universe.json, macro.json)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    }
+   ]
+  },
+  {
+   "ticker": "HIG",
+   "label": "Bevaka",
+   "title": "The Hartford: PEG 0,12 och rapport över förväntan",
+   "why": "The Hartford är Fair, 25,4 % över 200W (105,34 dollar) på 132,06, och klarar alla Lower Risk-krav med ROE 23,3 % och PEG 0,12. Q3-vinsten blev 3,50 dollar mot väntade 3,17, och försäkring är ett av månadens starkaste teman (median +11,2 % på 21 dagar).",
+   "levels": "Cheap under 126,41 $ · Very Cheap under 115,88 $ · 200W 105,34 $",
+   "risk": "Aktien är känslig för stigande räntor (−0,8 % per +0,25 procentenheter i 10-årsräntan) och ligger över köpzonen.",
+   "sources": [
+    {
+     "t": "Sidans data (universe.json, macro.json)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    }
+   ]
+  }
+ ],
+ "themes": [
+  {
+   "name": "Energi",
+   "heat": "Hetast",
+   "now": "21 energiaktier har stigit med median 12,3 % på 21 dagar och 10,9 % på 63 dagar; alla 21 ligger över 200W med median 39 % över. Vinstprognoserna har höjts med median 3,5 % på 30 dagar, det mest bland alla teman, och forward P/E är 12,6. APA (+24,6 %), ConocoPhillips (+19,9 %) och EOG (+18,6 %) leder.",
+   "outlook": "Bedömning: så länge Brent ligger kring 115 dollar fortsätter prognoshöjningarna 1–3 månader framåt, men temat ligger långt över 200W och faller snabbt om oljan backar, t.ex. vid ett avtal med Iran.",
+   "why": "Brent har stigit 12,4 % på en månad till 115,40 dollar och 78 % på ett år. Högre oljepris går nästan rakt in i producenternas vinster, och ECB pekar på fortsatt stigande energipriser.",
+   "sources": [
+    {
+     "t": "Sidans data (universe.json, macro.json)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    },
+    {
+     "t": "Fortune: Current price of oil 29 okt 2026",
+     "u": "https://fortune.com/article/price-of-oil-10-29-2026/"
+    },
+    {
+     "t": "ECB oktober 2026: 2,50 % oförändrat",
+     "u": "https://dca-calculator.com/en/guides/ecb-october-2026"
+    }
+   ]
+  },
+  {
+   "name": "IT-tjänster",
+   "heat": "Het",
+   "now": "10 aktier med median +14,5 % på 21 dagar och +15,0 % på 63 dagar, men bara 30 % ligger över 200W (median 5,8 % under). Accenture (+35,9 %), CDW (+28,9 %) och Gartner (+20,7 %) leder återhämtningen; forward P/E är 13,7.",
+   "outlook": "Bedömning: en återhämtning från låga nivåer som kan fortsätta 1–3 månader om rapporterna visar att AI ger nya uppdrag snarare än tar bort gamla, men vinstprognoserna står nästan still (median +0,05 %).",
+   "why": "Temat har legat lågt, med de flesta aktierna under 200W, och studsar nu från låga värderingar. Uppgången sker samtidigt som hedgefonder säljer trånga AI- och halvledarinnehav, vilket tyder på en rotation inom teknik snarare än nya vinstuppgångar.",
+   "sources": [
+    {
+     "t": "Sidans data (universe.json, macro.json)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    },
+    {
+     "t": "Yahoo/Investing: Hedge funds cut tech at record pace (Goldman)",
+     "u": "https://finance.yahoo.com/markets/stocks/articles/hedge-funds-cut-tech-stocks-174541700.html"
+    }
+   ]
+  },
+  {
+   "name": "Halvledarutrustning",
+   "heat": "Kallast",
+   "now": "Sex aktier med median −15,8 % på 21 dagar; Teradyne −26,1 %, Lam Research −22,6 %, Applied Materials −17,5 % och KLA −14,1 %. Ändå ligger temat 82 % över 200W i median och vinstprognoserna har höjts 3,0 % på 30 dagar.",
+   "outlook": "Bedömning: tekniskt översålt men långt från köpzonen. Intels svaga guidning och hedgefondernas utförsäljning talar för att trycket kan hålla i sig några veckor till.",
+   "why": "Goldmans data visar att hedgefonder sålt teknik i snabbaste takt på minst tio år, med största dollarförlusten i halvledare. Intel föll 23 % efterhandel på en Q4-guidning under Q3 och väntar sig svag PC-marknad första halvåret.",
+   "sources": [
+    {
+     "t": "Sidans data (universe.json, macro.json)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    },
+    {
+     "t": "Yahoo/Investing: Hedge funds cut tech at record pace (Goldman)",
+     "u": "https://finance.yahoo.com/markets/stocks/articles/hedge-funds-cut-tech-stocks-174541700.html"
+    },
+    {
+     "t": "Forbes: Hedge funds sold $20 billion of tech in two weeks",
+     "u": "https://www.forbes.com/sites/jonmarkman/2026/10/26/hedge-funds-sold-20-billion-of-tech-in-two-weeks-as-ai-leverage-unwound/"
+    },
+    {
+     "t": "TradingKey: Intel plunges over 23% after-hours",
+     "u": "https://www.tradingkey.com/analysis/stocks/us-stocks/262258419-intel-forecast-q3-beat-after-hours-plunge-23-target-55-tradingkey"
+    }
+   ]
+  },
+  {
+   "name": "Halvledare",
+   "heat": "Sval",
+   "now": "18 aktier med median −5,9 % på 21 dagar men +8,1 % senaste veckan; 89 % ligger över 200W med median 71 % över. Spridningen är stor: NXP (+12,0 %) och Texas Instruments (+11,7 %) upp, medan Intel (−23,4 %), Arm (−21,0 %) och Marvell (−17,3 %) fallit.",
+   "outlook": "Bedömning: analoga och industrinära chipbolag ser stabilare ut än AI-namnen 1–3 månader framåt.",
+   "why": "AI-kapexen ifrågasätts efter Alphabets negativa fria kassaflöde och Amazons mjuka Q4-guidning, samtidigt som högre räntor pressar högt värderade tillväxtbolag.",
+   "sources": [
+    {
+     "t": "Sidans data (universe.json, macro.json)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    },
+    {
+     "t": "Stock Titan: Stock Market Today 29 okt 2026",
+     "u": "https://www.stocktitan.net/articles/stock-market-today-live-october-29-2026"
+    },
+    {
+     "t": "Yahoo/Investing: Hedge funds cut tech at record pace (Goldman)",
+     "u": "https://finance.yahoo.com/markets/stocks/articles/hedge-funds-cut-tech-stocks-174541700.html"
+    }
+   ]
+  },
+  {
+   "name": "Mjukvara",
+   "heat": "Neutral",
+   "now": "40 aktier med median +3,6 % på 21 dagar; 58 % över 200W med median 16 % över och forward P/E 18,9. Här finns flest Lower Risk-kandidater i köpzonen: Adobe, Workday, Salesforce och Autodesk ligger alla under 200W. ServiceNow föll kraftigt i går.",
+   "outlook": "Bedömning: kvalitetsbolag under 200W med stigande prognoser (median +0,18 % på 30 dagar) ser intressanta ut 1–3 månader framåt, men sektorn är splittrad mellan AI-vinnare och bolag som tros förlora på AI.",
+   "why": "Marknaden straffar mjukvara som kan konkurreras ut av AI-agenter, vilket syns i ServiceNows och Adobes kurser, medan vinsterna hittills håller.",
+   "sources": [
+    {
+     "t": "Sidans data (universe.json, macro.json)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    }
+   ]
+  }
+ ],
+ "swings": [
+  {
+   "ticker": "BNO",
+   "label": "Varning",
+   "why": "MFS OLJA VT1319 (kort, cirka 5x, hävstången en gissning): BNO har stigit från 63,99 den 9 oktober till 70,76 (+10,6 %), vilket grovt ger −50 % i produkten utöver −8,6 % vid inläggningen. Brent står på 115 dollar, upp 12 % på en månad."
+  },
+  {
+   "ticker": "BNO",
+   "label": "Varning",
+   "why": "MFS OLJA VT1312 (kort, cirka 10x, gissning) var −34 % vid inläggningen, och samma uppgång på 10,6 % i BNO räcker grovt för att radera hela värdet. Kontrollera om produkten redan nått sin stopnivå."
+  },
+  {
+   "ticker": "AMZN",
+   "label": "Varning",
+   "why": "Amazon stängde på 243,79 (−6,5 % mot inläggningens 260,79, grovt −28 % med 4,3x) och föll ytterligare cirka 7 % efterhandel på en Q4-guidning för rörelseresultatet under förväntan. Aktien är Fair, 28,5 % över 200W (189,72), så det finns långt kvar till köpzonen."
+  },
+  {
+   "ticker": "CRWV",
+   "label": "Varning",
+   "why": "CoreWeave har fallit från 82,13 till 60,74 (−26 %), vilket med cirka 4,6x i teorin är mer än hela produktens värde; minifutures stängs vid sin stopnivå. Aktien saknar 200W-historik och rapporterar 10 november."
+  },
+  {
+   "ticker": "CEG",
+   "label": "Stop nära",
+   "why": "Constellation står på 264,58 mot 299,04 vid inläggningen (−11,5 %, grovt −44 % med 3,8x) och ligger i Fair, 22 % över 200W (216,82). Rapport 9 november; DOE har erbjudit lån på upp till 5 miljarder dollar för kärnkraftsuppgraderingar."
+  },
+  {
+   "ticker": "NRG",
+   "label": "Stop nära",
+   "why": "NRG står på 97,54 mot 107,19 (−9,0 %, grovt −42 % med 4,7x) men är Very Cheap, 3,8 % över 200W (94,01). Vinstprognosen har sänkts från 11,19 till 10,55 dollar på 30 dagar och rapporten kommer 9 november."
+  },
+  {
+   "ticker": "ORCL",
+   "label": "Behåll",
+   "why": "Oracle står på 139,56 mot 142,06 vid inläggningen (−1,8 %, grovt −8 % med 4,4x) och är Fire Sale, 6,0 % under 200W (148,47). Vinstprognosen har höjts något och nästa rapport är 14 december."
+  },
+  {
+   "ticker": "SOFI",
+   "label": "Överväg vinsthemtagning",
+   "why": "SoFi står på 17,61 mot 15,74 (+11,9 %, grovt +63 % med 5,3x) efter 19 % uppgång på en vecka. Aktien är Expensive, 31,9 % över 200W (13,35), vilket är strategins säljzon."
+  }
+ ],
+ "recap": {
+  "headline": "Big Tech-rapporterna skakade marknaden: Alphabet föll 12,6 %, Amazon och Intel rasade efterhandel, samtidigt som stark BNP och hög inflation håller en Fed-höjning i december vid liv.",
+  "top3": [
+   {
+    "t": "AI-kapexen äter kassaflödet: Alphabet −12,6 %, Amazon −7 % efterhandel",
+    "impact": "bearish",
+    "strength": "stor",
+    "what": "Alphabet stängde 12,6 % lägre på 283,82 dollar efter svagare sökintäkter (+12 %) och negativt fritt kassaflöde på 9,1 miljarder med kapex på 51,4 miljarder. Amazon föll cirka 7 % efterhandel trots 39 % tillväxt i AWS, eftersom Q4-guidningen för rörelseresultatet (mitt 31 miljarder) låg cirka 2 miljarder under förväntan.",
+    "why": "Marknaden har betalt för AI-investeringarna i förväntan om framtida vinster. När kassaflödet blir negativt och guidningen svagare sjunker värderingen på de största indexbolagen, vilket drar ned Nasdaq som föll 1,4 %.",
+    "who": "Förlorare är mega-cap teknik och AI-infrastruktur (CoreWeave, Oracle). Microsoft klarade sig bättre tack vare positivt kassaflöde, och hälsovård (Eli Lilly +6,4 %) var vinnare.",
+    "tickers": [
+     "GOOGL",
+     "AMZN",
+     "MSFT",
+     "CRWV",
+     "ORCL",
+     "LLY"
+    ],
+    "watch": "Om Amazons fall efterhandel håller i sig när handeln öppnar i dag.",
+    "sources": [
+     {
+      "t": "Stock Titan: Stock Market Today 29 okt 2026",
+      "u": "https://www.stocktitan.net/articles/stock-market-today-live-october-29-2026"
+     },
+     {
+      "t": "investingLive: Amazon Q3, mjuk Q4-guidning",
+      "u": "https://investinglive.com/stocks/amazon-q3-operating-profit-beats-estimates-but-eps-misses-and-q4-guidance-looks-soft-share-price-drops/"
+     },
+     {
+      "t": "Yahoo Finance: Amazon shares fall as weaker Q4 outlook offsets 39% AWS growth",
+      "u": "https://finance.yahoo.com/markets/stocks/articles/amazon-shares-fall-weaker-q4-203300795.html"
+     }
+    ]
+   },
+   {
+    "t": "Fed håller räntan men en höjning i december prisas till nästan 90 %",
+    "impact": "bearish",
+    "strength": "stor",
+    "what": "Fed lät räntan ligga på 3,75–4,00 % med röstsiffrorna 10–2, där Cook och Hammack ville höja. BNP växte 3,4 % i årstakt i Q3 och kärn-PCE låg på 3,1 % i september; CME FedWatch prisar 87,5 % sannolikhet för en höjning den 9 december.",
+    "why": "Stark tillväxt och envis inflation gör att Fed kan fortsätta strama åt. Högre korta räntor och en 10-årsränta kring 5 % pressar värderingar, särskilt för tillväxtbolag med vinster långt fram.",
+    "who": "Banker och försäkring tål högre räntor bättre, medan högt värderad teknik, fastigheter och räntekänsliga bolag förlorar.",
+    "tickers": [
+     "HIG",
+     "SOFI",
+     "NU",
+     "CRM"
+    ],
+    "watch": "Jobbrapporten 6 november och KPI 10 november avgör om decemberhöjningen blir av.",
+    "sources": [
+     {
+      "t": "Admiral Markets: Fed hawkish hold 10-2",
+      "u": "https://admiralmarkets.com/analytics/traders-blog/fed-rate-decision-october-28-2026-hawkish-hold"
+     },
+     {
+      "t": "CNN: Fed keeps rates unchanged, two dissents",
+      "u": "https://www.cnn.com/2026/10/28/business/live-news/federal-reserve-interest-rate-october"
+     },
+     {
+      "t": "Federal Reserve: FOMC statement 28 okt",
+      "u": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm"
+     },
+     {
+      "t": "ABC News: US economy grew more than expected in Q3",
+      "u": "https://abcnews.com/Business/gdp-report-set-provide-snapshot-economy-ahead-midterm/story?id=137635585"
+     }
+    ]
+   },
+   {
+    "t": "Intel rasar 23 % efterhandel på svag guidning",
+    "impact": "bearish",
+    "strength": "medel",
+    "what": "Intel redovisade intäkter på 16,5 miljarder dollar i Q3 men guidade 15,0–16,0 miljarder för Q4 och väntar sig en svag PC-marknad åtminstone första halvåret 2027. Aktien föll cirka 23 % efterhandel.",
+    "why": "Signalen om svagare PC-efterfrågan kommer samtidigt som hedgefonder redan säljer halvledare i rekordtakt, vilket kan förstärka utförsäljningen i chip- och utrustningsaktier.",
+    "who": "Förlorare är PC-kedjan och halvledarutrustning (Lam Research, Applied Materials). AMD och Micron föll redan i går.",
+    "tickers": [
+     "INTC",
+     "AMD",
+     "MU",
+     "LRCX",
+     "AMAT"
+    ],
+    "watch": "Om utförsäljningen sprider sig till andra chipbolag i dag.",
+    "sources": [
+     {
+      "t": "Stock Titan: Stock Market Today 29 okt 2026",
+      "u": "https://www.stocktitan.net/articles/stock-market-today-live-october-29-2026"
+     },
+     {
+      "t": "Seeking Alpha: Intel slides as Q3 results, guidance miss",
+      "u": "https://seekingalpha.com/news/4660336-intel-slides-as-q3-results-guidance-miss-wall-streets-forecasts"
+     },
+     {
+      "t": "TradingKey: Intel plunges over 23% after-hours",
+      "u": "https://www.tradingkey.com/analysis/stocks/us-stocks/262258419-intel-forecast-q3-beat-after-hours-plunge-23-target-55-tradingkey"
+     },
+     {
+      "t": "Yahoo/Investing: Hedge funds cut tech at record pace (Goldman)",
+      "u": "https://finance.yahoo.com/markets/stocks/articles/hedge-funds-cut-tech-stocks-174541700.html"
+     }
+    ]
+   }
+  ],
+  "events": [
+   {
+    "date": "2026-10-28",
+    "name": "Fed räntebesked (FOMC)",
+    "what": "Oförändrat 3,75–4,00 % efter höjningen i september, 10–2 med två röster för höjning. Uttalandet beskriver tillväxten som stark och inflationen som förhöjd.",
+    "why": "En hökaktig paus som håller dörren öppen för höjning i december.",
+    "impact": "bearish"
+   },
+   {
+    "date": "2026-10-29",
+    "name": "USA BNP Q3 (förhandsskattning)",
+    "what": "3,4 % i årstakt, upp från 2,2 % i Q2 och mer än väntat.",
+    "why": "Bra för vinsterna men ger Fed skäl att strama åt.",
+    "impact": "blandad"
+   },
+   {
+    "date": "2026-10-29",
+    "name": "USA PCE september",
+    "what": "Kärn-PCE 3,1 % på ett år, som väntat (förra 3,0 %); totala PCE 3,6 %.",
+    "why": "Inflationen rör sig åt fel håll och stödjer en höjning.",
+    "impact": "bearish"
+   },
+   {
+    "date": "2026-10-29",
+    "name": "USA nyanmälda arbetslösa",
+    "what": "194 000 veckan till 24 oktober (förra 195 000).",
+    "why": "Få uppsägningar betyder en stabil arbetsmarknad utan press på Fed att lätta.",
+    "impact": "blandad"
+   },
+   {
+    "date": "2026-10-29",
+    "name": "ECB räntebesked",
+    "what": "Inlåningsräntan oförändrad på 2,50 %, som väntat. ECB varnar för att en större och längre energichock kan höja inflationen och sänka tillväxten.",
+    "why": "Inga nya höjningar nu, men energipriserna håller ECB på tå.",
+    "impact": "blandad"
+   }
+  ],
+  "smart": {
+   "text": "Goldmans prime-data visar att hedgefonder sålt teknik i snabbaste takt på minst tio år i oktober, cirka 20 miljarder dollar på två veckor, och nettohävstången föll till ett årslägsta på 48,6 %. Goldmans index över hedgefondernas populäraste innehav föll 10,4 % i oktober fram till 26 oktober. Teknik är ändå 23,5 % av nettoexponeringen, i 90:e percentilen på fem år, så positioneringen är fortfarande tung. Berkshire köper fortsatt: 330 miljoner dollar i Bending Spoons till 33 dollar per aktie.",
+   "items": [
+    {
+     "who": "Hedgefonder (Goldman prime)",
+     "what": "Sålde teknik i rekordtakt, största dollarförlusten i halvledare; nettohävstång 48,6 %, ett årslägsta.",
+     "tickers": [
+      "NVDA",
+      "AMD",
+      "MU"
+     ],
+     "sources": [
+      {
+       "t": "Yahoo/Investing: Hedge funds cut tech at record pace (Goldman)",
+       "u": "https://finance.yahoo.com/markets/stocks/articles/hedge-funds-cut-tech-stocks-174541700.html"
+      },
+      {
+       "t": "Forbes: Hedge funds sold $20 billion of tech in two weeks",
+       "u": "https://www.forbes.com/sites/jonmarkman/2026/10/26/hedge-funds-sold-20-billion-of-tech-in-two-weeks-as-ai-leverage-unwound/"
+      }
+     ]
+    },
+    {
+     "who": "Berkshire Hathaway",
+     "what": "Köper 10 miljoner nyemitterade aktier i Bending Spoons för 330 miljoner dollar, efter 600 miljoner vid börsnoteringen i juli.",
+     "tickers": [],
+     "sources": [
+      {
+       "t": "24/7 Wall St: Berkshire bets another $330 million",
+       "u": "https://247wallst.com/investing/2026/10/15/berkshire-hathaway-just-bet-another-330-million-on-one-stock-it-soared-41/"
+      }
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "t": "Yahoo/Investing: Hedge funds cut tech at record pace (Goldman)",
+     "u": "https://finance.yahoo.com/markets/stocks/articles/hedge-funds-cut-tech-stocks-174541700.html"
+    },
+    {
+     "t": "Forbes: Hedge funds sold $20 billion of tech in two weeks",
+     "u": "https://www.forbes.com/sites/jonmarkman/2026/10/26/hedge-funds-sold-20-billion-of-tech-in-two-weeks-as-ai-leverage-unwound/"
+    },
+    {
+     "t": "24/7 Wall St: Berkshire bets another $330 million",
+     "u": "https://247wallst.com/investing/2026/10/15/berkshire-hathaway-just-bet-another-330-million-on-one-stock-it-soared-41/"
+    }
+   ]
+  }
+ },
+ "macro": {
+  "headline": "Stark tillväxt, envis inflation och dyr olja: Fed pausar men marknaden räknar med en höjning i december.",
+  "fed": "Fed lät styrräntan ligga på 3,75–4,00 % den 28 oktober efter höjningen i september, med röstsiffrorna 10–2 där Lisa Cook och Beth Hammack ville höja igen. Uttalandet beskriver nu tillväxten som stark och inflationen som fortsatt förhöjd. Ordförande Kevin Warsh sa att åtstramningen börjat verka något men att han inte kan kalla de finansiella villkoren strama. CME FedWatch prisar 87,5 % sannolikhet för en höjning med 0,25 procentenheter vid beslutet den 9 december.",
+  "inflation": "KPI steg till 3,7 % i september från 3,35 % i augusti, medan kärn-KPI låg på 2,6 %. Kärn-PCE, Feds favoritmått, steg till 3,1 % och totala PCE var 3,6 %. Skillnaden mellan total och kärninflation visar att energipriserna driver uppgången, men PPI på 6,4 % pekar på fortsatt tryck i leden.",
+  "jobs": "Arbetslösheten steg till 4,2 % i september och bara 29 000 nya jobb skapades. Nyanmälda arbetslösa ligger lågt på 194 000, så företagen anställer lite men säger inte upp. Continuum Economics räknar med cirka 50 000 nya jobb i oktober och oförändrad arbetslöshet.",
+  "rates": "10-årsräntan står på 5,05 %, ned från toppen 5,31 % den 5 oktober, och 2-årsräntan på 4,67 %. Dollarindex ligger kring 101,9 medan kronan stärkts till 9,85 per dollar från 9,96 den 9 oktober. Med räntor kring 5 % blir framtida vinster mindre värda, vilket slår hårdast mot högt värderade tillväxtbolag.",
+  "risks": "Ett nytt oljelyft vid ökad spänning kring Iran efter mellanårsvalet 3 november kan höja inflationen ytterligare. En svag jobbrapport 6 november skulle kunna stoppa decemberhöjningen och lätta trycket på räntorna, medan fortsatt utförsäljning bland hedgefonder kan förstärka fallet i teknik.",
+  "portfolio": "Oljeshortarna är den största makrorisken: BNO har känsligheten 8,3 % per +10 % i oljan, så med 5x och 10x kort ger varje oljeuppgång på 10 % grovt −41 % respektive −83 % i produkterna. Oracle (−1,1 % per +0,25 procentenheter i 10-årsräntan) och NRG (−0,65 %) förlorar på stigande räntor, medan Amazon (+0,6 %), Constellation (+0,7 %) och CoreWeave (+0,5 %) historiskt rört sig med räntan; hävstången på 3,8–5,3x förstärker allt. Alla swingar är i dollar, så kronans förstärkning på 1,1 % sedan 9 oktober har redan kostat värde i kronor.",
+  "strategy": "Ett läge med hög ränta och hedgefonder som säljer trånga AI-innehav skapar nya köpzoner i stora kvalitetsbolag, framför allt i mjukvara där Salesforce, Workday och Adobe nu ligger under 200W. Med Fear & Greed på 34,6 (rädsla) och en möjlig Fed-höjning är strategins krav på en veckovändning upp extra viktigt, och hävstång i bolag långt över 200W bär större risk än vanligt. Analys, inget råd.",
+  "calendar": [
+   {
+    "date": "2026-10-30",
+    "name": "USA ECI Q3, Bank of Japan och ExxonMobil Q3",
+    "why": "Lönekostnadsindex visar om lönerna driver inflationen; Exxon visar hur oljepriset lyfter vinsterna.",
+    "key": "",
+    "exp": null
+   },
+   {
+    "date": "2026-11-02",
+    "name": "USA ISM tillverkning oktober",
+    "why": "Första bilden av industrin i oktober (datum preliminärt).",
+    "key": "",
+    "exp": null
+   },
+   {
+    "date": "2026-11-03",
+    "name": "USA mellanårsval",
+    "why": "Politisk osäkerhet och risk för nya angrepp mot Iran efter valet, vilket påverkar oljan.",
+    "key": "",
+    "exp": null
+   },
+   {
+    "date": "2026-11-04",
+    "name": "Riksbanken räntebesked och AppLovin rapporterar",
+    "why": "Påverkar kronan och svenska räntor; AppLovin är Bevaka-kandidat i Very Cheap.",
+    "key": "",
+    "exp": null
+   },
+   {
+    "date": "2026-11-05",
+    "name": "Cigna rapporterar och Bank of England",
+    "why": "Cigna är Lower Risk-kandidat i köpzonen.",
+    "key": "",
+    "exp": null
+   },
+   {
+    "date": "2026-11-06",
+    "name": "USA jobbrapport oktober",
+    "why": "Bara 29 000 nya jobb i september; Continuum väntar cirka 50 000. Svagt utfall minskar trycket på Fed.",
+    "key": "pay",
+    "exp": null
+   },
+   {
+    "date": "2026-11-06",
+    "name": "USA arbetslöshet oktober",
+    "why": "4,2 % i september; Continuum väntar oförändrat.",
+    "key": "unemp",
+    "exp": null
+   },
+   {
+    "date": "2026-11-09",
+    "name": "NRG och Constellation rapporterar",
+    "why": "Don har hävstång i båda.",
+    "key": "",
+    "exp": null
+   },
+   {
+    "date": "2026-11-10",
+    "name": "USA KPI oktober",
+    "why": "KPI var 3,7 % i september; avgörande inför Feds beslut 9 december.",
+    "key": "cpi",
+    "exp": null
+   },
+   {
+    "date": "2026-11-10",
+    "name": "USA kärn-KPI oktober",
+    "why": "Kärn-KPI var 2,6 % i september.",
+    "key": "core",
+    "exp": null
+   },
+   {
+    "date": "2026-11-10",
+    "name": "CoreWeave och On Holding rapporterar",
+    "why": "Don har hävstång i CoreWeave.",
+    "key": "",
+    "exp": null
+   },
+   {
+    "date": "2026-11-12",
+    "name": "Nu Holdings rapporterar",
+    "why": "Bevaka-kandidat i Very Cheap.",
+    "key": "",
+    "exp": null
+   }
+  ],
+  "sources": [
+   {
+    "t": "Admiral Markets: Fed hawkish hold 10-2",
+    "u": "https://admiralmarkets.com/analytics/traders-blog/fed-rate-decision-october-28-2026-hawkish-hold"
+   },
+   {
+    "t": "CNN: Fed keeps rates unchanged, two dissents",
+    "u": "https://www.cnn.com/2026/10/28/business/live-news/federal-reserve-interest-rate-october"
+   },
+   {
+    "t": "Federal Reserve: FOMC statement 28 okt",
+    "u": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261028a.htm"
+   },
+   {
+    "t": "ABC News: US economy grew more than expected in Q3",
+    "u": "https://abcnews.com/Business/gdp-report-set-provide-snapshot-economy-ahead-midterm/story?id=137635585"
+   },
+   {
+    "t": "ECB oktober 2026: 2,50 % oförändrat",
+    "u": "https://dca-calculator.com/en/guides/ecb-october-2026"
+   },
+   {
+    "t": "Fortune: Current price of oil 29 okt 2026",
+    "u": "https://fortune.com/article/price-of-oil-10-29-2026/"
+   },
+   {
+    "t": "Continuum Economics: Preview October employment",
+    "u": "https://continuumeconomics.com/a/6bbddd0c/preview-due-november-6-us-october-employment-non-farm-payrolls-subdued-report-to-hint-at-q4-slowing"
+   },
+   {
+    "t": "CNN Fear & Greed Index",
+    "u": "https://edition.cnn.com/markets/fear-and-greed"
+   },
+   {
+    "t": "Sidans data (universe.json, macro.json)",
+    "u": "https://handahama0-netizen.github.io/full-throttle/"
+   }
+  ]
+ }
+}
