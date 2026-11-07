@@ -1,0 +1,109 @@
+{
+ "_info": "Positioner som Claude lagt in på din begäran. Vanliga aktier: list, ticker, price (köpkurs), qty, sek, date, stop, target. Hävstångsprodukter (kind=lev): name = produktens namn, ticker = underliggande (Yahoo), dir = 1 lång / -1 kort, lev = hävstång, levNote = hur hävstången är bestämd, value = värde i kr när den lades in, ret = % sedan köp då, u0 = underliggandes kurs då (null = sätts första gången sidan ser kursen), date = när den lades in.",
+ "positions": [
+  {
+   "list": "swing",
+   "kind": "lev",
+   "name": "MFS OLJA VT1319",
+   "ticker": "BNO",
+   "dir": -1,
+   "lev": 5.0,
+   "levNote": "gissning",
+   "value": 162040,
+   "ret": -8.57,
+   "u0": null,
+   "date": "2026-10-09"
+  },
+  {
+   "list": "swing",
+   "kind": "lev",
+   "name": "MFL ORACLE VT83",
+   "ticker": "ORCL",
+   "dir": 1,
+   "lev": 4.4,
+   "levNote": "uppskattad",
+   "value": 122567,
+   "ret": 2.78,
+   "u0": 142.055,
+   "date": "2026-10-09"
+  },
+  {
+   "list": "swing",
+   "kind": "lev",
+   "name": "MFL AMZN VT801",
+   "ticker": "AMZN",
+   "dir": 1,
+   "lev": 4.3,
+   "levNote": "uppskattad",
+   "value": 103808,
+   "ret": 14.97,
+   "u0": 260.79,
+   "date": "2026-10-09"
+  },
+  {
+   "list": "swing",
+   "kind": "lev",
+   "name": "MINI L SOFI AL SG",
+   "ticker": "SOFI",
+   "dir": 1,
+   "lev": 5.3,
+   "levNote": "uppskattad",
+   "value": 90678,
+   "ret": -17.53,
+   "u0": 15.7399,
+   "date": "2026-10-09"
+  },
+  {
+   "list": "swing",
+   "kind": "lev",
+   "name": "MINI L NRG ENERGY NORDNET",
+   "ticker": "NRG",
+   "dir": 1,
+   "lev": 4.7,
+   "levNote": "uppskattad",
+   "value": 60450,
+   "ret": 20.09,
+   "u0": 107.185,
+   "date": "2026-10-09"
+  },
+  {
+   "list": "swing",
+   "kind": "lev",
+   "name": "T LONG CONST EN NORDNET SE5",
+   "ticker": "CEG",
+   "dir": 1,
+   "lev": 3.8,
+   "levNote": "uppskattad",
+   "value": 50008,
+   "ret": 7.06,
+   "u0": 299.04,
+   "date": "2026-10-09"
+  },
+  {
+   "list": "swing",
+   "kind": "lev",
+   "name": "MINI L CRWV DD SG",
+   "ticker": "CRWV",
+   "dir": 1,
+   "lev": 4.6,
+   "levNote": "uppskattad",
+   "value": 38305,
+   "ret": 3.45,
+   "u0": 82.13,
+   "date": "2026-10-09"
+  },
+  {
+   "list": "swing",
+   "kind": "lev",
+   "name": "MFS OLJA VT1312",
+   "ticker": "BNO",
+   "dir": -1,
+   "lev": 10.0,
+   "levNote": "gissning",
+   "value": 24989,
+   "ret": -34.23,
+   "u0": null,
+   "date": "2026-10-09"
+  }
+ ]
+}
