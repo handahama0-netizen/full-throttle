@@ -1,0 +1,482 @@
+{
+ "date": "2026-11-13",
+ "time": "08:34",
+ "market": "Wall Street föll svagt i går: S&P 500 −0,35 % till 7 592, Nasdaq −0,39 % och Dow −0,36 % sedan Jensen Huang lämnat Nvidia med omedelbar verkan (Nvidia −4,3 % efter att ha öppnat −13 %), medan AMD steg 5,9 % och Broadcom 5,5 %. 10-årsräntan steg 11,6 punkter till 5,105 %, den högsta sedan 21 oktober, och 2-årsräntan till 4,867 % när Brent steg 3,3 % till 95,82 USD efter attacker mot saudisk energiinfrastruktur. Dollarindex nådde 103,18, högsta på 19 månader, och i dag kommer oktobers PPI klockan 14.30 svensk tid.",
+ "picks": [
+  {
+   "ticker": "CRM",
+   "label": "Köpläge",
+   "title": "⚡ Smart: Salesforce i Fire Sale med oförändrad vinstprognos",
+   "why": "Salesforce står på 217,57 USD, 8,9 % under 200W (Fire Sale), med ROE 19,4 %, PEG 0,78 och framåtriktat P/E 13,6. Senaste månadens −7,8 % förklaras helt av mjukvarusektorn (sektor −7,1 %, bolagsspecifikt 0,0 %, z 0,0) medan vinstprognosen för nästa år ligger kvar på 16,02 USD. BofA höjde till Köp i oktober med riktkurs 285 och en styrelseledamot köpte aktier för cirka 1 MUSD i september.",
+   "levels": "Very Cheap under 263 USD · Cheap under 287 USD · 200W 239 USD",
+   "risk": "Rapporten 2 december och oron för att AI-agenter tränger undan traditionell mjukvara kan pressa hela sektorn vidare.",
+   "sources": [
+    {
+     "t": "Full Throttle: universe.json och macro.json (FRED, Yahoo)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    },
+    {
+     "t": "Yahoo Finance: Is the Anthropic IPO bad news for Salesforce and ServiceNow?",
+     "u": "https://finance.yahoo.com/technology/ai/articles/anthropic-ipo-bad-news-salesforce-120221895.html"
+    }
+   ]
+  },
+  {
+   "ticker": "CI",
+   "label": "Köpläge",
+   "title": "⚡ Smart: Cigna nära 200W efter höjd vinstprognos",
+   "why": "Cigna står på 296,27 USD, 2,5 % över 200W (Very Cheap), med ROE 15,7 %, PEG 0,76 och framåtriktat P/E 8,9. Bolaget har höjt sin vinstprognos och analytikernas EPS-förväntan för nästa år är i stort sett oförändrad (33,30 mot 33,48 USD för 30 dagar sedan, −0,5 %). Bernstein höjde riktkursen till 390 och Jefferies till 304 de senaste dagarna.",
+   "levels": "Very Cheap under 318 USD · Cheap under 347 USD · 200W 289 USD",
+   "risk": "Aktien har relativt hög räntekänslighet i datan (−1,1 % per +0,25 procentenheter i 10-årsräntan) och politisk risk kring läkemedelspriser och försäkringsersättningar.",
+   "sources": [
+    {
+     "t": "Full Throttle: universe.json och macro.json (FRED, Yahoo)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    },
+    {
+     "t": "Yahoo Finance: Cigna raised forecast, spot in CIBC's defensive basket",
+     "u": "https://finance.yahoo.com/healthcare/articles/cigna-group-ci-raised-forecast-211103003.html"
+    }
+   ]
+  },
+  {
+   "ticker": "WDAY",
+   "label": "Köpläge",
+   "title": "Workday i Fire Sale inför rapporten 24 november",
+   "why": "Workday står på 190,64 USD, 13,0 % under 200W (Fire Sale), med ROE 16,0 %, PEG 0,58 och framåtriktat P/E 14,4. Vinstprognosen för nästa år har höjts från 12,64 till 13,24 USD på 90 dagar och senaste månaden är aktien +1,0 %, bättre än sektorn. Datan visar nästan ingen känslighet för räntan (+0,1 %) eller dollarn.",
+   "levels": "Very Cheap under 241 USD · Cheap under 263 USD · 200W 219 USD",
+   "risk": "Rapporten 24 november avgör; KeyBanc sänkte till Sector Perform i oktober och oron för AI-konkurrens tynger sektorn.",
+   "sources": [
+    {
+     "t": "Full Throttle: universe.json och macro.json (FRED, Yahoo)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    },
+    {
+     "t": "Yahoo Finance: Is the Anthropic IPO bad news for Salesforce and ServiceNow?",
+     "u": "https://finance.yahoo.com/technology/ai/articles/anthropic-ipo-bad-news-salesforce-120221895.html"
+    }
+   ]
+  },
+  {
+   "ticker": "ADBE",
+   "label": "Bevaka",
+   "title": "Adobe 42 % under 200W men prognoserna sänks svagt",
+   "why": "Adobe står på 238,54 USD, 41,9 % under 200W (Fire Sale), med ROE 61,9 %, PEG 0,57 och framåtriktat P/E 8,7, samtliga Lower Risk-krav uppfyllda. Vinstprognosen har sänkts något (−0,4 % på 30 dagar, 3 sänkningar och inga höjningar) och Citi sänkte till Sälj med riktkurs 207 den 4 november, medan RBC upprepade Outperform med 315.",
+   "levels": "Very Cheap under 452 USD · Cheap under 493 USD · 200W 411 USD",
+   "risk": "Marknaden prisar att generativ AI urholkar Adobes affär; fortsatta prognossänkningar inför rapporten 9 december skulle bekräfta den bilden.",
+   "sources": [
+    {
+     "t": "Full Throttle: universe.json och macro.json (FRED, Yahoo)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    },
+    {
+     "t": "TheStreet: Adobe makes major change as Citi flags 'hard reset'",
+     "u": "https://www.thestreet.com/investing/adobe-stock-citi-creators-opening-apps-to-ai-agents"
+    }
+   ]
+  },
+  {
+   "ticker": "HIG",
+   "label": "Bevaka",
+   "title": "Hartford i hetaste temat, lågt värderat men ovanför köpzonen",
+   "why": "Hartford står på 136,90 USD, 29,2 % över 200W (Fair), med ROE 23,3 %, PEG 0,12 och framåtriktat P/E 10,1, samtliga Lower Risk-krav uppfyllda. Försäkring är det starkaste temat senaste månaden, men vinstprognosen har sänkts 0,7 % på 30 dagar och Wells Fargo sänkte till Equal-Weight med riktkurs 139 den 11 november.",
+   "levels": "Very Cheap under 117 USD · Cheap under 127 USD · 200W 106 USD",
+   "risk": "Aktien är långt över köpzonen och en sämre prissättning av skadeförsäkringar kan pressa marginalerna.",
+   "sources": [
+    {
+     "t": "Full Throttle: universe.json och macro.json (FRED, Yahoo)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    }
+   ]
+  }
+ ],
+ "themes": [
+  {
+   "name": "Försäkring",
+   "heat": "Hetast",
+   "now": "23 aktier, median +10,3 % senaste månaden och +8,5 % på tre månader. 91 % ligger över 200W med median 29,2 % över, vinstrevideringen är +0,4 % på 30 dagar och framåtriktat P/E 14,3.",
+   "outlook": "Bedömning: temat kan fortsätta gynnas 1–3 månader så länge marknaden söker stabila vinster under AI-turbulensen, men det mesta ligger nu långt över köpzonen.",
+   "why": "Försäkringsbolag har vinster som inte hänger på AI-investeringar och höga räntor ger högre avkastning på deras placeringar. När Nvidia och AI-relaterat svänger hårt flyttar pengar mot sådana defensiva vinster.",
+   "sources": [
+    {
+     "t": "Full Throttle: universe.json och macro.json (FRED, Yahoo)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    },
+    {
+     "t": "Reuters via Epoch Times: Wall Street Ends Lower as Nvidia CEO Resigns; US Yields Up",
+     "u": "https://www.theepochtimes.com/business/wall-street-ends-lower-as-nvidia-ceo-resigns-us-yields-up-6124574"
+    }
+   ]
+  },
+  {
+   "name": "Läkemedel & bioteknik",
+   "heat": "Het",
+   "now": "20 aktier, median +9,0 % senaste månaden och +11,7 % på tre månader. 85 % över 200W med median 34,1 % över, vinstrevideringen är i stort sett noll (−0,1 %) och framåtriktat P/E 16,5.",
+   "outlook": "Bedömning: fortsatt stöd som defensivt tema 1–3 månader, men uppgången bärs av multipelexpansion snarare än höjda prognoser.",
+   "why": "Investerare söker bolag med efterfrågan som inte beror på konjunktur eller AI-cykel. Prognoserna står still, så det är värderingen som drivit kurserna.",
+   "sources": [
+    {
+     "t": "Full Throttle: universe.json och macro.json (FRED, Yahoo)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    }
+   ]
+  },
+  {
+   "name": "Mjukvara",
+   "heat": "Neutral",
+   "now": "41 aktier, median −2,6 % senaste månaden och −1,1 % på tre månader. 65 % över 200W med median 12,9 % över, vinstrevideringen +0,8 % och framåtriktat P/E 19,6; här finns flest Lower Risk-kandidater (CRM, WDAY, ADBE, INTU, NOW).",
+   "outlook": "Bedömning: rapporterna från Intuit 19 november och Workday 24 november avgör om temat vänder de kommande 1–3 månaderna.",
+   "why": "Rädslan att AI-agenter och nya AI-bolag ersätter traditionell mjukvara har pressat värderingarna trots att prognoserna höjs svagt. Det skapar fallande kurser utan fallande vinstförväntningar.",
+   "sources": [
+    {
+     "t": "Full Throttle: universe.json och macro.json (FRED, Yahoo)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    },
+    {
+     "t": "Yahoo Finance: Is the Anthropic IPO bad news for Salesforce and ServiceNow?",
+     "u": "https://finance.yahoo.com/technology/ai/articles/anthropic-ipo-bad-news-salesforce-120221895.html"
+    }
+   ]
+  },
+  {
+   "name": "Hårdvara & nätverk",
+   "heat": "Sval",
+   "now": "31 aktier, median −11,9 % senaste månaden och −14,3 % på tre månader, trots +11,1 % senaste veckan. 93 % ligger ändå över 200W med median 58,5 % över, och vinstrevideringen är +3,6 %.",
+   "outlook": "Bedömning: hög volatilitet 1–3 månader; Nvidias rapport 17 november är nästa stora test.",
+   "why": "AI-handeln skakades först av raset förra veckan och nu av VD-bytet i Nvidia; Super Micro föll 11,3 % i går. Prognoserna höjs men marknaden betalar mindre för dem när 10-årsräntan är över 5 %.",
+   "sources": [
+    {
+     "t": "Full Throttle: universe.json och macro.json (FRED, Yahoo)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    },
+    {
+     "t": "Motley Fool: Stock Market Today, Nov. 12",
+     "u": "https://www.fool.com/coverage/stock-market-today/2026/11/12/stock-market-today-nov-12-nvidia-ceo-s-stunning-exit-sends-wall-street-lower-as-rivals-surge/"
+    },
+    {
+     "t": "Nvidia 8-K: NVIDIA announces CEO transition",
+     "u": "https://www.sec.gov/Archives/edgar/data/0001045810/000104581026000082/nvidiaannouncesceotransiti.htm"
+    }
+   ]
+  },
+  {
+   "name": "Halvledarutrustning",
+   "heat": "Kallast",
+   "now": "6 aktier, median −13,4 % senaste månaden och −23,8 % på tre månader, trots +20,3 % senaste veckan. Alla ligger över 200W med median 65,7 % över, vinstrevideringen är +5,9 % och framåtriktat P/E 21,2.",
+   "outlook": "Bedömning: studsen kan fortsätta om Nvidia levererar 17 november, men temat är fortfarande dyrt mot 200W och känsligt för stigande räntor.",
+   "why": "Halvledarindexet steg 17,2 % på fyra dagar innan det föll 0,5 % i går. Applied Materials föll 3,6 % i går och temat har störst prognoshöjningar men också högst värdering.",
+   "sources": [
+    {
+     "t": "Full Throttle: universe.json och macro.json (FRED, Yahoo)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    },
+    {
+     "t": "SBS: Wall Street drops amid Huang's step down and oil surge",
+     "u": "https://news.sbs.co.kr/english/article.do?news_id=N1008844181"
+    }
+   ]
+  }
+ ],
+ "swings": [
+  {
+   "ticker": "BNO",
+   "label": "Varning",
+   "why": "MFS OLJA VT1319 (5x kort): BNO steg 3,85 % till 61,01 USD i går när Brent steg 3,3 % till 95,82 USD efter attacker mot saudisk energiinfrastruktur. Med 5x kort motsvarar det grovt −19 % i produkten på en dag, och Trumps besked att USA inte behöver ett avtal med Iran höjer risken för fortsatt uppgång."
+  },
+  {
+   "ticker": "BNO",
+   "label": "Varning",
+   "why": "MFS OLJA VT1312 (10x kort) låg redan på −34 %; gårdagens uppgång på 3,85 % i BNO motsvarar grovt −38 % i produkten på en dag. Med 10x hävstång kan ytterligare några procent i oljan slå ut produkten; kontrollera hos emittenten."
+  },
+  {
+   "ticker": "CRWV",
+   "label": "Varning",
+   "why": "CoreWeave föll 6,9 % till 56,60 USD i går efter Huangs avgång och står 31 % under 82,13 vid inköpet, vilket med cirka 4,6x hävstång betyder att minilånget sannolikt är utslaget; kontrollera hos emittenten. Barclays sänkte riktkursen till 85 och Argus till 100."
+  },
+  {
+   "ticker": "ORCL",
+   "label": "Varning",
+   "why": "Oracle står på 127,11 USD, 10,5 % under 142,06 vid inköpet, vilket med 4,4x hävstång grovt motsvarar −46 %, förbi stopnivån −20 %. Aktien är 14,6 % under 200W (Fire Sale), vinstprognosen höjs svagt (+0,5 % på 30 dagar) och nästa rapport är 14 december."
+  },
+  {
+   "ticker": "NRG",
+   "label": "Varning",
+   "why": "NRG står på 98,05 USD, 8,5 % under 107,19 vid inköpet, vilket med 4,7x hävstång grovt motsvarar −40 %, förbi stopnivån. Aktien är 4,1 % över 200W (Very Cheap) men vinstprognosen för nästa år har sänkts från 11,19 till 10,05 USD på 30 dagar."
+  },
+  {
+   "ticker": "SOFI",
+   "label": "Varning",
+   "why": "SoFi föll 3,9 % till 15,63 USD i går och står 0,7 % under inköpet, grovt −4 % i produkten med 5,3x hävstång mot cirka +34 % vid toppen. Det är grovt räknat drygt 25 % under toppen i produkten, förbi följ-med-stoppen på 15 %; aktien ligger 16,1 % över 200W (Cheap)."
+  },
+  {
+   "ticker": "CEG",
+   "label": "Stop nära",
+   "why": "Constellation steg 2,8 % till 282,40 USD men står 5,6 % under 299,04 vid inköpet, vilket med 3,8x hävstång grovt motsvarar −21 %, precis vid stopnivån −20 %. Aktien är 29,2 % över 200W (Fair) och vinstprognosen höjs svagt."
+  },
+  {
+   "ticker": "AMZN",
+   "label": "Överväg vinsthemtagning",
+   "why": "Amazon steg 0,5 % till 267,44 USD, 2,5 % över inköpet, vilket med 4,3x hävstång grovt motsvarar +11 %. Aktien ligger 39,7 % över 200W i zonen Expensive, som är strategins säljnivå."
+  }
+ ],
+ "recap": {
+  "headline": "Jensen Huang lämnade Nvidia med omedelbar verkan samtidigt som oljan steg 3 % och 10-årsräntan gick över 5,1 %, vilket gav en svagt negativ dag på Wall Street.",
+  "top3": [
+   {
+    "t": "Jensen Huang lämnar Nvidia",
+    "impact": "bearish",
+    "strength": "stor",
+    "what": "Huang avgick som VD och styrelseledamot med omedelbar verkan; finanschefen Colette Kress blir tillförordnad VD och Harvey Jones ny styrelseordförande. Nvidia öppnade −13 % och stängde −4,3 % på 166,19 USD; Bernstein och Baird sänkte till Hold med riktkurs 200.",
+    "why": "Nvidia är börsens största bolag och navet i AI-handeln, så osäkerhet om ledningen slår mot index och mot förtroendet för hela AI-investeringscykeln. Rapporten 17 november ligger kvar och prognoserna är hittills oförändrade; Nvidia handlas runt 12 gånger väntad vinst, lägst sedan 2012.",
+    "who": "Konkurrenter vann: AMD +5,9 % och Broadcom +5,5 %. AI-infrastruktur som är beroende av Nvidia föll, CoreWeave −6,9 %, Super Micro −11,3 % och Nebius −17 %.",
+    "tickers": [
+     "NVDA",
+     "AMD",
+     "AVGO",
+     "CRWV",
+     "SMCI",
+     "NBIS"
+    ],
+    "watch": "Nvidias rapport och framåtblick 17 november, med Kress som tillförordnad VD.",
+    "sources": [
+     {
+      "t": "Nvidia 8-K: NVIDIA announces CEO transition",
+      "u": "https://www.sec.gov/Archives/edgar/data/0001045810/000104581026000082/nvidiaannouncesceotransiti.htm"
+     },
+     {
+      "t": "Reuters via Epoch Times: Wall Street Ends Lower as Nvidia CEO Resigns; US Yields Up",
+      "u": "https://www.theepochtimes.com/business/wall-street-ends-lower-as-nvidia-ceo-resigns-us-yields-up-6124574"
+     },
+     {
+      "t": "TipRanks: Stocks struggle as Nvidia falls following Jensen Huang's resignation",
+      "u": "https://www.tipranks.com/news/stocks-recover-as-nvidia-falls-following-jensen-huangs-resignation"
+     },
+     {
+      "t": "Motley Fool: Stock Market Today, Nov. 12",
+      "u": "https://www.fool.com/coverage/stock-market-today/2026/11/12/stock-market-today-nov-12-nvidia-ceo-s-stunning-exit-sends-wall-street-lower-as-rivals-surge/"
+     }
+    ]
+   },
+   {
+    "t": "Oljan upp 3 % efter attacker mot saudisk energi",
+    "impact": "bearish",
+    "strength": "stor",
+    "what": "Brent steg 3,3 % till 95,82 USD och WTI 2,6 % till 88,74 USD efter eskalerande attacker mot saudisk energiinfrastruktur, och Trump sa att USA inte behöver något avtal med Iran. Exxon steg 1,8 % och Chevron 1,4 %.",
+    "why": "Dyrare olja höjer inflationsförväntningarna precis när Fed överväger större höjningar, vilket drar upp räntorna och pressar värderingarna. Det ökar också kostnaderna för transport och industri.",
+    "who": "Oljebolag vinner medan flyg, transport och räntekänsliga tillväxtbolag förlorar. Dons oljeshortar (BNO, 5x och 10x kort) förlorar kraftigt.",
+    "tickers": [
+     "BNO",
+     "XOM",
+     "CVX"
+    ],
+    "watch": "Nya attacker i Mellanöstern och om samtalen mellan USA och Iran bryter samman helt.",
+    "sources": [
+     {
+      "t": "Reuters via Epoch Times: Wall Street Ends Lower as Nvidia CEO Resigns; US Yields Up",
+      "u": "https://www.theepochtimes.com/business/wall-street-ends-lower-as-nvidia-ceo-resigns-us-yields-up-6124574"
+     },
+     {
+      "t": "TipRanks: Stocks struggle as Nvidia falls following Jensen Huang's resignation",
+      "u": "https://www.tipranks.com/news/stocks-recover-as-nvidia-falls-following-jensen-huangs-resignation"
+     },
+     {
+      "t": "SBS: Wall Street drops amid Huang's step down and oil surge",
+      "u": "https://news.sbs.co.kr/english/article.do?news_id=N1008844181"
+     }
+    ]
+   },
+   {
+    "t": "10-årsräntan över 5,1 % och starkare dollar",
+    "impact": "bearish",
+    "strength": "medel",
+    "what": "10-årsräntan steg 11,6 punkter till 5,105 %, högsta sedan 21 oktober, och 2-årsräntan 14 punkter till 4,867 %. Räntefutures prisar 29 punkters höjning i december och dollarindex nådde 103,18, högsta på 19 månader; guld föll 2,8 %.",
+    "why": "Högre räntor sänker nuvärdet av framtida vinster och slår hårdast mot dyra tillväxtbolag och fastigheter. Efter Wallers besked att en höjning på 50 punkter bör övervägas räknar marknaden nu med en höjning 9 december.",
+    "who": "Banker och försäkringsbolag klarar högre räntor bättre, medan solenergi, fastigheter och mjukvara med hög värdering förlorar. Starkare dollar pressar amerikanska bolag med stor försäljning utomlands.",
+    "tickers": [
+     "FSLR",
+     "HIG",
+     "CRM",
+     "ORCL"
+    ],
+    "watch": "Dagens PPI för oktober; en het siffra kan öka sannolikheten för 50 punkter i december.",
+    "sources": [
+     {
+      "t": "Reuters via Epoch Times: Wall Street Ends Lower as Nvidia CEO Resigns; US Yields Up",
+      "u": "https://www.theepochtimes.com/business/wall-street-ends-lower-as-nvidia-ceo-resigns-us-yields-up-6124574"
+     },
+     {
+      "t": "MPA: Fed rate hike odds hit 100% as Waller floats bigger December move",
+      "u": "https://www.mpamag.com/us/mortgage-industry/industry-trends/fed-rate-hike-odds-hit-100-as-waller-floats-bigger-december-move/596880"
+     },
+     {
+      "t": "MarketWatch: Fed's Waller puts half-point rate hike into the mix for December",
+      "u": "https://www.morningstar.com/news/marketwatch/2026111046/feds-waller-puts-half-point-rate-hike-into-the-mix-for-december"
+     }
+    ]
+   }
+  ],
+  "events": [
+   {
+    "date": "2026-11-12",
+    "name": "Nyanmälda arbetslösa (USA)",
+    "what": "200 000 veckan till 7 november mot väntat 195 000 och 191 000 veckan innan.",
+    "why": "Något svagare än väntat men fortfarande en mycket stram arbetsmarknad, vilket inte ändrar bilden av en Fed-höjning i december.",
+    "impact": "blandad"
+   },
+   {
+    "date": "2026-11-12",
+    "name": "Nvidia: VD-byte och rapportdatum",
+    "what": "Huang avgick, Kress tillförordnad VD; rapporten för Q3 hålls som planerat 17 november.",
+    "why": "Den viktigaste enskilda rapporten för AI-handeln ligger kvar med ny ledning.",
+    "impact": "bearish"
+   }
+  ],
+  "smart": {
+   "text": "De första 13F-rapporterna för tredje kvartalet kommer nu inför deadline 16 november; Berkshire och de stora hedgefonderna har ännu inte rapporterat. Jane Street ökade sitt innehav i Strategy med 54 % medan Renaissance halverade nästan sitt, och för Salesforce visar datan att institutionerna nettosålde under andra kvartalet medan en styrelseledamot köpte i september. Sentimentet är försiktigt: CNN:s Fear & Greed för aktier står på 40 (rädsla) och kryptoindexet på 20 (extrem rädsla).",
+   "items": [
+    {
+     "who": "Jane Street",
+     "what": "Ökade innehavet i Strategy med 53,8 % till 4,12 miljoner aktier per 30 september och har dessutom stora köp- och säljoptioner; Capital International ökade 4,5 % och Renaissance minskade 41 %.",
+     "tickers": [
+      "MSTR"
+     ],
+     "sources": [
+      {
+       "t": "Bitcoin Magazine: Jane Street lifts its Strategy stake 54 %",
+       "u": "https://bitcoinmagazine.com/news/jane-street-lifts-strategy-mstr-stake"
+      }
+     ]
+    },
+    {
+     "who": "Institutioner i Salesforce",
+     "what": "Netto sålde 41 miljoner aktier under andra kvartalet (Morgan Stanley, Vanguard och BlackRock störst säljare; Alyeska och T. Rowe Price störst köpare). Styrelseledamoten David Blair Kirk köpte för cirka 1 MUSD 18 september.",
+     "tickers": [
+      "CRM"
+     ],
+     "sources": [
+      {
+       "t": "Full Throttle: universe.json och macro.json (FRED, Yahoo)",
+       "u": "https://handahama0-netizen.github.io/full-throttle/"
+      }
+     ]
+    }
+   ],
+   "sources": [
+    {
+     "t": "Bitcoin Magazine: Jane Street lifts its Strategy stake 54 %",
+     "u": "https://bitcoinmagazine.com/news/jane-street-lifts-strategy-mstr-stake"
+    },
+    {
+     "t": "Full Throttle: universe.json och macro.json (FRED, Yahoo)",
+     "u": "https://handahama0-netizen.github.io/full-throttle/"
+    }
+   ]
+  }
+ },
+ "macro": {
+  "headline": "Fed väntas höja i december, 10-årsräntan är över 5 % och oljan stiger igen, vilket håller trycket på värderingarna.",
+  "fed": "Fed höjde i september till 3,75–4,00 % och lät räntan ligga still 28 oktober, då Cook och Hammack reserverade sig för en direkt höjning. Efter oktobers kärn-KPI på 0,3 % för tredje månaden prisade FedWatch 100 % för en höjning 8–9 december (89 % för 25 punkter och 11 % för 50), och räntefutures prisar nu 29 punkter. Waller sa att han stöder 25 punkter i december och att 50 punkter bör övervägas, Logan vill se minst två höjningar till och Schmid anslöt sig till de hökaktiga.",
+  "inflation": "KPI steg 0,35 % i oktober och kärn-KPI 0,30 %, efter en årstakt för KPI på 3,7 % i september. Kärn-PCE låg på 3,1 % i september och PPI steg 6,4 % i årstakt, så trycket i producentledet är högt. Dagens PPI för oktober väntas av Continuum stiga 0,4 % på månaden och till 6,7 % i årstakt.",
+  "jobs": "Arbetslösheten föll till 4,1 % i oktober (väntat 4,2 %) och 165 000 nya jobb skapades mot väntade 65 000. Nyanmälda arbetslösa steg till 200 000 mot väntat 195 000, fortfarande låga nivåer. En stark arbetsmarknad ger Fed utrymme att höja.",
+  "rates": "10-årsräntan steg till 5,105 % och 2-årsräntan till 4,867 % i går, med en kurva på cirka 0,24 procentenheter. Dollarindex på 103,2 är högsta på 19 månader och USD/SEK har stigit från 9,81 till 10,02 på en vecka. Över 5 % i 10-årsräntan pressar värderingen av bolag med höga P/E och hävstångsprodukter med räntekänslig underliggande.",
+  "risks": "En het PPI i dag eller kärn-PCE 25 november kan få marknaden att prisa 50 punkter i december. En fortsatt oljeuppgång genom konflikten kring Saudiarabien och Iran förstärker inflationsrisken, medan ett starkt besked från Nvidia 17 november kan lyfta AI-sentimentet igen.",
+  "portfolio": "Oljeshortarna är portföljens största makrorisk: BNO rör sig 8,3 % per 10 % olja, vilket ger 5x kort grovt −42 % och 10x kort grovt −83 % på en oljeuppgång på 10 %. Oracle tappar enligt datan 0,9 % per +0,25 procentenheter i 10-årsräntan, vilket blir cirka −3,9 % med 4,4x hävstång, medan CEG och CRWV historiskt har stigit när räntan stigit (+0,9 % och +1,4 % per +0,25 procentenheter) men tyngs av AI-oron. Alla underliggande är i USD, så en starkare dollar mot kronan (USD/SEK 10,02) påverkar värdet i kronor.",
+  "strategy": "Med 10-årsräntan över 5 % och en väntad Fed-höjning straffar marknaden höga värderingar, vilket har pressat flera stabila mjukvarubolag ner mot eller under 200W utan att prognoserna sänkts. För en strategi med hävstång innebär den höga räntevolatiliteten och oljerisken att stopnivåerna nås snabbare, så storleken på positionerna väger tyngre än vanligt.",
+  "calendar": [
+   {
+    "date": "2026-11-13",
+    "name": "PPI oktober (USA)",
+    "why": "September steg 1,3 % på månaden och 6,4 % i årstakt; Continuum väntar 6,7 %, en het siffra stärker fallet för 50 punkter.",
+    "key": "ppi",
+    "exp": null
+   },
+   {
+    "date": "2026-11-16",
+    "name": "Deadline 13F-rapporter Q3",
+    "why": "Visar hur Berkshire och stora hedgefonder positionerade sig.",
+    "key": "",
+    "exp": null
+   },
+   {
+    "date": "2026-11-17",
+    "name": "Nvidia rapport Q3 samt Home Depot",
+    "why": "Första rapporten efter Huangs avgång och den viktigaste för AI-handeln.",
+    "key": "",
+    "exp": null
+   },
+   {
+    "date": "2026-11-17",
+    "name": "Detaljhandelns försäljning oktober (USA)",
+    "why": "Visar om hushållen fortsätter konsumera trots höga räntor.",
+    "key": "retail",
+    "exp": null
+   },
+   {
+    "date": "2026-11-18",
+    "name": "Fed-protokollet från oktobermötet och Target",
+    "why": "Visar hur många som ville höja redan i oktober och hur Fed ser på december.",
+    "key": "",
+    "exp": null
+   },
+   {
+    "date": "2026-11-19",
+    "name": "Nyanmälda arbetslösa, Walmart och Intuit",
+    "why": "Arbetsmarknaden och konsumenten; Intuit är Bevaka-kandidat i mjukvara.",
+    "key": "claims",
+    "exp": null
+   },
+   {
+    "date": "2026-11-24",
+    "name": "Workday rapport",
+    "why": "Köpläge-kandidat och test för mjukvarusentimentet.",
+    "key": "",
+    "exp": null
+   },
+   {
+    "date": "2026-11-25",
+    "name": "Kärn-PCE oktober och BNP Q3 (USA)",
+    "why": "Feds viktigaste inflationsmått; 3,1 % i september.",
+    "key": "pce",
+    "exp": null
+   }
+  ],
+  "sources": [
+   {
+    "t": "MPA: Fed rate hike odds hit 100% as Waller floats bigger December move",
+    "u": "https://www.mpamag.com/us/mortgage-industry/industry-trends/fed-rate-hike-odds-hit-100-as-waller-floats-bigger-december-move/596880"
+   },
+   {
+    "t": "MarketWatch: Fed's Waller puts half-point rate hike into the mix for December",
+    "u": "https://www.morningstar.com/news/marketwatch/2026111046/feds-waller-puts-half-point-rate-hike-into-the-mix-for-december"
+   },
+   {
+    "t": "Dow Jones: Fed's Schmid joins hawkish chorus on rate direction",
+    "u": "https://www.morningstar.com/news/dow-jones/2026111010580/feds-schmid-joins-hawkish-chorus-on-rate-direction"
+   },
+   {
+    "t": "Reuters via Epoch Times: Wall Street Ends Lower as Nvidia CEO Resigns; US Yields Up",
+    "u": "https://www.theepochtimes.com/business/wall-street-ends-lower-as-nvidia-ceo-resigns-us-yields-up-6124574"
+   },
+   {
+    "t": "Continuum Economics: Preview US October PPI",
+    "u": "https://continuumeconomics.com/a/342ddb8e/preview-due-november-13-us-october-ppi-firm-if-less-so-than-in-september"
+   },
+   {
+    "t": "Kiplinger: Dow adds 1,104 points even as Nvidia sinks (9 nov)",
+    "u": "https://www.kiplinger.com/investing/stocks/dow-adds-1-104-points-even-as-nvidia-stock-sinks-stock-market-today"
+   },
+   {
+    "t": "Regards of Wall Street: Week ahead 8 nov 2026",
+    "u": "https://www.regardsofwallstreet.com/newsletter/2026-11-08-week-ahead"
+   },
+   {
+    "t": "Federal Reserve: preliminärt mötesschema 2027",
+    "u": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261112a.htm"
+   },
+   {
+    "t": "Full Throttle: universe.json och macro.json (FRED, Yahoo)",
+    "u": "https://handahama0-netizen.github.io/full-throttle/"
+   }
+  ]
+ }
+}
