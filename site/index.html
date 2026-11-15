@@ -129,6 +129,12 @@ main{padding-block:18px 48px}
 .pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:2px 8px;border-radius:5px;white-space:nowrap;font-weight:550;background:var(--sunk);color:var(--muted);border:1px solid var(--line)}
 .pill.pass{background:var(--up-soft);color:var(--up);border-color:transparent}
 .pill.near{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.tomgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
+.tomrule{display:flex;gap:10px;align-items:flex-start;background:var(--sunk);border-radius:8px;padding:10px 12px;min-width:0}
+.tomrule p{margin:4px 0 0;line-height:1.5}
+.tomn{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:650;background:var(--line);color:var(--ink)}
+.tomul{margin:0;padding-left:18px;line-height:1.6;max-width:85ch}
+.tomul li+li{margin-top:4px}
 .sig{font-size:10.5px;font-weight:750;padding:2px 6px;border-radius:4px;letter-spacing:.04em;white-space:nowrap}
 .sig.smart{background:linear-gradient(135deg,#2c8a17,#5fd13a);color:#061005} .sig.guld{background:#b8860b;color:#fff} .sig.diamant{background:linear-gradient(135deg,#2b6cb0,#7f5af0);color:#fff} .sig.swing{background:var(--z-cheap);color:var(--card)} .sig.rea{background:var(--z-vcheap);color:var(--card)}
 
@@ -912,6 +918,7 @@ ul.tips li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;font-si
       <a href="#/screener" data-nav="screener">Screener</a>
       <a href="#/swing" data-nav="swing">Swing-idéer</a>
       <a href="#/fallna" data-nav="fallna">Nedtryckta</a>
+      <a href="#/tom" data-nav="tom">Tom Nash</a>
       <a href="#/strategier" data-nav="strategier">Strategi &amp; backtest</a>
     </nav>
   </div>
@@ -1256,7 +1263,7 @@ document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement.t
 const MENU=[["Stories",[["#/story/dag","story","📰","Dagens recap","Börsen, nyheterna, smart money och dina innehav"],["#/story/fokus","story","🎯","Claudes fokus","Dagens idéer, teman och dina swingar"],["#/story/vecka","story","📅","Veckan","Veckans vinnare, nyheter och nästa vecka"],["#/story/makro","story","🌍","Makro","Fed, inflation, jobb, räntor och oro"]]],["Idag",[["#/","start","🏠","Start","Det som kräver beslut idag: sälj, risk, köplägen"],["#/mina","mina","⭐","Mina aktier","Aktierna du följer med läge och nyckeltal"]]],
   ["Hitta aktier",[["#/swing","swideer","🎯","Swing-idéer","Översålda bolag att swinga, med köp, mål och stopp"],["#/fallna","fallna","📉","Nedtryckta","Kvalitetsbolag långt under toppen, med bear case"],["#/screener","screener","🔎","Screener","Filtrera på dina strategier och 200W-zoner"],["#/rotation","rotation","🔄","Sektorer","De 11 stora delarna av börsen: var pengarna roterar"],["#/branscher","branscher","🏭","Teman","Smalare grupper som Halvledare och Mjukvara: hetast, bäst läge, Visser"],["#/ai","ai","🧠","AI-kedjan","AI-flaskhalsarna i ordning, bästa bolagen och en AI-portfölj"]]],
   ["Mina pengar",[["#/innehav/swing","swing","⚡","Live swing","Dina swingar med stop, mål och läge"],["#/innehav/port","port","💼","Portfölj","Långsiktiga innehav och larm"],["#/innehav/analys","analys","📊","Portföljanalys","Risk, Sharpe och tips för bättre portfölj"]]],
-  ["Strategi och data",[["#/strategier","strategier","🧭","Strategi och backtest","⚡ Smart, dina strategier och backtest utan facit"],["#/data","data","📡","Data och källor","Var siffrorna kommer ifrån, när de uppdaterades och larm"]]]];
+  ["Strategi och data",[["#/tom","tom","📺","Tom Nash","Toms strategi och vad den säger om dina innehav"],["#/strategier","strategier","🧭","Strategi och backtest","⚡ Smart, dina strategier och backtest utan facit"],["#/data","data","📡","Data och källor","Var siffrorna kommer ifrån, när de uppdaterades och larm"]]]];
 function renderMenu(){const m=$("sitemenu");if(!m)return;const h=location.hash||"#/";
   const cur=h.startsWith("#/aktie")?"":h.startsWith("#/swing")?"swideer":h.startsWith("#/innehav/analys")?"analys":h.startsWith("#/innehav/port")?"port":h.startsWith("#/innehav")?"swing":(h.slice(2).split("/")[0]||"start");
   const secs=[...document.querySelectorAll("#app .snav [data-to]")].map(b=>[b.dataset.to,b.textContent.trim()]);
@@ -1282,6 +1289,90 @@ setPrivBtn();
 $("menuBg").addEventListener("click",closeMenu);
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("sitemenu").hidden)closeMenu()});
 
+/* ============ TOM NASH: hans strategi och vad den betyder för dina innehav ============
+   Innehållet skrivs i site/tom.json. Avstånd från 52-veckorstoppen, vinst och åtgärder räknas live här. */
+let TOMJ=null;
+async function getTom(){if(TOMJ)return TOMJ;try{const r=await fetch("tom.json?v="+encodeURIComponent((U&&U.updatedAt)||""));if(r.ok)TOMJ=await r.json()}catch(e){}return TOMJ}
+const offHi=d=>d&&nn(d.price)&&nn(d.hi52)&&d.hi52>0?(d.price/d.hi52-1)*100:null;
+const tomQual=d=>!!d&&nn(d.fcfMargin)&&d.fcfMargin>0&&nn(d.revGrowth1y)&&d.revGrowth1y>5;
+const tomPill=([l,c])=>`<span class="pill${c?" "+c:""}">${esc(l)}</span>`;
+function tomAct(p,c,T){
+  const d=c.d||bySym[p.ticker]||{},oh=offHi(d),onList=T.watch.some(w=>w.t===p.ticker),idx=(T.index||[]).includes(p.ticker),out=[];
+  if(p.kind==="lev"&&p.dir<0)return[["Utanför Toms strategi","","Tom blankar inte. Han äger bolag och index långsiktigt."]];
+  const pl=c.plPct;
+  for(const [lim,step] of [[150,"tredje"],[100,"andra"],[50,"första"]])if(nn(pl)&&pl>=lim){out.push(["Ta hem 10–30 %","pass",`Upp ${pct(pl,0)}: det ${step} vinststeget (+${lim} %).`]);break}
+  if(idx)out.push(["Månadsspara","pass","Kärnan: 30–60 % av månadens sparande hit."]);
+  else if(nn(oh)&&oh<=-20&&(onList||tomQual(d)))out.push(["Köpläge enligt Tom","near",`${pct(oh,0)} från 52-veckorstoppen${tomQual(d)?", lönsamt och växande":""}. Kontrollera att vinstprognosen håller innan du köper.`]);
+  else if(nn(oh)&&oh<=-20)out.push(["Klarar inte kvalitetskravet","",`${pct(oh,0)} från toppen, men ${!nn(d.fcfMargin)?"kassaflödesdata saknas":d.fcfMargin>0?"omsättningen växer för långsamt":"det fria kassaflödet är negativt"}. Tom köper ras bara i kvalitetsbolag.`]);
+  if(!out.length)out.push(["Behåll","",nn(oh)?`${pct(oh,0)} från toppen: inget av Toms köp- eller säljsteg är nått.`:"Inget av Toms steg är nått."]);
+  if(p.kind==="lev")out.push(["Ingen hävstång hos Tom","",`Hans regler gäller aktien. Med ${f(c.lev,1)}x hävstång blir varje rörelse ${f(c.lev,1)} gånger större, och produkten kan slås ut innan aktien vänder.`]);
+  return out;
+}
+async function pageTom(){
+  document.title="Tom Nash · Full Throttle";
+  if(!TOMJ)$("app").innerHTML=`<div class="skel">Laddar Toms strategi…</div>`;
+  const T=await getTom();if(!location.hash.startsWith("#/tom"))return;
+  if(!T){$("app").innerHTML=`<section class="card"><div class="bd"><p class="muted">Toms strategi laddas inte just nu.</p></div></section>`;return}
+  const W=T.watch.map(w=>({...w,d:bySym[w.t]})).filter(x=>x.d);
+  const P=allPos().map(p=>({p,c:posCalc(p)})).filter(x=>x.c);
+  const val=x=>nn(x.c.value)?x.c.value:0,tot=P.reduce((a,x)=>a+val(x),0);
+  const idxV=P.filter(x=>(T.index||[]).includes(x.p.ticker)).reduce((a,x)=>a+val(x),0);
+  const levV=P.filter(x=>x.p.kind==="lev").reduce((a,x)=>a+val(x),0);
+  const shortV=P.filter(x=>x.p.kind==="lev"&&x.p.dir<0).reduce((a,x)=>a+val(x),0);
+  const sh=v=>tot?v/tot*100:null;
+  const acts=P.map(x=>({...x,a:tomAct(x.p,x.c,T)}));
+  const buyW=W.filter(x=>{const o=offHi(x.d);return nn(o)&&o<=-20&&x.t!=="SPY"}).sort((a,b)=>offHi(a.d)-offHi(b.d));
+  const trimP=acts.filter(x=>x.a.some(a=>a[0].startsWith("Ta hem")));
+  const buyP=acts.filter(x=>x.a.some(a=>a[0]==="Köpläge enligt Tom"));
+  const V=T.video||{};
+  const vid=`<section class="card" id="tom-video"><div class="hd"><h2>Senaste videon</h2></div><div class="bd">
+    <p style="margin:0 0 6px"><a href="${esc(V.url||"#")}" target="_blank" rel="noopener"><b>${esc(V.title||"")}</b></a></p>
+    ${(V.summary||[]).length?`<ul class="tomul">${V.summary.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<p class="small muted" style="margin:0">${esc(V.note||"")}</p>`}
+  </div></section>`;
+  const rules=`<section class="card" id="tom-regler" style="margin-top:16px"><div class="hd"><h2>Strategin i sex regler</h2></div><div class="bd"><div class="tomgrid">
+    ${T.rules.map((r,i)=>`<div class="tomrule"><span class="tomn">${i+1}</span><div><b>${esc(r.title)}</b><p>${esc(r.rule)}</p><p class="small muted">${esc(r.why)}</p></div></div>`).join("")}
+  </div></div></section>`;
+  const view=`<section class="card" id="tom-nu" style="margin-top:16px"><div class="hd"><h2>${esc(T.view.headline)}</h2></div><div class="bd"><ul class="tomul">${T.view.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div></section>`;
+  const plan=`<section class="card" id="tom-plan" style="margin-top:16px"><div class="hd"><h2>När ska du göra vad</h2></div><div class="bd">
+    <div class="tw"><table class="crit"><thead><tr><th>När</th><th>Vad Tom gör</th><th>Just nu för dig</th></tr></thead><tbody>
+      <tr><td><b>Varje månad</b></td><td>30–60 % av sparandet till en S&P 500-fond. Resten till bolagen.</td><td>${tot?`Indexfond är ${f(sh(idxV),0)} % av innehaven som är inlagda på sidan. Tom har 40–50 %.`:"Lägg in dina innehav under Innehav så räknas andelen."}</td></tr>
+      <tr><td><b>När ett bra bolag faller 20 %</b></td><td>Dubblar ner om raset beror på stämningen och vinsterna håller.</td><td>${buyW.length||buyP.length?[...new Set(buyP.map(x=>x.p.ticker).concat(buyW.map(x=>x.t)))].slice(0,10).map(t=>`<a href="${link(t)}" class="tk">${esc(t)}</a>`).join(", ")+" ligger 20 % eller mer under toppen.":"Inget bevakat bolag är 20 % under toppen."}</td></tr>
+      <tr><td><b>Vid +50, +100 och +150 %</b></td><td>Säljer 10–30 % i varje steg och sparar pengarna till nästa ras.</td><td>${trimP.length?trimP.map(x=>`<a href="${link(x.p.ticker)}" class="tk">${esc(x.p.name||x.p.ticker)}</a> ${pct(x.c.plPct,0)}`).join(", "):"Ingen av dina positioner har nått +50 %."}</td></tr>
+      <tr><td><b>Inför rapporter</b></td><td>Räknar med svängiga kurser men säljer inte på grund av rapporten.</td><td>${(()=>{const r=P.map(x=>x.c.d||bySym[x.p.ticker]).filter(d=>d&&d.nextEarnings&&(new Date(d.nextEarnings)-Date.now())/864e5>=-1&&(new Date(d.nextEarnings)-Date.now())/864e5<=30);const u=[...new Map(r.map(d=>[d.ticker,d])).values()];return u.length?u.map(d=>`${esc(d.ticker)} ${new Date(d.nextEarnings).toLocaleDateString("sv-SE",{day:"numeric",month:"long"})}`).join(", ")+". Med hävstång kan en rapport slå ut en produkt.":"Inga rapporter för dina innehav de närmaste 30 dagarna."})()}</td></tr>
+      <tr><td><b>Hela tiden</b></td><td>Äger i fem år, ingen hävstång, ingen blankning.</td><td>${tot?`Hävstång är ${f(sh(levV),0)} % av innehaven på sidan${shortV?`, varav kort olja ${f(sh(shortV),0)} %`:""}. Tom har 0 %.`:"–"}</td></tr>
+    </tbody></table></div>
+  </div></section>`;
+  const mine=`<section class="card" id="tom-mina" style="margin-top:16px"><div class="hd"><h2>Dina innehav med Toms regler</h2></div><div class="bd">
+    ${P.length?`<div class="dstats"><div><span class="sub">Indexfond</span><b class="n">${f(sh(idxV),0)} %</b><small class="muted">Tom: 40–50 %</small></div><div><span class="sub">Hävstång</span><b class="n">${f(sh(levV),0)} %</b><small class="muted">Tom: 0 %</small></div><div><span class="sub">Köpläge enligt Tom</span><b class="n">${buyP.length}</b><small class="muted">av ${P.length} innehav</small></div><div><span class="sub">Dags att ta hem</span><b class="n">${trimP.length}</b><small class="muted">+50 % eller mer</small></div></div>
+    <p class="small muted" style="margin:2px 0 0">Räknat på de ${P.length} innehav som är inlagda på sidan. Innehav som bara finns hos banken ingår inte.</p>
+    <div class="tw" style="margin-top:10px"><table class="crit"><thead><tr><th>Innehav</th><th class="r">Värde</th><th class="r">Resultat</th><th class="r">Från 52v-topp</th><th>200W</th><th>Enligt Tom</th></tr></thead><tbody>
+      ${acts.map(x=>{const d=x.c.d||bySym[x.p.ticker]||{};return `<tr class="go" data-t="${esc(x.p.ticker)}"><td>${x.p.kind==="lev"?`<span class="co"><span class="tk">${esc(x.p.ticker)}</span><span class="nm">${esc(x.p.name||"")}${x.p.dir<0?" (kort)":""}</span></span>`:co(d.ticker?d:{ticker:x.p.ticker,name:x.p.name||""})}</td><td class="r n">${kr(x.c.value)}</td><td class="r n ${cls(x.c.plPct)}">${pct(x.c.plPct,0)}</td><td class="r n">${pct(offHi(d),0)}</td><td>${d.ticker?zchip(d):"–"}</td><td><div class="chipl">${x.a.map(tomPill).join("")}</div><span class="small muted">${x.a.map(a=>esc(a[2])).join(" ")}</span></td></tr>`}).join("")}
+    </tbody></table></div>
+    <p class="small muted" style="margin-top:6px">Värden räknas från dina inlagda positioner och dagens kurser. Hävstångsprodukter är uppskattade utan daglig ombalansering, så kontrollera de verkliga värdena hos din bank.</p>`
+    :`<p class="muted">Du har inga innehav inlagda. Lägg in dem under <a href="#/innehav/swing">Innehav</a> så visar fliken vad Toms regler säger om vart och ett.</p>`}
+  </div></section>`;
+  const watch=`<section class="card" id="tom-lista" style="margin-top:16px"><div class="hd"><h2>Toms bevakningslista</h2></div><div class="bd">
+    <div class="tw"><table class="crit"><thead><tr><th>Bolag</th><th>Hos Tom</th><th class="r">Kurs</th><th class="r">Från 52v-topp</th><th>Toms köpzon</th><th>Din 200W</th><th class="r">P/E fr.</th><th class="r">Rapport</th></tr></thead><tbody>
+      ${W.map(x=>{const d=x.d,o=offHi(d),inz=nn(o)&&o<=-20;return `<tr class="go" data-t="${esc(x.t)}"><td>${co(d)}</td><td class="small">${esc(x.role)}</td><td class="r n">${money(d.price,d.currency)}</td><td class="r n ${cls(o)}">${pct(o,0)}</td><td>${x.t==="SPY"?tomPill(["Månadsspara","pass"]):inz?tomPill(["Ja, 20 %+ under","near"]):tomPill(["Nej",""])}</td><td>${zchip(d)}</td><td class="r n">${nn(d.fwdPe)&&d.fwdPe>0?f(d.fwdPe,1):"–"}</td><td class="r n small">${d.nextEarnings&&new Date(d.nextEarnings)>=new Date(Date.now()-864e5)?new Date(d.nextEarnings).toLocaleDateString("sv-SE",{day:"numeric",month:"short"}):"–"}</td></tr>`}).join("")}
+    </tbody></table></div>
+    <p class="small muted" style="margin-top:6px">Toms köpzon: 20 % eller mer under 52-veckorstoppen. Din 200W-strategi mäter i stället avståndet till 200-veckorssnittet, så de två kan säga olika saker.</p>
+  </div></section>`;
+  const cmp=`<section class="card" id="tom-jmf" style="margin-top:16px"><div class="hd"><h2>Tom jämfört med din strategi</h2></div><div class="bd"><div class="tw"><table class="crit"><thead><tr><th></th><th>Tom Nash</th><th>Din strategi (Lower Risk + 200W)</th></tr></thead><tbody>
+    <tr><td><b>Köpsignal</b></td><td>20 % under 52-veckorstoppen i ett kvalitetsbolag</td><td>Nära eller under 200-veckorssnittet, och Lower Risk-kraven uppfyllda</td></tr>
+    <tr><td><b>Kärna</b></td><td>40–50 % i S&amp;P 500</td><td>Ingen fast indexandel</td></tr>
+    <tr><td><b>Hävstång</b></td><td>Ingen</td><td>Swingar med hävstång</td></tr>
+    <tr><td><b>Sälj</b></td><td>10–30 % vid +50, +100 och +150 %</td><td>Mål, stopp och Very Expensive-zonen</td></tr>
+    <tr><td><b>Tidshorisont</b></td><td>Minst fem år</td><td>Veckor till månader för swingar</td></tr>
+  </tbody></table></div></div></section>`;
+  const src=`<section class="card" style="margin-top:16px"><div class="hd"><h2>Källor</h2></div><div class="bd"><ul class="tomul small">${(T.sources||[]).map(s=>`<li><a href="${esc(s.u)}" target="_blank" rel="noopener">${esc(s.t)}</a></li>`).join("")}</ul>
+    <p class="small muted">Sammanfattat av Claude ${esc(T.date||"")}. Toms åsikter, inte sidans. Analys och regler, inte köp- eller säljråd.</p></div></section>`;
+  $("app").innerHTML=`<div class="hero"><h1>Tom Nash</h1><span class="sub">Strategi sammanfattad ${esc(T.date||"")} · kurser ${esc(rel(U.quotesAt||U.updatedAt))}</span></div>
+    <p class="muted" style="max-width:75ch;margin:0 0 12px">${esc(T.who)}</p>
+    ${subnav([["tom-plan","När ska jag göra vad"],["tom-mina","Mina innehav"],["tom-regler","Regler"],["tom-nu","Hans syn nu"],["tom-lista","Bevakning"],["tom-jmf","Jämförelse"]])}
+    ${vid}${plan}${mine}${rules}${view}${watch}${cmp}${src}`;
+  mountSubnav();bindRows($("app"));
+}
+
 /* ============ router ============ */
 function route(){
   const h=location.hash||"#/";const parts=h.slice(2).split("/");
@@ -1298,6 +1389,7 @@ function route(){
   if(page==="branscher")return pageSectors();
   if(page==="rotation")return pageRotation();
   if(page==="ai")return pageAI();
+  if(page==="tom")return pageTom();
   if(page==="innehav"&&parts[1]==="analys")return pageAnalysis();
   if(page==="innehav")return pageHoldings(parts[1]||"swing",parts[2]==="add"?decodeURIComponent(parts[3]||""):null);
   if(page==="strategier")return pageMethod();
