@@ -1,0 +1,2101 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Teckna elavtal – Bixia PoC</title>
+<meta name="description" content="Klickbar Proof of Concept för Bixias framtida digitala teckningsresa. Demonstration – inget riktigt avtal tecknas.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* =====================================================================
+   DESIGNTOKENS
+   Närliggande ersättare för Bixias grafiska profil. Byt mot exakta
+   färgkoder och typsnitt från Bixias varumärkesmanual före användartest.
+   ===================================================================== */
+:root {
+  --bx-orange: #F47B20;       /* varumärkesorange – ytor, ikoner, dekor */
+  --bx-orange-600: #E0620F;   /* ramar, fokus, indikatorer (≥3:1 mot vitt) */
+  --bx-orange-700: #CC4E06;   /* knappar med vit text (4,5:1) */
+  --bx-orange-800: #A8430A;   /* länktext, hover */
+  --bx-peach-50: #FFF6EE;
+  --bx-peach-100: #FDEBDC;
+  --bx-peach-200: #F9D6BA;
+  --bx-sand: #FBF6EF;
+  --bx-sand-200: #F3EADF;
+  --bx-white: #FFFFFF;
+  --bx-ink: #231C19;
+  --bx-ink-2: #5E534D;
+  --bx-ink-3: #8A7E76;
+  --bx-line: #E8DDD1;
+  --bx-line-2: #D8CBBE;
+  --bx-green: #2F7A4D;
+  --bx-green-50: #EAF4EE;
+  --bx-blue-50: #EEF3F8;
+  --bx-red: #B3261E;
+
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 24px;
+  --shadow-sm: 0 1px 2px rgba(35, 28, 25, .06), 0 1px 1px rgba(35, 28, 25, .04);
+  --shadow: 0 6px 24px rgba(35, 28, 25, .08), 0 1px 3px rgba(35, 28, 25, .06);
+  --shadow-lg: 0 24px 60px rgba(35, 28, 25, .18);
+
+  --font: "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --demo-ink: #1A1513;
+  --demo-ink-2: #2C2421;
+  --demo-text: #F3EBE4;
+  --demo-muted: #B9ACA3;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--bx-ink);
+  background: var(--bx-sand);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+img, svg { display: block; }
+a { color: var(--bx-orange-800); }
+:focus-visible { outline: 3px solid var(--bx-orange-600); outline-offset: 2px; border-radius: 8px; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.ico { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ico-sm { width: 18px; height: 18px; }
+.ico-lg { width: 32px; height: 32px; }
+
+/* =====================================================================
+   DEMOVERKTYG (ligger utanför Bixia-designen)
+   ===================================================================== */
+.demobar {
+  background: var(--demo-ink);
+  color: var(--demo-text);
+  font-size: 14px;
+  position: relative;
+  z-index: 60;
+}
+.demobar-in { display: flex; align-items: center; gap: 10px; padding: 8px 16px; flex-wrap: wrap; }
+.demobar .tag { background: #FFD9BF; color: #5A2406; font-weight: 700; font-size: 12px; letter-spacing: .02em; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+.demobar .title { font-weight: 600; white-space: nowrap; }
+.demobar .spacer { flex: 1; }
+.demobar .seg { display: inline-flex; background: var(--demo-ink-2); border-radius: 8px; padding: 2px; }
+.demobar .seg button, .demobar .dbtn, .demobar summary {
+  background: transparent; border: 0; color: var(--demo-text); padding: 6px 10px; border-radius: 6px; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.demobar .seg button[aria-pressed="true"] { background: #4A3E38; font-weight: 700; }
+.demobar .dbtn:hover, .demobar summary:hover, .demobar .seg button:hover { background: #3A302C; }
+.demobar .dbtn[aria-pressed="true"] { background: #4A3E38; font-weight: 700; }
+.demobar details { position: relative; }
+.demobar summary { list-style: none; cursor: pointer; }
+.demobar summary::-webkit-details-marker { display: none; }
+.demobar .menu {
+  position: absolute; right: 0; top: calc(100% + 6px); min-width: 300px; background: #FFFFFF; color: var(--bx-ink);
+  border-radius: 12px; box-shadow: var(--shadow-lg); padding: 6px; z-index: 70;
+}
+.demobar .menu button { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 10px 12px; border-radius: 8px; font-size: 15px; }
+.demobar .menu button:hover { background: var(--bx-peach-50); }
+.demobar .menu small { display: block; color: var(--bx-ink-2); font-size: 13px; }
+.demobar .menu .mh { padding: 8px 12px 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--bx-ink-3); }
+.demobar-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.demobar-toggle { display: none !important; }
+@media (max-width: 760px) {
+  .demobar-toggle { display: inline-flex !important; margin-left: auto; }
+  .demobar .spacer { display: none; }
+  .demobar-tools { display: none; width: 100%; }
+  .demobar.is-open .demobar-tools { display: flex; }
+  .demobar .title { display: none; }
+  .demobar .seg-wrap { display: none; }
+  .demobar .menu { right: auto; left: 0; min-width: 260px; }
+}
+.test-ribbon { display: none; }
+body.testlage .demobar { display: none; }
+body.testlage .test-ribbon {
+  display: block; position: fixed; left: 50%; top: 0; transform: translateX(-50%); z-index: 80; background: var(--demo-ink); color: var(--demo-text);
+  font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 0 0 8px 8px; opacity: .8; pointer-events: none; white-space: nowrap;
+}
+
+/* Scen: dator- eller mobilram */
+.stage { position: relative; }
+.device { container: app / inline-size; position: relative; background: var(--bx-sand); min-height: 100vh; }
+.scroller { min-height: 100vh; }
+.stage.is-mobile {
+  background: #2A2320 radial-gradient(1200px 600px at 50% -10%, #4A3A32 0%, #2A2320 60%);
+  min-height: calc(100vh - 44px);
+  display: flex; justify-content: center; align-items: flex-start; gap: 40px; padding: 28px 16px 40px; flex-wrap: wrap;
+}
+.stage.is-mobile .device {
+  width: 390px; height: min(844px, calc(100vh - 110px)); min-height: 560px;
+  border-radius: 46px; border: 11px solid #0F0C0B; box-shadow: 0 0 0 2px #3B312C, var(--shadow-lg);
+  overflow: hidden; transform: translateZ(0); flex: none; display: flex; flex-direction: column;
+}
+.stage.is-mobile .scroller { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.stage.is-mobile .scroller::-webkit-scrollbar { display: none; }
+.stage.is-mobile .device::before {
+  content: ""; position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 110px; height: 30px; background: #0F0C0B; border-radius: 20px; z-index: 90; pointer-events: none;
+}
+.stage.is-mobile .device-statusbar { display: flex; }
+.device-statusbar { display: none; height: 46px; flex: none; align-items: center; justify-content: space-between; padding: 6px 30px 0; font-size: 15px; font-weight: 700; background: var(--bx-white); }
+.device-statusbar .sb-icons { display: flex; gap: 6px; align-items: center; }
+.device-statusbar .sb-icons span { display: block; background: var(--bx-ink); border-radius: 2px; }
+
+/* UX-anteckningar */
+.notes {
+  display: none; width: 340px; max-width: 100%; background: #FFFDFB; color: var(--bx-ink); border-radius: 16px; box-shadow: var(--shadow-lg);
+  padding: 18px 18px 14px; font-size: 15px; line-height: 1.45;
+}
+.notes.is-on { display: block; }
+.stage:not(.is-mobile) .notes { position: fixed; left: 16px; bottom: 16px; z-index: 55; max-height: 60vh; overflow: auto; }
+.stage.is-mobile .notes { position: sticky; top: 28px; }
+.notes h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .07em; color: var(--bx-ink-3); margin: 0 0 4px; }
+.notes h3 { font-size: 18px; margin: 0 0 12px; }
+.notes ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.notes li { display: grid; gap: 4px; }
+.notes .src { justify-self: start; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--bx-sand-200); color: var(--bx-ink); }
+.notes .src[data-src="E.ON Next"] { background: #FCE4EC; color: #7A1F3D; }
+.notes .src[data-src="Octopus"] { background: #EDE7F6; color: #4527A0; }
+.notes .src[data-src="Vattenfall"] { background: #FFF6CC; color: #6B5400; }
+.notes .src[data-src="Fortum"] { background: #E3F2EA; color: #1E5C3A; }
+.notes .src[data-src="Tibber/Greenely"] { background: #E3F0FA; color: #1B4F7A; }
+.notes .src[data-src="Bixia"] { background: var(--bx-peach-100); color: #7A3307; }
+.notes .src[data-src="Konvertering"], .notes .src[data-src="Tillgänglighet"] { background: #ECEAE8; color: #3D3633; }
+.notes .src[data-src="Att testa"] { background: #FFF0D6; color: #6E4A00; }
+.notes .close { float: right; border: 0; background: none; padding: 4px; color: var(--bx-ink-2); }
+
+/* =====================================================================
+   BIXIA – WEBBPLATSENS RAM (startsida)
+   ===================================================================== */
+.wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+@container app (min-width: 700px) { .wrap { padding: 0 32px; } }
+
+.logo { display: inline-flex; align-items: baseline; text-decoration: none; color: var(--bx-orange); font-weight: 800; letter-spacing: -.045em; font-size: 34px; line-height: 1; }
+.logo .dot { width: .2em; height: .2em; background: currentColor; border-radius: 50%; margin-left: .04em; display: inline-block; }
+.logo-sm { font-size: 28px; }
+
+.site-top { background: var(--bx-white); border-bottom: 1px solid var(--bx-line); position: sticky; top: 0; z-index: 30; }
+.util { display: none; font-size: 14px; border-bottom: 1px solid var(--bx-line); }
+.util .wrap { display: flex; gap: 20px; height: 38px; align-items: center; }
+.util a { color: var(--bx-ink-2); text-decoration: none; }
+.util a.is-active { color: var(--bx-ink); font-weight: 700; box-shadow: inset 0 -2px 0 var(--bx-orange); padding: 9px 0; }
+.util .r { margin-left: auto; display: flex; gap: 20px; }
+.shead .wrap { display: flex; align-items: center; height: 68px; gap: 28px; }
+.mainnav { display: none; gap: 26px; font-weight: 600; }
+.mainnav a { color: var(--bx-ink); text-decoration: none; font-size: 16px; }
+.mainnav a.is-active { color: var(--bx-orange-800); }
+.shead .r { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.login { display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid var(--bx-ink); border-radius: 999px; padding: 8px 16px; font-weight: 700; font-size: 15px; background: var(--bx-white); text-decoration: none; color: var(--bx-ink); }
+.iconbtn { border: 0; background: none; padding: 8px; border-radius: 10px; color: var(--bx-ink); }
+@container app (min-width: 960px) {
+  .util { display: block; }
+  .mainnav { display: flex; }
+  .shead .burger { display: none; }
+}
+
+.hero { background: linear-gradient(180deg, var(--bx-peach-50) 0%, var(--bx-sand) 100%); padding: 28px 0 36px; overflow: hidden; }
+.hero .grid { display: grid; gap: 28px; align-items: center; }
+.eyebrow { display: inline-block; font-weight: 700; font-size: 14px; color: var(--bx-orange-800); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+.hero h1 { font-size: 34px; line-height: 1.08; letter-spacing: -.02em; margin: 0 0 12px; font-weight: 800; }
+.hero .lead { font-size: 19px; color: var(--bx-ink-2); margin: 0 0 16px; max-width: 34ch; }
+.timebadge { display: inline-flex; align-items: center; gap: 8px; background: var(--bx-white); border: 1px solid var(--bx-line); border-radius: 999px; padding: 6px 14px 6px 10px; font-weight: 700; font-size: 15px; box-shadow: var(--shadow-sm); }
+.timebadge .ico { color: var(--bx-orange-700); }
+.qlabel { font-size: 20px; font-weight: 800; margin: 26px 0 12px; }
+.trust { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 10px 22px; grid-template-columns: 1fr 1fr; font-size: 15px; color: var(--bx-ink-2); }
+.trust li { display: flex; gap: 8px; align-items: center; }
+.trust .ico { color: var(--bx-green); width: 20px; height: 20px; }
+@container app (max-width: 429px) { .trust { grid-template-columns: 1fr; } }
+.hero-art { display: none; }
+.hero-art svg { width: 100%; height: auto; }
+.existing { margin-top: 18px; font-size: 15px; color: var(--bx-ink-2); }
+@container app (min-width: 700px) {
+  .hero { padding: 48px 0 56px; }
+  .hero h1 { font-size: 48px; }
+  .trust { grid-template-columns: repeat(2, auto); justify-content: start; }
+}
+@container app (min-width: 960px) {
+  .hero .grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 56px; }
+  .hero h1 { font-size: 56px; }
+  .hero-art { display: block; }
+}
+
+.section { padding: 40px 0; }
+.section h2 { font-size: 28px; line-height: 1.15; margin: 0 0 8px; letter-spacing: -.01em; }
+.section .sub { color: var(--bx-ink-2); margin: 0 0 22px; }
+.how { display: grid; gap: 14px; counter-reset: how; }
+.how li { list-style: none; background: var(--bx-white); border-radius: var(--radius); padding: 20px 20px 20px 72px; position: relative; box-shadow: var(--shadow-sm); }
+.how li::before { counter-increment: how; content: counter(how); position: absolute; left: 20px; top: 20px; width: 36px; height: 36px; border-radius: 50%; background: var(--bx-orange); color: #FFF; font-weight: 800; display: grid; place-items: center; }
+.how h3 { margin: 0 0 4px; font-size: 19px; }
+.how p { margin: 0; color: var(--bx-ink-2); font-size: 16px; }
+.how { padding: 0; margin: 0; }
+.mini-avtal { display: grid; gap: 12px; margin-top: 8px; }
+.mini-avtal > div { background: var(--bx-white); border: 1px solid var(--bx-line); border-radius: var(--radius); padding: 18px 20px; display: flex; gap: 14px; align-items: flex-start; }
+.mini-avtal .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--bx-peach-100); color: var(--bx-orange-800); display: grid; place-items: center; flex: none; }
+.mini-avtal h3 { margin: 0 0 2px; font-size: 18px; }
+.mini-avtal p { margin: 0; font-size: 15px; color: var(--bx-ink-2); }
+.helpstrip { background: var(--bx-white); border-radius: var(--radius-lg); padding: 22px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; box-shadow: var(--shadow-sm); }
+.helpstrip .ic { width: 52px; height: 52px; border-radius: 50%; background: var(--bx-peach-100); color: var(--bx-orange-800); display: grid; place-items: center; flex: none; }
+.helpstrip h3 { margin: 0; font-size: 19px; }
+.helpstrip p { margin: 2px 0 0; color: var(--bx-ink-2); font-size: 15px; }
+.helpstrip .txt { flex: 1 1 240px; }
+@container app (min-width: 700px) {
+  .how { grid-template-columns: repeat(3, 1fr); }
+  .mini-avtal { grid-template-columns: repeat(3, 1fr); }
+  .section h2 { font-size: 34px; }
+}
+.sfoot { background: var(--bx-ink); color: #E9DFD6; padding: 36px 0 28px; margin-top: 24px; font-size: 15px; }
+.sfoot .logo { color: var(--bx-orange); }
+.sfoot .cols { display: grid; gap: 22px; grid-template-columns: 1fr 1fr; margin-top: 22px; }
+.sfoot h4 { margin: 0 0 8px; font-size: 15px; color: #FFF; }
+.sfoot ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.sfoot a { color: #E9DFD6; text-decoration: none; }
+.sfoot .legal { border-top: 1px solid #44392F; margin-top: 26px; padding-top: 16px; color: #B9ACA3; font-size: 13px; }
+@container app (min-width: 700px) { .sfoot .cols { grid-template-columns: 1.3fr repeat(3, 1fr); } }
+
+/* =====================================================================
+   KOMPONENTER
+   ===================================================================== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 0 26px;
+  border-radius: 999px; border: 2px solid transparent; font-weight: 700; font-size: 18px; text-decoration: none; line-height: 1.1;
+  transition: background-color .15s ease, border-color .15s ease, transform .1s ease; text-align: center;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--bx-orange-700); color: #FFF; }
+.btn-primary:hover { background: var(--bx-orange-800); }
+.btn-secondary { background: var(--bx-white); color: var(--bx-ink); border-color: var(--bx-ink); }
+.btn-secondary:hover { background: var(--bx-sand-200); }
+.btn-outline { background: var(--bx-white); color: var(--bx-orange-800); border-color: var(--bx-orange-600); }
+.btn-outline:hover { background: var(--bx-peach-50); }
+.btn-ghost { background: transparent; color: var(--bx-ink); border-color: transparent; padding: 0 14px; }
+.btn-ghost:hover { background: var(--bx-sand-200); }
+.btn-block { width: 100%; }
+.btn-sm { min-height: 44px; font-size: 16px; padding: 0 18px; }
+.linkbtn { background: none; border: 0; padding: 4px 2px; color: var(--bx-orange-800); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; font-size: inherit; display: inline-flex; gap: 6px; align-items: center; }
+.linkbtn:hover { color: var(--bx-ink); }
+
+/* Stora klickbara val */
+.tiles { display: grid; gap: 12px; }
+.tile {
+  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; background: var(--bx-white);
+  border: 2px solid var(--bx-line); border-radius: var(--radius); padding: 16px 18px; min-height: 76px;
+  transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease; box-shadow: var(--shadow-sm);
+}
+.tile:hover { border-color: var(--bx-orange-600); }
+.tile .tile-ic { width: 48px; height: 48px; border-radius: 12px; background: var(--bx-peach-100); color: var(--bx-orange-800); display: grid; place-items: center; flex: none; }
+.tile .tile-num { font-weight: 800; font-size: 20px; letter-spacing: -.02em; }
+.tile .tile-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.tile .tile-label { font-weight: 700; font-size: 18px; line-height: 1.25; }
+.tile .tile-sub { color: var(--bx-ink-2); font-size: 15px; line-height: 1.35; }
+.tile .tile-radio { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--bx-line-2); flex: none; display: grid; place-items: center; background: #FFF; }
+.tile.is-selected { border-color: var(--bx-orange-600); background: var(--bx-peach-50); box-shadow: 0 0 0 1px var(--bx-orange-600) inset, var(--shadow-sm); }
+.tile.is-selected .tile-radio { border-color: var(--bx-orange-700); background: var(--bx-orange-700); }
+.tile.is-selected .tile-radio::after { content: ""; width: 10px; height: 6px; border-left: 2.5px solid #FFF; border-bottom: 2.5px solid #FFF; transform: translateY(-1px) rotate(-45deg); }
+.tile-cta .tile-radio { display: none; }
+.tile-cta .tile-go { color: var(--bx-orange-700); }
+.tile-cta:hover .tile-go { transform: translateX(3px); }
+.tile-go { transition: transform .15s ease; }
+@container app (min-width: 640px) {
+  .tiles.cols-2 { grid-template-columns: 1fr 1fr; }
+  .tiles.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .tiles.cols-3 .tile { flex-direction: column; align-items: flex-start; text-align: left; min-height: 160px; position: relative; padding: 18px; }
+  .tiles.cols-3 .tile .tile-radio { position: absolute; right: 14px; top: 14px; }
+}
+
+/* Ja/Nej-val */
+.choices { display: flex; gap: 10px; flex-wrap: wrap; }
+.choice {
+  flex: 1 1 0; min-width: 92px; min-height: 60px; border-radius: 14px; border: 2px solid var(--bx-line); background: var(--bx-white);
+  font-weight: 700; font-size: 18px; padding: 0 16px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm);
+}
+.choice:hover { border-color: var(--bx-orange-600); }
+.choice.is-selected { border-color: var(--bx-orange-600); background: var(--bx-peach-50); box-shadow: 0 0 0 1px var(--bx-orange-600) inset; }
+.choice.is-selected::before { content: ""; width: 10px; height: 6px; border-left: 2.5px solid var(--bx-orange-700); border-bottom: 2.5px solid var(--bx-orange-700); transform: translateY(-2px) rotate(-45deg); }
+
+/* Fält */
+.field { display: grid; gap: 6px; margin-bottom: 18px; }
+.field label, .flabel { font-weight: 700; font-size: 17px; }
+.field .hint { color: var(--bx-ink-2); font-size: 15px; margin: 0; }
+.input {
+  width: 100%; min-height: 56px; border: 2px solid var(--bx-line-2); border-radius: 12px; background: #FFF; padding: 12px 16px; font-size: 18px;
+}
+.input:hover { border-color: var(--bx-ink-3); }
+.input:focus { outline: none; border-color: var(--bx-orange-600); box-shadow: 0 0 0 3px var(--bx-peach-200); }
+.input[aria-invalid="true"] { border-color: var(--bx-red); }
+.input-suffix { position: relative; }
+.input-suffix .input { padding-right: 84px; }
+.input-suffix span { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--bx-ink-2); font-weight: 600; pointer-events: none; }
+.err { color: var(--bx-red); font-weight: 600; font-size: 15px; display: flex; gap: 6px; align-items: center; margin: 0; }
+.err:empty { display: none; }
+.row2 { display: grid; gap: 0 14px; }
+@container app (min-width: 640px) { .row2 { grid-template-columns: 190px 1fr; } }
+
+.check { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border: 2px solid var(--bx-line); border-radius: 14px; background: #FFF; cursor: pointer; }
+.check input { width: 24px; height: 24px; margin: 1px 0 0; accent-color: var(--bx-orange-700); flex: none; }
+.check span { font-size: 16px; }
+.check small { display: block; color: var(--bx-ink-2); font-size: 14px; margin-top: 2px; }
+.check.is-checked { border-color: var(--bx-orange-600); background: var(--bx-peach-50); }
+
+.chip { display: inline-flex; align-items: center; gap: 6px; background: var(--bx-green-50); color: var(--bx-green); font-weight: 700; font-size: 15px; padding: 6px 12px; border-radius: 999px; }
+.chip.neutral { background: var(--bx-sand-200); color: var(--bx-ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.info {
+  display: flex; gap: 12px; align-items: flex-start; background: var(--bx-blue-50); border-radius: 14px; padding: 14px 16px; font-size: 15px; color: var(--bx-ink);
+}
+.info .ico { color: #2D5B86; margin-top: 1px; }
+.info.warm { background: var(--bx-peach-50); }
+.info.warm .ico { color: var(--bx-orange-800); }
+.info p { margin: 0; }
+.info strong { display: block; margin-bottom: 2px; }
+
+.ph {
+  display: inline-flex; align-items: center; gap: 6px; border: 1.5px dashed var(--bx-ink-3); color: var(--bx-ink-2); background: repeating-linear-gradient(-45deg, #FFF, #FFF 6px, var(--bx-sand) 6px, var(--bx-sand) 12px);
+  border-radius: 8px; padding: 2px 8px; font-size: 14px; font-weight: 700; white-space: nowrap; line-height: 1.5;
+}
+.ph::before { content: "◇"; font-size: 11px; }
+
+/* =====================================================================
+   FLÖDETS RAM
+   ===================================================================== */
+.fhead { position: sticky; top: 0; z-index: 30; background: var(--bx-white); border-bottom: 1px solid var(--bx-line); }
+.fhead-in { display: flex; align-items: center; gap: 12px; height: 60px; }
+.fhead .mid { display: none; font-weight: 700; color: var(--bx-ink-2); font-size: 15px; }
+.fhead .r { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.timeleft { display: none; align-items: center; gap: 6px; color: var(--bx-ink-2); font-size: 14px; font-weight: 600; white-space: nowrap; }
+.timeleft .ico { width: 18px; height: 18px; color: var(--bx-orange-700); }
+.helpbtn { display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--bx-line-2); background: #FFF; border-radius: 999px; padding: 7px 14px 7px 10px; font-weight: 700; font-size: 15px; }
+.helpbtn:hover { border-color: var(--bx-ink); }
+.helpbtn .ico { color: var(--bx-orange-700); }
+@container app (min-width: 520px) { .timeleft { display: inline-flex; } }
+@container app (min-width: 960px) { .fhead .mid { display: block; } .fhead-in { height: 68px; } }
+
+.progress { padding: 0 0 12px; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.steps li { display: grid; gap: 6px; }
+.steps .bar { height: 6px; border-radius: 99px; background: var(--bx-sand-200); overflow: hidden; }
+.steps .bar i { display: block; height: 100%; background: var(--bx-orange); border-radius: 99px; transition: width .35s ease; }
+.steps .lbl { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--bx-ink-3); font-weight: 600; }
+.steps .num { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--bx-line-2); display: grid; place-items: center; font-size: 12px; font-weight: 800; flex: none; background: #FFF; }
+.steps .is-current .lbl { color: var(--bx-ink); }
+.steps .is-current .num { background: var(--bx-orange-700); border-color: var(--bx-orange-700); color: #FFF; }
+.steps .is-done .num { background: var(--bx-green); border-color: var(--bx-green); color: #FFF; }
+.steps .is-done .lbl { color: var(--bx-ink-2); }
+.steps .lbl .t { display: none; }
+.steps-mobile-title { font-size: 14px; font-weight: 700; margin: 0 0 8px; color: var(--bx-ink); }
+.steps-mobile-title span { color: var(--bx-ink-3); font-weight: 600; }
+@container app (min-width: 700px) {
+  .steps .lbl { font-size: 14px; }
+  .steps .lbl .t { display: inline; }
+  .steps-mobile-title { display: none; }
+}
+
+.flow-body { display: grid; gap: 28px; padding-top: 22px; padding-bottom: 0; align-items: start; }
+.flow-main { min-width: 0; max-width: 680px; width: 100%; }
+.flow-side { display: none; }
+@container app (min-width: 980px) {
+  .flow-body { grid-template-columns: minmax(0, 1fr) 340px; gap: 56px; padding-top: 40px; }
+  .flow-main { max-width: 720px; }
+  .flow-side { display: block; position: sticky; top: 120px; }
+  .flow-body.is-wide, .flow-body.is-center { grid-template-columns: minmax(0, 1fr); }
+  .flow-body.is-wide .flow-side, .flow-body.is-center .flow-side { display: none; }
+  .flow-body.is-wide .flow-main { max-width: none; }
+  .flow-body.is-wide .rec, .flow-body.is-wide .view > .lead { max-width: 860px; }
+  .flow-body.is-wide .msum { display: block; max-width: 860px; }
+}
+.flow-body.is-center .flow-main { margin: 0 auto; }
+
+.view h1 { font-size: 28px; line-height: 1.15; letter-spacing: -.015em; margin: 0 0 8px; font-weight: 800; }
+.view h1:focus { outline: none; }
+.view .lead { font-size: 18px; color: var(--bx-ink-2); margin: 0 0 22px; }
+.view h2 { font-size: 21px; margin: 30px 0 12px; line-height: 1.2; }
+.view h2.q { margin-top: 26px; display: flex; align-items: center; gap: 10px; }
+.view h2.q .ico { color: var(--bx-orange-700); }
+.view .qsub { margin: -6px 0 12px; color: var(--bx-ink-2); font-size: 16px; }
+.crumb { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: var(--bx-ink-2); background: var(--bx-white); border: 1px solid var(--bx-line); border-radius: 999px; padding: 4px 6px 4px 12px; margin-bottom: 14px; }
+.crumb .linkbtn { font-size: 15px; }
+@container app (min-width: 700px) { .view h1 { font-size: 38px; } .view .lead { font-size: 19px; } }
+
+.actions {
+  position: sticky; bottom: 0; z-index: 25; display: flex; gap: 10px; align-items: center; margin: 28px -16px 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, .96); backdrop-filter: saturate(1.4) blur(8px); border-top: 1px solid var(--bx-line); box-shadow: 0 -6px 20px rgba(35, 28, 25, .06);
+}
+.actions .btn-primary { flex: 1; }
+.actions .back { min-width: 56px; padding: 0 14px; }
+.actions .back .t { display: none; }
+@container app (min-width: 520px) { .actions .back .t { display: inline; } .actions .back { padding: 0 22px; } }
+@container app (min-width: 700px) {
+  .actions { margin: 32px 0 0; bottom: 16px; border-radius: 20px; padding: 14px 18px; border: 1px solid var(--bx-line); }
+  .actions .btn-primary { flex: 0 1 auto; min-width: 260px; margin-left: auto; }
+}
+.after-actions { height: 32px; }
+
+/* Uppskattningskort */
+.estimate {
+  margin-top: 18px; background: var(--bx-white); border-radius: var(--radius); border: 1px solid var(--bx-line); padding: 18px 20px; display: grid; gap: 4px; box-shadow: var(--shadow-sm);
+  position: relative; overflow: hidden;
+}
+.estimate::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--bx-orange); }
+.estimate .k { font-size: 14px; font-weight: 700; color: var(--bx-ink-2); text-transform: uppercase; letter-spacing: .06em; display: flex; align-items: center; gap: 6px; }
+.estimate .v { font-size: 32px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+.estimate .v small { font-size: 18px; font-weight: 700; color: var(--bx-ink-2); letter-spacing: 0; }
+.estimate .m { color: var(--bx-ink-2); font-size: 15px; }
+.estimate .delta { display: inline-flex; align-items: center; gap: 4px; background: var(--bx-peach-100); color: #7A3307; font-weight: 700; font-size: 14px; border-radius: 999px; padding: 2px 10px; justify-self: start; margin-top: 4px; }
+.estimate.flash { animation: flash .6s ease; }
+@keyframes flash { 0% { background: var(--bx-peach-100); } 100% { background: var(--bx-white); } }
+
+/* Förbrukningssammanfattning */
+.usage-card { background: var(--bx-white); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow); border: 1px solid var(--bx-line); }
+.usage-card .big { font-size: 44px; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
+.usage-card .big small { font-size: 20px; font-weight: 700; color: var(--bx-ink-2); letter-spacing: 0; }
+.usage-card .per { color: var(--bx-ink-2); margin: 6px 0 16px; }
+.stack { display: flex; height: 16px; border-radius: 99px; overflow: hidden; background: var(--bx-sand-200); }
+.stack i { display: block; height: 100%; transition: width .35s ease; }
+.legend { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 6px; font-size: 15px; }
+.legend li { display: flex; align-items: center; gap: 10px; }
+.legend .sw { width: 12px; height: 12px; border-radius: 4px; flex: none; }
+.legend .val { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
+.c-hush { background: var(--bx-orange); }
+.c-varme { background: #B8532A; }
+.c-elbil { background: #F5B47F; }
+.c-egen { background: var(--bx-orange-700); }
+.adjust { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--bx-line); }
+.adjust .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.range { flex: 1 1 220px; accent-color: var(--bx-orange-700); height: 32px; }
+.adjust .input-suffix { flex: 0 0 170px; }
+.adjust .input { min-height: 48px; font-size: 17px; }
+.tag-adj { display: inline-flex; gap: 6px; align-items: center; background: var(--bx-sand-200); border-radius: 999px; font-size: 13px; font-weight: 700; padding: 2px 10px; margin-left: 8px; vertical-align: middle; }
+
+/* Avtal */
+.rec {
+  background: linear-gradient(135deg, var(--bx-peach-100), var(--bx-peach-50)); border-radius: var(--radius-lg); padding: 20px 22px; margin-bottom: 22px; border: 1px solid var(--bx-peach-200);
+}
+.rec .k { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: #7A3307; display: flex; gap: 6px; align-items: center; }
+.rec h2 { margin: 6px 0 10px; font-size: 24px; }
+.rec ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.rec li { display: flex; gap: 10px; align-items: flex-start; }
+.rec li .ico { color: var(--bx-green); margin-top: 1px; width: 22px; height: 22px; }
+.rec .note { margin: 12px 0 0; font-size: 15px; color: var(--bx-ink-2); }
+.cards { display: grid; gap: 16px; }
+.card {
+  background: var(--bx-white); border-radius: var(--radius-lg); border: 2px solid var(--bx-line); padding: 22px 20px 20px; display: flex; flex-direction: column; gap: 12px; position: relative; box-shadow: var(--shadow-sm);
+}
+.card.is-rec { border-color: var(--bx-orange-600); box-shadow: var(--shadow); }
+.card.is-chosen { border-color: var(--bx-green); }
+.card .badge { position: absolute; top: -13px; left: 18px; background: var(--bx-orange-700); color: #FFF; font-weight: 800; font-size: 13px; letter-spacing: .03em; border-radius: 999px; padding: 4px 12px; display: inline-flex; align-items: center; gap: 4px; }
+.card .badge.chosen { background: var(--bx-green); }
+.card .top { display: flex; gap: 12px; align-items: center; }
+.card .ic { width: 46px; height: 46px; border-radius: 12px; background: var(--bx-peach-100); color: var(--bx-orange-800); display: grid; place-items: center; flex: none; }
+.card h3 { margin: 0; font-size: 22px; line-height: 1.15; }
+.card .desc { margin: 0; color: var(--bx-ink); font-size: 16px; }
+.card .fits { margin: 0; font-size: 15px; color: var(--bx-ink-2); background: var(--bx-sand); border-radius: 12px; padding: 10px 12px; }
+.card .fits b { color: var(--bx-ink); }
+.cost { border-top: 1px solid var(--bx-line); border-bottom: 1px solid var(--bx-line); padding: 12px 0; display: grid; gap: 2px; }
+.cost .k { font-size: 14px; color: var(--bx-ink-2); font-weight: 600; }
+.cost .v { font-size: 24px; font-weight: 800; letter-spacing: -.01em; }
+.cost .m { font-size: 13px; color: var(--bx-ink-3); }
+.terms { margin: 0; display: grid; gap: 0; font-size: 15px; }
+.terms > div { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px dashed var(--bx-line); align-items: baseline; }
+.terms > div:last-child { border-bottom: 0; }
+.terms dt { color: var(--bx-ink-2); flex: none; }
+.terms dd { margin: 0; text-align: right; font-weight: 700; }
+.card .req { font-size: 14px; color: var(--bx-ink-2); display: flex; gap: 8px; margin: 0; }
+.card .req .ico { width: 18px; height: 18px; color: var(--bx-ink-3); margin-top: 2px; }
+.card .btn { margin-top: auto; }
+@container app (min-width: 1000px) {
+  .cards.three { grid-template-columns: repeat(3, 1fr); align-items: stretch; }
+}
+.verify-note { margin-top: 18px; font-size: 14px; color: var(--bx-ink-2); display: flex; gap: 8px; align-items: flex-start; }
+.verify-note .ico { width: 18px; height: 18px; margin-top: 2px; }
+
+/* Sammanfattning / granska */
+.sum { background: var(--bx-white); border-radius: var(--radius-lg); border: 1px solid var(--bx-line); box-shadow: var(--shadow-sm); overflow: hidden; }
+.sum-h { display: flex; align-items: center; gap: 12px; padding: 18px 20px; background: var(--bx-peach-50); border-bottom: 1px solid var(--bx-line); }
+.sum-h .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--bx-white); color: var(--bx-orange-800); display: grid; place-items: center; }
+.sum-h h2 { margin: 0; font-size: 20px; }
+.sum-h p { margin: 0; color: var(--bx-ink-2); font-size: 15px; }
+.sum dl { margin: 0; }
+.sum .r { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 14px 20px; border-bottom: 1px solid var(--bx-line); align-items: center; }
+.sum .r:last-child { border-bottom: 0; }
+.sum dt { color: var(--bx-ink-2); font-size: 14px; font-weight: 600; grid-column: 1; }
+.sum dd { margin: 0; font-weight: 700; font-size: 17px; grid-column: 1; }
+.sum dd .s { display: block; font-weight: 500; color: var(--bx-ink-2); font-size: 14px; }
+.sum .edit { grid-column: 2; grid-row: 1 / span 2; }
+.sum .r.total { background: var(--bx-sand); }
+.sum .r.total dd { font-size: 20px; }
+
+.addons-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 30px; }
+.addons-h h2 { margin: 0; }
+.addons-h p { margin: 4px 0 0; color: var(--bx-ink-2); font-size: 15px; width: 100%; }
+.addons { display: grid; gap: 12px; margin-top: 14px; }
+@container app (min-width: 640px) { .addons { grid-template-columns: 1fr 1fr; } }
+.addon { background: var(--bx-white); border: 2px solid var(--bx-line); border-radius: var(--radius); padding: 16px; display: grid; gap: 10px; align-content: start; }
+.addon.is-on { border-color: var(--bx-green); background: #FBFEFC; }
+.addon .top { display: flex; gap: 12px; align-items: flex-start; }
+.addon .ic { width: 42px; height: 42px; border-radius: 12px; background: var(--bx-peach-100); color: var(--bx-orange-800); display: grid; place-items: center; flex: none; }
+.addon h3 { margin: 0; font-size: 18px; }
+.addon p { margin: 0; font-size: 15px; color: var(--bx-ink-2); }
+.addon .fit { font-size: 13px; font-weight: 700; color: #7A3307; background: var(--bx-peach-100); border-radius: 999px; padding: 2px 10px; justify-self: start; }
+.addon .price { font-size: 14px; display: grid; gap: 4px; }
+.addon .price div { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.addon .price span:first-child { color: var(--bx-ink-2); }
+.addon .acts { display: flex; align-items: center; gap: 10px; justify-content: space-between; flex-wrap: wrap; }
+.addon .toggle { min-height: 44px; border-radius: 999px; border: 2px solid var(--bx-orange-600); background: #FFF; color: var(--bx-orange-800); font-weight: 800; font-size: 16px; padding: 0 18px; display: inline-flex; align-items: center; gap: 8px; }
+.addon .toggle:hover { background: var(--bx-peach-50); }
+.addon.is-on .toggle { background: var(--bx-green); border-color: var(--bx-green); color: #FFF; }
+.addon-foot { font-size: 14px; color: var(--bx-ink-2); margin: 10px 0 0; }
+
+/* Steg / tidslinje */
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.timeline li { display: grid; grid-template-columns: 36px 1fr; gap: 12px; position: relative; padding-bottom: 16px; }
+.timeline li:not(:last-child)::after { content: ""; position: absolute; left: 17px; top: 36px; bottom: 0; width: 2px; background: var(--bx-line); }
+.timeline .dot { width: 36px; height: 36px; border-radius: 50%; background: var(--bx-peach-100); color: var(--bx-orange-800); display: grid; place-items: center; font-weight: 800; font-size: 15px; }
+.timeline .dot.done { background: var(--bx-green); color: #FFF; }
+.timeline h3 { margin: 6px 0 2px; font-size: 17px; }
+.timeline p { margin: 0; color: var(--bx-ink-2); font-size: 15px; }
+.timeline .when { font-size: 13px; font-weight: 700; color: var(--bx-orange-800); text-transform: uppercase; letter-spacing: .05em; }
+
+.panel { background: var(--bx-white); border: 1px solid var(--bx-line); border-radius: var(--radius); padding: 18px 20px; margin-top: 16px; }
+.panel h2 { margin: 0 0 12px; font-size: 19px; display: flex; gap: 8px; align-items: center; }
+.panel h2 .ico { color: var(--bx-orange-700); }
+.panel ul.ticks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 16px; }
+.panel ul.ticks li { display: flex; gap: 10px; align-items: flex-start; }
+.panel ul.ticks .ico { color: var(--bx-green); width: 20px; height: 20px; margin-top: 2px; }
+.two { display: grid; gap: 16px; }
+@container app (min-width: 760px) { .two { grid-template-columns: 1fr 1fr; } .two .panel { margin-top: 0; } }
+
+.bankid-btn .bid { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: rgba(255, 255, 255, .18); }
+
+/* Sidopanel */
+.side-card { background: var(--bx-white); border: 1px solid var(--bx-line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+.side-card h2 { font-size: 17px; margin: 0; padding: 16px 20px; border-bottom: 1px solid var(--bx-line); display: flex; align-items: center; gap: 8px; }
+.side-card ul { list-style: none; margin: 0; padding: 6px 0; }
+.side-card li { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: start; padding: 10px 20px; font-size: 15px; }
+.side-card li .ico { width: 20px; height: 20px; color: var(--bx-orange-700); margin-top: 1px; }
+.side-card li b { display: block; font-size: 13px; color: var(--bx-ink-3); font-weight: 600; }
+.side-card li .linkbtn { font-size: 14px; padding: 0; }
+.side-card .empty { padding: 16px 20px; color: var(--bx-ink-2); font-size: 15px; margin: 0; }
+.side-card .foot { padding: 14px 20px; background: var(--bx-sand); font-size: 14px; color: var(--bx-ink-2); display: flex; gap: 8px; align-items: center; }
+.side-card .foot .ico { color: var(--bx-green); width: 18px; height: 18px; }
+.side-help { margin-top: 14px; display: flex; gap: 12px; align-items: center; padding: 16px 18px; border-radius: var(--radius); background: var(--bx-white); border: 1px solid var(--bx-line); }
+.side-help .ic { width: 40px; height: 40px; border-radius: 50%; background: var(--bx-peach-100); color: var(--bx-orange-800); display: grid; place-items: center; flex: none; }
+.side-help p { margin: 0; font-size: 14px; color: var(--bx-ink-2); }
+.side-help b { display: block; color: var(--bx-ink); font-size: 15px; }
+
+.msum { margin: 0 0 16px; background: var(--bx-white); border: 1px solid var(--bx-line); border-radius: 14px; }
+.msum summary { list-style: none; padding: 10px 14px; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.msum summary::-webkit-details-marker { display: none; }
+.msum summary .ico { width: 18px; height: 18px; color: var(--bx-orange-700); }
+.msum summary .chev { margin-left: auto; transition: transform .2s; }
+.msum[open] summary .chev { transform: rotate(180deg); }
+.msum .side-card { border: 0; box-shadow: none; border-top: 1px solid var(--bx-line); border-radius: 0 0 14px 14px; }
+.msum .side-card h2 { display: none; }
+@container app (min-width: 980px) { .msum { display: none; } }
+.msum summary .t { white-space: nowrap; }
+.msum summary .kwh { margin-left: auto; font-weight: 600; color: var(--bx-ink-2); white-space: nowrap; }
+.msum summary .chev { margin-left: 0; }
+
+/* Klart */
+.done-hero { text-align: center; padding: 10px 0 8px; }
+.done-hero .ok { width: 76px; height: 76px; border-radius: 50%; background: var(--bx-green); color: #FFF; display: grid; place-items: center; margin: 0 auto 16px; box-shadow: 0 0 0 10px var(--bx-green-50); }
+.done-hero .ok .ico { width: 40px; height: 40px; stroke-width: 2.6; }
+.done-hero .lead { margin-left: auto; margin-right: auto; max-width: 46ch; }
+.demo-banner { display: flex; gap: 12px; align-items: flex-start; background: #FFF4D6; border: 1px solid #F0D58A; color: #4A3700; border-radius: 14px; padding: 14px 16px; font-size: 15px; margin: 18px 0; text-align: left; }
+.demo-banner .ico { color: #8A6400; }
+.app-card { display: flex; gap: 16px; align-items: center; background: var(--bx-ink); color: #FFF; border-radius: var(--radius-lg); padding: 20px; margin-top: 16px; flex-wrap: wrap; }
+.app-card .phone { width: 56px; height: 56px; border-radius: 14px; background: var(--bx-orange); display: grid; place-items: center; color: #FFF; font-weight: 800; font-size: 22px; letter-spacing: -.04em; flex: none; }
+.app-card h3 { margin: 0; font-size: 18px; }
+.app-card p { margin: 2px 0 0; color: #E3D6CC; font-size: 15px; }
+.app-card .txt { flex: 1 1 200px; }
+.app-card .stores { display: flex; gap: 8px; }
+.app-card .stores span { border: 1px solid #6B5D55; border-radius: 10px; padding: 6px 12px; font-size: 13px; font-weight: 700; }
+.done-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 26px 0 36px; }
+
+/* =====================================================================
+   ÖVERLAGOR: hjälp, modaler, BankID
+   ===================================================================== */
+.overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: flex-end; justify-content: center; }
+.overlay .scrim { position: absolute; inset: 0; background: rgba(35, 28, 25, .5); animation: fade .2s ease; }
+.sheet {
+  position: relative; background: var(--bx-white); width: 100%; max-height: 90%; overflow: auto; border-radius: 24px 24px 0 0; padding: 22px 20px 26px;
+  box-shadow: var(--shadow-lg); animation: up .25s ease;
+}
+.sheet-h { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+.sheet-h h2 { margin: 0; font-size: 22px; line-height: 1.2; flex: 1; }
+.sheet-h .x { border: 0; background: var(--bx-sand-200); border-radius: 50%; width: 40px; height: 40px; display: grid; place-items: center; flex: none; }
+.sheet p { margin: 0 0 12px; }
+.sheet .muted { color: var(--bx-ink-2); font-size: 15px; }
+@keyframes up { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@container app (min-width: 700px) {
+  .overlay { align-items: center; padding: 24px; }
+  .sheet { width: 560px; max-width: 100%; border-radius: 24px; padding: 28px; max-height: calc(100% - 48px); }
+  .overlay.right { justify-content: flex-end; align-items: stretch; padding: 0; }
+  .overlay.right .sheet { width: 440px; max-height: none; height: 100%; border-radius: 24px 0 0 24px; animation: slide .25s ease; }
+}
+@keyframes slide { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.faq details { border-bottom: 1px solid var(--bx-line); }
+.faq summary { list-style: none; padding: 14px 0; font-weight: 700; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 16px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; margin-left: auto; font-size: 22px; font-weight: 600; color: var(--bx-orange-700); line-height: 1; }
+.faq details[open] summary::after { content: "–"; }
+.faq details p { margin: 0 0 14px; color: var(--bx-ink-2); font-size: 15px; }
+.help-ways { display: grid; gap: 10px; margin-top: 18px; }
+.help-way { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; background: var(--bx-sand); border: 1px solid var(--bx-line); border-radius: 14px; padding: 14px 16px; }
+.help-way:hover { border-color: var(--bx-orange-600); }
+.help-way .ic { width: 42px; height: 42px; border-radius: 50%; background: var(--bx-white); color: var(--bx-orange-800); display: grid; place-items: center; flex: none; }
+.help-way b { display: block; font-size: 16px; }
+.help-way span { color: var(--bx-ink-2); font-size: 14px; }
+.saved-note { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--bx-green); font-weight: 700; background: var(--bx-green-50); border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; }
+.saved-note .ico { width: 18px; height: 18px; }
+.chat { background: var(--bx-sand); border-radius: 14px; padding: 14px; display: grid; gap: 10px; margin-top: 14px; }
+.chat .msg { background: #FFF; border-radius: 14px 14px 14px 4px; padding: 10px 12px; font-size: 15px; max-width: 90%; box-shadow: var(--shadow-sm); }
+.chat .msg.me { justify-self: end; background: var(--bx-orange-700); color: #FFF; border-radius: 14px 14px 4px 14px; }
+.chat .who { font-size: 12px; font-weight: 700; color: var(--bx-ink-3); }
+
+.explain { display: grid; gap: 12px; margin: 8px 0 16px; }
+.explain .part { border-radius: 16px; padding: 14px 16px; }
+.explain .part h3 { margin: 0 0 6px; font-size: 17px; display: flex; gap: 8px; align-items: center; }
+.explain .part ul { margin: 0; padding-left: 18px; font-size: 15px; display: grid; gap: 2px; }
+.explain .part p { font-size: 14px; margin: 8px 0 0; color: var(--bx-ink-2); }
+.explain .p1 { background: var(--bx-peach-100); }
+.explain .p2 { background: var(--bx-blue-50); }
+.gloss { margin: 0; display: grid; gap: 10px; font-size: 15px; }
+.gloss dt { font-weight: 800; }
+.gloss dd { margin: 0 0 4px; color: var(--bx-ink-2); }
+
+/* BankID */
+.bankid { text-align: center; }
+.bankid .what { background: var(--bx-sand); border-radius: 14px; padding: 12px 14px; font-size: 15px; text-align: left; margin: 0 0 16px; }
+.bankid .what b { display: block; }
+.bid-mark { width: 64px; height: 64px; border-radius: 18px; background: #193E4F; color: #FFF; display: grid; place-items: center; margin: 0 auto 10px; font-weight: 800; letter-spacing: -.02em; font-size: 15px; }
+.qr { width: 184px; height: 184px; margin: 6px auto 12px; padding: 10px; background: #FFF; border-radius: 14px; border: 1px solid var(--bx-line); position: relative; }
+.qr svg { width: 100%; height: 100%; }
+.qr .demo { position: absolute; inset: auto 0 -12px; margin: auto; width: max-content; background: var(--bx-ink); color: #FFF; font-size: 11px; font-weight: 800; letter-spacing: .08em; padding: 2px 8px; border-radius: 6px; }
+.bid-desktop { display: none; }
+@container app (min-width: 700px) { .bid-desktop { display: block; } .bid-mobile { display: none; } }
+.spinner { width: 48px; height: 48px; border-radius: 50%; border: 5px solid var(--bx-sand-200); border-top-color: var(--bx-orange-700); animation: spin 1s linear infinite; margin: 10px auto 14px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.bid-ok { width: 64px; height: 64px; border-radius: 50%; background: var(--bx-green); color: #FFF; display: grid; place-items: center; margin: 8px auto 12px; }
+.bid-ok .ico { width: 34px; height: 34px; stroke-width: 2.6; }
+.bankid .demo-note { font-size: 13px; color: var(--bx-ink-2); margin-top: 14px; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="demobar" id="demobar" role="region" aria-label="Demoverktyg">
+  <div class="demobar-in">
+    <span class="tag">DEMO</span>
+    <button type="button" class="dbtn demobar-toggle" aria-expanded="false" aria-controls="demotools">Demoverktyg ▾</button>
+    <span class="title">Bixia teckningsresa · Proof of Concept · Inget riktigt avtal tecknas</span>
+    <span class="spacer"></span>
+    <div class="demobar-tools" id="demotools">
+      <span class="seg-wrap"><span class="seg" role="group" aria-label="Visa som">
+        <button type="button" data-demo="vy" data-value="dator" aria-pressed="true">Dator</button>
+        <button type="button" data-demo="vy" data-value="mobil" aria-pressed="false">Mobil</button>
+      </span></span>
+      <details id="dd-persona"><summary>Demopersonor ▾</summary>
+        <div class="menu" id="menu-persona"></div>
+      </details>
+      <details id="dd-jump"><summary>Hoppa till ▾</summary>
+        <div class="menu" id="menu-jump"></div>
+      </details>
+      <button type="button" class="dbtn" data-demo="notes" aria-pressed="false">UX-anteckningar</button>
+      <button type="button" class="dbtn" data-demo="reset">Starta om</button>
+      <a class="dbtn" href="index.html" style="text-decoration:none">Översikt</a>
+    </div>
+  </div>
+</div>
+<div class="test-ribbon">Demo · inget riktigt avtal tecknas</div>
+
+<div class="stage" id="stage">
+  <div class="device" id="device">
+    <div class="device-statusbar" aria-hidden="true"><span>09:41</span><span class="sb-icons"><span style="width:17px;height:11px"></span><span style="width:15px;height:11px;border-radius:50% 50% 2px 2px"></span><span style="width:25px;height:12px;border-radius:4px"></span></span></div>
+    <div class="scroller" id="scroller">
+      <div id="app"></div>
+    </div>
+    <div id="overlay-root"></div>
+  </div>
+  <aside class="notes" id="notes" aria-label="UX-anteckningar"></aside>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* =====================================================================
+   PRISER OCH VILLKOR
+   null = tydligt märkt platshållare visas i stället för ett pris.
+   Fyll i från Bixias aktuella, verifierade prislista. När priserna finns
+   räknas uppskattad månadskostnad ut automatiskt.
+   Alla belopp inklusive moms.
+   ===================================================================== */
+const PRISER = {
+  spotExempel: null,                 // öre/kWh – verifierat prisexempel för spotpris (för rörligt och kvartspris)
+  rorligt: { manadsavgift: null, paslag: null },   // kr/mån, öre/kWh
+  kvart:   { manadsavgift: null, paslag: null },   // kr/mån, öre/kWh
+  fast:    { manadsavgift: null, elpris: null },   // kr/mån, öre/kWh (fast elpris, påslag ingår)
+  nara:    { manadsavgift: null },                 // kr/mån
+  matare:  { engang: null, manadsavgift: null },   // kr (mätaren), kr/mån (tjänsten)
+};
+
+const AVTAL = {
+  rorligt: {
+    id: 'rorligt', namn: 'Rörligt månadspris', ikon: 'wave',
+    desc: 'Elpriset följer elmarknaden och räknas som ett snitt för hela månaden.',
+    passar: 'dig som vill ha ett enkelt avtal utan bindningstid och inte vill hålla koll på elpriset.',
+    elpris: 'Månadens snittpris på elbörsen',
+    bindning: 'Ingen', uppsagning: '14 dagar',
+    ovrigt: 'Rörliga inköpskostnader tillkommer',
+    req: null,
+  },
+  kvart: {
+    id: 'kvart', namn: 'Kvartspris', ikon: 'bars',
+    desc: 'Du betalar elbörsens pris för varje kvart. Använd el när det är billigt och sänk din kostnad.',
+    passar: 'dig som kan flytta din elanvändning, till exempel ladda elbilen på natten.',
+    elpris: 'Elbörsens pris per kvart',
+    bindning: 'Ingen', uppsagning: '14 dagar',
+    ovrigt: 'Rörliga inköpskostnader tillkommer',
+    req: 'Din elmätare behöver mäta per kvart. Vi kontrollerar det åt dig.',
+  },
+  fast: {
+    id: 'fast', namn: 'Fast pris', ikon: 'lock',
+    desc: 'Samma elpris varje månad under hela avtalstiden, oavsett vad som händer på elmarknaden.',
+    passar: 'dig som vill veta vad elen kostar och slippa prissvängningar.',
+    elpris: 'Fast i 12 månader',
+    bindning: '12 månader', uppsagning: 'Löper ut efter 12 mån',
+    ovrigt: 'Avgift om du avslutar i förtid',
+    req: 'Efter 12 månader går avtalet över till Rörligt pris, om du inte väljer ett nytt.',
+  },
+};
+
+/* =====================================================================
+   SCHABLONVÄRDEN (illustrativa, kWh per år)
+   Kalibrerade mot Energimarknadsinspektionens typkunder: lägenhet 2 000,
+   villa 5 000 och villa med elvärme 20 000 kWh/år. Ska verifieras.
+   ===================================================================== */
+const HUSHALL = {
+  lagenhet: { '1-2': 1500, '3': 2000, '4+': 2800 },
+  radhus:   { '1-2': 3000, '3': 4000, '4+': 5000 },
+  villa:    { '1-2': 3500, '3': 4500, '4+': 5500 },
+};
+const VARME = {
+  radhus: { '1-2': 4000, '3': 6000, '4+': 8000 },
+  villa:  { '1-2': 6500, '3': 10000, '4+': 14500 },
+};
+const ELBIL_KWH = 2500; // cirka 1 250 mil per år
+
+/* Preliminärt elområde och område utifrån postnummer (grov demo-mappning) */
+function elomrade(pn) {
+  const n = parseInt(String(pn).replace(/\D/g, '').slice(0, 2), 10);
+  if (!n || n < 10) return null;
+  if (n >= 94) return 'SE1';
+  if (n >= 82) return 'SE2';
+  if ((n >= 20 && n <= 31) || (n >= 34 && n <= 39)) return 'SE4';
+  return 'SE3';
+}
+const OMRADE_NAMN = { SE1: 'Norra Sverige', SE2: 'Norra Mellansverige', SE3: 'Mellansverige', SE4: 'Södra Sverige' };
+const REGION = {
+  10:'Stockholmsområdet',11:'Stockholmsområdet',12:'Stockholmsområdet',13:'Stockholmsområdet',14:'Stockholmsområdet',15:'Stockholms län',16:'Stockholmsområdet',17:'Stockholmsområdet',18:'Stockholms län',19:'Stockholms län',
+  20:'Malmöområdet',21:'Malmöområdet',22:'Lundaområdet',23:'Skåne',24:'Skåne',25:'Helsingborgsområdet',26:'Skåne',27:'Skåne',28:'Skåne',29:'Kristianstadsområdet',
+  30:'Halmstadsområdet',31:'Halland',33:'Småland',34:'Småland',35:'Växjöområdet',36:'Småland',37:'Blekinge',38:'Kalmar län',39:'Kalmarområdet',
+  40:'Göteborgsområdet',41:'Göteborgsområdet',42:'Göteborgsområdet',43:'Västsverige',44:'Västsverige',45:'Bohuslän',46:'Västra Götaland',47:'Västra Götaland',
+  50:'Boråsområdet',51:'Västra Götaland',52:'Västra Götaland',53:'Västra Götaland',54:'Skaraborg',55:'Jönköpingsområdet',56:'Jönköpings län',57:'Småland',58:'Linköpingsområdet',59:'Östergötland',
+  60:'Norrköpingsområdet',61:'Östergötland',62:'Gotland',63:'Eskilstunaområdet',64:'Sörmland',65:'Karlstadsområdet',66:'Värmland',67:'Värmland',68:'Värmland',69:'Örebro län',
+  70:'Örebroområdet',71:'Örebro län',72:'Västeråsområdet',73:'Västmanland',74:'Uppland',75:'Uppsalaområdet',76:'Roslagen',77:'Dalarna',78:'Dalarna',79:'Dalarna',
+  80:'Gävleområdet',81:'Gästrikland',82:'Hälsingland',83:'Jämtland',84:'Jämtland',85:'Sundsvallsområdet',86:'Västernorrland',87:'Västernorrland',88:'Västernorrland',89:'Västernorrland',
+  90:'Umeåområdet',91:'Västerbotten',92:'Västerbotten',93:'Västerbotten',94:'Piteåområdet',95:'Norrbotten',96:'Norrbotten',97:'Luleåområdet',98:'Norrbotten',
+};
+
+/* =====================================================================
+   IKONER
+   ===================================================================== */
+const P = {
+  arrowR: 'M5 12h14M13 6l6 6-6 6',
+  arrowL: 'M19 12H5M11 18l-6-6 6-6',
+  check: 'M5 12.5l4.5 4.5L19 7',
+  swap: 'M4 8h14l-3.5-3.5M20 16H6l3.5 3.5',
+  box: 'M3 7.5l9-4.5 9 4.5v9L12 21l-9-4.5v-9zM3 7.5l9 4.5 9-4.5M12 12v9M7.5 5.2l9 4.6',
+  apartment: 'M5 21V4.5A1.5 1.5 0 016.5 3h11A1.5 1.5 0 0119 4.5V21M3 21h18M9 7h1.5M13.5 7H15M9 11h1.5M13.5 11H15M9 15h1.5M13.5 15H15M10.5 21v-3h3v3',
+  villa: 'M3 11l9-7 9 7M5 9.5V20h14V9.5M10 20v-5h4v5',
+  radhus: 'M2 12l5-4.5 5 4.5 5-4.5 5 4.5M4 10.5V20h16v-9.5M12 12v8M6 20v-3.5h2.5V20M15.5 20v-3.5H18V20',
+  gauge: 'M4.5 16a7.5 7.5 0 1115 0M12 16l3.5-4.5M3 20h18',
+  bolt: 'M13 3L5 13.5h6L10 21l8-10.5h-6L13 3z',
+  flame: 'M12 21c3.9 0 6.5-2.6 6.5-6.2 0-3.6-2.6-5.6-3.9-8.8-1.3 2-2.6 2.8-3.4 2.8C11.5 6.5 10.2 4.5 9.4 3c-.7 3.1-3.9 5.7-3.9 11.8C5.5 18.4 8.1 21 12 21z',
+  heat: 'M12 3v2M12 19v2M4.2 7.5l1.7 1M18.1 15.5l1.7 1M4.2 16.5l1.7-1M18.1 8.5l1.7-1M8 12a4 4 0 108 0 4 4 0 00-8 0z',
+  question: 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.6 9.4a2.5 2.5 0 114.1 1.9c-.9.7-1.7 1.2-1.7 2.4M12 16.8h.01',
+  car: 'M4 16.5V12l2-5h12l2 5v4.5M4 12h16M4 16.5h16M5 16.5V19h3v-2.5M16 16.5V19h3v-2.5M7.5 14.2h.01M16.5 14.2h.01',
+  clock: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3.2 2',
+  shield: 'M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3zM8.5 12l2.5 2.5 4.5-5',
+  leaf: 'M5 19c0-8 5-14 15-15-1 10-7 15-15 15zM5 19l7-7',
+  lock: 'M6 11h12v10H6zM8.5 11V7.5a3.5 3.5 0 017 0V11M12 15v2',
+  wave: 'M3 14c2.2 0 2.8-6 5.5-6s3.2 9 6 9 3.2-5 6.5-5',
+  bars: 'M5 20v-6M9.5 20V8M14 20v-9M18.5 20V5M3 20h18',
+  pin: 'M12 21s-7-6.2-7-11.5a7 7 0 1114 0C19 14.8 12 21 12 21zM12 12a2.5 2.5 0 100-5 2.5 2.5 0 000 5z',
+  pulse: 'M3 12h4l3-7 4 14 3-7h4',
+  phone: 'M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z',
+  chat: 'M4 5h16v11H9l-5 4V5zM8 9.5h8M8 12.5h5',
+  edit: 'M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4',
+  info: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 11v5M12 7.8h.01',
+  x: 'M6 6l12 12M18 6L6 18',
+  menu: 'M4 7h16M4 12h16M4 17h16',
+  user: 'M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0',
+  mail: 'M3 6h18v12H3zM3.5 6.5l8.5 6.5 8.5-6.5',
+  calendar: 'M4 6h16v15H4zM4 10h16M8 3v4M16 3v4',
+  doc: 'M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5',
+  home: 'M3 11l9-7 9 7M5 9.5V20h14V9.5',
+  sparkle: 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16z',
+  chevD: 'M6 9l6 6 6-6',
+  callback: 'M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2zM15 3h6v6M21 3l-6 6',
+  plug: 'M9 3v5M15 3v5M6 8h12v3a6 6 0 01-12 0V8zM12 17v4',
+  smartphone: 'M7 3h10v18H7zM11 18h2',
+};
+const ico = (n, cls = '') => `<svg class="ico ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${P[n]}"/></svg>`;
+
+/* =====================================================================
+   TILLSTÅND – sparas så att val finns kvar
+   ===================================================================== */
+const params = new URLSearchParams(location.search);
+const KEY = 'bixia-poc-teckning-v1';
+const BLANK = {
+  view: 'start', returnTo: null,
+  syfte: null, postnummer: '', adress: '', lgh: '', flyttdatum: '',
+  boende: null, storlek: null, egenKwh: '', uppvarmning: null,
+  elbil: null, flex: null, justerad: null,
+  prio: null, avtal: null,
+  tillagg: { nara: false, matare: false },
+  start: 'snarast', startdatum: '', sagUpp: false,
+  epost: '', mobil: '', villkor: false,
+};
+let S = load();
+const UI = { vy: params.get('vy') === 'mobil' ? 'mobil' : 'dator', notes: params.has('anteckningar'), errors: {}, flash: false };
+
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) return Object.assign(structuredClone(BLANK), JSON.parse(raw));
+  } catch (e) { /* privat läge eller blockerad lagring – kör utan */ }
+  return structuredClone(BLANK);
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* ignorera */ } }
+
+/* =====================================================================
+   HJÄLPFUNKTIONER
+   ===================================================================== */
+const $ = (sel, el = document) => el.querySelector(sel);
+const $$ = (sel, el = document) => Array.from(el.querySelectorAll(sel));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const nf = new Intl.NumberFormat('sv-SE');
+const fmt = n => nf.format(Math.round(n));
+const kr = n => `${nf.format(Math.round(n))} kr`;
+const ore = n => `${String(n).replace('.', ',')} öre/kWh`;
+const ph = (t = 'Pris läggs in') => `<span class="ph">${t}</span>`;
+const todayISO = () => new Date().toISOString().slice(0, 10);
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const dateLong = iso => { if (!iso) return ''; const d = new Date(iso + 'T12:00:00'); return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' }); };
+const isoOf = d => { const x = new Date(d); x.setMinutes(x.getMinutes() - x.getTimezoneOffset()); return x.toISOString().slice(0, 10); };
+
+const LBL = {
+  syfte: { byte: 'Byta elbolag', flytt: 'Flytta' },
+  boende: { lagenhet: 'Lägenhet', villa: 'Villa', radhus: 'Radhus' },
+  storlek: { '1-2': '1–2 rum', '3': '3 rum', '4+': '4 rum eller fler', egen: 'Egen årsförbrukning' },
+  uppvarmning: { el: 'Elvärme eller värmepump', annan: 'Annan uppvärmning', vetej: 'Vet inte' },
+  janej: { ja: 'Ja', nej: 'Nej', osaker: 'Osäker' },
+};
+
+/* =====================================================================
+   BERÄKNINGAR
+   ===================================================================== */
+const harHus = () => S.boende === 'villa' || S.boende === 'radhus';
+const egen = () => S.storlek === 'egen';
+const egenVarde = () => { const v = parseInt(String(S.egenKwh).replace(/\D/g, ''), 10); return Number.isFinite(v) ? v : 0; };
+function delar() {
+  if (!S.boende || !S.storlek) return null;
+  if (egen()) return { hush: 0, varme: 0, elbil: 0, egen: egenVarde() };
+  const hush = HUSHALL[S.boende][S.storlek];
+  const varme = harHus() && S.uppvarmning === 'el' ? VARME[S.boende][S.storlek] : 0;
+  const elbil = S.elbil === 'ja' ? ELBIL_KWH : 0;
+  return { hush, varme, elbil, egen: 0 };
+}
+function kwhBas() { const d = delar(); return d ? d.hush + d.varme + d.elbil + d.egen : 0; }
+function kwh() { return S.justerad ? S.justerad : kwhBas(); }
+function manadskostnad(id) {
+  const k = kwh(); if (!k) return null;
+  const p = PRISER[id];
+  if (id === 'fast') {
+    if (p.elpris == null || p.manadsavgift == null) return null;
+    return k / 12 * p.elpris / 100 + p.manadsavgift;
+  }
+  if (PRISER.spotExempel == null || p.paslag == null || p.manadsavgift == null) return null;
+  return k / 12 * (PRISER.spotExempel + p.paslag) / 100 + p.manadsavgift;
+}
+
+function rekommendation() {
+  const k = kwh();
+  const reasons = [];
+  let id;
+  if (S.prio === 'fast') id = 'fast';
+  else if (S.prio === 'styra') id = 'kvart';
+  else if (S.prio === 'enkel') id = 'rorligt';
+  else if (S.flex === 'ja') id = 'kvart';
+  else if (k >= 10000 && S.uppvarmning === 'el') id = 'fast';
+  else id = 'rorligt';
+
+  if (id === 'fast') {
+    reasons.push(S.prio === 'fast' ? 'Du vill veta vad elen kostar varje månad.' : 'Du använder mycket el och påverkas därför mer när elpriset svänger.');
+    if (S.uppvarmning === 'el' && k >= 8000) reasons.push(`Med elvärme och cirka ${fmt(k)} kWh per år kan vintermånaderna bli dyra. Ett fast pris ger trygghet.`);
+    reasons.push('Elpriset är detsamma i 12 månader, oavsett vad som händer på elmarknaden.');
+  } else if (id === 'kvart') {
+    if (S.flex === 'ja') reasons.push('Du kan använda mer el när priset är lägre.');
+    else reasons.push('Du vill styra din elanvändning för att spara.');
+    if (S.elbil === 'ja') reasons.push('Du laddar elbil hemma. Att ladda när elen är billig, ofta på natten, gör stor skillnad.');
+    reasons.push('Du betalar elbörsens pris per kvart och har ingen bindningstid.');
+    if (S.flex !== 'ja') reasons.push('Tips: Du sparar mest om du kan flytta en del av din elanvändning till billiga timmar.');
+  } else {
+    reasons.push(S.prio === 'enkel' ? 'Du vill ha ett enkelt avtal utan bindning.' : 'Du vill inte behöva styra din elanvändning efter priset.');
+    reasons.push('Priset räknas som ett snitt för hela månaden, så du behöver inte hålla koll på timmar eller kvartar.');
+    reasons.push('Ingen bindningstid. Du kan byta avtal när du vill.');
+  }
+  return { id, reasons };
+}
+
+/* =====================================================================
+   VYER OCH FLÖDE
+   ===================================================================== */
+const STEG = ['Ditt hem', 'Välj elavtal', 'Granska och bekräfta'];
+const VIEWS = [
+  { id: 'start', step: 0, sec: 180 },
+  { id: 'adress', step: 1, sec: 170, valid: () => vAdress() },
+  { id: 'boende', step: 1, sec: 145, valid: () => S.boende ? null : { boende: 'Välj hur du bor för att fortsätta.' } },
+  { id: 'storlek', step: 1, sec: 130, valid: () => vStorlek() },
+  { id: 'uppvarmning', step: 1, sec: 115, when: () => harHus() && !egen(), valid: () => S.uppvarmning ? null : { uppvarmning: 'Välj ett alternativ. Är du osäker, välj Vet inte.' } },
+  { id: 'anvandning', step: 1, sec: 100, valid: () => vAnvandning() },
+  { id: 'forbrukning', step: 1, sec: 85 },
+  { id: 'assistent', step: 2, sec: 75, valid: () => S.prio ? null : { prio: 'Välj det som är viktigast för dig, eller visa alla avtal.' } },
+  { id: 'avtal', step: 2, sec: 65 },
+  { id: 'granska', step: 3, sec: 45 },
+  { id: 'bekrafta', step: 3, sec: 25, valid: () => vBekrafta() },
+  { id: 'klart', step: 4, sec: 0 },
+];
+const V = Object.fromEntries(VIEWS.map(v => [v.id, v]));
+const applies = v => !v.when || v.when();
+const idx = id => VIEWS.findIndex(v => v.id === id);
+
+function vAdress() {
+  const e = {};
+  if (String(S.postnummer).replace(/\D/g, '').length !== 5) e.postnummer = 'Ange ett postnummer med fem siffror.';
+  if (String(S.adress).trim().length < 3) e.adress = 'Ange din gatuadress.';
+  if (S.syfte === 'flytt' && !S.flyttdatum) e.flyttdatum = 'Välj datum för inflyttning.';
+  return Object.keys(e).length ? e : null;
+}
+function vStorlek() {
+  if (!S.storlek) return { storlek: 'Välj hur stort ditt hem är.' };
+  if (egen()) { const v = egenVarde(); if (v < 300 || v > 100000) return { egenKwh: 'Ange din årsförbrukning i kWh, till exempel 4500.' }; }
+  return null;
+}
+function vAnvandning() {
+  const e = {};
+  if (!S.elbil) e.elbil = 'Svara ja eller nej.';
+  if (!S.flex) e.flex = 'Välj ett alternativ. Är du osäker, välj Osäker.';
+  return Object.keys(e).length ? e : null;
+}
+function vBekrafta() {
+  const e = {};
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(S.epost).trim())) e.epost = 'Ange en e-postadress, till exempel namn@exempel.se.';
+  if (String(S.mobil).replace(/\D/g, '').length < 8) e.mobil = 'Ange ditt mobilnummer.';
+  if (S.syfte === 'byte' && S.start === 'datum' && !S.startdatum) e.startdatum = 'Välj startdatum.';
+  if (!S.villkor) e.villkor = 'Du behöver godkänna avtalsvillkoren för att kunna signera.';
+  return Object.keys(e).length ? e : null;
+}
+
+function nextOf(id) { for (let i = idx(id) + 1; i < VIEWS.length; i++) if (applies(VIEWS[i])) return VIEWS[i].id; return null; }
+function prevOf(id) { for (let i = idx(id) - 1; i >= 0; i--) if (applies(VIEWS[i])) return VIEWS[i].id; return null; }
+function targetAfter(id) {
+  if (S.returnTo && idx(S.returnTo) > idx(id)) {
+    for (let i = idx(id) + 1; i < idx(S.returnTo); i++) {
+      const v = VIEWS[i];
+      if (applies(v) && v.valid && v.valid()) return v.id;
+    }
+    return S.returnTo;
+  }
+  return nextOf(id);
+}
+
+function go(id, opts = {}) {
+  S.view = id;
+  const tst = $('#toast'); if (tst) tst.style.opacity = '0';
+  if (S.returnTo && (id === S.returnTo || idx(id) > idx(S.returnTo))) S.returnTo = null;
+  UI.errors = {};
+  save();
+  render({ focus: true, top: true, ...opts });
+}
+function edit(id) {
+  if (idx(id) < idx(S.view) && S.view !== 'klart') S.returnTo = S.view;
+  go(id);
+}
+function forward() {
+  const v = V[S.view];
+  const errs = v.valid ? v.valid() : null;
+  if (errs) {
+    UI.errors = errs;
+    render({ keepScroll: true });
+    const first = $('[data-err]:not(:empty)', $('#app'));
+    if (first) {
+      const host = first.closest('[data-errhost]') || first;
+      host.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      const ctrl = $('input, button.tile, button.choice', host.closest('[data-errhost]') || host.parentElement);
+      if (ctrl) ctrl.focus({ preventScroll: true });
+    }
+    return;
+  }
+  if (S.view === 'bekrafta') { openBankID(); return; }
+  if (S.view === 'avtal' && !S.avtal) S.avtal = rekommendation().id;
+  go(targetAfter(S.view));
+}
+function back() { const p = prevOf(S.view); if (p) go(p); }
+
+/* =====================================================================
+   SMÅ BYGGSTENAR
+   ===================================================================== */
+function tiles(key, opts, cols = 1, cta = false) {
+  return `<div class="tiles cols-${cols}" role="${cta ? 'group' : 'radiogroup'}" aria-labelledby="q-${key}">` + opts.map(o => {
+    const sel = S[key] === o.v;
+    const aria = cta ? '' : `role="radio" aria-checked="${sel}"`;
+    const lead = o.num ? `<span class="tile-ic"><span class="tile-num">${o.num}</span></span>` : o.ic ? `<span class="tile-ic">${ico(o.ic)}</span>` : '';
+    return `<button type="button" class="tile${sel ? ' is-selected' : ''}${cta ? ' tile-cta' : ''}" ${aria} data-set="${key}" data-value="${o.v}" id="t-${key}-${o.v}">
+      ${lead}<span class="tile-text"><span class="tile-label">${o.label}</span>${o.sub ? `<span class="tile-sub">${o.sub}</span>` : ''}</span>
+      ${cta ? `<span class="tile-go">${ico('arrowR')}</span>` : '<span class="tile-radio" aria-hidden="true"></span>'}
+    </button>`;
+  }).join('') + '</div>';
+}
+function choices(key, opts) {
+  return `<div class="choices" role="radiogroup" aria-labelledby="q-${key}">` + opts.map(o => {
+    const sel = S[key] === o.v;
+    return `<button type="button" class="choice${sel ? ' is-selected' : ''}" role="radio" aria-checked="${sel}" data-set="${key}" data-value="${o.v}" id="t-${key}-${o.v}">${o.label}</button>`;
+  }).join('') + '</div>';
+}
+const err = key => `<p class="err" data-err="${key}" role="alert">${UI.errors[key] ? ico('info', 'ico-sm') + esc(UI.errors[key]) : ''}</p>`;
+const info = (title, text, warm = false, icon = 'info') => `<div class="info${warm ? ' warm' : ''}">${ico(icon)}<p>${title ? `<strong>${title}</strong>` : ''}${text}</p></div>`;
+
+function estimateCard(extraNote = '') {
+  const d = delar();
+  if (!d) return `<div class="estimate" data-live="estimate" aria-live="polite" hidden></div>`;
+  return `<div class="estimate${UI.flash ? ' flash' : ''}" data-live="estimate" aria-live="polite">${estimateInner(extraNote)}</div>`;
+}
+function estimateInner(extraNote = '') {
+  const d = delar(); if (!d) return '';
+  const k = kwhBas();
+  if (egen()) {
+    return `<span class="k">${ico('gauge', 'ico-sm')} Din årsförbrukning</span>
+      <span class="v">${k ? fmt(k) : '–'} <small>kWh per år</small></span>
+      <span class="m">${k ? `Cirka ${fmt(k / 12)} kWh i månaden.` : 'Fyll i din förbrukning ovan.'}</span>`;
+  }
+  const what = `${LBL.boende[S.boende].toLowerCase()} med ${LBL.storlek[S.storlek].replace(' eller fler', ' eller fler')}`;
+  let delta = '';
+  if (S.view === 'uppvarmning' && d.varme) delta = `<span class="delta">+ ${fmt(d.varme)} kWh för uppvärmning</span>`;
+  if (S.view === 'anvandning' && d.elbil) delta = `<span class="delta">+ ${fmt(d.elbil)} kWh för elbil</span>`;
+  return `<span class="k">${ico('bolt', 'ico-sm')} Uppskattad årsförbrukning</span>
+    <span class="v">${fmt(k)} <small>kWh per år</small></span>
+    ${delta}
+    <span class="m">Uppskattning för ${what}. Cirka ${fmt(k / 12)} kWh i månaden. ${extraNote}</span>`;
+}
+
+/* =====================================================================
+   VYER
+   ===================================================================== */
+const R = {};
+
+R.start = () => `
+<div class="site">
+  <div class="site-top">
+    <div class="util"><div class="wrap">
+      <a href="#" class="is-active" data-noop>Privat</a><a href="#" data-noop>Företag</a><a href="#" data-noop>Elproducent</a>
+      <span class="r"><a href="#" data-noop>Kundservice</a><a href="#" data-noop>Flytta</a><a href="#" data-noop>Elpriser</a></span>
+    </div></div>
+    <div class="shead"><div class="wrap">
+      <a class="logo" href="#" data-go="start" aria-label="Bixia startsida">bixia</a>
+      <nav class="mainnav" aria-label="Huvudmeny">
+        <a href="#" class="is-active" data-noop>Elavtal</a><a href="#" data-noop>Bixia Nära</a><a href="#" data-noop>Energismart hemma</a><a href="#" data-noop>Solceller</a><a href="#" data-noop>Kundservice</a>
+      </nav>
+      <div class="r">
+        <a class="login" href="#" data-noop>${ico('user', 'ico-sm')}<span>Mitt Bixia</span></a>
+        <button class="iconbtn burger" type="button" aria-label="Meny" data-noop>${ico('menu')}</button>
+      </div>
+    </div></div>
+  </div>
+
+  <section class="hero">
+    <div class="wrap grid">
+      <div>
+        <span class="eyebrow">Teckna elavtal</span>
+        <h1 tabindex="-1" data-focus>Hitta rätt elavtal för ditt hem</h1>
+        <p class="lead">Vi hjälper dig att hitta ett elavtal som passar dig och ditt hem.</p>
+        <span class="timebadge">${ico('clock')} Klart på cirka 3 minuter</span>
+        <h2 class="qlabel" id="q-syfte">Vad vill du göra?</h2>
+        ${tiles('syfte', [
+          { v: 'byte', ic: 'swap', label: 'Byta elbolag', sub: 'Jag bor kvar och vill byta till Bixia' },
+          { v: 'flytt', ic: 'box', label: 'Flytta', sub: 'Jag ska flytta och behöver el i min nya bostad' },
+        ], 2, true)}
+        <ul class="trust">
+          <li>${ico('leaf')} 100 % förnybar el</li>
+          <li>${ico('shield')} Vi sköter bytet åt dig</li>
+          <li>${ico('doc')} 14 dagars ångerrätt</li>
+          <li>${ico('lock')} Signera med BankID</li>
+        </ul>
+        <p class="existing">Är du redan kund? <a href="#" data-noop>Logga in på Mitt Bixia</a> för att byta avtal.</p>
+      </div>
+      <div class="hero-art" aria-hidden="true">${heroArt()}</div>
+    </div>
+  </section>
+
+  <section class="section"><div class="wrap">
+    <h2>Så enkelt är det</h2>
+    <p class="sub">Tre korta steg. Du kan gå tillbaka och ändra när du vill – dina svar sparas.</p>
+    <ol class="how">
+      <li><h3>Ditt hem</h3><p>Berätta kort om ditt hem så uppskattar vi hur mycket el du använder.</p></li>
+      <li><h3>Välj elavtal</h3><p>Vi föreslår ett avtal som passar dig. Du väljer själv.</p></li>
+      <li><h3>Granska och bekräfta</h3><p>Se allt samlat och signera med BankID. Vi sköter resten.</p></li>
+    </ol>
+  </div></section>
+
+  <section class="section" style="padding-top:0"><div class="wrap">
+    <h2>Våra elavtal</h2>
+    <p class="sub">Inte säker på vilket som passar? Vi hjälper dig att välja.</p>
+    <div class="mini-avtal">
+      ${['rorligt', 'kvart', 'fast'].map(id => `<div><span class="ic">${ico(AVTAL[id].ikon)}</span><span><h3>${AVTAL[id].namn}</h3><p>${AVTAL[id].desc}</p></span></div>`).join('')}
+    </div>
+  </div></section>
+
+  <section class="section" style="padding-top:0"><div class="wrap">
+    <div class="helpstrip">
+      <span class="ic">${ico('chat')}</span>
+      <div class="txt"><h3>Frågor på vägen?</h3><p>Du får hjälp direkt i flödet – utan att tappa dina svar.</p></div>
+      <button class="btn btn-secondary btn-sm" type="button" data-help>${ico('question', 'ico-sm')} Hjälp</button>
+    </div>
+  </div></section>
+
+  <footer class="sfoot"><div class="wrap">
+    <span class="logo logo-sm">bixia</span>
+    <div class="cols">
+      <div><p style="margin:0;color:#CBBDB2">Förnybar el från hela Sverige.</p></div>
+      <div><h4>Privat</h4><ul><li><a href="#" data-noop>Elavtal</a></li><li><a href="#" data-noop>Bixia Nära</a></li><li><a href="#" data-noop>Realtidsmätare</a></li></ul></div>
+      <div><h4>Kundservice</h4><ul><li><a href="#" data-noop>Vanliga frågor</a></li><li><a href="#" data-noop>Flytta</a></li><li><a href="#" data-noop>Kontakta oss</a></li></ul></div>
+      <div><h4>Om Bixia</h4><ul><li><a href="#" data-noop>Om oss</a></li><li><a href="#" data-noop>Hållbarhet</a></li><li><a href="#" data-noop>Press</a></li></ul></div>
+    </div>
+    <p class="legal">Proof of Concept för användartest och intern utvärdering. Ingen riktig tjänst – inga avtal tecknas och inga uppgifter skickas.</p>
+  </div></footer>
+</div>`;
+
+function heroArt() {
+  return `<svg viewBox="0 0 520 440" role="img">
+    <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FDE3CC"/><stop offset="1" stop-color="#FBF0E4"/></linearGradient></defs>
+    <rect x="20" y="20" width="480" height="400" rx="40" fill="url(#g1)"/>
+    <circle cx="400" cy="110" r="46" fill="#F47B20"/>
+    <g stroke="#F47B20" stroke-width="6" stroke-linecap="round" opacity=".55">
+      <path d="M400 40v-14M400 194v-14M470 110h14M316 110h14M450 60l10-10M340 170l10-10M450 160l10 10M340 50l10 10"/>
+    </g>
+    <rect x="70" y="150" width="120" height="230" rx="10" fill="#F3E2D2"/>
+    <g fill="#FFFFFF">${[0, 1, 2, 3, 4].map(r => [0, 1].map(c => `<rect x="${92 + c * 46}" y="${172 + r * 40}" width="30" height="24" rx="4"/>`).join('')).join('')}</g>
+    <path d="M200 260l110-88 110 88v120H200z" fill="#FFFFFF"/>
+    <path d="M182 268l128-104 128 104" fill="none" stroke="#CC4E06" stroke-width="18" stroke-linejoin="round" stroke-linecap="round"/>
+    <rect x="236" y="290" width="44" height="40" rx="6" fill="#FDEBDC"/>
+    <rect x="340" y="290" width="44" height="40" rx="6" fill="#FDEBDC"/>
+    <rect x="290" y="310" width="40" height="70" rx="6" fill="#F47B20"/>
+    <path d="M40 380h440" stroke="#E8DDD1" stroke-width="6" stroke-linecap="round"/>
+    <g transform="translate(96 82)"><circle r="34" fill="#FFFFFF"/><path d="M4-20L-14 4h12l-4 18 18-24H0l4-18z" fill="#F47B20"/></g>
+    <g transform="translate(450 330)"><circle r="30" fill="#2F7A4D"/><path d="M-12 10c0-14 8-24 26-26-2 18-12 26-26 26zM-12 10l12-12" fill="none" stroke="#FFF" stroke-width="4" stroke-linecap="round"/></g>
+  </svg>`;
+}
+
+R.adress = () => `
+  <span class="crumb">Du vill: <b>${LBL.syfte[S.syfte] || '–'}</b> <button class="linkbtn" type="button" data-go="start">Ändra</button></span>
+  <h1 tabindex="-1" data-focus>Var ska du ha el?</h1>
+  <p class="lead">${S.syfte === 'flytt' ? 'Ange adressen till din nya bostad.' : 'Ange adressen där du bor i dag.'}</p>
+  <div class="row2">
+    <div class="field" data-errhost>
+      <label for="f-postnummer">Postnummer</label>
+      <input class="input" id="f-postnummer" data-input="postnummer" inputmode="numeric" autocomplete="postal-code" placeholder="123 45" maxlength="6" value="${esc(S.postnummer)}" aria-invalid="${!!UI.errors.postnummer}" aria-describedby="e-postnummer">
+      <span id="e-postnummer">${err('postnummer')}</span>
+    </div>
+    <div class="field" data-errhost>
+      <label for="f-adress">Gatuadress</label>
+      <input class="input" id="f-adress" data-input="adress" autocomplete="address-line1" placeholder="Exempelgatan 12" value="${esc(S.adress)}" aria-invalid="${!!UI.errors.adress}">
+      ${err('adress')}
+    </div>
+  </div>
+  <div data-live="ort" aria-live="polite">${ortChip()}</div>
+  ${S.syfte === 'flytt' ? `
+  <div class="field" data-errhost style="margin-top:18px">
+    <label for="f-flyttdatum">När flyttar du in?</label>
+    <input class="input" type="date" id="f-flyttdatum" data-input="flyttdatum" min="${todayISO()}" value="${esc(S.flyttdatum)}" style="max-width:260px" aria-invalid="${!!UI.errors.flyttdatum}">
+    <p class="hint">Vi ser till att du har el från första dagen.</p>
+    ${err('flyttdatum')}
+  </div>` : ''}
+  <div style="margin-top:18px">${info('Du behöver inte ditt anläggnings-ID', 'Vi hittar rätt elmätare med hjälp av din adress.')}</div>`;
+
+function ortChip() {
+  const digits = String(S.postnummer).replace(/\D/g, '');
+  if (digits.length !== 5) return '';
+  const om = elomrade(digits); if (!om) return '';
+  const reg = REGION[parseInt(digits.slice(0, 2), 10)];
+  return `<div class="chips" style="margin:-4px 0 4px">
+    <span class="chip">${ico('check', 'ico-sm')} ${reg ? esc(reg) + ' · ' : ''}Elområde ${om}</span>
+  </div>
+  <p class="hint" style="margin:8px 0 0;color:var(--bx-ink-2);font-size:15px">Elpriset kan skilja sig mellan Sveriges fyra elområden. Vi bekräftar ditt elområde med hjälp av adressen.</p>`;
+}
+
+R.boende = () => `
+  <h1 tabindex="-1" data-focus id="q-boende">Hur bor du?</h1>
+  <p class="lead">Det hjälper oss att uppskatta hur mycket el du använder.</p>
+  <div data-errhost>
+  ${tiles('boende', [
+    { v: 'lagenhet', ic: 'apartment', label: 'Lägenhet', sub: 'I ett flerbostadshus' },
+    { v: 'villa', ic: 'villa', label: 'Villa', sub: 'Fristående hus' },
+    { v: 'radhus', ic: 'radhus', label: 'Radhus', sub: 'Även parhus och kedjehus' },
+  ], 3)}
+  ${err('boende')}
+  </div>
+  ${S.boende === 'lagenhet' ? `
+  <div class="field" style="margin-top:22px">
+    <label for="f-lgh">Lägenhetsnummer <span style="font-weight:500;color:var(--bx-ink-2)">(valfritt)</span></label>
+    <input class="input" id="f-lgh" data-input="lgh" inputmode="numeric" maxlength="4" placeholder="1102" value="${esc(S.lgh)}" style="max-width:200px">
+    <p class="hint">Fyra siffror. Det står ofta på dörren eller i hyresavtalet. Hjälper oss att hitta rätt elmätare.</p>
+  </div>` : ''}`;
+
+R.storlek = () => `
+  <h1 tabindex="-1" data-focus id="q-storlek">Hur stort är ditt hem?</h1>
+  <p class="lead">Räkna sovrum och vardagsrum, inte kök och badrum.</p>
+  <div data-errhost>
+  ${tiles('storlek', [
+    { v: '1-2', num: '1–2', label: '1–2 rum' },
+    { v: '3', num: '3', label: '3 rum' },
+    { v: '4+', num: '4+', label: '4 rum eller fler' },
+    { v: 'egen', ic: 'gauge', label: 'Jag vet min årsförbrukning', sub: 'Ange antal kWh per år' },
+  ], 2)}
+  ${err('storlek')}
+  </div>
+  ${egen() ? `
+  <div class="field" data-errhost style="margin-top:20px">
+    <label for="f-egen">Din årsförbrukning</label>
+    <div class="input-suffix" style="max-width:300px"><input class="input" id="f-egen" data-input="egenKwh" inputmode="numeric" placeholder="4500" value="${esc(S.egenKwh)}" aria-invalid="${!!UI.errors.egenKwh}"><span>kWh/år</span></div>
+    <p class="hint">Du hittar den på fakturan från ditt elnätsbolag eller i deras app.</p>
+    ${err('egenKwh')}
+  </div>` : ''}
+  ${estimateCard(harHus() && !egen() ? 'Härnäst frågar vi om uppvärmning.' : 'Du kan justera den senare.')}`;
+
+R.uppvarmning = () => `
+  <h1 tabindex="-1" data-focus id="q-uppvarmning">Hur värms ditt hem upp?</h1>
+  <p class="lead">Om huset värms med el påverkar det din förbrukning mycket.</p>
+  <div data-errhost>
+  ${tiles('uppvarmning', [
+    { v: 'el', ic: 'bolt', label: 'Elvärme eller värmepump', sub: 'Till exempel elelement, bergvärme eller luft/vatten' },
+    { v: 'annan', ic: 'flame', label: 'Annan uppvärmning', sub: 'Till exempel fjärrvärme, pellets eller ved' },
+    { v: 'vetej', ic: 'question', label: 'Vet inte', sub: 'Vi gör en vanlig uppskattning som du kan justera' },
+  ])}
+  ${err('uppvarmning')}
+  </div>
+  ${estimateCard()}`;
+
+R.anvandning = () => `
+  <h1 tabindex="-1" data-focus>Hur använder du el?</h1>
+  <p class="lead">Två snabba frågor som hjälper oss att föreslå rätt avtal.</p>
+  <div data-errhost>
+    <h2 class="q" id="q-elbil">${ico('car')}<span>Laddar du elbil hemma?</span></h2>
+    ${choices('elbil', [{ v: 'ja', label: 'Ja' }, { v: 'nej', label: 'Nej' }])}
+    ${err('elbil')}
+  </div>
+  <div data-errhost>
+    <h2 class="q" id="q-flex">Kan du använda mer el när priset är lägre?</h2>
+    <p class="qsub">Till exempel ladda bilen, tvätta eller köra diskmaskinen när elen är billigare.</p>
+    ${choices('flex', [{ v: 'ja', label: 'Ja' }, { v: 'nej', label: 'Nej' }, { v: 'osaker', label: 'Osäker' }])}
+    ${err('flex')}
+  </div>
+  ${egen() ? `<div style="margin-top:18px">${info('', 'Elbilen räknas redan in i din egen årsförbrukning.')}</div>` : estimateCard()}`;
+
+R.forbrukning = () => {
+  const d = delar(); const k = kwh(); const base = kwhBas();
+  const max = Math.max(40000, Math.ceil(base * 1.6 / 1000) * 1000);
+  const parts = d.egen ? [{ c: 'c-egen', l: 'Din angivna förbrukning', v: d.egen }] : [
+    { c: 'c-hush', l: 'Hushållsel', v: d.hush },
+    { c: 'c-varme', l: 'Uppvärmning', v: d.varme },
+    { c: 'c-elbil', l: 'Elbil', v: d.elbil },
+  ].filter(p => p.v > 0);
+  const om = elomrade(S.postnummer);
+  const facts = [
+    om && `Elområde ${om}`,
+    `${LBL.boende[S.boende]} · ${LBL.storlek[S.storlek]}`,
+    harHus() && !egen() && S.uppvarmning && LBL.uppvarmning[S.uppvarmning] + (S.uppvarmning === 'vetej' ? ' (uppvärmning)' : ''),
+    S.elbil === 'ja' && 'Laddar elbil',
+  ].filter(Boolean);
+  return `
+  <h1 tabindex="-1" data-focus>Din uppskattade elförbrukning</h1>
+  <p class="lead">Det här är vår uppskattning utifrån dina svar. Stämmer den inte? Justera den här.</p>
+  <div class="usage-card">
+    <div data-live="usage">${usageInner(parts)}</div>
+    <div class="adjust">
+      <label class="flabel" for="f-range" style="display:block;margin-bottom:8px">Justera förbrukningen</label>
+      <div class="row">
+        <input class="range" type="range" id="f-range" min="500" max="${max}" step="100" value="${k}" data-input="justerad" aria-describedby="adj-hint">
+        <div class="input-suffix"><input class="input" id="f-kwh" data-input="justeradText" inputmode="numeric" value="${k}" aria-label="Årsförbrukning i kWh"><span>kWh/år</span></div>
+      </div>
+      <p class="hint" id="adj-hint" style="margin:8px 0 0;color:var(--bx-ink-2);font-size:15px">Du hittar din faktiska förbrukning på fakturan från ditt elnätsbolag.</p>
+      <div data-live="reset">${S.justerad ? `<button class="linkbtn" type="button" data-act="resetKwh" style="margin-top:8px">Återställ till vår uppskattning (${fmt(base)} kWh)</button>` : ''}</div>
+    </div>
+  </div>
+  <div class="chips" style="margin-top:16px">${facts.map(f => `<span class="chip neutral">${esc(f)}</span>`).join('')}<button class="linkbtn" type="button" data-edit="boende" style="font-size:15px">Ändra svar</button></div>
+  <div style="margin-top:16px;display:grid;gap:12px">
+    ${!egen() ? info('Uppskattning med schablonvärden', 'Den bygger på typiska värden för liknande hem och är inte exakt. Du kan alltid ändra den.') : ''}
+    ${S.uppvarmning === 'vetej' ? info('Värms huset med el?', 'Då kan förbrukningen vara betydligt högre, ofta 10 000–20 000 kWh per år. Justera gärna.', true, 'heat') : ''}
+  </div>`;
+};
+function usageInner(parts) {
+  const d = delar(); const k = kwh();
+  parts = parts || (d.egen ? [{ c: 'c-egen', l: 'Din angivna förbrukning', v: d.egen }] : [
+    { c: 'c-hush', l: 'Hushållsel', v: d.hush }, { c: 'c-varme', l: 'Uppvärmning', v: d.varme }, { c: 'c-elbil', l: 'Elbil', v: d.elbil },
+  ].filter(p => p.v > 0));
+  const sum = parts.reduce((a, p) => a + p.v, 0) || 1;
+  return `<div class="big">${fmt(k)} <small>kWh per år</small>${S.justerad ? '<span class="tag-adj">Justerad av dig</span>' : ''}</div>
+    <p class="per">Cirka ${fmt(k / 12)} kWh i månaden</p>
+    ${S.justerad ? '' : `<div class="stack" aria-hidden="true">${parts.map(p => `<i class="${p.c}" style="width:${p.v / sum * 100}%"></i>`).join('')}</div>
+    <ul class="legend">${parts.map(p => `<li><span class="sw ${p.c}"></span>${p.l}<span class="val">${fmt(p.v)} kWh</span></li>`).join('')}</ul>`}`;
+}
+
+R.assistent = () => `
+  <h1 tabindex="-1" data-focus id="q-prio">Vad är viktigast för dig?</h1>
+  <p class="lead">En sista fråga, så föreslår vi ett elavtal. Du kan alltid välja ett annat.</p>
+  <div data-errhost>
+  ${tiles('prio', [
+    { v: 'fast', ic: 'lock', label: 'Att veta vad elen kostar', sub: 'Samma elpris varje månad, även när elmarknaden svänger' },
+    { v: 'enkel', ic: 'wave', label: 'Ett enkelt avtal utan bindning', sub: 'Priset följer marknaden och du behöver inte hålla koll' },
+    { v: 'styra', ic: 'bars', label: 'Att spara genom att styra min el', sub: 'Använda el när priset är som lägst, till exempel på natten' },
+  ])}
+  ${err('prio')}
+  </div>
+  <p style="margin:16px 0 0"><button class="linkbtn" type="button" data-act="skipPrio">Jag vet inte – visa alla avtal</button></p>`;
+
+function avtalCard(id, rec) {
+  const a = AVTAL[id]; const p = PRISER[id]; const mk = manadskostnad(id);
+  const chosen = S.avtal === id;
+  const terms = [
+    ['Elpris', id === 'fast' ? (p.elpris != null ? ore(p.elpris) : ph()) + `<span style="display:block;font-weight:500;font-size:13px;color:var(--bx-ink-2)">${a.elpris}</span>` : a.elpris],
+    ['Månadsavgift', p.manadsavgift != null ? `${kr(p.manadsavgift)}/mån` : ph()],
+    ['Påslag', id === 'fast' ? 'Ingår i elpriset' : p.paslag != null ? ore(p.paslag) : ph()],
+    ['Bindningstid', a.bindning],
+    ['Uppsägningstid', a.uppsagning],
+    ['Andra avgifter', a.ovrigt + (id === 'fast' ? ' ' + ph('Belopp läggs in') : '')],
+  ];
+  return `<article class="card${rec ? ' is-rec' : ''}${chosen ? ' is-chosen' : ''}" aria-labelledby="a-${id}">
+    ${chosen ? `<span class="badge chosen">${ico('check', 'ico-sm')} Ditt val</span>` : rec ? `<span class="badge">${ico('sparkle', 'ico-sm')} Vårt förslag till dig</span>` : ''}
+    <div class="top"><span class="ic">${ico(a.ikon)}</span><h3 id="a-${id}">${a.namn}</h3></div>
+    <p class="desc">${a.desc}</p>
+    <p class="fits"><b>Passar</b> ${a.passar}</p>
+    <div class="cost">
+      <span class="k">Uppskattad månadskostnad för elhandel</span>
+      <span class="v">${mk != null ? `ca ${kr(mk)}/mån` : ph('Prisexempel läggs in')}</span>
+      <span class="m">Vid ${fmt(kwh())} kWh/år. Exklusive elnät och energiskatt.</span>
+    </div>
+    <dl class="terms">${terms.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
+    ${a.req ? `<p class="req">${ico('info')}<span>${a.req}</span></p>` : ''}
+    <button type="button" class="btn ${rec || chosen ? 'btn-primary' : 'btn-outline'} btn-block" data-pick="${id}">${chosen ? 'Fortsätt med ' : 'Välj '}${a.namn}${ico('arrowR')}</button>
+  </article>`;
+}
+
+R.avtal = () => {
+  const r = rekommendation();
+  const order = [r.id, ...['rorligt', 'kvart', 'fast'].filter(x => x !== r.id)];
+  return `
+  <h1 tabindex="-1" data-focus>Det här avtalet kan passa dig</h1>
+  <p class="lead">Utifrån dina svar föreslår vi ett avtal. Du väljer själv – alla avtal finns här.</p>
+  <section class="rec" aria-labelledby="rec-h">
+    <span class="k">${ico('sparkle', 'ico-sm')} Vårt förslag</span>
+    <h2 id="rec-h">${AVTAL[r.id].namn}</h2>
+    <ul>${r.reasons.map(t => `<li>${ico('check')}<span>${t}</span></li>`).join('')}</ul>
+    <p class="note">Passar ett annat avtal dig bättre? Välj det nedan, utan att något annat ändras.</p>
+  </section>
+  <div class="cards three">${order.map(id => avtalCard(id, id === r.id)).join('')}</div>
+  <p style="margin:20px 0 0"><button class="linkbtn" type="button" data-act="explain">${ico('info', 'ico-sm')} Vad består elpriset av?</button></p>
+  <p class="verify-note">${ico('info')}<span>Priser i denna PoC är platshållare tills Bixias aktuella prislista läggs in. Villkoren bygger på Bixias publicerade avtalsvillkor och ska verifieras före användartest.</span></p>`;
+};
+
+function startText() {
+  if (S.syfte === 'flytt') return { v: dateLong(S.flyttdatum) || '–', s: 'Samma dag som du flyttar in' };
+  if (S.start === 'datum' && S.startdatum) return { v: dateLong(S.startdatum), s: 'Det datum du valt' };
+  return { v: 'Så snart som möjligt', s: `Preliminärt ${dateLong(isoOf(addDays(new Date(), 14)))}. Du får exakt datum via e-post.` };
+}
+
+R.granska = () => {
+  const a = AVTAL[S.avtal]; const p = PRISER[S.avtal]; const mk = manadskostnad(S.avtal);
+  const st = startText();
+  const tl = [];
+  if (S.tillagg.nara) tl.push(['Bixia Nära', PRISER.nara.manadsavgift != null ? `${kr(PRISER.nara.manadsavgift)}/mån` : ph()]);
+  if (S.tillagg.matare) tl.push(['Realtidsmätare', (PRISER.matare.engang != null ? `${kr(PRISER.matare.engang)} engång` : ph('Engångspris läggs in')) + ' + ' + (PRISER.matare.manadsavgift != null ? `${kr(PRISER.matare.manadsavgift)}/mån` : ph('Månadspris läggs in'))]);
+  const row = (k, v, s, editId) => `<div class="r"><dt>${k}</dt><dd>${v}${s ? `<span class="s">${s}</span>` : ''}</dd>${editId ? `<button class="linkbtn edit" type="button" data-edit="${editId}">Ändra<span class="sr-only"> ${k.toLowerCase()}</span></button>` : ''}</div>`;
+  return `
+  <h1 tabindex="-1" data-focus>Granska ditt elavtal</h1>
+  <p class="lead">Kontrollera att allt stämmer. Du kan ändra allt innan du signerar.</p>
+  <section class="sum" aria-labelledby="sum-h">
+    <div class="sum-h"><span class="ic">${ico(a.ikon)}</span><div><h2 id="sum-h">${a.namn}</h2><p>${a.desc}</p></div></div>
+    <dl>
+      ${row('Elavtal', a.namn, `Bindningstid: ${a.bindning.toLowerCase()} · Uppsägningstid: ${a.uppsagning.toLowerCase()}`, 'avtal')}
+      ${row('Leveransadress', `${esc(S.adress)}, ${esc(S.postnummer)}`, [REGION[parseInt(String(S.postnummer).slice(0, 2), 10)], elomrade(S.postnummer) && 'Elområde ' + elomrade(S.postnummer), S.lgh && 'Lgh ' + esc(S.lgh)].filter(Boolean).join(' · '), 'adress')}
+      ${row('Uppskattad årsförbrukning', `${fmt(kwh())} kWh`, S.justerad ? 'Justerad av dig' : egen() ? 'Din angivna förbrukning' : 'Uppskattning utifrån dina svar', 'forbrukning')}
+      ${row('Avtalsstart', st.v, st.s, S.syfte === 'flytt' ? 'adress' : 'bekrafta')}
+      ${row('Elpris', S.avtal === 'fast' ? (p.elpris != null ? ore(p.elpris) : ph()) : a.elpris, S.avtal === 'fast' ? 'Fast i 12 månader. Påslag ingår.' : `Påslag: ${p.paslag != null ? ore(p.paslag) : 'läggs in'}`)}
+      ${row('Månadsavgift', p.manadsavgift != null ? `${kr(p.manadsavgift)}/mån` : ph())}
+      ${row('Andra avgifter', a.ovrigt, S.avtal === 'fast' ? 'Gäller bara om du avslutar avtalet före 12 månader.' : 'Varierar per månad. Ingen avgift för att avsluta efter uppsägningstiden.')}
+      ${tl.length ? row('Tillägg', tl.map(t => `${t[0]}`).join(', '), tl.map(t => `${t[0]}: ${t[1]}`).join('<br>')) : ''}
+      <div class="r total"><dt>Uppskattad månadskostnad för elhandel</dt><dd>${mk != null ? `ca ${kr(mk)}/mån` : ph('Prisexempel läggs in')}<span class="s">Exklusive elnät och energiskatt, som du betalar till ditt elnätsbolag.</span></dd></div>
+    </dl>
+  </section>
+
+  <div class="addons-h"><h2>Vill du få ut mer av ditt elavtal?</h2><p>Frivilliga tillägg. Du kan också lägga till dem senare.</p></div>
+  <div class="addons">${addon('nara')}${addon('matare')}</div>`;
+};
+
+function addon(id) {
+  const on = S.tillagg[id];
+  if (id === 'nara') {
+    const pr = PRISER.nara.manadsavgift;
+    return `<article class="addon${on ? ' is-on' : ''}" aria-labelledby="ad-nara">
+      <div class="top"><span class="ic">${ico('pin')}</span><div><h3 id="ad-nara">Bixia Nära</h3><p>Din el kommer från lokala elproducenter i ett område du väljer.</p></div></div>
+      <span class="fit">Stöd lokal, förnybar el${REGION[parseInt(String(S.postnummer).slice(0, 2), 10)] ? ' – till exempel i ' + esc(REGION[parseInt(String(S.postnummer).slice(0, 2), 10)]) : ''}</span>
+      <div class="price"><div><span>Löpande avgift</span><b>${pr != null ? kr(pr) + '/mån' : ph()}</b></div><div><span>Engångskostnad</span><b>Ingen</b></div></div>
+      <div class="acts">
+        <button type="button" class="toggle" data-addon="nara" aria-pressed="${on}">${on ? ico('check', 'ico-sm') + 'Tillagd' : '+ Lägg till'}</button>
+        <button type="button" class="linkbtn" data-more="nara">Läs mer</button>
+      </div>
+    </article>`;
+  }
+  const e = PRISER.matare.engang, m = PRISER.matare.manadsavgift;
+  const fit = S.avtal === 'kvart' ? 'Passar extra bra med Kvartspris' : S.elbil === 'ja' ? 'Passar dig som laddar elbil' : 'Se vad som drar el – direkt i appen';
+  return `<article class="addon${on ? ' is-on' : ''}" aria-labelledby="ad-matare">
+    <div class="top"><span class="ic">${ico('pulse')}</span><div><h3 id="ad-matare">Realtidsmätare</h3><p>Följ din elanvändning i realtid i appen Mitt Bixia.</p></div></div>
+    <span class="fit">${fit}</span>
+    <div class="price"><div><span>Engångskostnad (mätaren)</span><b>${e != null ? kr(e) : ph()}</b></div><div><span>Löpande avgift</span><b>${m != null ? kr(m) + '/mån' : ph()}</b></div></div>
+    <div class="acts">
+      <button type="button" class="toggle" data-addon="matare" aria-pressed="${on}">${on ? ico('check', 'ico-sm') + 'Tillagd' : '+ Lägg till'}</button>
+      <button type="button" class="linkbtn" data-more="matare">Läs mer</button>
+    </div>
+  </article>`;
+}
+
+R.bekrafta = () => {
+  const a = AVTAL[S.avtal]; const flytt = S.syfte === 'flytt';
+  const tl = [S.tillagg.nara && 'Bixia Nära', S.tillagg.matare && 'Realtidsmätare'].filter(Boolean);
+  return `
+  <h1 tabindex="-1" data-focus>Bekräfta och signera</h1>
+  <p class="lead">Sista steget. Fyll i dina kontaktuppgifter och signera med BankID.</p>
+
+  <h2>Dina kontaktuppgifter</h2>
+  <div class="field" data-errhost>
+    <label for="f-epost">E-post</label>
+    <input class="input" id="f-epost" type="email" data-input="epost" autocomplete="email" placeholder="namn@exempel.se" value="${esc(S.epost)}" aria-invalid="${!!UI.errors.epost}">
+    <p class="hint">Hit skickar vi bekräftelsen och avtalet.</p>
+    ${err('epost')}
+  </div>
+  <div class="field" data-errhost>
+    <label for="f-mobil">Mobilnummer</label>
+    <input class="input" id="f-mobil" type="tel" data-input="mobil" autocomplete="tel" placeholder="070 123 45 67" value="${esc(S.mobil)}" style="max-width:300px" aria-invalid="${!!UI.errors.mobil}">
+    ${err('mobil')}
+  </div>
+  ${info('', 'Namn och personnummer hämtas säkert från BankID när du signerar. Du behöver inte skriva in dem.', false, 'lock')}
+
+  ${!flytt ? `
+  <div data-errhost>
+  <h2 id="q-start">När vill du att avtalet ska starta?</h2>
+  ${choices('start', [{ v: 'snarast', label: 'Så snart som möjligt' }, { v: 'datum', label: 'Välj datum' }])}
+  ${S.start === 'datum' ? `<div class="field" style="margin-top:14px"><label for="f-startdatum">Startdatum</label><input class="input" type="date" id="f-startdatum" data-input="startdatum" min="${isoOf(addDays(new Date(), 1))}" value="${esc(S.startdatum)}" style="max-width:260px"></div>` : ''}
+  <p class="hint" style="margin:10px 0 0;color:var(--bx-ink-2);font-size:15px">Har du bindningstid kvar hos ditt nuvarande elbolag? Välj datumet då den går ut, så slipper du avgift där.</p>
+  ${err('startdatum')}
+  </div>
+  <label class="check${S.sagUpp ? ' is-checked' : ''}" style="margin-top:16px">
+    <input type="checkbox" data-check="sagUpp" ${S.sagUpp ? 'checked' : ''}>
+    <span><b>Säg upp mitt nuvarande elavtal åt mig</b><small>Valfritt. Vi kontaktar ditt nuvarande elbolag så att du slipper.</small></span>
+  </label>` : ''}
+
+  <div class="two" style="margin-top:22px">
+    <section class="panel" aria-labelledby="h-how">
+      <h2 id="h-how">${ico(flytt ? 'box' : 'swap')} ${flytt ? 'Så går flytten till' : 'Så går bytet till'}</h2>
+      <ol class="timeline">
+        <li><span class="dot">1</span><div><h3>Du signerar med BankID</h3><p>Du får en bekräftelse via e-post direkt.</p></div></li>
+        ${flytt
+          ? `<li><span class="dot">2</span><div><h3>Vi registrerar elen på din nya adress</h3><p>Vi kontaktar elnätsbolaget åt dig.</p></div></li>
+             <li><span class="dot">3</span><div><h3>Du har el från inflyttningsdagen</h3><p>Kom ihåg att säga upp elavtalet på din gamla adress.</p></div></li>`
+          : `<li><span class="dot">2</span><div><h3>Vi sköter bytet</h3><p>Vi anmäler bytet till ditt elnätsbolag${S.sagUpp ? ' och säger upp ditt gamla avtal' : ''}.</p></div></li>
+             <li><span class="dot">3</span><div><h3>Bixia levererar din el</h3><p>Från startdatum. Elen fungerar som vanligt – inga avbrott och ingen ny elmätare.</p></div></li>`}
+      </ol>
+    </section>
+    <section class="panel" aria-labelledby="h-ok">
+      <h2 id="h-ok">${ico('doc')} Det här godkänner du</h2>
+      <ul class="ticks">
+        <li>${ico('check')}<span>Elavtalet <b>${a.namn}</b> för ${esc(S.adress)}</span></li>
+        <li>${ico('check')}<span>Bixias allmänna och särskilda avtalsvillkor</span></li>
+        <li>${ico('check')}<span>${flytt ? 'Leverans från ' + esc(dateLong(S.flyttdatum)) : 'Att Bixia anmäler bytet till ditt elnätsbolag'}</span></li>
+        ${tl.length ? `<li>${ico('check')}<span>Tillägg: ${tl.join(' och ')}</span></li>` : ''}
+        <li>${ico('check')}<span>Du har 14 dagars ångerrätt enligt distansavtalslagen</span></li>
+      </ul>
+    </section>
+  </div>
+
+  <div data-errhost style="margin-top:18px">
+  <label class="check${S.villkor ? ' is-checked' : ''}">
+    <input type="checkbox" data-check="villkor" ${S.villkor ? 'checked' : ''} aria-invalid="${!!UI.errors.villkor}">
+    <span>Jag har läst och godkänner <button type="button" class="linkbtn" data-act="terms" style="padding:0">avtalsvillkoren</button> och <button type="button" class="linkbtn" data-act="terms" style="padding:0">prisvillkoren</button>.</span>
+  </label>
+  ${err('villkor')}
+  </div>
+  <div style="margin-top:14px">${info('Det här är en demonstration', 'Ingen riktig signering sker och inget avtal tecknas.', true)}</div>`;
+};
+
+R.klart = () => {
+  const a = AVTAL[S.avtal] || AVTAL.rorligt; const flytt = S.syfte === 'flytt'; const st = startText();
+  return `
+  <div class="done-hero">
+    <div class="ok">${ico('check')}</div>
+    <h1 tabindex="-1" data-focus>Klart! Välkommen till Bixia</h1>
+    <p class="lead">Ditt elavtal <b>${a.namn}</b> är signerat. Vi skickar en bekräftelse till <b>${esc(S.epost || 'din e-post')}</b>.</p>
+  </div>
+  <div class="demo-banner">${ico('info')}<span><b>Demonstration.</b> Inget riktigt avtal har tecknats och inga uppgifter har skickats.</span></div>
+  <section class="panel" aria-labelledby="h-next">
+    <h2 id="h-next">${ico('calendar')} Det här händer nu</h2>
+    <ol class="timeline">
+      <li><span class="dot done">${ico('check', 'ico-sm')}</span><div><span class="when">Nu</span><h3>Avtalet är signerat</h3><p>Bekräftelse och avtal skickas till din e-post.</p></div></li>
+      <li><span class="dot">2</span><div><span class="when">Inom några dagar</span><h3>${flytt ? 'Vi registrerar din inflyttning' : 'Vi anmäler bytet'}</h3><p>${flytt ? 'Vi kontaktar elnätsbolaget för din nya adress.' : 'Vi kontaktar ditt elnätsbolag' + (S.sagUpp ? ' och säger upp ditt gamla avtal.' : '.')} Du behöver inte göra något.</p></div></li>
+      <li><span class="dot">3</span><div><span class="when">${esc(st.v)}</span><h3>Bixia levererar din el</h3><p>Elen fungerar som vanligt. Inga avbrott.</p></div></li>
+      <li><span class="dot">4</span><div><span class="when">Efter första månaden</span><h3>Din första faktura</h3><p>Välj gärna e-faktura eller autogiro i Mitt Bixia.</p></div></li>
+    </ol>
+  </section>
+  ${S.tillagg.matare ? `<section class="panel">${'<h2>' + ico('pulse') + ' Din realtidsmätare</h2>'}<p style="margin:0;color:var(--bx-ink-2)">Vi skickar mätaren hem till dig med en enkel guide. Kontrollera att elnätsbolaget har aktiverat HAN-porten på din elmätare.</p></section>` : ''}
+  <div class="app-card">
+    <span class="phone">b</span>
+    <div class="txt"><h3>Ladda ner Mitt Bixia</h3><p>Följ din förbrukning, se fakturor och ändra ditt avtal.</p></div>
+    <div class="stores"><span>App Store</span><span>Google Play</span></div>
+  </div>
+  <p style="margin:18px 0 0;color:var(--bx-ink-2);font-size:15px;text-align:center">Ångrar du dig? Du har 14 dagars ångerrätt.</p>
+  <div class="done-actions">
+    <button type="button" class="btn btn-secondary" data-demo="reset">Starta om demon</button>
+    <a class="btn btn-ghost" href="index.html">Till översikten</a>
+  </div>`;
+};
+
+/* =====================================================================
+   RAM FÖR FLÖDET
+   ===================================================================== */
+function timeLeft(id) {
+  const s = V[id].sec;
+  if (!s) return '';
+  const m = Math.ceil(s / 60);
+  return s < 60 ? 'Under 1 min kvar' : `Cirka ${m} min kvar`;
+}
+function progressHTML(id) {
+  const v = V[id]; const step = v.step;
+  const inStep = VIEWS.filter(x => x.step === step && applies(x));
+  const pos = inStep.findIndex(x => x.id === id);
+  return `<nav class="progress" aria-label="Var du är i processen"><div class="wrap">
+    <p class="steps-mobile-title">Steg ${Math.min(step, 3)} av 3 · ${STEG[Math.min(step, 3) - 1]} <span>· ${timeLeft(id)}</span></p>
+    <ol class="steps">${STEG.map((t, i) => {
+      const n = i + 1; const done = n < step || step === 4; const cur = n === step;
+      const w = done ? 100 : cur ? Math.round((pos + 1) / (inStep.length + 0.6) * 100) : 0;
+      return `<li class="${done ? 'is-done' : ''}${cur ? ' is-current' : ''}" ${cur ? 'aria-current="step"' : ''}>
+        <span class="bar"><i style="width:${w}%"></i></span>
+        <span class="lbl"><span class="num">${done ? '✓' : n}</span><span class="t">${t}</span></span>
+      </li>`;
+    }).join('')}</ol>
+  </div></nav>`;
+}
+function sideItems() {
+  const it = [];
+  if (S.syfte) it.push({ ic: S.syfte === 'flytt' ? 'box' : 'swap', k: 'Du vill', v: LBL.syfte[S.syfte] + (S.syfte === 'flytt' && S.flyttdatum ? ` · inflyttning ${dateLong(S.flyttdatum)}` : ''), e: 'start' });
+  if (String(S.postnummer).replace(/\D/g, '').length === 5 && S.adress) it.push({ ic: 'pin', k: 'Adress', v: `${S.adress}, ${S.postnummer}` + (elomrade(S.postnummer) ? ` · ${elomrade(S.postnummer)}` : ''), e: 'adress' });
+  if (S.boende) it.push({ ic: 'home', k: 'Boende', v: [LBL.boende[S.boende], S.storlek && S.storlek !== 'egen' && LBL.storlek[S.storlek], harHus() && !egen() && S.uppvarmning && LBL.uppvarmning[S.uppvarmning]].filter(Boolean).join(' · '), e: 'boende' });
+  if (S.elbil || S.flex) it.push({ ic: 'car', k: 'Elanvändning', v: [S.elbil === 'ja' ? 'Laddar elbil' : S.elbil === 'nej' ? 'Ingen elbil' : null, S.flex && `Flexibel: ${LBL.janej[S.flex].toLowerCase()}`].filter(Boolean).join(' · '), e: 'anvandning' });
+  if (kwhBas()) it.push({ ic: 'bolt', k: 'Årsförbrukning', v: `${fmt(kwh())} kWh` + (S.justerad ? ' (justerad)' : egen() ? '' : ' (uppskattning)'), e: 'forbrukning', live: 'side-kwh' });
+  if (S.avtal) it.push({ ic: AVTAL[S.avtal].ikon, k: 'Elavtal', v: AVTAL[S.avtal].namn, e: 'avtal' });
+  const tl = [S.tillagg.nara && 'Bixia Nära', S.tillagg.matare && 'Realtidsmätare'].filter(Boolean);
+  if (tl.length) it.push({ ic: 'sparkle', k: 'Tillägg', v: tl.join(', '), e: 'granska' });
+  return it;
+}
+function sideCard() {
+  const it = sideItems();
+  return `<div class="side-card">
+    <h2>${ico('doc', 'ico-sm')} Din sammanfattning</h2>
+    ${it.length ? `<ul>${it.map(i => `<li>${ico(i.ic)}<span><b>${i.k}</b><span ${i.live ? `data-live="${i.live}"` : ''}>${esc(i.v)}</span></span>${S.view !== i.e ? `<button class="linkbtn" type="button" data-edit="${i.e}">Ändra</button>` : '<span></span>'}</li>`).join('')}</ul>` : '<p class="empty">Dina svar visas här.</p>'}
+    <div class="foot">${ico('check')} Dina svar sparas automatiskt</div>
+  </div>`;
+}
+
+function flowShell(id, inner) {
+  const isDone = id === 'klart';
+  const nextId = isDone ? null : targetAfter(id);
+  let primary = 'Fortsätt';
+  if (S.returnTo && nextId === S.returnTo) primary = 'Spara och gå tillbaka';
+  else if (id === 'forbrukning') primary = 'Fortsätt till elavtal';
+  else if (id === 'assistent') primary = 'Visa mitt förslag';
+  else if (id === 'avtal') primary = S.avtal ? `Fortsätt med ${AVTAL[S.avtal].namn}` : `Välj ${AVTAL[rekommendation().id].namn}`;
+  else if (id === 'granska') primary = 'Fortsätt till signering';
+  else if (id === 'bekrafta') primary = 'Signera med BankID';
+  const items = sideItems();
+  return `
+  <div class="flow">
+    <header class="fhead">
+      <div class="wrap fhead-in">
+        <a class="logo logo-sm" href="#" data-go="start" aria-label="Bixia – till startsidan">bixia</a>
+        <span class="mid">Teckna elavtal</span>
+        <div class="r">
+          ${isDone ? '' : `<span class="timeleft">${ico('clock')} ${timeLeft(id)}</span>`}
+          <button type="button" class="helpbtn" data-help>${ico('question', 'ico-sm')} Hjälp</button>
+        </div>
+      </div>
+      ${isDone ? '' : progressHTML(id)}
+    </header>
+    <div class="wrap flow-body${id === 'avtal' ? ' is-wide' : ''}${isDone ? ' is-center' : ''}">
+      <main class="flow-main" id="main">
+        ${isDone || !items.length ? '' : `<details class="msum"><summary>${ico('doc')}<span class="t">Din sammanfattning</span><span class="kwh" data-live="msum-kwh">${kwhBas() ? fmt(kwh()) + ' kWh/år' : ''}</span>${ico('chevD', 'chev ico-sm')}</summary>${sideCard()}</details>`}
+        <div class="view" id="view">${inner}</div>
+        ${isDone ? '' : `
+        <div class="actions">
+          <button type="button" class="btn btn-secondary back" data-act="back" aria-label="Tillbaka">${ico('arrowL')}<span class="t">Tillbaka</span></button>
+          <button type="button" class="btn btn-primary${id === 'bekrafta' ? ' bankid-btn' : ''}" data-act="next">${id === 'bekrafta' ? `<span class="bid">${ico('lock', 'ico-sm')}</span>` : ''}${primary}${id === 'bekrafta' ? '' : ico('arrowR')}</button>
+        </div>
+        <div class="after-actions"></div>`}
+      </main>
+      ${isDone ? '' : `<aside class="flow-side" aria-label="Din sammanfattning">${sideCard()}
+        <div class="side-help"><span class="ic">${ico('chat', 'ico-sm')}</span><p><b>Behöver du hjälp?</b>Vi svarar i chatten utan att du lämnar sidan. <button class="linkbtn" type="button" data-help style="font-size:14px;padding:0">Få hjälp</button></p></div>
+      </aside>`}
+    </div>
+  </div>`;
+}
+
+/* =====================================================================
+   RENDERING
+   ===================================================================== */
+const app = $('#app');
+const scroller = $('#scroller');
+function scrollBox() { return UI.vy === 'mobil' ? scroller : document.scrollingElement; }
+
+function render(opts = {}) {
+  const id = S.view;
+  const y = scrollBox().scrollTop;
+  app.innerHTML = id === 'start' ? R.start() : flowShell(id, R[id]());
+  UI.flash = false;
+  if (opts.top) scrollBox().scrollTop = 0; else if (opts.keepScroll || opts.refocus) scrollBox().scrollTop = y;
+  if (opts.focus) { const h = $('[data-focus]', app); if (h) h.focus({ preventScroll: true }); }
+  if (opts.refocus) { const el = document.getElementById(opts.refocus); if (el) el.focus({ preventScroll: true }); }
+  renderNotes();
+  document.title = (id === 'start' ? 'Teckna elavtal' : id === 'klart' ? 'Klart' : STEG[V[id].step - 1]) + ' – Bixia PoC';
+}
+
+/* Uppdatera bara levande delar vid inmatning (behåller fokus) */
+function live() {
+  const set = (name, html) => $$(`[data-live="${name}"]`, app).forEach(el => { el.innerHTML = html; });
+  set('ort', ortChip());
+  const est = $('[data-live="estimate"]', app);
+  if (est) { const h = estimateInner(egen() ? '' : 'Du kan justera den senare.'); est.hidden = !h; est.innerHTML = h; }
+  set('usage', S.view === 'forbrukning' ? usageInner() : '');
+  set('reset', S.justerad ? `<button class="linkbtn" type="button" data-act="resetKwh" style="margin-top:8px">Återställ till vår uppskattning (${fmt(kwhBas())} kWh)</button>` : '');
+  set('side-kwh', `${fmt(kwh())} kWh` + (S.justerad ? ' (justerad)' : egen() ? '' : ' (uppskattning)'));
+  set('msum-kwh', kwhBas() ? fmt(kwh()) + ' kWh/år' : '');
+}
+
+function setErr(key, show) {
+  if (!UI.errors[key]) return;
+  if (!show) { delete UI.errors[key]; const e = $(`[data-err="${key}"]`, app); if (e) e.innerHTML = ''; }
+}
+
+/* =====================================================================
+   HÄNDELSER
+   ===================================================================== */
+const RESET_KWH = ['boende', 'storlek', 'uppvarmning', 'elbil', 'egenKwh'];
+
+app.addEventListener('click', e => {
+  const t = e.target.closest('button, a');
+  if (!t || !app.contains(t)) return;
+  if (t.matches('[data-noop]')) { e.preventDefault(); toast('Demo: länken leder inte vidare i prototypen.'); return; }
+  if (t.dataset.set) {
+    const key = t.dataset.set, val = t.dataset.value;
+    S[key] = val;
+    if (RESET_KWH.includes(key)) S.justerad = null;
+    if (key === 'boende' && val === 'lagenhet') S.uppvarmning = null;
+    if (key === 'syfte' && S.view === 'start') { save(); go('adress'); return; }
+    if (['storlek', 'uppvarmning', 'elbil'].includes(key)) UI.flash = true;
+    delete UI.errors[key];
+    save(); render({ refocus: t.id });
+    return;
+  }
+  if (t.dataset.go) { e.preventDefault(); go(t.dataset.go); return; }
+  if (t.dataset.edit) { edit(t.dataset.edit); return; }
+  if (t.dataset.pick) {
+    S.avtal = t.dataset.pick; save();
+    go(S.returnTo && idx(S.returnTo) > idx('avtal') ? S.returnTo : 'granska');
+    return;
+  }
+  if (t.dataset.addon) {
+    const k = t.dataset.addon; S.tillagg[k] = !S.tillagg[k]; save();
+    render({ refocus: null, keepScroll: true });
+    const b = $(`[data-addon="${k}"]`, app); if (b) b.focus({ preventScroll: true });
+    toast(S.tillagg[k] ? `${k === 'nara' ? 'Bixia Nära' : 'Realtidsmätare'} är tillagd i din sammanfattning.` : 'Tillägget är borttaget.');
+    return;
+  }
+  if (t.dataset.more) { openMore(t.dataset.more); return; }
+  if (t.hasAttribute('data-help')) { openHelp(); return; }
+  if (t.dataset.demo === 'reset') { resetAll(); return; }
+  const act = t.dataset.act;
+  if (act === 'next') forward();
+  else if (act === 'back') back();
+  else if (act === 'skipPrio') { S.prio = 'vetej'; save(); go('avtal'); }
+  else if (act === 'resetKwh') { S.justerad = null; save(); render({ keepScroll: true }); }
+  else if (act === 'explain') openExplain();
+  else if (act === 'terms') { e.preventDefault(); openTerms(); }
+});
+
+app.addEventListener('input', e => {
+  const el = e.target; const key = el.dataset.input;
+  if (!key) return;
+  if (key === 'postnummer') {
+    const d = el.value.replace(/\D/g, '').slice(0, 5);
+    const f = d.length > 3 ? d.slice(0, 3) + ' ' + d.slice(3) : d;
+    if (el.value !== f) el.value = f;
+    S.postnummer = f;
+  } else if (key === 'egenKwh') {
+    const d = el.value.replace(/\D/g, '').slice(0, 6);
+    if (el.value !== d) el.value = d;
+    S.egenKwh = d; S.justerad = null;
+  } else if (key === 'justerad') {
+    S.justerad = parseInt(el.value, 10) === kwhBas() ? null : parseInt(el.value, 10);
+    const txt = $('#f-kwh', app); if (txt) txt.value = el.value;
+  } else if (key === 'justeradText') {
+    const v = parseInt(el.value.replace(/\D/g, ''), 10);
+    if (Number.isFinite(v) && v >= 300 && v <= 100000) {
+      S.justerad = v === kwhBas() ? null : v;
+      const r = $('#f-range', app); if (r) { if (v > +r.max) r.max = Math.ceil(v / 1000) * 1000; r.value = v; }
+    }
+  } else {
+    S[key] = el.value;
+  }
+  setErr(key, false);
+  if (key === 'egenKwh') setErr('egenKwh', false);
+  el.removeAttribute('aria-invalid');
+  save(); live();
+});
+
+app.addEventListener('change', e => {
+  const el = e.target;
+  if (el.dataset.check) {
+    S[el.dataset.check] = el.checked; save();
+    el.closest('.check').classList.toggle('is-checked', el.checked);
+    setErr(el.dataset.check, false);
+    if (el.dataset.check === 'sagUpp') render({ keepScroll: true, refocus: null });
+  }
+  if (el.dataset.input === 'justeradText') el.value = kwh();
+});
+
+app.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.matches('input.input')) { e.preventDefault(); forward(); }
+  // Piltangenter mellan alternativ i en grupp
+  if (['ArrowDown', 'ArrowRight', 'ArrowUp', 'ArrowLeft'].includes(e.key) && e.target.matches('[role="radio"]')) {
+    const group = $$('[role="radio"]', e.target.closest('[role="radiogroup"]'));
+    const i = group.indexOf(e.target);
+    const n = group[(i + (e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : -1) + group.length) % group.length];
+    e.preventDefault(); n.focus();
+  }
+});
+
+/* =====================================================================
+   ÖVERLAGOR
+   ===================================================================== */
+const oroot = $('#overlay-root');
+let lastFocus = null;
+function openSheet(html, { right = false, label = 'Dialog', onClose } = {}) {
+  lastFocus = document.activeElement;
+  oroot.innerHTML = `<div class="overlay${right ? ' right' : ''}" role="dialog" aria-modal="true" aria-label="${esc(label)}">
+    <div class="scrim" data-close></div>
+    <div class="sheet" tabindex="-1">${html}</div>
+  </div>`;
+  const sheet = $('.sheet', oroot);
+  sheet.focus();
+  oroot.onclick = ev => {
+    if (ev.target.closest('[data-close]')) { closeSheet(); if (onClose) onClose(); return; }
+    const t = ev.target.closest('button');
+    if (t && t.dataset.sheetAct && sheetActs[t.dataset.sheetAct]) sheetActs[t.dataset.sheetAct](t);
+  };
+  oroot.onkeydown = ev => {
+    if (ev.key === 'Escape') { closeSheet(); if (onClose) onClose(); }
+    if (ev.key === 'Tab') {
+      const f = $$('button, a[href], input, summary, [tabindex="0"]', sheet).filter(x => !x.disabled && x.offsetParent !== null);
+      if (!f.length) return;
+      if (ev.shiftKey && document.activeElement === f[0]) { ev.preventDefault(); f[f.length - 1].focus(); }
+      else if (!ev.shiftKey && document.activeElement === f[f.length - 1]) { ev.preventDefault(); f[0].focus(); }
+    }
+  };
+}
+function closeSheet() { oroot.innerHTML = ''; if (lastFocus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true }); }
+const sheetActs = {};
+const sheetHead = t => `<div class="sheet-h"><h2>${t}</h2><button type="button" class="x" data-close aria-label="Stäng">${ico('x')}</button></div>`;
+
+let toastTimer;
+function toast(msg) {
+  let t = $('#toast');
+  if (!t) {
+    t = document.createElement('div'); t.id = 'toast'; t.setAttribute('role', 'status');
+    t.style.cssText = 'position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#231C19;color:#fff;padding:10px 16px;border-radius:12px;font-size:15px;font-weight:600;z-index:120;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:calc(100% - 32px);text-align:center;transition:opacity .2s;pointer-events:none';
+    $('#device').appendChild(t);
+  }
+  t.textContent = msg; t.style.opacity = '1';
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.style.opacity = '0'; }, 2600);
+}
+
+const FAQ = {
+  start: [['Kostar det något att byta elbolag?', 'Nej, det kostar inget att byta. Har du bindningstid kvar hos ditt nuvarande elbolag kan det bli en avgift där om du avslutar i förtid.'], ['Blir det avbrott i elen?', 'Nej. Det är bara elhandlaren som byts. Elen, elmätaren och elnätet är desamma.']],
+  adress: [['Varför behöver ni min adress?', 'Elpriset beror på vilket elområde du bor i, och vi behöver adressen för att hitta rätt elmätare.'], ['Behöver jag mitt anläggnings-ID?', 'Nej. Vi hittar det med hjälp av din adress.'], ['Jag vet inte exakt när jag flyttar in', 'Välj det datum du tror. Du kan ändra det senare genom att kontakta oss.']],
+  boende: [['Jag bor i ett parhus', 'Välj Radhus. Det gäller även kedjehus.'], ['Varför frågar ni hur jag bor?', 'Det hjälper oss att uppskatta din elförbrukning. Du kan ändra uppskattningen senare.']],
+  storlek: [['Vad räknas som ett rum?', 'Räkna sovrum och vardagsrum. Kök och badrum räknas inte.'], ['Var hittar jag min årsförbrukning?', 'På fakturan från ditt elnätsbolag eller i deras app. Ofta står den som ”förbrukning senaste 12 månaderna”.']],
+  uppvarmning: [['Jag har fjärrvärme', 'Välj Annan uppvärmning.'], ['Jag har luftvärmepump och vedkamin', 'Välj Elvärme eller värmepump. Du kan justera förbrukningen i nästa steg.'], ['Jag hyr och vet inte', 'Välj Vet inte. Vi gör en vanlig uppskattning som du kan ändra.']],
+  anvandning: [['Vad betyder att använda el när priset är lägre?', 'Att du kan välja när du gör sådant som drar mycket el, till exempel laddar bilen, tvättar eller diskar. Elen är ofta billigast på natten.'], ['Måste jag ha en smart laddbox?', 'Nej, men det gör det enklare att ladda när elen är billig.']],
+  forbrukning: [['Vad händer om uppskattningen är fel?', 'Du betalar alltid för den el du faktiskt använder. Uppskattningen används bara för att visa ett ungefärligt pris.']],
+  assistent: [['Kan jag byta avtal senare?', 'Ja. Rörligt pris och Kvartspris har ingen bindningstid. Fast pris gäller i 12 månader.']],
+  avtal: [['Vad är skillnaden mellan Rörligt månadspris och Kvartspris?', 'Med Rörligt månadspris betalar du ett snittpris för hela månaden. Med Kvartspris betalar du priset för varje kvart, så du kan spara genom att använda el när den är billig.'], ['Vad är påslag?', 'Ett fast belopp per kWh som läggs på elbörsens pris. Det är en del av elhandelsföretagets ersättning.'], ['Vad är bindningstid?', 'Den tid du har lovat att ha kvar avtalet. Avslutar du tidigare kan det kosta en avgift.']],
+  granska: [['Måste jag välja ett tillägg?', 'Nej. Tilläggen är frivilliga och du kan lägga till dem senare.'], ['Kan jag ändra något?', 'Ja, tryck på Ändra vid det du vill ändra. Dina andra svar finns kvar.']],
+  bekrafta: [['Hur fungerar bytet?', 'Vi anmäler bytet till ditt elnätsbolag. Du behöver inte göra något och elen fungerar som vanligt.'], ['Kan jag ångra mig?', 'Ja, du har 14 dagars ångerrätt.'], ['Vad händer med mitt gamla avtal?', 'Har du ett avtal utan bindningstid kan vi säga upp det åt dig. Har du bindningstid kvar, välj ett startdatum när den går ut.']],
+};
+function openHelp() {
+  const list = (FAQ[S.view] || []).concat(S.view === 'start' ? [] : FAQ.start);
+  openSheet(`${sheetHead('Hjälp')}
+    <p class="saved-note">${ico('check')} Dina svar sparas – du tappar inget.</p>
+    <p class="muted" style="margin:8px 0 4px">Vanliga frågor just här</p>
+    <div class="faq">${list.map(([q, a], i) => `<details ${i === 0 ? 'open' : ''}><summary>${q}</summary><p>${a}</p></details>`).join('')}</div>
+    <p class="muted" style="margin:20px 0 0">Hittar du inte svaret?</p>
+    <div class="help-ways">
+      <button class="help-way" type="button" data-sheet-act="chat"><span class="ic">${ico('chat')}</span><span><b>Chatta med oss</b><span>Vi ser var du är i flödet</span></span></button>
+      <button class="help-way" type="button" data-sheet-act="callback"><span class="ic">${ico('callback')}</span><span><b>Bli uppringd</b><span>Vi ringer dig och fortsätter där du är</span></span></button>
+      <button class="help-way" type="button" data-sheet-act="call"><span class="ic">${ico('phone')}</span><span><b>Ring kundservice</b><span>Telefonnummer och öppettider läggs in</span></span></button>
+    </div>
+    <div id="help-extra"></div>`, { right: true, label: 'Hjälp' });
+}
+sheetActs.chat = () => {
+  $('#help-extra', oroot).innerHTML = `<div class="chat" aria-live="polite">
+    <span class="who">Bixia kundservice · demo</span>
+    <div class="msg">Hej! Jag ser att du är på steget <b>${S.view === 'start' ? 'Start' : STEG[V[S.view].step - 1] || 'Klart'}</b>. Vad kan jag hjälpa dig med?</div>
+    <div class="msg me">Vilket avtal passar mig?</div>
+    <div class="msg">Utifrån dina svar föreslår vi <b>${AVTAL[rekommendation().id].namn}</b>. Vill du att jag förklarar varför?</div>
+  </div><p class="muted" style="margin:10px 0 0">I en riktig lösning öppnas chatten här, utan att kunden lämnar flödet.</p>`;
+};
+sheetActs.callback = () => {
+  $('#help-extra', oroot).innerHTML = `<div class="chat"><div class="msg"><b>Demo:</b> Kunden anger sitt nummer och blir uppringd. Kundservice ser svaren hittills och kan slutföra avtalet i samma ärende.</div></div>`;
+};
+sheetActs.call = () => {
+  $('#help-extra', oroot).innerHTML = `<div class="chat"><div class="msg"><b>Demo:</b> Bixias telefonnummer och öppettider läggs in här. Tips för test: mät hur ofta testpersoner väljer att ringa trots hjälptexterna.</div></div>`;
+};
+
+function openMore(id) {
+  if (id === 'nara') {
+    const pr = PRISER.nara.manadsavgift;
+    openSheet(`${sheetHead('Bixia Nära')}
+      <p>Med Bixia Nära väljer du ett område i Sverige. Bixia köper ursprungsgarantier från lokala elproducenter där, till exempel lantbrukare med vindkraft, solceller eller vattenkraft.</p>
+      <ul class="ticks" style="list-style:none;padding:0;display:grid;gap:8px;margin:0 0 14px">
+        <li style="display:flex;gap:10px">${ico('check')}<span>Stöd lokala producenter av förnybar el</span></li>
+        <li style="display:flex;gap:10px">${ico('check')}<span>Veta var din el kommer ifrån</span></li>
+        <li style="display:flex;gap:10px">${ico('check')}<span>Ett tillval till ditt elavtal – du behåller ditt avtal</span></li>
+      </ul>
+      <div class="explain"><div class="part p1"><h3>Pris och villkor</h3><ul><li>Löpande avgift: ${pr != null ? kr(pr) + '/mån' : ph()}</li><li>Ingen engångskostnad</li><li>Ingen bindningstid</li></ul><p>Villkoren ska verifieras mot bixia.se innan test.</p></div></div>
+      <button class="btn btn-primary btn-block" type="button" data-sheet-act="addon" data-k="nara">${S.tillagg.nara ? 'Ta bort Bixia Nära' : 'Lägg till Bixia Nära'}</button>`, { label: 'Bixia Nära' });
+  } else {
+    const e = PRISER.matare.engang, m = PRISER.matare.manadsavgift;
+    openSheet(`${sheetHead('Realtidsmätare')}
+      <p>En liten mätare som du kopplar till din elmätare. Den skickar din förbrukning till appen Mitt Bixia ungefär var tionde sekund.</p>
+      <ul style="list-style:none;padding:0;display:grid;gap:8px;margin:0 0 14px">
+        <li style="display:flex;gap:10px">${ico('check')}<span>Se vad som drar el just nu</span></li>
+        <li style="display:flex;gap:10px">${ico('check')}<span>Följ din förbrukning över tid och hitta sätt att spara</span></li>
+        <li style="display:flex;gap:10px">${ico('check')}<span>Se belastningen på huvudsäkringarna – bra när du laddar elbil</span></li>
+      </ul>
+      <div class="explain">
+        <div class="part p1"><h3>Pris</h3><ul><li>Engångskostnad för mätaren: ${e != null ? kr(e) : ph()}</li><li>Löpande avgift: ${m != null ? kr(m) + '/mån' : ph()}</li></ul></div>
+        <div class="part p2"><h3>Det här behöver du</h3><ul><li>Ett elavtal hos Bixia</li><li>En elmätare med HAN-port som ditt elnätsbolag har aktiverat</li><li>Wifi (2,4 GHz) där elmätaren sitter</li>${S.boende === 'lagenhet' ? '<li>I lägenhet sitter elmätaren ofta i ett gemensamt utrymme. Kontrollera att du kommer åt den.</li>' : ''}</ul><p>Tekniska krav och priser ska verifieras mot Bixias produktinformation.</p></div>
+      </div>
+      <button class="btn btn-primary btn-block" type="button" data-sheet-act="addon" data-k="matare">${S.tillagg.matare ? 'Ta bort realtidsmätare' : 'Lägg till realtidsmätare'}</button>`, { label: 'Realtidsmätare' });
+  }
+}
+sheetActs.addon = t => { const k = t.dataset.k; S.tillagg[k] = !S.tillagg[k]; save(); closeSheet(); render({ keepScroll: true }); toast(S.tillagg[k] ? 'Tillagt i din sammanfattning.' : 'Tillägget är borttaget.'); };
+
+function openExplain() {
+  openSheet(`${sheetHead('Vad består elpriset av?')}
+    <p class="muted">Din elkostnad består av två delar.</p>
+    <div class="explain">
+      <div class="part p1"><h3>${ico('bolt', 'ico-sm')} Elhandel – Bixia</h3><ul><li>Elpris: elbörsens pris eller ditt fasta pris</li><li>Påslag per kWh</li><li>Månadsavgift</li></ul><p>Det är den här delen du väljer när du väljer elavtal.</p></div>
+      <div class="part p2"><h3>${ico('plug', 'ico-sm')} Elnät – ditt elnätsbolag</h3><ul><li>Nätavgift och överföringsavgift</li><li>Energiskatt</li></ul><p>Elnätsbolaget bestäms av var du bor och byts inte.</p></div>
+    </div>
+    <h3 style="margin:18px 0 8px;font-size:18px">Ord som är bra att kunna</h3>
+    <dl class="gloss">
+      <dt>Spotpris</dt><dd>Elens pris på elbörsen Nord Pool. Det ändras hela tiden och skiljer sig mellan elområden.</dd>
+      <dt>Kvartspris</dt><dd>Sedan hösten 2025 sätts elbörsens pris för varje kvart i stället för varje timme.</dd>
+      <dt>Påslag</dt><dd>Ett fast belopp per kWh som läggs på elbörsens pris.</dd>
+      <dt>Bindningstid</dt><dd>Hur länge du har lovat att ha kvar avtalet.</dd>
+      <dt>Uppsägningstid</dt><dd>Hur lång tid det tar innan avtalet slutar gälla när du har sagt upp det.</dd>
+      <dt>Elområde</dt><dd>Sverige är indelat i fyra elområden, SE1–SE4. Elpriset kan skilja sig mellan dem.</dd>
+    </dl>`, { label: 'Vad består elpriset av?' });
+}
+function openTerms() {
+  openSheet(`${sheetHead('Avtals- och prisvillkor')}
+    <p class="muted">Sammanfattning i demon. I en riktig lösning länkas Bixias fullständiga villkor här.</p>
+    <dl class="gloss">
+      <dt>Ditt avtal</dt><dd>${S.avtal ? AVTAL[S.avtal].namn : 'Valt elavtal'}. Bindningstid: ${S.avtal ? AVTAL[S.avtal].bindning.toLowerCase() : '–'}. Uppsägningstid: ${S.avtal ? AVTAL[S.avtal].uppsagning.toLowerCase() : '–'}.</dd>
+      <dt>Prisändringar</dt><dd>Bixia meddelar ändringar av påslag och avgifter i förväg enligt avtalsvillkoren.</dd>
+      ${S.avtal === 'fast' ? '<dt>När avtalstiden är slut</dt><dd>Om du inte väljer ett nytt avtal går det över till Rörligt pris.</dd>' : ''}
+      <dt>Ångerrätt</dt><dd>14 dagar enligt distansavtalslagen.</dd>
+      <dt>Personuppgifter</dt><dd>Behandlas enligt Bixias integritetspolicy.</dd>
+    </dl>
+    <button class="btn btn-primary btn-block" type="button" data-close style="margin-top:18px">Jag förstår</button>`, { label: 'Avtalsvillkor' });
+}
+
+function qrSVG() {
+  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  const n = 25; let cells = '';
+  const finder = (x, y) => `<rect x="${x}" y="${y}" width="7" height="7" fill="#231C19"/><rect x="${x + 1}" y="${y + 1}" width="5" height="5" fill="#fff"/><rect x="${x + 2}" y="${y + 2}" width="3" height="3" fill="#231C19"/>`;
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    const inF = (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9);
+    if (!inF && rnd() > 0.52) cells += `<rect x="${x}" y="${y}" width="1" height="1" fill="#231C19"/>`;
+  }
+  return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges" aria-hidden="true">${cells}${finder(0, 0)}${finder(n - 7, 0)}${finder(0, n - 7)}</svg>`;
+}
+let bidTimers = [];
+function openBankID() {
+  const a = AVTAL[S.avtal];
+  const body = () => `${sheetHead('Signera med BankID')}
+    <div class="bankid" id="bid-body">
+      <div class="what"><b>Du signerar</b>Elavtal ${a.namn} · ${esc(S.adress)}, ${esc(S.postnummer)}${S.tillagg.nara || S.tillagg.matare ? ' · med tillägg' : ''}</div>
+      <div class="bid-desktop">
+        <div class="qr">${qrSVG()}<span class="demo">DEMO</span></div>
+        <p style="margin:18px 0 6px"><b>Skanna QR-koden med BankID-appen</b></p>
+        <p class="muted">Öppna BankID i din mobil och välj Skanna QR-kod.</p>
+      </div>
+      <div class="bid-mobile">
+        <div class="bid-mark">BankID</div>
+        <p style="margin:0 0 6px"><b>Öppna BankID-appen på den här enheten</b></p>
+        <p class="muted">Du kommer tillbaka hit automatiskt när du har signerat.</p>
+      </div>
+      <button type="button" class="btn btn-primary btn-block" data-sheet-act="sign" style="margin-top:12px">Simulera signering</button>
+      <button type="button" class="btn btn-ghost btn-block" data-close style="margin-top:6px">Avbryt</button>
+      <p class="demo-note">Demonstration. Ingen riktig koppling till BankID och inget avtal tecknas.</p>
+    </div>`;
+  openSheet(body(), { label: 'Signera med BankID', onClose: () => bidTimers.forEach(clearTimeout) });
+}
+sheetActs.sign = () => {
+  const b = $('#bid-body', oroot); if (!b) return;
+  b.innerHTML = `<div class="spinner" role="status" aria-label="Väntar"></div><p style="margin:0"><b>Väntar på signering i BankID …</b></p><p class="muted">Skriv in din säkerhetskod i BankID-appen.</p><p class="demo-note">Demonstration</p>`;
+  bidTimers.push(setTimeout(() => {
+    const bb = $('#bid-body', oroot); if (!bb) return;
+    bb.innerHTML = `<div class="bid-ok">${ico('check')}</div><p style="margin:0" role="status"><b>Signeringen är klar</b></p><p class="muted">Ett ögonblick …</p>`;
+    bidTimers.push(setTimeout(() => { oroot.innerHTML = ''; go('klart'); }, 1000));
+  }, 1700));
+};
+
+/* =====================================================================
+   UX-ANTECKNINGAR
+   ===================================================================== */
+const NOTES = {
+  start: ['Startskärm', [['Bixia', 'Bixias färger, typografi, navigation och tonalitet. Känns som en del av bixia.se.'], ['Vattenfall', 'Första valet är flytt eller byte – det styr resten av flödet.'], ['Octopus', 'Valet är också själva knappen. Ett klick in i flödet, inga mellansteg.'], ['Att testa', '”Klart på cirka 3 minuter” är ett förslag som ska verifieras i användartest.']]],
+  adress: ['Var ska du ha el?', [['E.ON Next', 'Postnummer tidigt. Elområde visas direkt som bekräftelse.'], ['Octopus', 'Snabb väg mot prisförslag. Inget anläggnings-ID behövs.'], ['Vattenfall', 'Flytt ger datumfråga direkt, byte gör det inte.'], ['Konvertering', 'Fokuserat flöde: huvudmenyn är borttagen, logga och hjälp finns kvar.']]],
+  boende: ['Hur bor du?', [['E.ON Next', 'Stora klickbara alternativ med ikoner. Ett beslut per vy.'], ['Tillgänglighet', 'Minst 76 px höga klickytor, tangentbordsstyrning och tydligt valt läge.'], ['Bixia', 'Lägenhetsnummer frågas bara för lägenhet och är valfritt.']]],
+  storlek: ['Hur stort är ditt hem?', [['E.ON Next', 'Antal rum ger en uppskattning i kWh som visas direkt.'], ['E.ON Next', 'Den som vet sin årsförbrukning kan ange den och hoppa över uppskattningen.'], ['Att testa', 'Schablonvärdena är kalibrerade mot Ei:s typkunder och ska verifieras.']]],
+  uppvarmning: ['Villkorad fråga om uppvärmning', [['Vattenfall', 'Visas bara för villa och radhus. En hyresgäst behöver inte känna till värmesystemet.'], ['E.ON Next', 'Uppskattningen uppdateras tydligt med hur mycket uppvärmningen lägger till.'], ['Konvertering', '”Vet inte” är ett giltigt svar som inte stoppar kunden.']]],
+  anvandning: ['Elbil och flexibilitet', [['E.ON Next', 'Frågor om elbil och flexibel elanvändning, samlade i en kort vy.'], ['Fortum', 'Svaren används senare för att föreslå rätt avtal.']]],
+  forbrukning: ['Sammanfattning av förbrukning', [['E.ON Next', 'Tydlig sammanfattning med fördelning per användning.'], ['Bixia', 'Kunden kan justera med reglage eller exakt siffra.'], ['Tillgänglighet', 'Det framgår tydligt att det är en uppskattning med schablonvärden.']]],
+  assistent: ['Avtalsassistent', [['Fortum', 'En fråga om vad som är viktigast ger ett personligt förslag.'], ['Konvertering', 'Kunden kan hoppa över och se alla avtal direkt.']]],
+  avtal: ['Personlig avtalsjämförelse', [['Fortum', '”Det här avtalet kan passa dig” med en kort motivering utifrån kundens egna svar.'], ['Octopus', 'Personliga alternativ, med förslaget först.'], ['Tibber/Greenely', 'Bindningstid, uppsägningstid och avgifter syns på varje kort, i samma ordning.'], ['Bixia', 'Ej verifierade priser visas som platshållare, aldrig som påhittade siffror.']]],
+  granska: ['Granska och tillägg', [['Bixia', 'Bixia Nära och realtidsmätare ligger på sammanfattningssidan, utan ett extra steg.'], ['Konvertering', 'Inga förvalda tillägg. Engångskostnad och löpande avgift visas separat.'], ['Tibber/Greenely', 'Allt samlat och lätt att ändra. Ändra-länken tar dig tillbaka hit.']]],
+  bekrafta: ['Bekräfta och signera', [['Octopus', 'Tydligt hur bytet går till, steg för steg.'], ['Tibber/Greenely', 'Kort lista över vad kunden godkänner. Ångerrätten syns.'], ['Bixia', 'Namn och personnummer hämtas från BankID – färre fält att fylla i.']]],
+  klart: ['Bekräftelse', [['Octopus', '”Det här händer nu” med en tidslinje. Kunden behöver inte ringa och fråga.'], ['Bixia', 'Nästa steg: appen Mitt Bixia.']]],
+};
+function renderNotes() {
+  const n = $('#notes');
+  n.classList.toggle('is-on', UI.notes);
+  if (!UI.notes) { n.innerHTML = ''; return; }
+  const [title, list] = NOTES[S.view] || ['', []];
+  n.innerHTML = `<button class="close" type="button" data-demo="notes" aria-label="Stäng anteckningar">${ico('x', 'ico-sm')}</button>
+    <h2>UX-anteckningar</h2><h3>${esc(title)}</h3>
+    <ul>${list.map(([s, t]) => `<li><span class="src" data-src="${esc(s)}">${esc(s)}</span><span>${esc(t)}</span></li>`).join('')}</ul>`;
+}
+
+/* =====================================================================
+   DEMOVERKTYG
+   ===================================================================== */
+const in30 = () => isoOf(addDays(new Date(), 30));
+const PERSONOR = [
+  { id: 'sara', namn: 'Sara, 29', text: 'Hyr lägenhet i Uppsala. Vill ha det enkelt.', s: { syfte: 'byte', postnummer: '753 20', adress: 'Kungsgatan 41', lgh: '1102', boende: 'lagenhet', storlek: '1-2', elbil: 'nej', flex: 'osaker', prio: 'enkel' } },
+  { id: 'lind', namn: 'Familjen Lind', text: 'Villa med värmepump och elbil i Linköping.', s: { syfte: 'byte', postnummer: '582 46', adress: 'Björkvägen 7', boende: 'villa', storlek: '4+', uppvarmning: 'el', elbil: 'ja', flex: 'ja', prio: 'styra' } },
+  { id: 'ahmed', namn: 'Ahmed, 45', text: 'Flyttar till radhus i Malmö. Vill veta vad elen kostar.', s: { syfte: 'flytt', postnummer: '217 45', adress: 'Lindängsvägen 3', flyttdatum: null, boende: 'radhus', storlek: '3', uppvarmning: 'annan', elbil: 'nej', flex: 'nej', prio: 'fast' } },
+];
+function applyPersona(p, view = 'forbrukning') {
+  S = Object.assign(structuredClone(BLANK), p.s);
+  if (p.id === 'ahmed') S.flyttdatum = in30();
+  S.view = view; save();
+}
+function fillMissing(upTo) {
+  const base = PERSONOR[1].s;
+  for (let i = 1; i < idx(upTo); i++) {
+    const v = VIEWS[i];
+    if (applies(v) && v.valid && v.valid()) {
+      if (v.id === 'avtal') S.avtal = rekommendation().id;
+      else if (v.id === 'adress') { if (!S.syfte) S.syfte = 'byte'; Object.assign(S, { postnummer: S.postnummer || base.postnummer, adress: S.adress || base.adress }); if (S.syfte === 'flytt' && !S.flyttdatum) S.flyttdatum = in30(); }
+      else if (v.id === 'bekrafta') { /* fylls inte i automatiskt */ }
+      else for (const k of ['boende', 'storlek', 'uppvarmning', 'elbil', 'flex', 'prio']) if (!S[k]) S[k] = base[k];
+    }
+  }
+  if (!S.syfte) S.syfte = 'byte';
+  if (idx(upTo) > idx('avtal') && !S.avtal) S.avtal = rekommendation().id;
+  if (upTo === 'klart') { S.epost = S.epost || 'demo@exempel.se'; S.mobil = S.mobil || '070 123 45 67'; S.villkor = true; if (!S.avtal) S.avtal = rekommendation().id; }
+}
+function buildMenus() {
+  $('#menu-persona').innerHTML = `<div class="mh">Fyll i svar och gå till steg 2</div>` + PERSONOR.map(p => `<button type="button" data-persona="${p.id}"><b>${p.namn}</b><small>${p.text}</small></button>`).join('');
+  const J = [['start', 'Startskärm'], ['adress', 'Steg 1 · Ditt hem'], ['storlek', 'Steg 1 · Förbrukning per rum'], ['uppvarmning', 'Steg 1 · Uppvärmning (villa/radhus)'], ['forbrukning', 'Steg 1 · Sammanfattning'], ['avtal', 'Steg 2 · Avtalsförslag'], ['granska', 'Steg 3 · Granska och tillägg'], ['bekrafta', 'Steg 3 · Bekräfta och signera'], ['klart', 'Bekräftelse']];
+  $('#menu-jump').innerHTML = `<div class="mh">Saknade svar fylls i med exempel</div>` + J.map(([id, t]) => `<button type="button" data-jump="${id}">${t}</button>`).join('');
+}
+function resetAll() { S = structuredClone(BLANK); save(); closeSheet(); go('start'); }
+function setVy(vy) {
+  UI.vy = vy;
+  $('#stage').classList.toggle('is-mobile', vy === 'mobil');
+  $$('[data-demo="vy"]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.value === vy)));
+  render({ top: true });
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-demo], [data-persona], [data-jump]');
+  if (!t || app.contains(t)) return;
+  if (t.dataset.demo === 'vy') setVy(t.dataset.value);
+  else if (t.dataset.demo === 'notes') { UI.notes = !UI.notes; $$('.demobar [data-demo="notes"]').forEach(b => b.setAttribute('aria-pressed', String(UI.notes))); renderNotes(); }
+  else if (t.dataset.demo === 'reset') resetAll();
+  else if (t.dataset.persona) { applyPersona(PERSONOR.find(p => p.id === t.dataset.persona), 'avtal'); closeMenus(); go('avtal'); }
+  else if (t.dataset.jump) {
+    const id = t.dataset.jump; fillMissing(id);
+    if (id === 'uppvarmning' && !harHus()) { S.boende = 'villa'; if (egen()) S.storlek = '4+'; }
+    save(); closeMenus(); go(id);
+  }
+});
+document.querySelector('.demobar-toggle').addEventListener('click', e => {
+  const open = $('#demobar').classList.toggle('is-open');
+  e.currentTarget.setAttribute('aria-expanded', String(open));
+});
+function closeMenus() { $$('.demobar details').forEach(d => d.removeAttribute('open')); }
+document.addEventListener('click', e => { $$('.demobar details[open]').forEach(d => { if (!d.contains(e.target)) d.removeAttribute('open'); }); });
+
+/* =====================================================================
+   START
+   ===================================================================== */
+if (params.has('test')) document.body.classList.add('testlage');
+if (params.has('nystart')) S = structuredClone(BLANK);
+if (!V[S.view]) S.view = 'start';
+buildMenus();
+$$('.demobar [data-demo="notes"]').forEach(b => b.setAttribute('aria-pressed', String(UI.notes)));
+$('#stage').classList.toggle('is-mobile', UI.vy === 'mobil');
+$$('[data-demo="vy"]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.value === UI.vy)));
+render();
+})();
+</script>
+</body>
+</html>

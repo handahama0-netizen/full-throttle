@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teckningsresa – översikt</title>
+<meta name="description" content="Översikt över Proof of Concept för Bixias framtida digitala teckningsresa: kundresa, UX-inspiration, rekommendationslogik och vad som ska verifieras.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #F47B20; --orange-700: #CC4E06; --orange-800: #A8430A;
+  --peach-50: #FFF6EE; --peach-100: #FDEBDC; --peach-200: #F9D6BA;
+  --sand: #FBF6EF; --sand-200: #F3EADF; --white: #FFFFFF;
+  --ink: #231C19; --ink-2: #5E534D; --ink-3: #8A7E76; --line: #E8DDD1;
+  --green: #2F7A4D; --green-50: #EAF4EE; --amber-50: #FFF4D6; --amber: #6E4A00;
+  --font: "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--font); font-size: 17px; line-height: 1.55; color: var(--ink); background: var(--sand); -webkit-font-smoothing: antialiased; }
+a { color: var(--orange-800); }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+@media (min-width: 700px) { .wrap { padding: 0 32px; } }
+:focus-visible { outline: 3px solid #E0620F; outline-offset: 2px; border-radius: 6px; }
+
+.top { background: var(--ink); color: #F3EBE4; font-size: 14px; }
+.top .wrap { display: flex; gap: 12px; align-items: center; min-height: 44px; flex-wrap: wrap; }
+.top .tag { background: #FFD9BF; color: #5A2406; font-weight: 800; font-size: 12px; padding: 3px 8px; border-radius: 6px; }
+
+header.hero { background: linear-gradient(180deg, var(--peach-50), var(--sand)); padding: 48px 0 40px; }
+.eyebrow { font-weight: 800; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; color: var(--orange-800); }
+h1 { font-size: 38px; line-height: 1.08; letter-spacing: -.02em; margin: 10px 0 14px; font-weight: 800; }
+@media (min-width: 700px) { h1 { font-size: 54px; } }
+.lead { font-size: 19px; color: var(--ink-2); max-width: 62ch; margin: 0 0 22px; }
+.ctas { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 22px; border-radius: 999px; font-weight: 700; font-size: 17px; text-decoration: none; border: 2px solid transparent; }
+.btn-primary { background: var(--orange-700); color: #FFF; }
+.btn-primary:hover { background: var(--orange-800); }
+.btn-secondary { background: #FFF; color: var(--ink); border-color: var(--ink); }
+.btn-secondary:hover { background: var(--sand-200); }
+.note { display: flex; gap: 10px; align-items: flex-start; background: var(--amber-50); border: 1px solid #F0D58A; color: #4A3700; border-radius: 14px; padding: 12px 14px; font-size: 15px; margin-top: 22px; max-width: 760px; }
+
+section { padding: 44px 0; }
+section + section { border-top: 1px solid var(--line); }
+h2 { font-size: 30px; line-height: 1.15; margin: 0 0 8px; letter-spacing: -.01em; }
+.sub { color: var(--ink-2); margin: 0 0 24px; max-width: 70ch; }
+h3 { font-size: 19px; margin: 0 0 6px; }
+
+.quote { background: var(--white); border-radius: 24px; padding: 28px; box-shadow: 0 6px 24px rgba(35,28,25,.08); border-left: 8px solid var(--orange); font-size: 22px; font-weight: 700; line-height: 1.35; margin: 0; }
+.quote small { display: block; margin-top: 10px; font-size: 15px; font-weight: 500; color: var(--ink-2); }
+
+.grid { display: grid; gap: 14px; }
+@media (min-width: 700px) { .g2 { grid-template-columns: 1fr 1fr; } .g3 { grid-template-columns: repeat(3, 1fr); } }
+.card { background: var(--white); border: 1px solid var(--line); border-radius: 18px; padding: 20px; }
+.card p { margin: 0; color: var(--ink-2); font-size: 16px; }
+.card .k { font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--orange-800); margin-bottom: 6px; display: block; }
+
+.journey { display: grid; gap: 14px; }
+@media (min-width: 900px) { .journey { grid-template-columns: repeat(3, 1fr); } }
+.stepcol { background: var(--white); border-radius: 20px; border: 1px solid var(--line); overflow: hidden; }
+.stepcol header { background: var(--peach-100); padding: 16px 20px; display: flex; gap: 12px; align-items: center; }
+.stepcol header .n { width: 34px; height: 34px; border-radius: 50%; background: var(--orange-700); color: #FFF; display: grid; place-items: center; font-weight: 800; flex: none; }
+.stepcol header h3 { margin: 0; }
+.stepcol ol { margin: 0; padding: 12px 20px 18px 40px; display: grid; gap: 8px; font-size: 16px; }
+.stepcol li span { display: block; color: var(--ink-2); font-size: 14px; }
+.cond { display: inline-block; font-size: 12px; font-weight: 800; background: #FFF0D6; color: var(--amber); border-radius: 999px; padding: 1px 8px; margin-left: 4px; vertical-align: 2px; }
+
+.shots { display: grid; gap: 18px; grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 700px) { .shots.mob { grid-template-columns: repeat(4, 1fr); } }
+.shots figure { margin: 0; }
+.shots img { width: 100%; height: auto; display: block; border-radius: 18px; border: 1px solid var(--line); box-shadow: 0 6px 24px rgba(35,28,25,.08); background: #FFF; }
+.shots figcaption { font-size: 14px; color: var(--ink-2); margin-top: 8px; }
+.shots.desk { grid-template-columns: 1fr; }
+@media (min-width: 900px) { .shots.desk { grid-template-columns: repeat(3, 1fr); } }
+
+.table-wrap { overflow-x: auto; border-radius: 18px; border: 1px solid var(--line); background: var(--white); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; min-width: 640px; }
+th, td { text-align: left; padding: 12px 16px; vertical-align: top; border-bottom: 1px solid var(--line); }
+th { background: var(--sand-200); font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-2); }
+tr:last-child td { border-bottom: 0; }
+td b { white-space: nowrap; }
+.src { display: inline-block; font-size: 13px; font-weight: 800; padding: 2px 10px; border-radius: 999px; white-space: nowrap; }
+.s-eon { background: #FCE4EC; color: #7A1F3D; } .s-oct { background: #EDE7F6; color: #4527A0; } .s-vf { background: #FFF6CC; color: #6B5400; }
+.s-fo { background: #E3F2EA; color: #1E5C3A; } .s-ti { background: #E3F0FA; color: #1B4F7A; } .s-bx { background: var(--peach-100); color: #7A3307; }
+.st { display: inline-block; font-size: 12px; font-weight: 800; border-radius: 6px; padding: 2px 8px; white-space: nowrap; }
+.st-ph { background: var(--sand-200); color: var(--ink); border: 1.5px dashed var(--ink-3); }
+.st-ver { background: #FFF0D6; color: var(--amber); }
+.st-ok { background: var(--green-50); color: var(--green); }
+
+ul.ticks { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+ul.ticks li { padding-left: 30px; position: relative; }
+ul.ticks li::before { content: ""; position: absolute; left: 4px; top: 7px; width: 12px; height: 7px; border-left: 3px solid var(--green); border-bottom: 3px solid var(--green); transform: rotate(-45deg); }
+
+footer { background: var(--ink); color: #CBBDB2; padding: 28px 0; font-size: 14px; margin-top: 20px; }
+code { background: var(--sand-200); padding: 1px 6px; border-radius: 6px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><span class="tag">DEMO</span><span>Proof of Concept för intern utvärdering och användartest. Ingen riktig tjänst – inga avtal tecknas.</span></div></div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Proof of Concept · oktober 2026</span>
+    <h1>Bixias framtida digitala teckningsresa</h1>
+    <p class="lead">En klickbar prototyp som visar hur en kund kan teckna elavtal hos Bixia på cirka tre minuter: tre korta steg, ett personligt avtalsförslag, tydliga villkor och relevanta tillägg – utan att behöva ringa kundservice.</p>
+    <div class="ctas">
+      <a class="btn btn-primary" href="prototyp.html">Öppna prototypen →</a>
+      <a class="btn btn-secondary" href="prototyp.html?vy=mobil">Visa i mobilram</a>
+      <a class="btn btn-secondary" href="prototyp.html?test&amp;nystart">Testläge för användartest</a>
+    </div>
+    <p class="note"><span>ⓘ</span><span><b>Priser är platshållare.</b> Aktuella priser kunde inte verifieras och visas därför som tydligt märkta platshållare, aldrig som påhittade siffror. Villkor bygger på Bixias publicerade avtalsvillkor och ska verifieras före användartest.</span></p>
+  </div>
+</header>
+
+<section><div class="wrap">
+  <h2>Koncept: två frågor till ditt pris</h2>
+  <p class="sub">Den enklaste vägen för kunden: adress och boende räcker för att visa priset. Allt annat är valfritt eller hämtas automatiskt. Finns som <a href="koncept.png">liggande bild</a> och <a href="koncept-mobil.png">stående bild</a>.</p>
+  <a href="koncept.png"><img src="koncept.png" alt="Koncept: Var ska du ha el, Hur bor du, Ditt pris, Bekräfta och signera, Klart" style="width:100%;height:auto;display:block;border-radius:18px;border:1px solid var(--line);box-shadow:0 6px 24px rgba(35,28,25,.08)"></a>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Kundresan på en bild</h2>
+  <p class="sub">Sex stationer på en guidad väg – från adress till signerat avtal. Finns som <a href="kundresa.png">liggande bild</a> för presentationer och <a href="kundresa-mobil.png">stående bild</a> för mobil.</p>
+  <a href="kundresa.png"><img src="kundresa.png" alt="Kundresekarta: Ditt hem, Relevanta frågor, Jämför avtal, Granska, Tillägg och Signera och klart" style="width:100%;height:auto;display:block;border-radius:18px;border:1px solid var(--line);box-shadow:0 6px 24px rgba(35,28,25,.08)"></a>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Målet</h2>
+  <p class="sub">Kunden ska känna att det är enkelt, förstå vad hen väljer och vad som händer efteråt.</p>
+  <blockquote class="quote">”Det här är enkelt. Jag förstår vilket avtal jag väljer, vad det kostar och vad som händer efteråt. Jag kan göra allt själv utan att behöva ringa kundservice.”<small>Önskad kundupplevelse</small></blockquote>
+  <div class="grid g2" style="margin-top:18px">
+    <div class="card"><span class="k">Fler tecknar digitalt</span><p>Ett val på startsidan tar kunden direkt in i flödet. Fokuserat flöde utan huvudmeny, tydlig progress och ”Fortsätt” som alltid syns.</p></div>
+    <div class="card"><span class="k">Färre samtal till kundservice</span><p>Hjälp direkt i flödet med vanliga frågor för varje vy, chatt och uppringning. Svaren sparas. ”Det här händer nu” efter signering.</p></div>
+    <div class="card"><span class="k">Enklare beslut</span><p>En fråga per vy, stora klickytor och ett personligt avtalsförslag med motivering. Kunden väljer fritt.</p></div>
+    <div class="card"><span class="k">Lättare att förstå elpriset</span><p>Samma villkor i samma ordning på varje avtalskort. Förklaring av elhandel och elnät, ordlista och uppskattad förbrukning i kWh.</p></div>
+    <div class="card"><span class="k">Relevant merförsäljning</span><p>Bixia Nära och realtidsmätare på granskningssidan – inga förval, inget extra steg och anpassat efter kundens svar.</p></div>
+    <div class="card"><span class="k">Trygghet</span><p>BankID hämtar namn och personnummer. Kunden ser vad hen godkänner, hur bytet går till och sin ångerrätt.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Kundresan i tre steg</h2>
+  <p class="sub">Korta, avgränsade vyer med ”Fortsätt” och ”Tillbaka”. Alla val sparas och kan ändras från sammanfattningen.</p>
+  <div class="journey">
+    <div class="stepcol"><header><span class="n">1</span><h3>Ditt hem</h3></header>
+      <ol>
+        <li>Vad vill du göra?<span>Byta elbolag eller flytta – direkt på startsidan</span></li>
+        <li>Var ska du ha el?<span>Postnummer, adress, elområde. Flytt: inflyttningsdatum</span></li>
+        <li>Hur bor du?<span>Lägenhet, villa eller radhus</span></li>
+        <li>Hur stort är ditt hem?<span>1–2, 3, 4+ rum eller egen årsförbrukning. Uppskattning i kWh direkt</span></li>
+        <li>Hur värms ditt hem upp? <span class="cond">bara villa/radhus</span><span>Visas inte för lägenhet eller vid egen förbrukning</span></li>
+        <li>Hur använder du el?<span>Elbil hemma och flexibel elanvändning</span></li>
+        <li>Din uppskattade förbrukning<span>Fördelning och justering med reglage</span></li>
+      </ol>
+    </div>
+    <div class="stepcol"><header><span class="n">2</span><h3>Välj elavtal</h3></header>
+      <ol>
+        <li>Vad är viktigast för dig?<span>Avtalsassistent – kan hoppas över</span></li>
+        <li>Det här avtalet kan passa dig<span>Förslag med motivering och jämförelse av Rörligt månadspris, Kvartspris och Fast pris</span></li>
+      </ol>
+    </div>
+    <div class="stepcol"><header><span class="n">3</span><h3>Granska och bekräfta</h3></header>
+      <ol>
+        <li>Granska ditt elavtal<span>Sammanfattning med ”Ändra” + Bixia Nära och realtidsmätare</span></li>
+        <li>Bekräfta och signera<span>Kontaktuppgifter, start, så går bytet till, det här godkänner du</span></li>
+        <li>BankID <span class="cond">illustrativ</span><span>QR-kod på dator, app på mobil</span></li>
+        <li>Klart<span>Det här händer nu – tidslinje till första fakturan</span></li>
+      </ol>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Mobil och dator</h2>
+  <p class="sub">Samma flöde anpassas efter skärmen. På dator syns en löpande sammanfattning bredvid frågorna, på mobil fälls den ut överst.</p>
+  <div class="shots mob">
+    <figure><img src="skarmbilder/mobil-1-start.jpg" alt="Startskärm i mobil med valen Byta elbolag och Flytta" loading="lazy"><figcaption>Start: första valet tar kunden in i flödet</figcaption></figure>
+    <figure><img src="skarmbilder/mobil-2-storlek.jpg" alt="Frågan Hur stort är ditt hem med uppskattad årsförbrukning" loading="lazy"><figcaption>Antal rum ger en uppskattning direkt</figcaption></figure>
+    <figure><img src="skarmbilder/mobil-3-forbrukning.jpg" alt="Sammanfattning av uppskattad elförbrukning med reglage" loading="lazy"><figcaption>Förbrukningen kan justeras</figcaption></figure>
+    <figure><img src="skarmbilder/mobil-4-avtal.jpg" alt="Avtalsförslag Det här avtalet kan passa dig" loading="lazy"><figcaption>Personligt förslag med motivering</figcaption></figure>
+    <figure><img src="skarmbilder/mobil-5-granska.jpg" alt="Granskning med tilläggstjänster" loading="lazy"><figcaption>Granska och lägg till tjänster</figcaption></figure>
+    <figure><img src="skarmbilder/mobil-6-bekrafta.jpg" alt="Bekräfta och signera" loading="lazy"><figcaption>Så går bytet till och vad du godkänner</figcaption></figure>
+    <figure><img src="skarmbilder/mobil-7-bankid.jpg" alt="Illustrativ signering med BankID" loading="lazy"><figcaption>Illustrativ BankID-signering</figcaption></figure>
+    <figure><img src="skarmbilder/mobil-8-klart.jpg" alt="Bekräftelse med tidslinje" loading="lazy"><figcaption>Det här händer nu</figcaption></figure>
+  </div>
+  <div class="shots desk" style="margin-top:22px">
+    <figure><img src="skarmbilder/dator-1-start.jpg" alt="Startskärm på dator i Bixias stil" loading="lazy"><figcaption>Startskärm i Bixias visuella stil</figcaption></figure>
+    <figure><img src="skarmbilder/dator-2-avtal.jpg" alt="Avtalsjämförelse på dator med tre avtal" loading="lazy"><figcaption>Avtalsjämförelse med förslaget först</figcaption></figure>
+    <figure><img src="skarmbilder/dator-3-granska.jpg" alt="Granskningssida på dator med sammanfattning i sidopanel" loading="lazy"><figcaption>Granska med löpande sammanfattning</figcaption></figure>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>UX-idéer och var de kommer ifrån</h2>
+  <p class="sub">Principerna är lånade – inte den grafiska designen. Allt är utformat i Bixias eget uttryck. Slå på ”UX-anteckningar” i prototypen för att se idéerna i varje vy.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Inspiration</th><th>UX-idé</th><th>Så används den i PoC:n</th><th>Var</th></tr></thead>
+    <tbody>
+      <tr><td><span class="src s-eon">E.ON Next</span></td><td>Postnummer tidigt, stora klickbara svar, förbrukning från antal rum, egen årsförbrukning, frågor om elbil och flexibilitet, tydlig uppdatering av uppskattningen.</td><td>En fråga per vy med stora kort. Uppskattningen i kWh visas direkt och visar vad uppvärmning och elbil lägger till. ”Jag vet min årsförbrukning” hoppar över uppskattningen.</td><td>Steg 1</td></tr>
+      <tr><td><span class="src s-oct">Octopus</span></td><td>Snabb väg från adress till pris, få inledande frågor, personliga alternativ, tydligt leverantörsbyte, trygghet.</td><td>Startvalet är själva knappen in i flödet. Inget anläggnings-ID behövs. ”Så går bytet till” före signering och ”Det här händer nu” efteråt.</td><td>Start, steg 3</td></tr>
+      <tr><td><span class="src s-vf">Vattenfall</span></td><td>Tydligt val mellan flytt och byte, bostadsuppgifter som grund, anpassning efter situation.</td><td>Flytt ger frågan om inflyttningsdatum och en egen beskrivning av vad som händer. Byte ger val av startdatum och uppsägning av gammalt avtal. Uppvärmningsfrågan visas bara för villa och radhus.</td><td>Steg 1, 3</td></tr>
+      <tr><td><span class="src s-fo">Fortum</span></td><td>Avtalsassistent, hjälp att välja avtalsform, tydliga jämförelser.</td><td>”Vad är viktigast för dig?” ger ”Det här avtalet kan passa dig” med en motivering byggd på kundens egna svar. Alla tre avtal visas sida vid sida och kan väljas fritt.</td><td>Steg 2</td></tr>
+      <tr><td><span class="src s-ti">Tibber/Greenely</span></td><td>Enkel självservice, tydlig bindningstid, förtroendeskapande.</td><td>Bindningstid, uppsägningstid och avgifter på samma plats på varje kort. Allt går att ändra från sammanfattningen. Hjälp utan att lämna flödet.</td><td>Steg 2, 3</td></tr>
+      <tr><td><span class="src s-bx">Bixia</span></td><td>Egen design, tonalitet och tilläggstjänster.</td><td>Orange, varma ljusa ytor, rundade kort och knappar. Bixia Nära och realtidsmätare integrerade på granskningssidan, anpassade efter kundens svar.</td><td>Hela flödet</td></tr>
+    </tbody>
+  </table></div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Designprinciper</h2>
+  <div class="grid g2" style="margin-top:14px">
+    <ul class="ticks">
+      <li>En fråga eller ett beslut per vy. ”Fortsätt” syns alltid.</li>
+      <li>Stora klickytor (minst 56–76 px), tydligt valt läge och tangentbordsstyrning.</li>
+      <li>Vanlig svenska, korta texter och ”Vet inte” som giltigt svar.</li>
+      <li>Fel visas först när kunden försöker gå vidare, med en tydlig förklaring.</li>
+    </ul>
+    <ul class="ticks">
+      <li>Inga onödiga frågor: uppvärmning bara för hus, inget anläggnings-ID, namn och personnummer från BankID.</li>
+      <li>Merförsäljning utan extra steg och utan förval. Engångs- och löpande kostnader separat.</li>
+      <li>Ärliga siffror: uppskattningar märks som uppskattningar, ej verifierade priser som platshållare.</li>
+      <li>Fokuserat flöde: huvudmenyn göms, logga, tid kvar och hjälp finns kvar.</li>
+    </ul>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Logik i prototypen</h2>
+  <div class="grid g2" style="margin-top:14px">
+    <div>
+      <h3>Avtalsförslag</h3>
+      <div class="table-wrap"><table style="min-width:0">
+        <thead><tr><th>Kundens svar</th><th>Förslag</th></tr></thead>
+        <tbody>
+          <tr><td>Vill veta vad elen kostar</td><td><b>Fast pris</b></td></tr>
+          <tr><td>Vill spara genom att styra sin el</td><td><b>Kvartspris</b></td></tr>
+          <tr><td>Vill ha ett enkelt avtal utan bindning</td><td><b>Rörligt månadspris</b></td></tr>
+          <tr><td>Hoppar över – kan använda mer el när priset är lägre</td><td><b>Kvartspris</b></td></tr>
+          <tr><td>Hoppar över – elvärme och minst 10 000 kWh/år</td><td><b>Fast pris</b></td></tr>
+          <tr><td>Hoppar över – övriga</td><td><b>Rörligt månadspris</b></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div>
+      <h3>Schablonvärden (kWh per år, illustrativa)</h3>
+      <div class="table-wrap"><table style="min-width:0">
+        <thead><tr><th></th><th>1–2 rum</th><th>3 rum</th><th>4+ rum</th></tr></thead>
+        <tbody>
+          <tr><td>Lägenhet</td><td>1 500</td><td>2 000</td><td>2 800</td></tr>
+          <tr><td>Radhus</td><td>3 000</td><td>4 000</td><td>5 000</td></tr>
+          <tr><td>Villa</td><td>3 500</td><td>4 500</td><td>5 500</td></tr>
+          <tr><td>+ elvärme, radhus</td><td>4 000</td><td>6 000</td><td>8 000</td></tr>
+          <tr><td>+ elvärme, villa</td><td>6 500</td><td>10 000</td><td>14 500</td></tr>
+          <tr><td>+ elbil</td><td colspan="3">2 500 (cirka 1 250 mil per år)</td></tr>
+        </tbody>
+      </table></div>
+      <p style="font-size:14px;color:var(--ink-2);margin:8px 0 0">Kalibrerade mot Energimarknadsinspektionens typkunder: lägenhet 2 000, villa 5 000 och villa med elvärme 20 000 kWh/år. Ska verifieras.</p>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Platshållare och att verifiera</h2>
+  <p class="sub">Bixias webbplats gick inte att läsa direkt när PoC:n byggdes. Uppgifterna nedan kommer från sökresultat som återger Bixias villkor och ska stämmas av mot källan. Priserna fylls i på ett ställe, <code>PRISER</code> i <code>prototyp.html</code>, och då räknas månadskostnaden ut automatiskt.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Uppgift</th><th>I PoC:n</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Månadsavgift och påslag, alla avtal</td><td>Platshållare</td><td><span class="st st-ph">Pris läggs in</span></td></tr>
+      <tr><td>Fast elpris och prisexempel för månadskostnad</td><td>Platshållare</td><td><span class="st st-ph">Pris läggs in</span></td></tr>
+      <tr><td>Avgift vid förtida uppsägning av Fast pris</td><td>Platshållare</td><td><span class="st st-ph">Belopp läggs in</span></td></tr>
+      <tr><td>Rörligt månadspris och Kvartspris: ingen bindningstid, 14 dagars uppsägningstid</td><td>Visas</td><td><span class="st st-ver">Verifieras</span></td></tr>
+      <tr><td>Fast pris: 12 månader, övergår till Rörligt pris om kunden inte väljer nytt</td><td>Visas</td><td><span class="st st-ver">Verifieras</span></td></tr>
+      <tr><td>Kvartspris kräver kvartsmätning</td><td>Visas</td><td><span class="st st-ver">Verifieras</span></td></tr>
+      <tr><td>100 % förnybar el i alla avtal</td><td>Visas på startsidan</td><td><span class="st st-ver">Verifieras</span></td></tr>
+      <tr><td>Bixia Nära: pris, ingen bindningstid, val av område</td><td>Pris som platshållare</td><td><span class="st st-ver">Verifieras</span></td></tr>
+      <tr><td>Realtidsmätare: engångs- och månadspris, HAN-port, wifi 2,4 GHz, app Mitt Bixia</td><td>Pris som platshållare</td><td><span class="st st-ver">Verifieras</span></td></tr>
+      <tr><td>Bixia säger upp kundens gamla avtal</td><td>Valfri ruta</td><td><span class="st st-ver">Process verifieras</span></td></tr>
+      <tr><td>Preliminärt startdatum (idag + 14 dagar)</td><td>Exempel</td><td><span class="st st-ver">Verifieras</span></td></tr>
+      <tr><td>Elområde från postnummer</td><td>Grov mappning för demo</td><td><span class="st st-ver">Ersätts med adressuppslag</span></td></tr>
+      <tr><td>14 dagars ångerrätt enligt distansavtalslagen</td><td>Visas</td><td><span class="st st-ok">Lagstadgat</span></td></tr>
+      <tr><td>”Klart på cirka 3 minuter”</td><td>Visas</td><td><span class="st st-ver">Mäts i användartest</span></td></tr>
+      <tr><td>Logotyp, typsnitt och exakta färgkoder</td><td>Närliggande ersättare</td><td><span class="st st-ver">Byts mot grafisk profil</span></td></tr>
+      <tr><td>Kundservicens telefonnummer och öppettider</td><td>Platshållare</td><td><span class="st st-ph">Läggs in</span></td></tr>
+    </tbody>
+  </table></div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Förslag till användartest</h2>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card">
+      <span class="k">Deltagare</span>
+      <p>5–6 personer per grupp: hyresgäst i lägenhet, villaägare med elvärme, någon som ska flytta och digitalt ovana kunder (till exempel 65+). Använd <a href="prototyp.html?test&amp;nystart">testläget</a>, som döljer demoverktygen.</p>
+    </div>
+    <div class="card">
+      <span class="k">Uppgifter</span>
+      <p>1) Du ska flytta till ett radhus – teckna el. 2) Vilket avtal har bindningstid? 3) Lägg till Bixia Nära och ta bort det igen. 4) Ändra din förbrukning till 12 000 kWh. 5) Berätta vad som händer nu.</p>
+    </div>
+    <div class="card">
+      <span class="k">Mät</span>
+      <p>Andel som slutför, tid jämfört med ”cirka 3 minuter”, antal gånger hjälpen öppnas, om de hade ringt, och om de kan förklara vilket avtal de valt, vad det kostar och vad som händer sedan.</p>
+    </div>
+    <div class="card">
+      <span class="k">Frågor att få svar på</span>
+      <p>Förstås skillnaden mellan Rörligt månadspris och Kvartspris? Känns förslaget trovärdigt? Upplevs tilläggen som hjälp eller påtryckning? Saknas något före signering?</p>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Så använder du prototypen</h2>
+  <ul class="ticks" style="margin-top:12px">
+    <li><b>Dator / Mobil</b> i demolisten växlar mellan full skärm och en mobilram – bra när man visar på storskärm.</li>
+    <li><b>Demopersonor</b> fyller i svar för tre typkunder och hoppar till avtalsförslaget: Sara (lägenhet), familjen Lind (villa, värmepump och elbil) och Ahmed (flyttar till radhus).</li>
+    <li><b>Hoppa till</b> går direkt till valfri vy. Saknade svar fylls i med exempel.</li>
+    <li><b>UX-anteckningar</b> visar vilka idéer och principer som används i varje vy.</li>
+    <li>Svaren sparas i webbläsaren. <b>Starta om</b> rensar dem.</li>
+  </ul>
+</div></section>
+
+<footer><div class="wrap">Proof of Concept för utvärdering och användartest. Inte en Bixia-tjänst i drift – inga avtal tecknas, ingen BankID-koppling finns och inga uppgifter skickas.</div></footer>
+</body>
+</html>

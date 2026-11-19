@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kundresan på en bild</title>
+<meta name="description" content="Kundresekarta för Bixias framtida teckningsresa: sex stationer från Ditt hem till signerat avtal, med lärdomar från de bästa kundresorna inom energi.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #F47B20; --orange-600: #E0620F; --orange-700: #CC4E06; --orange-800: #A8430A;
+  --peach-50: #FFF6EE; --peach-100: #FDEBDC; --peach-200: #F9D6BA;
+  --sand: #FBF6EF; --sand-200: #F3EADF; --white: #FFFFFF;
+  --ink: #231C19; --ink-2: #5E534D; --ink-3: #8A7E76; --line: #E8DDD1;
+  --green: #2F7A4D; --green-50: #EAF4EE;
+  --font: "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font-family: var(--font); color: var(--ink); background: var(--sand); -webkit-font-smoothing: antialiased; }
+img, svg { display: block; }
+.ico { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+.poster { max-width: 1920px; margin: 0 auto; padding: 48px 56px 40px; background:
+  radial-gradient(900px 420px at 88% -8%, rgba(244,123,32,.16), transparent 70%),
+  radial-gradient(700px 360px at 0% 0%, rgba(253,235,220,.9), transparent 70%), var(--sand); }
+
+/* Rubrik */
+.top { display: grid; grid-template-columns: minmax(0, 1fr) 520px; gap: 40px; align-items: end; margin-bottom: 30px; }
+.brand { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.logo { color: var(--orange); font-weight: 800; font-size: 40px; letter-spacing: -.045em; line-height: 1; }
+.badge { background: var(--ink); color: #FFE3CF; font-weight: 800; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; }
+h1 { font-size: 60px; line-height: 1.02; letter-spacing: -.03em; margin: 0 0 14px; font-weight: 800; }
+h1 em { font-style: normal; color: var(--orange-700); }
+.lead { font-size: 21px; line-height: 1.45; color: var(--ink-2); margin: 0; max-width: 60ch; }
+.goal { background: var(--white); border-radius: 22px; padding: 22px 24px; box-shadow: 0 10px 30px rgba(35,28,25,.08); border-left: 8px solid var(--orange); }
+.goal .k { font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--orange-800); }
+.goal p { margin: 6px 0 0; font-size: 21px; line-height: 1.35; font-weight: 700; }
+.goal .meta { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+.pill { display: inline-flex; align-items: center; gap: 6px; background: var(--peach-100); color: #7A3307; font-weight: 800; font-size: 14px; border-radius: 999px; padding: 6px 12px; }
+.pill .ico { width: 18px; height: 18px; }
+.pill.green { background: var(--green-50); color: var(--green); }
+
+/* Huvudsteg */
+.phases { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; margin-bottom: 10px; }
+.phase { border-top: 4px solid var(--orange); padding-top: 8px; font-weight: 800; font-size: 16px; display: flex; justify-content: space-between; gap: 8px; color: var(--ink); }
+.phase span { color: var(--ink-3); font-weight: 700; }
+.phase.p1 { grid-column: span 2; }
+.phase.p3 { grid-column: span 3; }
+
+/* Vägen */
+.road { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; position: relative; }
+.road::before { content: ""; position: absolute; top: 25px; left: calc(100% / 12); right: calc(100% / 12); height: 6px; border-radius: 99px;
+  background: linear-gradient(90deg, var(--orange) 0%, var(--orange-700) 100%); }
+.st { position: relative; display: grid; grid-template-rows: auto 1fr; gap: 14px; }
+.marker { justify-self: center; width: 56px; height: 56px; border-radius: 50%; background: var(--orange-700); color: #FFF; display: grid; place-items: center;
+  font-weight: 800; font-size: 24px; box-shadow: 0 0 0 7px var(--sand), 0 6px 16px rgba(204,78,6,.35); position: relative; z-index: 1; }
+.st.same .marker { background: var(--white); color: var(--orange-700); border: 4px solid var(--orange-700); }
+.st.done .marker { background: var(--green); box-shadow: 0 0 0 7px var(--sand), 0 6px 16px rgba(47,122,77,.35); }
+.card { background: var(--white); border-radius: 24px; box-shadow: 0 10px 30px rgba(35,28,25,.08); border: 1px solid var(--line); padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 12px; }
+.st-h { display: grid; gap: 2px; }
+.st-h .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--orange-800); display: flex; justify-content: space-between; gap: 8px; }
+.st-h .eyebrow .t { color: var(--ink-3); letter-spacing: .02em; text-transform: none; font-size: 13px; }
+.st-h h2 { margin: 0; font-size: 25px; line-height: 1.1; letter-spacing: -.01em; }
+.st-h p { margin: 2px 0 0; font-size: 15px; color: var(--ink-2); }
+.phone { align-self: center; width: 172px; border-radius: 26px; background: #15110F; padding: 6px; box-shadow: 0 10px 24px rgba(35,28,25,.18); }
+.phone img { width: 100%; height: auto; border-radius: 21px; }
+.pts { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; font-size: 15.5px; line-height: 1.3; }
+.pts li { display: grid; grid-template-columns: 18px 1fr; gap: 8px; align-items: start; }
+.pts li::before { content: ""; width: 10px; height: 6px; margin: 5px 0 0 3px; border-left: 2.5px solid var(--green); border-bottom: 2.5px solid var(--green); transform: rotate(-45deg); }
+.pts b { font-weight: 800; }
+.learn { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 4px; }
+.src { font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.s-eon { background: #FCE4EC; color: #7A1F3D; } .s-oct { background: #EDE7F6; color: #4527A0; } .s-vf { background: #FFF6CC; color: #6B5400; }
+.s-fo { background: #E3F2EA; color: #1E5C3A; } .s-ti { background: #E3F0FA; color: #1B4F7A; } .s-bx { background: var(--peach-100); color: #7A3307; }
+.s-cx { background: #ECEAE8; color: #3D3633; }
+.thought { margin: 0; background: var(--peach-50); border: 1px solid var(--peach-200); border-radius: 16px 16px 16px 4px; padding: 10px 12px; font-size: 15px; font-weight: 700; line-height: 1.3; position: relative; }
+.thought small { display: block; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 2px; }
+
+/* Med hela vägen */
+.always { margin-top: 26px; background: var(--ink); color: #F3EBE4; border-radius: 24px; padding: 20px 24px; display: grid; grid-template-columns: 220px repeat(6, minmax(0, 1fr)); gap: 18px; align-items: center; }
+.always h3 { margin: 0; font-size: 21px; line-height: 1.15; color: #FFF; }
+.always h3 span { display: block; font-size: 14px; color: #CBBDB2; font-weight: 600; margin-top: 4px; }
+.aw { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; line-height: 1.3; }
+.aw .ic { width: 38px; height: 38px; border-radius: 12px; background: #3A302C; color: #FFB07A; display: grid; place-items: center; flex: none; }
+.aw b { display: block; color: #FFF; }
+.aw span { color: #D9CCC2; font-size: 14px; }
+
+/* Lärdomar */
+.learned { margin-top: 18px; display: grid; grid-template-columns: 220px repeat(6, minmax(0, 1fr)); gap: 18px; align-items: start; }
+.learned h3 { margin: 6px 0 0; font-size: 21px; line-height: 1.15; }
+.learned h3 span { display: block; font-size: 14px; color: var(--ink-2); font-weight: 600; margin-top: 4px; }
+.lc { background: var(--white); border: 1px solid var(--line); border-radius: 18px; padding: 14px 14px 12px; display: grid; gap: 6px; align-content: start; }
+.lc p { margin: 0; font-size: 14.5px; line-height: 1.35; color: var(--ink-2); }
+.lc .src { justify-self: start; font-size: 13px; }
+
+.foot { margin-top: 18px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--ink-3); }
+.foot b { color: var(--ink-2); }
+
+/* Stående format (mobil och A4) */
+@media (max-width: 1300px) {
+  .poster { padding: 36px 28px 30px; }
+  .top { grid-template-columns: 1fr; gap: 20px; }
+  h1 { font-size: 50px; }
+  .lead { font-size: 19px; }
+  .phases { display: none; }
+  .road { grid-template-columns: 1fr; gap: 18px; padding-left: 70px; }
+  .road::before { top: 28px; bottom: 28px; left: 25px; right: auto; width: 6px; height: auto; background: linear-gradient(180deg, var(--orange), var(--orange-700)); }
+  .st { display: block; }
+  .marker { position: absolute; left: -73px; top: 20px; }
+  .card { display: grid; grid-template-columns: 170px minmax(0, 1fr); grid-template-areas: "phone head" "phone pts" "phone learn" "thought thought"; column-gap: 20px; row-gap: 10px; padding: 18px; }
+  .st-h { grid-area: head; }
+  .phone { grid-area: phone; align-self: start; width: 170px; }
+  .pts { grid-area: pts; font-size: 16.5px; }
+  .learn { grid-area: learn; margin-top: 0; align-self: start; align-items: flex-start; }
+  .thought { grid-area: thought; font-size: 16px; }
+  .always { grid-template-columns: 1fr 1fr; padding: 22px; }
+  .always h3 { grid-column: 1 / -1; }
+  .learned { grid-template-columns: 1fr 1fr; }
+  .learned h3 { grid-column: 1 / -1; }
+}
+</style>
+</head>
+<body>
+<main class="poster">
+  <header class="top">
+    <div>
+      <div class="brand"><span class="logo">bixia</span><span class="badge">PoC · Kundresa</span></div>
+      <h1>Teckna elavtal på <em>cirka 3 minuter</em></h1>
+      <p class="lead">En guidad väg med en fråga i taget – från ”Var bor du?” till signerat avtal. Byggd på det bästa från de främsta kundresorna inom energi, i Bixias egen stil.</p>
+    </div>
+    <aside class="goal">
+      <span class="k">Så ska kunden känna</span>
+      <p>”Det här är enkelt. Jag förstår vilket avtal jag väljer, vad det kostar och vad som händer efteråt.”</p>
+      <div class="meta">
+        <span class="pill"><svg class="ico" viewBox="0 0 24 24"><path d="M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3.2 2"/></svg>3 steg · 6 stationer</span>
+        <span class="pill green"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Inget samtal till kundservice</span>
+      </div>
+    </aside>
+  </header>
+
+  <div class="phases" aria-hidden="true">
+    <div class="phase p1">Steg 1 · Ditt hem <span>≈ 90 s</span></div>
+    <div class="phase p2">Steg 2 · Välj elavtal <span>≈ 40 s</span></div>
+    <div class="phase p3">Steg 3 · Granska och bekräfta <span>≈ 50 s</span></div>
+  </div>
+
+  <ol class="road">
+    <li class="st">
+      <span class="marker">1</span>
+      <article class="card">
+        <div class="st-h"><span class="eyebrow">Steg 1 <span class="t">≈ 45 s</span></span><h2>Ditt hem</h2><p>Snabbt till rätt adress och bostad</p></div>
+        <div class="phone"><img src="skarmbilder/resa-1-hem.jpg" alt="Vyn Var ska du ha el med postnummer och elområde"></div>
+        <ul class="pts">
+          <li><span><b>Byta elbolag</b> eller <b>flytta</b> – ett klick på startsidan</span></li>
+          <li><span><b>Postnummer</b> och adress – elområdet visas direkt</span></li>
+          <li><span>Inget anläggnings-ID behövs</span></li>
+          <li><span>Lägenhet, villa eller radhus</span></li>
+          <li><span><b>Antal rum</b> ger förbrukningen i kWh direkt</span></li>
+        </ul>
+        <div class="learn"><span class="src s-vf">Vattenfall</span><span class="src s-oct">Octopus</span><span class="src s-eon">E.ON Next</span></div>
+        <p class="thought"><small>Kunden tänker</small>”Jag behöver inte leta fram några papper.”</p>
+      </article>
+    </li>
+
+    <li class="st">
+      <span class="marker">2</span>
+      <article class="card">
+        <div class="st-h"><span class="eyebrow">Steg 1 · Guidad väg <span class="t">≈ 45 s</span></span><h2>Relevanta frågor</h2><p>Bara det som behövs för just dig</p></div>
+        <div class="phone"><img src="skarmbilder/resa-2-fragor.jpg" alt="Vyn Hur använder du el med frågor om elbil och flexibel elanvändning"></div>
+        <ul class="pts">
+          <li><span><b>En fråga i taget</b> med stora svarsknappar</span></li>
+          <li><span><b>Uppvärmning</b> – frågas bara för villa och radhus</span></li>
+          <li><span>Laddar du <b>elbil</b> hemma?</span></li>
+          <li><span>Kan du använda el när <b>priset är lägre</b>?</span></li>
+          <li><span>Förbrukningen <b>uppdateras</b> och kan justeras</span></li>
+        </ul>
+        <div class="learn"><span class="src s-eon">E.ON Next</span><span class="src s-cx">”Vet inte” är okej</span></div>
+        <p class="thought"><small>Kunden tänker</small>”Frågorna handlar om mig. Inget onödigt.”</p>
+      </article>
+    </li>
+
+    <li class="st">
+      <span class="marker">3</span>
+      <article class="card">
+        <div class="st-h"><span class="eyebrow">Steg 2 <span class="t">≈ 40 s</span></span><h2>Jämför avtal</h2><p>Ett personligt förslag – du väljer själv</p></div>
+        <div class="phone"><img src="skarmbilder/resa-3-jamfor.jpg" alt="Avtalsförslag Kvartspris med motivering"></div>
+        <ul class="pts">
+          <li><span><b>”Vad är viktigast för dig?”</b> – avtalsassistent</span></li>
+          <li><span><b>”Det här avtalet kan passa dig”</b> med motivering</span></li>
+          <li><span>Rörligt månadspris, Kvartspris och Fast pris <b>sida vid sida</b></span></li>
+          <li><span>Avgift, påslag, bindning och uppsägning <b>på samma plats</b></span></li>
+          <li><span>Välj ett annat avtal – utan hinder</span></li>
+        </ul>
+        <div class="learn"><span class="src s-fo">Fortum</span><span class="src s-oct">Octopus</span><span class="src s-ti">Tibber</span></div>
+        <p class="thought"><small>Kunden tänker</small>”Jag förstår skillnaden och vet varför.”</p>
+      </article>
+    </li>
+
+    <li class="st">
+      <span class="marker">4</span>
+      <article class="card">
+        <div class="st-h"><span class="eyebrow">Steg 3 <span class="t">≈ 25 s</span></span><h2>Granska</h2><p>Allt samlat innan du bestämmer dig</p></div>
+        <div class="phone"><img src="skarmbilder/resa-4-granska.jpg" alt="Granska ditt elavtal med sammanfattning"></div>
+        <ul class="pts">
+          <li><span>Avtal, adress, kWh och <b>avtalsstart</b> på ett ställe</span></li>
+          <li><span>Alla <b>avgifter</b>, bindnings- och uppsägningstid</span></li>
+          <li><span>Uppskattad <b>månadskostnad</b> (exkl. elnät)</span></li>
+          <li><span><b>”Ändra”</b> på varje rad – inga svar försvinner</span></li>
+        </ul>
+        <div class="learn"><span class="src s-ti">Tibber</span><span class="src s-ti">Greenely</span></div>
+        <p class="thought"><small>Kunden tänker</small>”Jag ser exakt vad jag godkänner.”</p>
+      </article>
+    </li>
+
+    <li class="st same">
+      <span class="marker">5</span>
+      <article class="card">
+        <div class="st-h"><span class="eyebrow">Steg 3 · Samma vy <span class="t">≈ 10 s</span></span><h2>Tillägg</h2><p>Mer värde – utan ett extra steg</p></div>
+        <div class="phone"><img src="skarmbilder/resa-5-tillagg.jpg" alt="Tilläggen Bixia Nära och realtidsmätare"></div>
+        <ul class="pts">
+          <li><span><b>Bixia Nära</b> – lokal, förnybar el</span></li>
+          <li><span><b>Realtidsmätare</b> – följ elen i appen</span></li>
+          <li><span>Anpassat efter svaren, t.ex. <b>elbil</b> och <b>Kvartspris</b></span></li>
+          <li><span><b>Inga förval</b> – lätt att hoppa över</span></li>
+          <li><span>Engångs- och månadskostnad <b>var för sig</b></span></li>
+        </ul>
+        <div class="learn"><span class="src s-bx">Bixia</span><span class="src s-cx">Konvertering</span></div>
+        <p class="thought"><small>Kunden tänker</small>”Relevant för mig – och inget tjat.”</p>
+      </article>
+    </li>
+
+    <li class="st done">
+      <span class="marker"><svg class="ico" viewBox="0 0 24 24" style="width:28px;height:28px;stroke-width:2.8"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span>
+      <article class="card">
+        <div class="st-h"><span class="eyebrow">Steg 3 <span class="t">≈ 15 s</span></span><h2>Signera och klart</h2><p>Trygg avslutning – vi sköter resten</p></div>
+        <div class="phone"><img src="skarmbilder/resa-6-klart.jpg" alt="Bekräftelse med tidslinjen Det här händer nu"></div>
+        <ul class="pts">
+          <li><span><b>Så går bytet till</b> – vi sköter det åt dig</span></li>
+          <li><span><b>BankID</b> fyller i namn och personnummer</span></li>
+          <li><span>14 dagars <b>ångerrätt</b></span></li>
+          <li><span><b>”Det här händer nu”</b> – fram till första fakturan</span></li>
+        </ul>
+        <div class="learn"><span class="src s-oct">Octopus</span><span class="src s-bx">Mitt Bixia</span></div>
+        <p class="thought"><small>Kunden tänker</small>”Jag behöver inte ringa kundservice.”</p>
+      </article>
+    </li>
+  </ol>
+
+  <section class="always" aria-label="Med kunden hela vägen">
+    <h3>Med kunden hela vägen<span>Finns i varje vy</span></h3>
+    <div class="aw"><span class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M3 12h4M10 12h4M17 12h4"/></svg></span><p style="margin:0"><b>Progress i 3 steg</b><span>och ”cirka 2 min kvar”</span></p></div>
+    <div class="aw"><span class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4V5zM8 9.5h8M8 12.5h5"/></svg></span><p style="margin:0"><b>Hjälp utan att lämna</b><span>Frågor, chatt, bli uppringd</span></p></div>
+    <div class="aw"><span class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></span><p style="margin:0"><b>Svaren sparas</b><span>Tillbaka utan att tappa något</span></p></div>
+    <div class="aw"><span class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M5 19h14M7 15V9M12 15V5M17 15v-4"/></svg></span><p style="margin:0"><b>Stora klickytor</b><span>och vanlig svenska</span></p></div>
+    <div class="aw"><span class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><p style="margin:0"><b>”Fortsätt” syns alltid</b><span>Fokuserat flöde utan meny</span></p></div>
+    <div class="aw"><span class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M12 21a9 9 0 100-18 9 9 0 000 18zM12 11v5M12 7.8h.01"/></svg></span><p style="margin:0"><b>Ärliga siffror</b><span>Uppskattningar märks tydligt</span></p></div>
+  </section>
+
+  <section class="learned" aria-label="Lärdomar från de bästa kundresorna">
+    <h3>Lärdomar från de bästa kundresorna<span>Principerna är lånade – designen är Bixias</span></h3>
+    <div class="lc"><span class="src s-eon">E.ON Next</span><p>Enkla frågor om hemmet ger förbrukningen. Stora klickbara svar och en uppskattning som uppdateras.</p></div>
+    <div class="lc"><span class="src s-oct">Octopus Energy</span><p>Snabb väg från adress till pris. Tydligt hur bytet går till och vad som händer sen.</p></div>
+    <div class="lc"><span class="src s-vf">Vattenfall</span><p>Flytt eller byte direkt. Resten av resan anpassas efter kundens situation.</p></div>
+    <div class="lc"><span class="src s-fo">Fortum</span><p>Avtalsassistent som hjälper kunden att välja avtalsform, med tydlig jämförelse.</p></div>
+    <div class="lc"><span class="src s-ti">Tibber och Greenely</span><p>Enkel självservice. Bindningstid och avgifter syns tydligt.</p></div>
+    <div class="lc"><span class="src s-cx">God konvertering</span><p>Få fält, ingen meny som lockar bort, inga överraskningar i priset och inga förvalda tillägg.</p></div>
+  </section>
+
+  <footer class="foot">
+    <span><b>Proof of Concept</b> · Illustrativ kundresa för utvärdering och användartest</span>
+    <span>Tiderna är riktvärden. Priser och villkor verifieras. ”Cirka 3 minuter” mäts i användartest.</span>
+  </footer>
+</main>
+</body>
+</html>
