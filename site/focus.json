@@ -462,7 +462,7 @@
     "name": "Arbetslöshet november, USA",
     "why": "En högre arbetslöshet kan dämpa höjningsförväntningarna.",
     "key": "unemp",
-    "exp": 4.2
+    "exp": null
    },
    {
     "date": "2026-12-09",
