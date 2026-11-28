@@ -1,0 +1,55 @@
+{
+ "_info": "Tom Nashs strategi (YouTube: Tom Nash). Skrivs av Claude utifrån hans videor. Siffror som avstånd från toppen och vinst räknas live på sidan.",
+ "date": "2026-11-15",
+ "who": "Tom Nash är en brittisk youtuber som investerar långsiktigt i en kärna av S&P 500 och ett fåtal tillväxtbolag inom AI och teknik. Han köper löpande, köper mer på ras och tar hem vinst i förbestämda steg.",
+ "video": {
+  "title": "A Once in a 100 Year Investment Opportunity Just Started (What and Where I'm Buying)",
+  "url": "https://youtu.be/BhfrDbWz9xY",
+  "status": "pending",
+  "summary": [],
+  "note": "Sammanfattningen av just den här videon läggs in när transkriptet finns. Strategin nedan bygger på hans videor från oktober och november 2026."
+ },
+ "rules": [
+  {"id": "core", "title": "Kärna i S&P 500", "rule": "40–50 % av portföljen i en S&P 500-fond. Varje månad går 30–60 % av sparpengarna dit.", "why": "Indexet bär portföljen när enskilda bolag går dåligt. Hans egen fördelning i maj: 40 % S&P 500, 40 % Palantir och 20 % Tesla."},
+  {"id": "dca", "title": "Månadsspara, tajma inte", "rule": "Köp löpande varje månad, oavsett om börsen går upp eller ner.", "why": "Han tror inte att någon kan pricka botten. Regler slår prognoser."},
+  {"id": "dip", "title": "Köp mer när kvalitet faller 20 %", "rule": "Dubbla ner i ett bra bolag när det ligger 20 % eller mer under sin 52-veckorstopp och raset beror på stämningen, inte på att vinsterna viker.", "why": "Sentimentdrivna ras i bolag med växande vinster är hans bästa köptillfällen."},
+  {"id": "trim", "title": "Ta hem vinst i steg", "rule": "Sälj 10–30 % av positionen när den är upp 50 %, 100 % och 150 %.", "why": "Låser in vinst men behåller resten för den långa uppgången. Pengarna sparas till nästa ras."},
+  {"id": "long", "title": "Fem år, ingen FOMO", "rule": "Äg bolagen i minst fem år. Köp inte för att kursen rusar och sälj inte i panik.", "why": "Hans strategi bygger på aktier och indexfond, inte på hävstång eller blankning."},
+  {"id": "ai", "title": "AI:s andra våg", "rule": "Störst uppsida väntas i AI-mjukvara och företag som använder AI, efter infrastrukturen. Kraft är flaskhalsen.", "why": "Han ser ingen AI-bubbla, men pekar ut elbrist som den enda verkliga risken."}
+ ],
+ "view": {
+  "headline": "Tom kallar raset ett stämningsras, inte ett fundamentalt, och köper",
+  "points": [
+   "Vinsterna i S&P 500 växer runt 30 %, P/E framåt är 19 i linje med 10-årssnittet och rädslan är extrem. Därför ser han raset som ett köptillfälle.",
+   "Köper Nvidia inför rapporten 17 november. Han räknar med svängiga kurser men ser AI-efterfrågan som oförändrad.",
+   "Köper Palantir efter starka siffror. Scenarier: 500 $ (svagt), 717 $ (bas) och runt 1 000 $ (starkt). Mål 978 $ till 2030.",
+   "AMD är hans toppval för AI-agenter och robotik, och han köper löpande under 12 månader.",
+   "Nedtryckta kvalitetsbolag han lyfter: Alphabet, Amazon, Arm och AppLovin. ServiceNow och Fortinet ser han positivt på trots ras efter rapporterna.",
+   "Kraft: Constellation Energy, Vertiv och Bloom Energy gynnas av elbristen."
+  ]
+ },
+ "watch": [
+  {"t": "SPY", "role": "Kärna"},
+  {"t": "PLTR", "role": "Toppinnehav"},
+  {"t": "TSLA", "role": "Toppinnehav"},
+  {"t": "NVDA", "role": "Köper nu"},
+  {"t": "AMD", "role": "Toppval"},
+  {"t": "GOOGL", "role": "Nedtryckt kvalitet"},
+  {"t": "AMZN", "role": "Nedtryckt kvalitet"},
+  {"t": "ARM", "role": "Elit på rea"},
+  {"t": "APP", "role": "Elit på rea"},
+  {"t": "NOW", "role": "Positiv trots ras"},
+  {"t": "FTNT", "role": "Positiv trots ras"},
+  {"t": "ANET", "role": "Köp dippen (okt)"},
+  {"t": "CEG", "role": "Kraft"},
+  {"t": "VRT", "role": "Kraft"},
+  {"t": "BE", "role": "Kraft"}
+ ],
+ "index": ["SPY", "VOO", "IVV", "CSPX", "SPLG", "XACT-SP500.ST"],
+ "sources": [
+  {"t": "Tom Nash: A Once in a 100 Year Investment Opportunity Just Started (YouTube)", "u": "https://youtu.be/BhfrDbWz9xY"},
+  {"t": "The Stockie: Tom Nashs aktieval och marknadssyn (sammanfattningar av hans senaste videor)", "u": "https://www.thestockie.com/influencers/UCJwKCyEIFHwUOPQQ-4kC1Zw"},
+  {"t": "TheySaidBuy: Tom Nashs redovisade innehav", "u": "https://theysaidbuy.com/creators/tom-nash/portfolio/"},
+  {"t": "TheySaidBuy: Tom Nashs senaste uttalanden", "u": "https://theysaidbuy.com/creators/tom-nash/"}
+ ]
+}
